@@ -1,0 +1,85 @@
+{
+	"meta": {
+		"title": "Cash Flow - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_category": "Select a valid category",
+		"invalid_method": "Select a valid payment method",
+		"invalid_amount": "Enter a valid amount",
+		"invalid_vat_rate": "VAT rate must be between 0 and 100",
+		"invalid_currency": "Select a valid currency",
+		"invalid_external_reference": "Enter a valid external reference",
+		"invalid_parent_id": "Select a valid parent",
+		"invalid_notes": "Enter a valid notes",
+		"invalid_client": "Select a valid client",
+		"invalid_vendor": "Select a valid vendor",
+		"invalid_employee": "Select a valid employee",
+		"invalid_company_vehicle": "Select a valid company vehicle",
+		"invalid_cmr": "Select a valid CMR",
+		"required_operational_record_type": "For selected category operational record is required (e.g.: {{type}})"
+	},
+	"status": {
+		"pending": "Pending",
+		"authorized": "Authorized",
+		"completed": "Completed",
+		"failed": "Failed",
+		"canceled": "Canceled",
+		"expired": "Expired",
+		"requires_action": "Requires action",
+		"deleted": "Deleted"
+	},
+	"action": {
+		"create": {
+			"title": "Add new cash flow",
+			"label": "Add",
+			"success": "New cash flow added successfully"
+		},
+		"refund": {
+			"title": "Setup refund",
+			"label": "Refund",
+			"success": "New refund created successfully"
+		},
+		"update": {
+			"title": "Update cash flow - {{entry}}",
+			"label": "Update",
+			"success": "Cash flow updated successfully"
+		},
+		"delete": {
+			"title": "Delete cash flow - {{entry}}",
+			"label": "Delete",
+			"success": "Cash flow deleted successfully",
+			"confirm": "Are you sure you want to delete this cash flow?"
+		},
+		"restore": {
+			"title": "Restore cash flow - {{entry}}",
+			"label": "Restore",
+			"success": "Cash flow restored successfully",
+			"confirm": "Are you sure you want to restore this cash flow?"
+		},
+		"complete": {
+			"title": "Mark as completed - {{entry}}",
+			"label": "Complete",
+			"success": "Cash flow status marked as completed",
+			"confirm": "Are you sure you want to mark this cash flow as completed?"
+		},
+		"cancel": {
+			"title": "Mark as canceled - {{entry}}",
+			"label": "Cancel",
+			"success": "Cash flow status marked as canceled",
+			"confirm": "Are you sure you want to mark this cash flow as canceled?"
+		},
+		"view": {
+			"title": "Cash flow details - {{entry}}",
+			"label": "View details"
+		}
+	},
+	"field": {
+		"method": "Method",
+		"amount": "Amount",
+		"vat_rate": "Vat Rate",
+		"currency": "Currency",
+		"external_reference": "External Reference",
+		"vendor": "Vendor",
+		"notes": "Notes"
+	}
+}

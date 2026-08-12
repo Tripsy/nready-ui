@@ -1,0 +1,103 @@
+{
+	"meta": {
+		"title": "CMRs - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_transport_type": "Invalid transport type",
+		"invalid_client_id": "Invalid client ID",
+		"invalid_client": "Invalid client",
+		"invalid_pickup_address_id": "Invalid pickup address ID",
+		"invalid_pickup_address": "Invalid pickup address",
+		"invalid_delivery_address_id": "Invalid delivery address ID",
+		"invalid_delivery_address": "Invalid delivery address",
+		"invalid_contact_name": "Contact name invalid",
+		"invalid_contact_phone": "Contact phone invalid",
+		"invalid_contact_email": "Contact email invalid",
+		"invalid_ordered_at": "Invalid order date",
+		"invalid_pick_scheduled_at": "Invalid pick scheduled date",
+		"invalid_estimated_delivery_at": "Invalid estimated delivery date",
+		"invalid_delivered_at": "Invalid delivery date",
+		"delivery_same_as_pickup_address": "Delivery address cannot be the same as pickup address",
+		"invalid_ordered_at_time": "Invalid order time",
+		"invalid_pick_scheduled_at_time": "Invalid pick scheduled time",
+		"invalid_estimated_delivery_at_time": "Invalid estimated delivery time",
+		"invalid_delivered_at_time": "Invalid delivery time",
+		"invalid_notes": "Invalid notes"
+	},
+	"error": {
+		"cannot_update_status": "Cannot update status"
+	},
+	"status": {
+		"ordered": "Ordered",
+		"preparing": "Preparing",
+		"transit": "In transit",
+		"delivered": "Delivered",
+		"canceled": "Cancelled",
+		"delayed": "Delayed",
+		"deleted": "Deleted"
+	},
+	"action": {
+		"create": {
+			"title": "Add new CMR",
+			"label": "Add",
+			"success": "New CMR added successfully"
+		},
+		"update": {
+			"title": "Update CMR - {{entry}}",
+			"label": "Update",
+			"success": "CMR updated successfully"
+		},
+		"delete": {
+			"title": "Delete CMR - {{entry}}",
+			"label": "Delete",
+			"success": "CMR deleted successfully",
+			"confirm": "Are you sure you want to delete this CMR?"
+		},
+		"restore": {
+			"title": "Restore CMR - {{entry}}",
+			"label": "Restore",
+			"success": "CMR restored successfully",
+			"confirm": "Are you sure you want to restore this CMR?"
+		},
+		"statusTransition": {
+			"title": "Update status - {{entry}}",
+			"label": "Status",
+			"success": "CMR status updated successfully"
+		},
+		"view": {
+			"title": "CMR details - {{entry}}",
+			"label": "View details"
+		},
+		"viewClient": {
+			"title": "View client"
+		},
+		"setupVehicles": {
+			"title": "Setup CMR vehicles",
+			"label": "Vehicles"
+		},
+		"setupSessions": {
+			"title": "Setup CMR sessions",
+			"label": "Sessions"
+		},
+		"managerImages": {
+			"title": "CMR images - {{entry}}",
+			"label": "Images"
+		}
+	},
+	"field": {
+		"type": "Type",
+		"client": "Client",
+		"pickup_address": "Pickup Address",
+		"delivery_address": "Delivery Address",
+		"contact_name": "Contact - Name",
+		"contact_email": "Contact - Email",
+		"contact_phone": "Contact - Phone",
+		"pick_scheduled_date": "Pick Scheduled Date",
+		"pick_scheduled_time": "Pick Scheduled Time",
+		"estimated_delivery_date": "Estimated Delivery Date",
+		"estimated_delivery_time": "Estimated Delivery Time",
+		"delivered_date": "Delivered Date",
+		"delivered_time": "Delivered Time",
+		"notes": "Notes"
+	}
+}

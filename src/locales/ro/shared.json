@@ -1,0 +1,13 @@
+{
+	"validation": {
+		"only_positive": "Introdu un număr pozitiv",
+		"name_min": "Numele trebuie să aibă cel puțin {{min}} caractere",
+		"password_min": "Parola trebuie să aibă cel puțin {{min}} caractere",
+		"password_condition_capital_letter": "Parola trebuie să conțină cel puțin o literă mare",
+		"password_condition_number": "Parola trebuie să conțină cel puțin o cifră",
+		"password_condition_special_character": "Parola trebuie să conțină cel puțin un caracter special",
+		"password_confirm_mismatch": "Parolele nu coincid",
+		"invalid_contents": "Este necesară cel puțin o intrare de conținut",
+		"duplicate_contents": "Datele de conținut nu pot conține limbi duplicate"
+	}
+}

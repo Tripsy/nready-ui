@@ -1,0 +1,67 @@
+{
+	"meta": {
+		"title": "Dashboard | {{app_name}}"
+	},
+	"labels": {
+		"dashboard": "Dashboard",
+
+		"financial": "Financiar",
+		"cash-flow": "Flux de numerar",
+		"client": "Clienți",
+
+		"content": "Conținut",
+		"brand": "Mărci",
+		"brand-order": "Ordine",
+		"image": "Imagini",
+		"image-order": "Ordine",
+		"address": "Adrese",
+		"place": "Localități",
+
+		"settings": "Setări",
+		"template": "Șabloane",
+		"document-series": "Serii documente",
+
+		"logs": "Jurnale sistem",
+
+		"cron-history": "Istoric cron",
+		"log-data": "Date jurnal",
+		"log-history": "Istoric jurnal",
+		"mail-queue": "Coadă email",
+
+		"user": "Utilizatori",
+		"permission": "Permisiuni",
+
+		"vehicle": "Vehicule",
+		"vendor": "Furnizori",
+
+		"assets": "Bunuri companie",
+		"company-vehicle": "Vehicul companie",
+
+		"activity": "Activitate companie",
+		"cmr": "CMR-uri",
+		"cmr-session": "Sesiuni CMR",
+		"cmr-vehicle": "Vehicul CMR",
+		"work-session": "Sesiuni de lucru",
+		"work-session-vehicle": "Vehicul sesiune de lucru"
+	},
+	"text": {
+		"showing_entries": "Se afișează {{first}} - {{last}} din {{total}} înregistrări",
+		"selected_entries_one": "{{count}} înregistrare selectată",
+		"selected_entries_many": "{{count}} înregistrări selectate",
+		"no_entries": "Nu s-au găsit înregistrări",
+		"placeholder_select_default": "Selectează...",
+		"placeholder_start_date": "Dată de început",
+		"placeholder_end_date": "Dată de sfârșit",
+		"label_checkbox_show_deleted": "Arată șterse",
+		"label_reset": "Resetează",
+
+		"rows_per_page": "Rânduri pe pagină",
+		"label_data_table": "Tabel de date",
+		"label_pagination": "Paginare tabel",
+		"label_page": "Pagina {{page}}",
+		"label_page_previous": "Pagina anterioară",
+		"label_page_next": "Pagina următoare",
+		"label_select_row": "Selectează rândul",
+		"label_select_all_rows": "Selectează toate rândurile"
+	}
+}

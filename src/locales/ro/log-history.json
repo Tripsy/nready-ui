@@ -1,0 +1,20 @@
+{
+	"meta": {
+		"title": "Istoric jurnal - Dashboard | {{app_name}}"
+	},
+	"action": {
+		"delete": {
+			"title": "Șterge jurnalele",
+			"label": "Șterge",
+			"success": "Jurnalele au fost șterse",
+			"confirm": "Sigur vrei să ștergi jurnalele selectate?"
+		},
+		"view": {
+			"title": "Detalii jurnal - {{entry}}",
+			"label": "Vezi"
+		},
+		"viewUser": {
+			"title": "Vezi utilizatorul"
+		}
+	}
+}

@@ -1,0 +1,42 @@
+{
+	"meta": {
+		"title": "Localități - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_place_type": "Selectează un tip de localitate valid",
+		"invalid_code": "Cod invalid",
+		"invalid_parent_id": "Localitate părinte invalidă; Alege o înregistrare din listă",
+		"invalid_parent": "Localitate părinte invalidă",
+		"invalid_language": "Limbă invalidă",
+		"invalid_name": "Nume invalid",
+		"invalid_type_label": "Etichetă de tip invalidă"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă localitate nouă",
+			"label": "Adaugă",
+			"success": "Localitatea nouă a fost adăugată cu succes"
+		},
+		"update": {
+			"title": "Actualizează localitatea - {{entry}}",
+			"label": "Actualizează",
+			"success": "Localitatea a fost actualizată cu succes"
+		},
+		"delete": {
+			"title": "Șterge localitatea - {{entry}}",
+			"label": "Șterge",
+			"success": "Localitatea a fost ștearsă cu succes",
+			"confirm": "Sigur vrei să ștergi această localitate?"
+		},
+		"restore": {
+			"title": "Restaurează localitatea - {{entry}}",
+			"label": "Restaurează",
+			"success": "Localitatea a fost restaurată cu succes",
+			"confirm": "Sigur vrei să restaurezi această localitate?"
+		},
+		"view": {
+			"title": "Detalii localitate - {{entry}}",
+			"label": "Vezi detalii"
+		}
+	}
+}

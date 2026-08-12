@@ -1,0 +1,26 @@
+{
+	"error": {
+		"meta": {
+			"title": "Eroare | {{app_name}}"
+		}
+	},
+	"success": {
+		"meta": {
+			"title": "Succes | {{app_name}}"
+		}
+	},
+	"info": {
+		"meta": {
+			"title": "Informații | {{app_name}}"
+		}
+	},
+	"title": {
+		"error": "Eroare",
+		"success": "Succes",
+		"info": "Informații"
+	},
+	"link": {
+		"back_home_prompt": "Întoarce-te la",
+		"back_home": "pagina principală"
+	}
+}

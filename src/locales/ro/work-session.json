@@ -1,0 +1,62 @@
+{
+	"meta": {
+		"title": "Sesiuni de lucru - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_user_id": "Utilizator invalid; Alege utilizatorul din listă",
+		"invalid_user": "Utilizator invalid",
+		"invalid_start_at": "Dată de început invalidă",
+		"invalid_start_at_time": "Oră de început invalidă",
+		"invalid_end_at_time": "Oră de sfârșit invalidă"
+	},
+	"status": {
+		"active": "Activă",
+		"closed": "Închisă",
+		"deleted": "Ștearsă"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă sesiune nouă",
+			"label": "Adaugă",
+			"success": "Sesiunea de lucru nouă a fost adăugată cu succes"
+		},
+		"update": {
+			"title": "Actualizează sesiunea - {{entry}}",
+			"label": "Actualizează",
+			"success": "Sesiunea de lucru a fost actualizată cu succes"
+		},
+		"delete": {
+			"title": "Șterge sesiunea - {{entry}}",
+			"label": "Șterge",
+			"success": "Sesiunea de lucru a fost ștearsă cu succes",
+			"confirm": "Sigur vrei să ștergi această sesiune de lucru?"
+		},
+		"restore": {
+			"title": "Restaurează sesiunea - {{entry}}",
+			"label": "Restaurează",
+			"success": "Sesiunea de lucru a fost restaurată cu succes",
+			"confirm": "Sigur vrei să restaurezi această sesiune de lucru?"
+		},
+		"close": {
+			"title": "Marchează sesiunea ca închisă - {{entry}}",
+			"label": "Închide",
+			"success": "Sesiunea de lucru a fost marcată ca închisă",
+			"confirm": "Sigur vrei să marchezi această sesiune drept închisă?"
+		},
+		"view": {
+			"title": "Detalii sesiune de lucru - {{entry}}",
+			"label": "Vezi detalii"
+		},
+		"viewUser": {
+			"title": "Vezi utilizatorul"
+		},
+		"setupVehicles": {
+			"title": "Configurează vehiculele sesiunii de lucru",
+			"label": "Configurează vehicule"
+		}
+	},
+	"field": {
+		"start_date": "Dată de început",
+		"start_time": "Oră de început"
+	}
+}

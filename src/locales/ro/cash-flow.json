@@ -1,0 +1,85 @@
+{
+	"meta": {
+		"title": "Flux de numerar - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_category": "Selectează o categorie validă",
+		"invalid_method": "Selectează o metodă de plată validă",
+		"invalid_amount": "Introdu o sumă validă",
+		"invalid_vat_rate": "Cota TVA trebuie să fie între 0 și 100",
+		"invalid_currency": "Selectează o monedă validă",
+		"invalid_external_reference": "Introdu o referință externă validă",
+		"invalid_parent_id": "Selectează o înregistrare părinte validă",
+		"invalid_notes": "Introdu notițe valide",
+		"invalid_client": "Selectează un client valid",
+		"invalid_vendor": "Selectează un furnizor valid",
+		"invalid_employee": "Selectează un angajat valid",
+		"invalid_company_vehicle": "Selectează un vehicul de companie valid",
+		"invalid_cmr": "Selectează un CMR valid",
+		"required_operational_record_type": "Pentru categoria selectată este necesară o înregistrare operațională (ex.: {{type}})"
+	},
+	"status": {
+		"pending": "În așteptare",
+		"authorized": "Autorizat",
+		"completed": "Finalizat",
+		"failed": "Eșuat",
+		"canceled": "Anulat",
+		"expired": "Expirat",
+		"requires_action": "Necesită acțiune",
+		"deleted": "Șters"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă flux de numerar nou",
+			"label": "Adaugă",
+			"success": "Fluxul de numerar nou a fost adăugat cu succes"
+		},
+		"refund": {
+			"title": "Configurează rambursarea",
+			"label": "Rambursare",
+			"success": "Rambursarea nouă a fost creată cu succes"
+		},
+		"update": {
+			"title": "Actualizează fluxul de numerar - {{entry}}",
+			"label": "Actualizează",
+			"success": "Fluxul de numerar a fost actualizat cu succes"
+		},
+		"delete": {
+			"title": "Șterge fluxul de numerar - {{entry}}",
+			"label": "Șterge",
+			"success": "Fluxul de numerar a fost șters cu succes",
+			"confirm": "Sigur vrei să ștergi acest flux de numerar?"
+		},
+		"restore": {
+			"title": "Restaurează fluxul de numerar - {{entry}}",
+			"label": "Restaurează",
+			"success": "Fluxul de numerar a fost restaurat cu succes",
+			"confirm": "Sigur vrei să restaurezi acest flux de numerar?"
+		},
+		"complete": {
+			"title": "Marchează ca finalizat - {{entry}}",
+			"label": "Finalizează",
+			"success": "Starea fluxului de numerar a fost marcată ca finalizată",
+			"confirm": "Sigur vrei să marchezi acest flux de numerar drept finalizat?"
+		},
+		"cancel": {
+			"title": "Marchează ca anulat - {{entry}}",
+			"label": "Anulează",
+			"success": "Starea fluxului de numerar a fost marcată ca anulată",
+			"confirm": "Sigur vrei să marchezi acest flux de numerar drept anulat?"
+		},
+		"view": {
+			"title": "Detalii flux de numerar - {{entry}}",
+			"label": "Vezi detalii"
+		}
+	},
+	"field": {
+		"method": "Metodă",
+		"amount": "Sumă",
+		"vat_rate": "Cotă TVA",
+		"currency": "Monedă",
+		"external_reference": "Referință externă",
+		"vendor": "Furnizor",
+		"notes": "Notițe"
+	}
+}

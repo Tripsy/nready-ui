@@ -1,0 +1,55 @@
+{
+	"meta": {
+		"title": "Vendors - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_name": "Invalid name",
+		"invalid_type": "Invalid type"
+	},
+	"status": {
+		"active": "Active",
+		"pending": "Pending",
+		"inactive": "Inactive",
+		"deleted": "Deleted"
+	},
+	"action": {
+		"create": {
+			"title": "Add new vendor",
+			"label": "Add",
+			"success": "New vendor added successfully"
+		},
+		"update": {
+			"title": "Update vendor - {{entry}}",
+			"label": "Update",
+			"success": "Vendor updated successfully"
+		},
+		"delete": {
+			"title": "Delete vendor - {{entry}}",
+			"label": "Delete",
+			"success": "Vendor deleted successfully",
+			"confirm": "Are you sure you want to delete this vendor?"
+		},
+		"restore": {
+			"title": "Restore vendor - {{entry}}",
+			"label": "Restore",
+			"success": "Vendor restored successfully",
+			"confirm": "Are you sure you want to restore this vendor?"
+		},
+		"enable": {
+			"title": "Enable vendor - {{entry}}",
+			"label": "Enable",
+			"success": "Vendor status marked as active",
+			"confirm": "Are you sure you want to activate this vendor?"
+		},
+		"disable": {
+			"title": "Disable vendor - {{entry}}",
+			"label": "Disable",
+			"success": "Vendor status marked as inactive",
+			"confirm": "Are you sure you want to mark this vendor as inactive?"
+		},
+		"view": {
+			"title": "Vendor details - {{entry}}",
+			"label": "View details"
+		}
+	}
+}

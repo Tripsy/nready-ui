@@ -1,0 +1,21 @@
+services:
+    node:
+        container_name: star-ui.test
+        ports:
+            - "80:80"
+        build:
+            context: .
+            dockerfile: docker/dockerfile
+        volumes:
+            - .:/var/www/html
+        # Without a limit the dev server can consume the entire Docker VM (8 GB) and
+        # trip the host OOM killer, taking other containers down with it. Capping it
+        # contains the blast radius and makes a runaway attributable to this container.
+        mem_limit: 4g
+        tty: true
+        networks:
+            - development
+networks:
+    development:
+        external: true
+        name: development

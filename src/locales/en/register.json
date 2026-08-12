@@ -1,0 +1,52 @@
+{
+	"meta": {
+		"title": "Create account | {{app_name}}"
+	},
+	"form": {
+		"title": "Create your account",
+		"description": "Quick access. Extra benefits. Your gateway to personalized experiences.",
+		"title_status": "Create Account",
+		"success_description": "Congratulations! Your account has been created successfully."
+	},
+	"field": {
+		"name": "Name",
+		"email": "Email Address",
+		"password": "Password",
+		"password_confirm": "Confirm Password",
+		"password_confirm_placeholder": "Password confirmation",
+		"language": "Language"
+	},
+	"action": {
+		"submit": "Create account",
+		"oauth": "or sign up with"
+	},
+	"link": {
+		"confirm_email_prompt": "Have you confirmed your email? If you’ve lost the instructions, you can resend the",
+		"confirm_email": "confirmation email",
+		"verification_sent": "We’ve sent a verification email to",
+		"verification_check": "Please check your inbox and click the verification link to activate your account.",
+		"back_home_prompt": "Meanwhile you can go back to",
+		"back_home": "home page",
+		"already_registered": "Already registered?",
+		"sign_in": "Sign in here",
+		"terms_prompt": "I agree to the",
+		"terms_of_service": "Terms of Service",
+		"terms_separator": "and",
+		"terms_title": "Terms & Conditions",
+		"privacy_policy": "Privacy Policy",
+		"privacy_title": "Privacy Policy"
+	},
+	"validation": {
+		"invalid_name": "Please enter your name",
+		"invalid_email": "Please enter a valid email address",
+		"invalid_password": "Please create a password",
+		"password_confirm_required": "Please confirm your password",
+		"invalid_language": "Please select a valid language",
+		"terms_required": "You must accept the terms and conditions to continue",
+		"email_already_used": "This email address is already registered"
+	},
+	"message": {
+		"success": "Thank you for registering! Please check your email to confirm your account",
+		"pending_account": "Another account is already registered with this email address."
+	}
+}

@@ -1,0 +1,13 @@
+{
+	"validation": {
+		"only_positive": "Enter a positive number",
+		"name_min": "Name must be at least {{min}} characters long",
+		"password_min": "Password must be at least {{min}} characters long",
+		"password_condition_capital_letter": "Password must contain at least one capital letter",
+		"password_condition_number": "Password must contain at least one number",
+		"password_condition_special_character": "Password must contain at least one special character",
+		"password_confirm_mismatch": "Passwords do not match",
+		"invalid_contents": "At least one content entry is required",
+		"duplicate_contents": "Contents data cannot contain duplicate language"
+	}
+}

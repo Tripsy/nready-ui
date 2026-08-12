@@ -1,0 +1,29 @@
+{
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		// TypeScript 7 removed `baseUrl`. Paths now resolve relative to this file, so the
+		// old `baseUrl: "src"` + `"@/*": ["./*"]` pair becomes a single `./src/*` entry.
+		"paths": {
+			"@/*": ["./src/*"]
+		},
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"strict": true,
+		"noEmit": true,
+		"isolatedModules": true,
+		"skipLibCheck": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"plugins": [
+			{
+				"name": "next"
+			}
+		],
+		"allowJs": true,
+		"incremental": true
+	},
+	"include": ["src/**/*", ".next/types/**/*.ts", ".next/dev/types/**/*.ts"],
+	"exclude": ["node_modules"]
+}

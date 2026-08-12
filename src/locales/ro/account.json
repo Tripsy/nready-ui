@@ -1,0 +1,95 @@
+{
+	"meta": {
+		"title": "Contul meu | {{app_name}}"
+	},
+	"action": {
+		"edit": {
+			"title": "Editează datele contului",
+			"label": "Editează",
+			"success": "Datele contului au fost actualizate cu succes",
+			"submit": "Salvează"
+		},
+		"emailUpdate": {
+			"title": "Actualizează adresa de email",
+			"label": "Actualizează emailul",
+			"success": "Cererea de actualizare a emailului a fost procesată cu succes. Verifică-ți emailul pentru confirmare.",
+			"submit": "Actualizează"
+		},
+		"passwordUpdate": {
+			"title": "Actualizează parola",
+			"label": "Actualizează parola",
+			"success": "Parola a fost actualizată cu succes",
+			"submit": "Actualizează parola"
+		},
+		"deleteAccount": {
+			"title": "Șterge contul",
+			"label": "Șterge contul",
+			"success": "Cererea de ștergere a contului a fost procesată cu succes",
+			"submit": "Șterge contul"
+		}
+	},
+	"validation": {
+		"invalid_name": "Introdu numele tău",
+		"invalid_language": "Selectează o limbă validă",
+		"invalid_email": "Introdu o adresă de email validă",
+		"invalid_password_current": "Introdu parola curentă",
+		"invalid_password_new": "Setează o parolă nouă",
+		"password_confirm_required": "Confirmă parola"
+	},
+	"message": {
+		"session_destroy_success": "Sesiunea a fost închisă cu succes",
+		"session_destroy_error": "Eroare la închiderea sesiunii",
+		"delete_warning": "Aceasta pornește procesul de ștergere a contului tău, care poate dura între 5 și 30 de zile. Vei pierde accesul la cont imediat.",
+		"no_password_hint": "Acest cont nu are parolă. Folosește „Ți-ai uitat parola” din pagina de autentificare pentru a seta una."
+	},
+	"field": {
+		"name": "Nume",
+		"language": "Limbă",
+		"email_new": "Email nou",
+		"password_current": "Parola curentă",
+		"password_current_placeholder": "Parola curentă",
+		"password_new": "Parolă nouă",
+		"password_new_placeholder": "Parola nouă",
+		"password_confirm": "Confirmă parola",
+		"password_confirm_placeholder": "Confirmarea parolei"
+	},
+	"section": {
+		"personal": "Informații personale",
+		"security": "Securitate și cont",
+		"sessions": "Sesiuni",
+		"social": "Autentificare prin rețele sociale"
+	},
+	"label": {
+		"full_name": "Nume complet",
+		"email": "Adresă de email",
+		"language": "Limbă",
+		"member_since": "Data înregistrare",
+		"password": "Parolă",
+		"verified": "Verificat",
+		"not_verified": "Neverificat",
+		"last_updated": "Ultima actualizare:",
+		"last_used": "Ultima utilizare:",
+		"password_not_set": "Nesetată — te autentifici printr-un furnizor social",
+		"linked": "Conectat",
+		"not_linked": "Neconectat — autentifică-te cu {{provider}} folosind adresa de email a acestui cont pentru a-l conecta.",
+		"active_session": "Sesiune activă"
+	},
+	"button": {
+		"edit": "Editează",
+		"edit_title": "Editează contul meu",
+		"change": "Schimbă",
+		"email_title": "Actualizează adresa de email",
+		"password_title": "Actualizează parola",
+		"set_password": "Setează o parolă",
+		"delete": "Șterge contul",
+		"delete_title": "Șterge contul meu",
+		"unlink": "Deconectează",
+		"unlink_title": "Deconectează {{provider}}",
+		"destroy_session": "Închide sesiunea"
+	},
+	"session": {
+		"destroy_title": "Închide sesiunea",
+		"deleting": "Se șterge...",
+		"confirm_question": "Sigur vrei să închizi această sesiune?"
+	}
+}

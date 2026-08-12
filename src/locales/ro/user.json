@@ -1,0 +1,68 @@
+{
+	"meta": {
+		"title": "Utilizatori - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_name": "Introdu un nume",
+		"invalid_email": "Introdu o adresă de email validă",
+		"invalid_password": "Setează o parolă",
+		"password_confirm_required": "Confirmarea parolei este obligatorie",
+		"invalid_language": "Selectează o limbă validă",
+		"invalid_role": "Selectează un rol valid",
+		"invalid_operator_type": "Selectează un tip de operator valid"
+	},
+	"error": {
+		"no_permissions_defined": "Nicio permisiune definită"
+	},
+	"status": {
+		"active": "Activ",
+		"pending": "În așteptare",
+		"inactive": "Inactiv",
+		"deleted": "Șters"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă utilizator nou",
+			"label": "Adaugă",
+			"success": "Utilizatorul nou a fost adăugat cu succes"
+		},
+		"update": {
+			"title": "Actualizează utilizatorul - {{entry}}",
+			"label": "Actualizează",
+			"success": "Utilizatorul a fost actualizat cu succes"
+		},
+		"delete": {
+			"title": "Șterge utilizatorul - {{entry}}",
+			"label": "Șterge",
+			"success": "Utilizatorul a fost șters cu succes",
+			"confirm": "Sigur vrei să ștergi acest utilizator?"
+		},
+		"restore": {
+			"title": "Restaurează utilizatorul - {{entry}}",
+			"label": "Restaurează",
+			"success": "Utilizatorul a fost restaurat cu succes",
+			"confirm": "Sigur vrei să restaurezi acest utilizator?"
+		},
+		"enable": {
+			"title": "Activează utilizatorul - {{entry}}",
+			"label": "Activează",
+			"success": "Starea utilizatorului a fost marcată ca activă",
+			"confirm": "Sigur vrei să activezi acest utilizator?"
+		},
+		"disable": {
+			"title": "Dezactivează utilizatorul - {{entry}}",
+			"label": "Dezactivează",
+			"success": "Starea utilizatorului a fost marcată ca inactivă",
+			"confirm": "Sigur vrei să marchezi acest utilizator drept inactiv?"
+		},
+		"view": {
+			"title": "Detalii utilizator - {{entry}}",
+			"label": "Vezi detalii"
+		},
+		"setupPermissions": {
+			"title": "Configurează permisiunile - {{entry}}",
+			"label": "Permisiuni",
+			"success": "Permisiunile au fost actualizate cu succes"
+		}
+	}
+}

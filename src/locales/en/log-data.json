@@ -1,0 +1,17 @@
+{
+	"meta": {
+		"title": "Log data - Dashboard | {{app_name}}"
+	},
+	"action": {
+		"delete": {
+			"title": "Delete log(s)",
+			"label": "Delete",
+			"success": "Log(s) deleted",
+			"confirm": "Are you sure you want to delete the selected log(s)?"
+		},
+		"view": {
+			"title": "Log - {{entry}}",
+			"label": "View"
+		}
+	}
+}

@@ -1,0 +1,52 @@
+{
+	"meta": {
+		"title": "Creează cont | {{app_name}}"
+	},
+	"form": {
+		"title": "Creează-ți contul",
+		"description": "Acces rapid. Beneficii în plus. Poarta ta către experiențe personalizate.",
+		"title_status": "Creare cont",
+		"success_description": "Felicitări! Contul tău a fost creat cu succes."
+	},
+	"field": {
+		"name": "Nume",
+		"email": "Adresă de email",
+		"password": "Parolă",
+		"password_confirm": "Confirmă parola",
+		"password_confirm_placeholder": "Confirmarea parolei",
+		"language": "Limbă"
+	},
+	"action": {
+		"submit": "Creează cont",
+		"oauth": "sau înregistrează-te cu"
+	},
+	"link": {
+		"confirm_email_prompt": "Ți-ai confirmat adresa de email? Dacă ai pierdut instrucțiunile, poți retrimite",
+		"confirm_email": "emailul de confirmare",
+		"verification_sent": "Am trimis un email de verificare către",
+		"verification_check": "Verifică-ți inboxul și apasă pe linkul de verificare pentru a-ți activa contul.",
+		"back_home_prompt": "Între timp te poți întoarce la",
+		"back_home": "pagina principală",
+		"already_registered": "Ai deja cont?",
+		"sign_in": "Autentifică-te aici",
+		"terms_prompt": "Sunt de acord cu",
+		"terms_of_service": "Termenii serviciului",
+		"terms_separator": "și",
+		"terms_title": "Termeni și condiții",
+		"privacy_policy": "Politica de confidențialitate",
+		"privacy_title": "Politica de confidențialitate"
+	},
+	"validation": {
+		"invalid_name": "Introdu numele tău",
+		"invalid_email": "Introdu o adresă de email validă",
+		"invalid_password": "Creează o parolă",
+		"password_confirm_required": "Confirmă parola",
+		"invalid_language": "Selectează o limbă validă",
+		"terms_required": "Trebuie să accepți termenii și condițiile pentru a continua",
+		"email_already_used": "Această adresă de email este deja înregistrată"
+	},
+	"message": {
+		"success": "Îți mulțumim pentru înregistrare! Verifică-ți emailul pentru a-ți confirma contul",
+		"pending_account": "Există deja un alt cont înregistrat cu această adresă de email."
+	}
+}

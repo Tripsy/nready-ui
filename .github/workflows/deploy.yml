@@ -1,0 +1,162 @@
+name: Deploy
+
+# Only main — the OIDC trust policy on github-role enforces the same restriction, so a run
+# from another branch cannot assume the role at all.
+on:
+    push:
+        branches: [main]
+    workflow_dispatch:
+
+concurrency:
+    group: deploy-star-ui
+    cancel-in-progress: false
+
+env:
+    AWS_REGION: eu-central-1
+    ECR_REPOSITORY: star-ui
+    INSTANCE_TAG_NAME: playzone-apps
+    APP_DIR: /srv/apps/star-ui
+
+permissions:
+    # Required for OIDC. Without it configure-aws-credentials fails with a message that
+    # reads like a missing secret rather than a missing permission.
+    id-token: write
+    contents: read
+
+jobs:
+    deploy:
+        runs-on: ubuntu-24.04
+        timeout-minutes: 30
+
+        steps:
+            - uses: actions/checkout@v7
+
+            - name: Assume github-role via OIDC
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  role-to-assume: arn:aws:iam::628835453436:role/github-role
+                  aws-region: ${{ env.AWS_REGION }}
+
+            - name: Log in to ECR
+              id: ecr
+              uses: aws-actions/amazon-ecr-login@v2
+
+            - name: Set up Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Build and push
+              uses: docker/build-push-action@v6
+              with:
+                  context: .
+                  file: docker/Dockerfile.prod
+                  platforms: linux/amd64
+                  push: true
+                  tags: |
+                      ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+                      ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+                  cache-from: type=registry,ref=${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:buildcache
+                  cache-to: type=registry,ref=${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:buildcache,mode=max,image-manifest=true,oci-mediatypes=true
+                  # Next inlines every NEXT_PUBLIC_* value into the client bundle at build
+                  # time, so these must be supplied here — setting them at runtime has no
+                  # effect. They are public by definition (they ship to the browser), which
+                  # is why they are literals rather than secrets.
+                  build-args: |
+                      NEXT_PUBLIC_NODE_ENV=production
+                      NEXT_PUBLIC_APP_DEBUG=false
+                      NEXT_PUBLIC_APP_URL=https://rs-app.play-zone.ro
+                      NEXT_PUBLIC_APP_NAME=Star Dashboard
+                      NEXT_PUBLIC_TIMEZONE=Europe/Bucharest
+                      NEXT_PUBLIC_REMOTE_API_WS_URL=wss://rs-api.play-zone.ro
+                      NEXT_PUBLIC_REMOTE_API_WS_RECONNECT_DELAY=3000
+                      NEXT_PUBLIC_LANGUAGE_DEFAULT=ro
+                      NEXT_PUBLIC_LANGUAGE_SUPPORTED=ro,en
+                      NEXT_PUBLIC_LANGUAGE_COOKIE=lang
+                      NEXT_PUBLIC_LANGUAGE_COOKIE_MAX_AGE=31536000
+                      NEXT_PUBLIC_APP_CURRENCY=RON
+                      NEXT_PUBLIC_APP_VAT_RATE=19
+                      NEXT_PUBLIC_SENTRY_DSN=${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+                      NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE=0.1
+                  # Passed as BuildKit secrets, not build args: a build arg is recorded in
+                  # the image history and would publish the token to anyone who can pull.
+                  # Absent values are fine — the build then skips the source map upload and
+                  # production stack traces stay minified.
+                  secrets: |
+                      sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}
+                      sentry_org=${{ vars.SENTRY_ORG }}
+                      sentry_project=${{ vars.SENTRY_PROJECT }}
+
+            - name: Deploy over SSM
+              env:
+                  IMAGE_TAG: ${{ github.sha }}
+              run: |
+                  set -euo pipefail
+
+                  # No migrate step: star-ui owns no schema.
+                  #
+                  # `set -eu`, not `set -euo pipefail`: AWS-RunShellScript executes the
+                  # script with /bin/sh, which is dash on Ubuntu and has no `pipefail` —
+                  # it aborts on line 1 with "Illegal option -o pipefail". None of these
+                  # commands pipe, so -e and -u give the same protection here.
+                  COMMAND_ID="$(aws ssm send-command \
+                    --document-name AWS-RunShellScript \
+                    --targets "Key=tag:Name,Values=${INSTANCE_TAG_NAME}" \
+                    --comment "Deploy star-ui ${IMAGE_TAG}" \
+                    --parameters commands="[
+                      \"set -eu\",
+                      \"cd ${APP_DIR}\",
+                      \"sed -i 's|^IMAGE_TAG=.*|IMAGE_TAG=${IMAGE_TAG}|' .env\",
+                      \"docker compose pull --quiet\",
+                      \"docker compose up -d\",
+                      \"docker image prune -f\"
+                    ]" \
+                    --query 'Command.CommandId' --output text)"
+
+                  echo "SSM command: $COMMAND_ID"
+
+                  for _ in $(seq 1 60); do
+                    sleep 10
+
+                    STATUS="$(aws ssm list-command-invocations \
+                      --command-id "$COMMAND_ID" --details \
+                      --query 'CommandInvocations[0].Status' --output text 2>/dev/null || echo Pending)"
+
+                    echo "status: $STATUS"
+
+                    case "$STATUS" in
+                      Success) break ;;
+                      Failed|Cancelled|TimedOut)
+                        echo "::error::Deploy failed with status $STATUS"
+                        aws ssm list-command-invocations --command-id "$COMMAND_ID" --details \
+                          --query 'CommandInvocations[0].CommandPlugins[0].Output' --output text
+                        exit 1
+                        ;;
+                    esac
+                  done
+
+                  if [ "$STATUS" != "Success" ]; then
+                    echo "::error::Deploy did not finish within 10 minutes"
+                    exit 1
+                  fi
+
+                  aws ssm list-command-invocations --command-id "$COMMAND_ID" --details \
+                    --query 'CommandInvocations[0].CommandPlugins[0].Output' --output text
+
+            - name: Verify the service is healthy
+              run: |
+                  set -euo pipefail
+
+                  for attempt in $(seq 1 20); do
+                    CODE="$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 \
+                      https://rs-app.play-zone.ro/api/health || echo 000)"
+
+                    if [ "$CODE" = "200" ]; then
+                      echo "healthy after ${attempt} attempt(s)"
+                      exit 0
+                    fi
+
+                    echo "attempt ${attempt}: HTTP ${CODE}"
+                    sleep 10
+                  done
+
+                  echo "::error::Service did not become healthy"
+                  exit 1

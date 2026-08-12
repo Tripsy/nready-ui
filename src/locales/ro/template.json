@@ -1,0 +1,44 @@
+{
+	"meta": {
+		"title": "Șabloane - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_label": "Setează eticheta",
+		"invalid_language": "Selectează o limbă validă",
+		"invalid_email_subject": "Setează subiectul emailului",
+		"invalid_email_text": "Text email invalid",
+		"invalid_email_html": "Setează conținutul HTML al emailului",
+		"invalid_email_layout": "Setează layoutul emailului",
+		"invalid_page_title": "Setează titlul paginii",
+		"invalid_page_html": "Setează conținutul paginii",
+		"invalid_page_layout": "Setează layoutul paginii"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă șablon nou",
+			"label": "Adaugă",
+			"success": "Șablonul nou a fost adăugat cu succes"
+		},
+		"update": {
+			"title": "Editează șablonul - {{entry}}",
+			"label": "Actualizează",
+			"success": "Șablonul a fost actualizat cu succes"
+		},
+		"delete": {
+			"title": "Șterge șablonul - {{entry}}",
+			"label": "Șterge",
+			"success": "Șablonul a fost șters cu succes",
+			"confirm": "Sigur vrei să ștergi acest șablon?"
+		},
+		"restore": {
+			"title": "Restaurează șablonul - {{entry}}",
+			"label": "Restaurează",
+			"success": "Șablonul a fost restaurat cu succes",
+			"confirm": "Sigur vrei să restaurezi acest șablon?"
+		},
+		"view": {
+			"title": "Șablon - {{entry}}",
+			"label": "Vezi detalii"
+		}
+	}
+}

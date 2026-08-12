@@ -1,0 +1,39 @@
+{
+	"meta": {
+		"title": "CMR sessions - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_cmr_id": "Invalid CMR",
+		"invalid_work_session_id": "Invalid work session; Pick work session from select",
+		"invalid_work_session": "Invalid work session"
+	},
+	"action": {
+		"create": {
+			"title": "Add new CMR session",
+			"label": "Add",
+			"success": "New CMR session added successfully"
+		},
+		"delete": {
+			"title": "Delete CMR session - {{entry}}",
+			"label": "Delete",
+			"success": "CMR session deleted successfully",
+			"confirm": "Are you sure you want to delete this CMR session?"
+		},
+		"drop": {
+			"title": "Drop - {{entry}}",
+			"label": "Drop",
+			"success": "CMR was dropped from your work session successfully",
+			"confirm": "Are you sure you want to drop this CMR from your work session?"
+		},
+		"view": {
+			"title": "CMR session details - {{entry}}",
+			"label": "View details"
+		},
+		"viewWorkSession": {
+			"title": "View work session"
+		},
+		"viewCmr": {
+			"title": "View CMR"
+		}
+	}
+}

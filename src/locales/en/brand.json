@@ -1,0 +1,65 @@
+{
+	"meta": {
+		"title": "Brands - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_brand_type": "Select a valid brand type",
+		"invalid_name": "Enter a brand name",
+		"invalid_slug": "Enter a valid slug",
+		"invalid_language": "Invalid language",
+		"invalid_description": "Invalid description",
+		"invalid_meta_title": "Invalid meta title",
+		"invalid_meta_description": "Invalid meta description",
+		"invalid_meta_keywords": "Invalid meta keywords"
+	},
+	"status": {
+		"active": "Active",
+		"inactive": "Inactive",
+		"deleted": "Deleted"
+	},
+	"action": {
+		"create": {
+			"title": "Add new brand",
+			"label": "Add",
+			"success": "New brand added successfully"
+		},
+		"update": {
+			"title": "Update brand - {{entry}}",
+			"label": "Update",
+			"success": "Brand updated successfully"
+		},
+		"delete": {
+			"title": "Delete brand - {{entry}}",
+			"label": "Delete",
+			"success": "Brand deleted successfully",
+			"confirm": "Are you sure you want to delete this brand?"
+		},
+		"restore": {
+			"title": "Restore brand - {{entry}}",
+			"label": "Restore",
+			"success": "Brand restored successfully",
+			"confirm": "Are you sure you want to restore this brand?"
+		},
+		"enable": {
+			"title": "Enable brand - {{entry}}",
+			"label": "Enable",
+			"success": "Brand status marked as active",
+			"confirm": "Are you sure you want to activate this brand?"
+		},
+		"disable": {
+			"title": "Disable brand - {{entry}}",
+			"label": "Disable",
+			"success": "Brand status marked as inactive",
+			"confirm": "Are you sure you want to mark this brand as inactive?"
+		},
+		"view": {
+			"title": "Brand details - {{entry}}",
+			"label": "View details"
+		},
+		"order": {
+			"title": "Sort brands",
+			"label": "Sort",
+			"success": "Order updated successfully"
+		}
+	}
+}

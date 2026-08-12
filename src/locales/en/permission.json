@@ -1,0 +1,33 @@
+{
+	"meta": {
+		"title": "Permissions - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_entity": "Select an entity",
+		"invalid_operation": "Select an operation"
+	},
+	"action": {
+		"create": {
+			"title": "Add new permission",
+			"label": "Add",
+			"success": "New permission added"
+		},
+		"update": {
+			"title": "Edit permission",
+			"label": "Update",
+			"success": "Permission updated"
+		},
+		"delete": {
+			"title": "Delete permission",
+			"label": "Delete",
+			"success": "Permission deleted",
+			"confirm": "Are you sure you want to delete this permission?"
+		},
+		"restore": {
+			"title": "Restore permission",
+			"label": "Restore",
+			"success": "Permission restored",
+			"confirm": "Are you sure you want to restore this permission?"
+		}
+	}
+}

@@ -1,0 +1,55 @@
+{
+	"meta": {
+		"title": "Furnizori - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_name": "Nume invalid",
+		"invalid_type": "Tip invalid"
+	},
+	"status": {
+		"active": "Activ",
+		"pending": "În așteptare",
+		"inactive": "Inactiv",
+		"deleted": "Șters"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă furnizor nou",
+			"label": "Adaugă",
+			"success": "Furnizorul nou a fost adăugat cu succes"
+		},
+		"update": {
+			"title": "Actualizează furnizorul - {{entry}}",
+			"label": "Actualizează",
+			"success": "Furnizorul a fost actualizat cu succes"
+		},
+		"delete": {
+			"title": "Șterge furnizorul - {{entry}}",
+			"label": "Șterge",
+			"success": "Furnizorul a fost șters cu succes",
+			"confirm": "Sigur vrei să ștergi acest furnizor?"
+		},
+		"restore": {
+			"title": "Restaurează furnizorul - {{entry}}",
+			"label": "Restaurează",
+			"success": "Furnizorul a fost restaurat cu succes",
+			"confirm": "Sigur vrei să restaurezi acest furnizor?"
+		},
+		"enable": {
+			"title": "Activează furnizorul - {{entry}}",
+			"label": "Activează",
+			"success": "Starea furnizorului a fost marcată ca activă",
+			"confirm": "Sigur vrei să activezi acest furnizor?"
+		},
+		"disable": {
+			"title": "Dezactivează furnizorul - {{entry}}",
+			"label": "Dezactivează",
+			"success": "Starea furnizorului a fost marcată ca inactivă",
+			"confirm": "Sigur vrei să marchezi acest furnizor drept inactiv?"
+		},
+		"view": {
+			"title": "Detalii furnizor - {{entry}}",
+			"label": "Vezi detalii"
+		}
+	}
+}

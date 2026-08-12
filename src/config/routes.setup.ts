@@ -1,0 +1,327 @@
+import ValueError from '@/exceptions/value.error';
+import type {
+	PermissionEntityType,
+	PermissionOperationType,
+} from '@/models/permission.model';
+
+export const RouteAuthEnum = {
+	PUBLIC: 'public',
+	UNAUTHENTICATED: 'unauthenticated',
+	AUTHENTICATED: 'authenticated',
+	PROTECTED: 'protected', // `admin` OR `operator` OR `driver`
+} as const;
+
+export type RouteAuth = (typeof RouteAuthEnum)[keyof typeof RouteAuthEnum];
+
+type RouteProps = {
+	type?: string;
+	auth?: RouteAuth;
+	permissionEntity?: PermissionEntityType;
+	permissionOperation?: PermissionOperationType;
+};
+
+type RoutesData = {
+	[key: string]: { path: string } & RouteProps;
+};
+
+export type RouteMatch = {
+	name: string;
+	props: RouteProps;
+} | null;
+
+class RouteBuilder {
+	constructor(
+		private readonly parent: RoutesCollection,
+		private readonly type: string,
+		private _routeAuth?: RouteAuth,
+	) {}
+
+	public auth(routeAuth: RouteAuth): this {
+		this._routeAuth = routeAuth;
+
+		return this;
+	}
+
+	public add(
+		name: string,
+		path: string,
+		props: Partial<RouteProps> = {},
+	): this {
+		this.parent.add(name, path, {
+			type: this.type,
+			auth: props.auth ?? this._routeAuth ?? RouteAuthEnum.PUBLIC,
+			...props,
+		});
+		return this;
+	}
+}
+
+class RoutesCollection {
+	private data: RoutesData = {};
+
+	public add(name: string, path: string, props?: RouteProps): this {
+		if (!name || !path) {
+			throw new ValueError('Route name and path are required');
+		}
+
+		props = {
+			...props,
+			auth: props?.auth ?? RouteAuthEnum.PUBLIC,
+		};
+
+		this.data[name] = { path, ...props };
+
+		return this;
+	}
+
+	// Start a scoped group
+	public group(name: string): RouteBuilder {
+		return new RouteBuilder(this, name);
+	}
+
+	public get(
+		name: string,
+		args?: Record<string, string | number | string[]>,
+	): string {
+		if (!this.data[name]) {
+			throw new ValueError(`Route not defined for: ${name}`);
+		}
+
+		const [basePath, query] = this.data[name].path.split('?');
+		const replacedPath = this.replacePathParams(basePath, args);
+
+		return query ? `${replacedPath}?${query}` : replacedPath;
+	}
+
+	private replacePathParams(
+		path: string,
+		args?: Record<string, string | number | string[]>,
+	): string {
+		if (!args) {
+			return path;
+		}
+
+		let result = path;
+
+		for (const [key, value] of Object.entries(args)) {
+			if (Array.isArray(value)) {
+				result = result.replace(
+					`:${key}*`,
+					value.map(encodeURIComponent).join('/'),
+				);
+			} else {
+				result = result.replace(
+					`:${key}`,
+					encodeURIComponent(String(value)),
+				);
+			}
+		}
+
+		return result;
+	}
+
+	public match(pathname: string): RouteMatch {
+		for (const [name, props] of Object.entries(this.data)) {
+			const pattern = this.convertPathToRegex(props.path);
+			const match = pathname.match(pattern);
+
+			if (match) {
+				return {
+					name: name,
+					props: props,
+				};
+			}
+		}
+
+		return null;
+	}
+
+	private convertPathToRegex(path: string): RegExp {
+		// Convert :param to named capture group
+		// Convert :param* to wildcard match
+		const pattern = path
+			.replace(/\/:(\w+)(\*)?/g, (_, param, wildcard) =>
+				wildcard
+					? `/(?<${param}>[^/]+(?:/[^/]+)*)`
+					: `/(?<${param}>[^/]+)`,
+			)
+			.replace(/\*/g, '.*');
+
+		return new RegExp(`^${pattern}(?:\\?.*)?$`); // Include optional query string
+	}
+
+	public getRoutes(): RoutesData {
+		return this.data;
+	}
+}
+
+const Routes = new RoutesCollection();
+
+Routes.add('home', '/');
+Routes.add('docs', '/docs');
+Routes.add('driver-panel', '/driver-panel');
+Routes.add('page', '/page/:label');
+Routes.add('status', '/status/:type');
+Routes.add('document-cmr', '/document/cmr/:tracking_number');
+
+// API
+Routes.group('api')
+	.add('proxy', '/api/proxy/:path*')
+	.add('csrf', '/api/csrf')
+	.add('language', '/api/language')
+	.add('api-image', '/api/image', {
+		auth: RouteAuthEnum.PUBLIC,
+	})
+	// Mints the `state` cookie and bounces the browser to the provider. A route handler
+	// rather than a server action so the button is a plain link the browser can follow.
+	.add('oauth-start', '/api/oauth/:provider');
+
+// Account
+Routes.group('account')
+	.auth(RouteAuthEnum.UNAUTHENTICATED)
+	.add('login', '/account/login')
+	.add('logout', '/account/logout', { auth: RouteAuthEnum.AUTHENTICATED })
+	.add('register', '/account/register')
+	.add('password-recover', '/account/password-recover')
+	.add('password-recover-change', '/account/password-recover-change/:token')
+	.add('email-confirm', '/account/email-confirm/:token', {
+		auth: RouteAuthEnum.PUBLIC,
+	})
+	.add('email-confirm-send', '/account/email-confirm-send')
+	// Where the provider returns the browser; must match `getOAuthRedirectUri`.
+	.add('oauth-callback', '/account/oauth/:provider')
+	// account edit / email-update / password-update / delete are no longer
+	// standalone routes — they open as windows from /account/me (see
+	// _components/account/account.definition.ts).
+	.add('account-me', '/account/me', { auth: RouteAuthEnum.AUTHENTICATED });
+
+// Dashboard
+Routes.group('dashboard')
+	.auth(RouteAuthEnum.PROTECTED)
+	.add('dashboard', '/dashboard', {
+		permissionEntity: 'dashboard',
+	})
+	.add('template', '/dashboard/template', {
+		permissionEntity: 'template',
+	})
+	.add('client', '/dashboard/client', {
+		permissionEntity: 'client',
+	})
+	.add('address', '/dashboard/address', {
+		permissionEntity: 'address',
+	})
+	.add('place', '/dashboard/place', {
+		permissionEntity: 'place',
+	})
+	.add('brand', '/dashboard/brand', {
+		permissionEntity: 'brand',
+	})
+	.add('brand-order', '/dashboard/brand/order', {
+		permissionEntity: 'brand',
+		permissionOperation: 'update',
+	})
+	.add('cash-flow', '/dashboard/cash-flow', {
+		permissionEntity: 'cash-flow',
+	})
+	.add('log-data', '/dashboard/log-data', {
+		permissionEntity: 'log-data',
+	})
+	.add('log-history', '/dashboard/log-history', {
+		permissionEntity: 'log-history',
+	})
+	.add('cron-history', '/dashboard/cron-history', {
+		permissionEntity: 'cron-history',
+	})
+	.add('document-series', '/dashboard/document-series', {
+		permissionEntity: 'document-series',
+	})
+	.add('image', '/dashboard/image', {
+		permissionEntity: 'image',
+	})
+	.add('image-order', '/dashboard/image/order', {
+		permissionEntity: 'image',
+		permissionOperation: 'update',
+	})
+	.add('mail-queue', '/dashboard/mail-queue', {
+		permissionEntity: 'mail-queue',
+	})
+	.add('user', '/dashboard/user', {
+		permissionEntity: 'user',
+	})
+	.add('permission', '/dashboard/permission', {
+		permissionEntity: 'permission',
+	})
+
+	.add('vehicle', '/dashboard/vehicle', {
+		permissionEntity: 'vehicle',
+	})
+	.add('vendor', '/dashboard/vendor', {
+		permissionEntity: 'vendor',
+	})
+	.add('company-vehicle', '/dashboard/company-vehicle', {
+		permissionEntity: 'company-vehicle',
+	})
+
+	.add('cmr', '/dashboard/cmr', {
+		permissionEntity: 'cmr',
+	})
+	.add('cmr-session', '/dashboard/cmr-session', {
+		permissionEntity: 'cmr-session',
+	})
+	.add('cmr-vehicle', '/dashboard/cmr-vehicle', {
+		permissionEntity: 'cmr-vehicle',
+	})
+	.add('work-session', '/dashboard/work-session', {
+		permissionEntity: 'work-session',
+	})
+	.add('work-session-vehicle', '/dashboard/work-session-vehicle', {
+		permissionEntity: 'work-session-vehicle',
+	});
+
+/**
+ * Routes a signed-in user must never be sent back to.
+ *
+ * Held as route *names*, not paths: `Routes.get('email-confirm')` returns the pattern
+ * `/account/email-confirm/:token` verbatim, which no real pathname ever equals — so a
+ * path-based list silently failed to exclude every parameterised route in it.
+ */
+const EXCLUDED_ROUTE_NAMES: ReadonlySet<string> = new Set([
+	'login',
+	'logout',
+	'register',
+	'password-recover',
+	'password-recover-change',
+	'email-confirm',
+	'email-confirm-send',
+	'oauth-callback',
+]);
+
+/**
+ * Check if the given path is an excluded route (usually auth related routes)
+ * On successful login it doesn't redirect back to excluded routes
+ *
+ * Resolves the pathname to a route first, so `/account/email-confirm/abc123` is recognised
+ * as `email-confirm` rather than compared as a literal string.
+ *
+ * @param pathname - a pathname without its query string
+ */
+export function isExcludedRoute(pathname: string) {
+	const route = Routes.match(pathname);
+
+	return route !== null && EXCLUDED_ROUTE_NAMES.has(route.name);
+}
+
+/**
+ * Check if the given route is protected
+ *
+ * @param auth
+ */
+export function isProtectedRoute(
+	auth: RouteAuth,
+): auth is 'authenticated' | 'protected' {
+	return (
+		auth === RouteAuthEnum.AUTHENTICATED || auth === RouteAuthEnum.PROTECTED
+	);
+}
+
+export default Routes;

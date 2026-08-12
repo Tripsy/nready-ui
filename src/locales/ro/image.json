@@ -1,0 +1,64 @@
+{
+	"meta": {
+		"title": "Imagini - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_section": "Secțiune invalidă",
+		"invalid_entity_id": "ID entitate invalid",
+		"invalid_image_type": "Tip de imagine invalid",
+		"invalid_language": "Limbă invalidă",
+		"invalid_storage": "Stocare invalidă",
+		"invalid_path": "Calea furnizată este invalidă",
+		"invalid_width": "Lățime invalidă",
+		"invalid_height": "Înălțime invalidă",
+		"invalid_size": "Dimensiune invalidă",
+		"invalid_mime": "Tip MIME invalid",
+		"invalid_alt": "Text alternativ invalid",
+		"invalid_attribute": "Atribut invalid: {{attribute}}",
+		"invalid_description": "Descriere invalidă"
+	},
+	"error": {
+		"save_failed": "Imaginea nu a putut fi salvată"
+	},
+	"success": {
+		"save": "Imaginile au fost salvate cu succes"
+	},
+	"status": {
+		"active": "Activă",
+		"inactive": "Inactivă"
+	},
+	"action": {
+		"add": {
+			"title": "Adaugă imagine - {{entry}}",
+			"label": "Adaugă",
+			"success": "Imaginea a fost adăugată cu succes"
+		},
+		"update": {
+			"title": "Actualizează imaginea - {{entry}}",
+			"label": "Actualizează",
+			"success": "Imaginea a fost actualizată cu succes"
+		},
+		"delete": {
+			"title": "Șterge imaginea - {{entry}}",
+			"label": "Șterge",
+			"success": "Imaginea a fost ștearsă cu succes",
+			"confirm": "Sigur vrei să ștergi această imagine?"
+		},
+		"enable": {
+			"title": "Activează imaginea - {{entry}}",
+			"label": "Activează",
+			"success": "Starea imaginii a fost marcată ca activă",
+			"confirm": "Sigur vrei să activezi această imagine?"
+		},
+		"disable": {
+			"title": "Dezactivează imaginea - {{entry}}",
+			"label": "Dezactivează",
+			"success": "Starea imaginii a fost marcată ca inactivă",
+			"confirm": "Sigur vrei să marchezi această imagine drept inactivă?"
+		},
+		"view": {
+			"title": "Detalii imagine - {{entry}}",
+			"label": "Vezi detalii"
+		}
+	}
+}

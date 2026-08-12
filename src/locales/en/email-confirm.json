@@ -1,0 +1,25 @@
+{
+	"meta": {
+		"title": "Email confirmation | {{app_name}}"
+	},
+	"message": {
+		"success": "Success! Your email has been confirmed.",
+		"failed": "Email confirmation procedure didn't complete successfully."
+	},
+	"form": {
+		"title": "Email Confirmation"
+	},
+	"link": {
+		"success_prompt": "What's next? Check",
+		"account": "your account",
+		"account_title": "Go to your account",
+		"or_navigate": "or navigate to",
+		"home": "home page",
+		"error_prompt": "What now? You can register for a",
+		"register": "new account",
+		"register_title": "Create account",
+		"or_request": "or request",
+		"confirm_again": "another confirmation link",
+		"confirm_again_title": "Send confirmation link again"
+	}
+}

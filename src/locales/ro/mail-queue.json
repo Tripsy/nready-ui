@@ -1,0 +1,25 @@
+{
+	"meta": {
+		"title": "Coadă email - Dashboard | {{app_name}}"
+	},
+	"status": {
+		"pending": "În așteptare",
+		"sent": "Trimis",
+		"error": "Eroare"
+	},
+	"action": {
+		"delete": {
+			"title": "Șterge înregistrările",
+			"label": "Șterge",
+			"success": "Înregistrările au fost șterse",
+			"confirm": "Sigur vrei să ștergi înregistrările selectate din coada de email?"
+		},
+		"view": {
+			"title": "Coadă email - {{entry}}",
+			"label": "Vezi"
+		},
+		"viewTemplate": {
+			"label": "Vezi șablonul"
+		}
+	}
+}

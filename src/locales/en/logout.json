@@ -1,0 +1,23 @@
+{
+	"meta": {
+		"title": "Logout | {{app_name}}"
+	},
+	"message": {
+		"success": "You've been logged out successfully",
+		"error": "We couldn't log you out. Please try again",
+		"not_logged_in": "You're not currently logged in",
+		"loading_description": "Your session will end. See you next time!",
+		"error_description": "An error occurred while logging out. Please try again later. If the problem persists, contact support!",
+		"success_description": "Your session has been ended. See you next time!"
+	},
+	"form": {
+		"title": "Logout"
+	},
+	"link": {
+		"what_next": "What next?",
+		"go_back_prompt": "You can go back to",
+		"login": "login",
+		"or_navigate": "or navigate to",
+		"home": "home page"
+	}
+}

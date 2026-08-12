@@ -1,0 +1,37 @@
+{
+	"meta": {
+		"title": "{{app_name}}"
+	},
+	"hero": {
+		"title_prefix": "Administrează-ți",
+		"title_highlight": "flota",
+		"title_suffix": "dintr-un singur dashboard",
+		"subtitle": "Documente CMR, sesiuni de lucru, vehicule și flux de numerar — toate într-un singur loc, cu accesul potrivit pentru fiecare rol din echipa ta."
+	},
+	"feature": {
+		"heading": "Tot ce are nevoie operațiunea ta",
+		"subheading": "Un set complet de instrumente pentru gestionarea documentelor de transport, a activității flotei și a operațiunilor de back-office.",
+		"cmr_title": "CMR și documente de transport",
+		"cmr_description": "Digitalizează scrisorile de trăsură CMR, atașează vehicule și sesiuni, apoi semnează și tipărește de pe orice dispozitiv.",
+		"fleet_title": "Flotă și sesiuni de lucru",
+		"fleet_description": "Urmărește vehiculele companiei și sesiunile de lucru ale șoferilor, de la dispecerizare până la livrare, în timp real.",
+		"cash_flow_title": "Flux de numerar",
+		"cash_flow_description": "Înregistrează încasările și cheltuielile per client, furnizor sau șofer, cu un istoric operațional complet.",
+		"directory_title": "Clienți și furnizori",
+		"directory_description": "Menține un director comun de clienți, furnizori, mărci și adrese, accesibil întregii echipe.",
+		"permissions_title": "Roluri și permisiuni",
+		"permissions_description": "Acordă acces per entitate și per operațiune, astfel încât administratorii, operatorii și șoferii să vadă doar ce au nevoie.",
+		"dashboard_title": "Un singur dashboard de administrare",
+		"dashboard_description": "Fiecare entitate — utilizatori, jurnale, coadă de email, șabloane — gestionată dintr-o interfață CRUD unică și consecventă."
+	},
+	"cta": {
+		"go_dashboard": "Mergi la dashboard",
+		"create_account": "Creează cont gratuit",
+		"sign_in": "Autentifică-te",
+		"back_title": "Înapoi la treabă",
+		"back_description": "Intră în dashboardul de administrare pentru a gestiona utilizatori, flotă, documente și altele.",
+		"open_dashboard": "Deschide dashboardul",
+		"ready_title": "Gata să începi?",
+		"ready_description": "Creează un cont pentru a-ți gestiona flota, documentele și echipa dintr-un singur dashboard."
+	}
+}

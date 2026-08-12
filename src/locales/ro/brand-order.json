@@ -1,0 +1,11 @@
+{
+	"meta": {
+		"title": "Mărci / Ordine - Dashboard | {{app_name}}"
+	},
+	"success": {
+		"order_updated": "Ordinea mărcilor a fost salvată cu succes."
+	},
+	"error": {
+		"order_failed": "Noua ordine a mărcilor nu a putut fi salvată. Încearcă din nou."
+	}
+}

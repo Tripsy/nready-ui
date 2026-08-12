@@ -1,0 +1,33 @@
+{
+	"meta": {
+		"title": "Retrimitere email de confirmare | {{app_name}}"
+	},
+	"form": {
+		"title": "Primește emailul de confirmare",
+		"description": "Folosește formularul de mai jos pentru a retrimite emailul de confirmare la adresa cu care te-ai înregistrat.",
+		"title_status": "Confirmare email",
+		"title_success": "Email de confirmare trimis",
+		"success_description": "Verifică-ți emailul și urmează instrucțiunile pentru a finaliza procesul de confirmare."
+	},
+	"field": {
+		"email": "Adresă de email"
+	},
+	"action": {
+		"submit": "Trimite confirmarea"
+	},
+	"link": {
+		"back_home_prompt": "Între timp te poți întoarce la",
+		"back_home": "pagina principală",
+		"not_registered": "Nu ai cont încă?",
+		"create_account": "Creează un cont"
+	},
+	"validation": {
+		"invalid_email": "Introdu o adresă de email validă"
+	},
+	"message": {
+		"not_active": "Nu a fost găsit niciun cont care să folosească această adresă de email",
+		"not_allowed": "Acest cont nu are voie / nu are nevoie să își confirme adresa de email",
+		"success": "Succes! Emailul de confirmare a fost trimis cu succes.",
+		"failed": "Emailul de confirmare nu a putut fi trimis."
+	}
+}

@@ -1,0 +1,39 @@
+{
+	"meta": {
+		"title": "Sesiuni CMR - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_cmr_id": "CMR invalid",
+		"invalid_work_session_id": "Sesiune de lucru invalidă; Alege sesiunea de lucru din listă",
+		"invalid_work_session": "Sesiune de lucru invalidă"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă sesiune CMR nouă",
+			"label": "Adaugă",
+			"success": "Sesiunea CMR nouă a fost adăugată cu succes"
+		},
+		"delete": {
+			"title": "Șterge sesiunea CMR - {{entry}}",
+			"label": "Șterge",
+			"success": "Sesiunea CMR a fost ștearsă cu succes",
+			"confirm": "Sigur vrei să ștergi această sesiune CMR?"
+		},
+		"drop": {
+			"title": "Renunță - {{entry}}",
+			"label": "Renunță",
+			"success": "CMR-ul a fost eliminat din sesiunea ta de lucru cu succes",
+			"confirm": "Sigur vrei să elimini acest CMR din sesiunea ta de lucru?"
+		},
+		"view": {
+			"title": "Detalii sesiune CMR - {{entry}}",
+			"label": "Vezi detalii"
+		},
+		"viewWorkSession": {
+			"title": "Vezi sesiunea de lucru"
+		},
+		"viewCmr": {
+			"title": "Vezi CMR-ul"
+		}
+	}
+}

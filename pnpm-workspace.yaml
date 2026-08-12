@@ -1,0 +1,9 @@
+allowBuilds:
+  # Its postinstall downloads the sentry-cli binary, which is what uploads source maps
+  # during `next build`. Without it, production stack traces stay minified.
+  '@sentry/cli': true
+  sharp: true
+onlyBuiltDependencies:
+  - '@tailwindcss/oxide'
+  - sharp
+  - unrs-resolver

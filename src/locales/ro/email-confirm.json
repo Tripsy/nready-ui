@@ -1,0 +1,25 @@
+{
+	"meta": {
+		"title": "Confirmare email | {{app_name}}"
+	},
+	"message": {
+		"success": "Succes! Adresa ta de email a fost confirmată.",
+		"failed": "Procedura de confirmare a emailului nu s-a finalizat cu succes."
+	},
+	"form": {
+		"title": "Confirmare email"
+	},
+	"link": {
+		"success_prompt": "Ce urmează? Vezi",
+		"account": "contul tău",
+		"account_title": "Mergi la contul tău",
+		"or_navigate": "sau poți naviga la",
+		"home": "pagina principală",
+		"error_prompt": "Ce faci acum? Te poți înregistra pentru un",
+		"register": "cont nou",
+		"register_title": "Creează cont",
+		"or_request": "sau poți cere",
+		"confirm_again": "un nou link de confirmare",
+		"confirm_again_title": "Retrimite linkul de confirmare"
+	}
+}

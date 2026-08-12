@@ -1,0 +1,33 @@
+{
+	"meta": {
+		"title": "Serii documente - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_document_type": "Tip document invalid",
+		"invalid_code": "Cod serie invalid; folosește cel mult {{max}} caractere",
+		"invalid_start_number": "Numărul de start trebuie să fie un număr întreg",
+		"invalid_notes": "Notițe invalide"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă serie de documente nouă",
+			"label": "Adaugă",
+			"success": "Seria de documente a fost adăugată cu succes"
+		},
+		"update": {
+			"title": "Actualizează seria de documente - {{entry}}",
+			"label": "Actualizează",
+			"success": "Seria de documente a fost actualizată cu succes"
+		},
+		"delete": {
+			"title": "Șterge seria de documente - {{entry}}",
+			"label": "Șterge",
+			"success": "Seria de documente a fost ștearsă cu succes",
+			"confirm": "Ștergerea unei serii îi elimină definitiv contorul. Sigur vrei să ștergi această serie de documente?"
+		},
+		"view": {
+			"title": "Detalii serie documente - {{entry}}",
+			"label": "Vezi detalii"
+		}
+	}
+}

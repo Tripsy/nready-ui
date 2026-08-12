@@ -1,0 +1,64 @@
+{
+	"meta": {
+		"title": "Images - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_section": "Invalid section",
+		"invalid_entity_id": "Invalid entity ID",
+		"invalid_image_type": "Invalid image type",
+		"invalid_language": "Invalid language",
+		"invalid_storage": "Invalid storage",
+		"invalid_path": "Invalid path provided",
+		"invalid_width": "Invalid width",
+		"invalid_height": "Invalid height",
+		"invalid_size": "Invalid size",
+		"invalid_mime": "Invalid mime type",
+		"invalid_alt": "Invalid alt text",
+		"invalid_attribute": "Invalid attribute: {{attribute}}",
+		"invalid_description": "Invalid description"
+	},
+	"error": {
+		"save_failed": "Failed to save image"
+	},
+	"success": {
+		"save": "Images saved successfully"
+	},
+	"status": {
+		"active": "Active",
+		"inactive": "Inactive"
+	},
+	"action": {
+		"add": {
+			"title": "Add image - {{entry}}",
+			"label": "Add",
+			"success": "Image added successfully"
+		},
+		"update": {
+			"title": "Update image - {{entry}}",
+			"label": "Update",
+			"success": "Image updated successfully"
+		},
+		"delete": {
+			"title": "Delete image - {{entry}}",
+			"label": "Delete",
+			"success": "Image deleted successfully",
+			"confirm": "Are you sure you want to delete this image?"
+		},
+		"enable": {
+			"title": "Enable image - {{entry}}",
+			"label": "Enable",
+			"success": "Image status marked as active",
+			"confirm": "Are you sure you want to activate this image?"
+		},
+		"disable": {
+			"title": "Disable image - {{entry}}",
+			"label": "Disable",
+			"success": "Image status marked as inactive",
+			"confirm": "Are you sure you want to mark this image as inactive?"
+		},
+		"view": {
+			"title": "Image details - {{entry}}",
+			"label": "View details"
+		}
+	}
+}

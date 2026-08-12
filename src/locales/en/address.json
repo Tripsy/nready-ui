@@ -1,0 +1,45 @@
+{
+	"meta": {
+		"title": "Addresses - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_city_id": "Invalid city; Pick city from select",
+		"invalid_city": "Invalid city",
+		"invalid_details": "Invalid address info",
+		"invalid_postal_code": "Invalid postal code",
+		"invalid_notes": "Invalid notes"
+	},
+	"action": {
+		"create": {
+			"title": "Add new address",
+			"label": "Add",
+			"success": "New address added successfully"
+		},
+		"update": {
+			"title": "Edit address - {{entry}}",
+			"label": "Update",
+			"success": "Address updated successfully"
+		},
+		"delete": {
+			"title": "Delete address - {{entry}}",
+			"label": "Delete",
+			"success": "Address deleted successfully",
+			"confirm": "Are you sure you want to delete this address?"
+		},
+		"restore": {
+			"title": "Restore address - {{entry}}",
+			"label": "Restore",
+			"success": "Address restored successfully",
+			"confirm": "Are you sure you want to restore this address?"
+		},
+		"view": {
+			"title": "Address details - {{entry}}",
+			"label": "View details"
+		}
+	},
+	"field": {
+		"city": "City",
+		"details": "Details",
+		"postal_code": "Postal Code"
+	}
+}

@@ -1,0 +1,65 @@
+{
+	"meta": {
+		"title": "Mărci - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_brand_type": "Selectează un tip de marcă valid",
+		"invalid_name": "Introdu numele mărcii",
+		"invalid_slug": "Introdu un slug valid",
+		"invalid_language": "Limbă invalidă",
+		"invalid_description": "Descriere invalidă",
+		"invalid_meta_title": "Meta titlu invalid",
+		"invalid_meta_description": "Meta descriere invalidă",
+		"invalid_meta_keywords": "Meta cuvinte cheie invalide"
+	},
+	"status": {
+		"active": "Activă",
+		"inactive": "Inactivă",
+		"deleted": "Ștearsă"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă marcă nouă",
+			"label": "Adaugă",
+			"success": "Marca nouă a fost adăugată cu succes"
+		},
+		"update": {
+			"title": "Actualizează marca - {{entry}}",
+			"label": "Actualizează",
+			"success": "Marca a fost actualizată cu succes"
+		},
+		"delete": {
+			"title": "Șterge marca - {{entry}}",
+			"label": "Șterge",
+			"success": "Marca a fost ștearsă cu succes",
+			"confirm": "Sigur vrei să ștergi această marcă?"
+		},
+		"restore": {
+			"title": "Restaurează marca - {{entry}}",
+			"label": "Restaurează",
+			"success": "Marca a fost restaurată cu succes",
+			"confirm": "Sigur vrei să restaurezi această marcă?"
+		},
+		"enable": {
+			"title": "Activează marca - {{entry}}",
+			"label": "Activează",
+			"success": "Starea mărcii a fost marcată ca activă",
+			"confirm": "Sigur vrei să activezi această marcă?"
+		},
+		"disable": {
+			"title": "Dezactivează marca - {{entry}}",
+			"label": "Dezactivează",
+			"success": "Starea mărcii a fost marcată ca inactivă",
+			"confirm": "Sigur vrei să marchezi această marcă drept inactivă?"
+		},
+		"view": {
+			"title": "Detalii marcă - {{entry}}",
+			"label": "Vezi detalii"
+		},
+		"order": {
+			"title": "Sortează mărcile",
+			"label": "Sortează",
+			"success": "Ordinea a fost actualizată cu succes"
+		}
+	}
+}

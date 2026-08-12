@@ -1,0 +1,26 @@
+{
+	"error": {
+		"meta": {
+			"title": "Error | {{app_name}}"
+		}
+	},
+	"success": {
+		"meta": {
+			"title": "Success | {{app_name}}"
+		}
+	},
+	"info": {
+		"meta": {
+			"title": "Info | {{app_name}}"
+		}
+	},
+	"title": {
+		"error": "Error",
+		"success": "Success",
+		"info": "Info"
+	},
+	"link": {
+		"back_home_prompt": "Go back to",
+		"back_home": "home page"
+	}
+}

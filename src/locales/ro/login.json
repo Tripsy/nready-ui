@@ -1,0 +1,41 @@
+{
+	"meta": {
+		"title": "Autentificare | {{app_name}}"
+	},
+	"form": {
+		"title": "Bine ai revenit",
+		"description": "Autentifică-te în contul tău pentru a continua",
+		"title_status": "Autentificare"
+	},
+	"field": {
+		"email": "Adresă de email",
+		"password": "Parolă"
+	},
+	"action": {
+		"submit": "Autentifică-te",
+		"oauth": "sau continuă cu"
+	},
+	"link": {
+		"no_account": "Nu ai cont?",
+		"create_account": "Creează un cont",
+		"forgot_password": "Ți-ai uitat parola?",
+		"reset_password": "Resetează-o aici",
+		"confirm_email_prompt": "Ți-ai confirmat adresa de email? Dacă ai pierdut instrucțiunile, poți retrimite",
+		"confirm_email": "emailul de confirmare"
+	},
+	"validation": {
+		"invalid_email": "Introdu o adresă de email validă",
+		"invalid_password": "Introdu parola"
+	},
+	"message": {
+		"could_not_login": "Nu te-am putut autentifica. Verifică datele introduse și încearcă din nou.",
+		"auth_success": "Autentificare reușită",
+		"auth_error": "Autentificarea a eșuat din cauza unei erori de autentificare",
+		"not_active": "Nu te-am putut autentifica. Contul tău nu este activ",
+		"pending_account": "Nu te-am putut autentifica. Contul tău așteaptă activarea",
+		"max_active_sessions": "Prea multe sesiuni active. Închide o sesiune existentă și încearcă din nou",
+		"too_many_login_attempts": "Prea multe încercări de autentificare eșuate. Încearcă din nou mai târziu",
+		"session_destroy_success": "Sesiunea a fost închisă cu succes",
+		"session_destroy_error": "Eroare la închiderea sesiunii"
+	}
+}

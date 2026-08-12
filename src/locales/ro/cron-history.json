@@ -1,0 +1,22 @@
+{
+	"meta": {
+		"title": "Înregistrări cron - Dashboard | {{app_name}}"
+	},
+	"action": {
+		"delete": {
+			"title": "Șterge înregistrarea/înregistrările cron",
+			"label": "Șterge",
+			"success": "Înregistrările cron au fost șterse",
+			"confirm": "Sigur vrei să ștergi înregistrările cron selectate?"
+		},
+		"view": {
+			"title": "Înregistrare cron - {{entry}}",
+			"label": "Vezi"
+		}
+	},
+	"status": {
+		"error": "Eroare",
+		"ok": "Ok",
+		"warning": "Avertisment"
+	}
+}

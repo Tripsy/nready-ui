@@ -1,0 +1,17 @@
+{
+	"meta": {
+		"title": "Date jurnal - Dashboard | {{app_name}}"
+	},
+	"action": {
+		"delete": {
+			"title": "Șterge jurnalele",
+			"label": "Șterge",
+			"success": "Jurnalele au fost șterse",
+			"confirm": "Sigur vrei să ștergi jurnalele selectate?"
+		},
+		"view": {
+			"title": "Jurnal - {{entry}}",
+			"label": "Vezi"
+		}
+	}
+}

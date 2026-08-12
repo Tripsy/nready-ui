@@ -1,0 +1,33 @@
+{
+	"meta": {
+		"title": "Document Series - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_document_type": "Invalid document type",
+		"invalid_code": "Invalid series code; use at most {{max}} characters",
+		"invalid_start_number": "Start number must be a whole number",
+		"invalid_notes": "Invalid notes"
+	},
+	"action": {
+		"create": {
+			"title": "Add new document series",
+			"label": "Add",
+			"success": "New document series added successfully"
+		},
+		"update": {
+			"title": "Update document series - {{entry}}",
+			"label": "Update",
+			"success": "Document series updated successfully"
+		},
+		"delete": {
+			"title": "Delete document series - {{entry}}",
+			"label": "Delete",
+			"success": "Document series deleted successfully",
+			"confirm": "Deleting a series removes its counter for good. Are you sure you want to delete this document series?"
+		},
+		"view": {
+			"title": "Document series details - {{entry}}",
+			"label": "View details"
+		}
+	}
+}

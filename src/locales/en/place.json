@@ -1,0 +1,42 @@
+{
+	"meta": {
+		"title": "Places - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_place_type": "Select a valid place type",
+		"invalid_code": "Invalid code",
+		"invalid_parent_id": "Invalid parent place; Use entry from select",
+		"invalid_parent": "Invalid parent place",
+		"invalid_language": "Invalid language",
+		"invalid_name": "Invalid name",
+		"invalid_type_label": "Invalid type label"
+	},
+	"action": {
+		"create": {
+			"title": "Add new place",
+			"label": "Add",
+			"success": "New place added successfully"
+		},
+		"update": {
+			"title": "Update place - {{entry}}",
+			"label": "Update",
+			"success": "Place updated successfully"
+		},
+		"delete": {
+			"title": "Delete place - {{entry}}",
+			"label": "Delete",
+			"success": "Place deleted successfully",
+			"confirm": "Are you sure you want to delete this place?"
+		},
+		"restore": {
+			"title": "Restore place - {{entry}}",
+			"label": "Restore",
+			"success": "Place restored successfully",
+			"confirm": "Are you sure you want to restore this place?"
+		},
+		"view": {
+			"title": "Place details - {{entry}}",
+			"label": "View details"
+		}
+	}
+}

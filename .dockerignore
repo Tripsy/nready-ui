@@ -1,0 +1,13 @@
+node_modules
+.next
+.pnpm-store
+.git
+.github
+.idea
+.claude
+public/uploads
+tsconfig.tsbuildinfo
+*.log
+.DS_Store
+.env
+.env.*

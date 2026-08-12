@@ -1,0 +1,11 @@
+{
+	"meta": {
+		"title": "Brands / Order - Dashboard | {{app_name}}"
+	},
+	"success": {
+		"order_updated": "Brand order was saved successfully."
+	},
+	"error": {
+		"order_failed": "Could not save the new brand order. Please try again."
+	}
+}

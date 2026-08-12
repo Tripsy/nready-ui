@@ -1,0 +1,25 @@
+{
+	"meta": {
+		"title": "Mail Queue - Dashboard | {{app_name}}"
+	},
+	"status": {
+		"pending": "Pending",
+		"sent": "Sent",
+		"error": "Error"
+	},
+	"action": {
+		"delete": {
+			"title": "Delete record(s)",
+			"label": "Delete",
+			"success": "Record(s) deleted",
+			"confirm": "Are you sure you want to delete the selected mail queue record(s)?"
+		},
+		"view": {
+			"title": "Mail queue - {{entry}}",
+			"label": "View"
+		},
+		"viewTemplate": {
+			"label": "View template"
+		}
+	}
+}

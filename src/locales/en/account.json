@@ -1,0 +1,95 @@
+{
+	"meta": {
+		"title": "My account | {{app_name}}"
+	},
+	"action": {
+		"edit": {
+			"title": "Edit account details",
+			"label": "Edit",
+			"success": "Account details updated with success",
+			"submit": "Save"
+		},
+		"emailUpdate": {
+			"title": "Update email address",
+			"label": "Update email",
+			"success": "Email update request processed with success. Check your email for confirmation.",
+			"submit": "Update"
+		},
+		"passwordUpdate": {
+			"title": "Update password",
+			"label": "Update password",
+			"success": "Password updated with success",
+			"submit": "Update password"
+		},
+		"deleteAccount": {
+			"title": "Delete account",
+			"label": "Delete account",
+			"success": "Account deletion request processed with success",
+			"submit": "Delete account"
+		}
+	},
+	"validation": {
+		"invalid_name": "Please enter your name",
+		"invalid_language": "Please select a valid language",
+		"invalid_email": "Please enter a valid email address",
+		"invalid_password_current": "Please enter your current password",
+		"invalid_password_new": "Please set a new password",
+		"password_confirm_required": "Please confirm your password"
+	},
+	"message": {
+		"session_destroy_success": "Session destroyed with success",
+		"session_destroy_error": "Error destroying session",
+		"delete_warning": "This starts the process of deleting your account, which may take between 5–30 days. You will lose access to your account immediately.",
+		"no_password_hint": "This account has no password. Use “Forgot your password” on the login page to set one."
+	},
+	"field": {
+		"name": "Name",
+		"language": "Language",
+		"email_new": "New Email",
+		"password_current": "Current Password",
+		"password_current_placeholder": "Current password",
+		"password_new": "New Password",
+		"password_new_placeholder": "New password",
+		"password_confirm": "Confirm Password",
+		"password_confirm_placeholder": "Password confirmation"
+	},
+	"section": {
+		"personal": "Personal Information",
+		"security": "Security & Account",
+		"sessions": "Sessions",
+		"social": "Social Sign-in"
+	},
+	"label": {
+		"full_name": "Full Name",
+		"email": "Email Address",
+		"language": "Language",
+		"member_since": "Member Since",
+		"password": "Password",
+		"verified": "Verified",
+		"not_verified": "Not Verified",
+		"last_updated": "Last updated:",
+		"last_used": "Last used:",
+		"password_not_set": "Not set — you sign in with a social provider",
+		"linked": "Linked",
+		"not_linked": "Not linked — sign in with {{provider}} using this account’s email address to link it.",
+		"active_session": "Active Session"
+	},
+	"button": {
+		"edit": "Edit",
+		"edit_title": "Edit my account",
+		"change": "Change",
+		"email_title": "Update email address",
+		"password_title": "Update password",
+		"set_password": "Set a password",
+		"delete": "Delete Account",
+		"delete_title": "Delete my account",
+		"unlink": "Unlink",
+		"unlink_title": "Unlink {{provider}}",
+		"destroy_session": "Destroy Session"
+	},
+	"session": {
+		"destroy_title": "Destroy session",
+		"deleting": "Deleting...",
+		"confirm_question": "Are you sure you want to destroy the session?"
+	}
+}

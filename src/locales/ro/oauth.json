@@ -1,0 +1,30 @@
+{
+	"message": {
+		"cancelled": "Autentificarea a fost anulată înainte de finalizare.",
+		"unknown_provider": "Acest furnizor de autentificare nu este acceptat.",
+		"invalid_state": "Acest link de autentificare nu a putut fi verificat. Reia procesul din pagina de autentificare.",
+		"missing_code": "Furnizorul nu a returnat un cod de autorizare. Încearcă din nou.",
+		"could_not_sign_in": "Nu te-am putut autentifica cu acest furnizor. Încearcă din nou.",
+		"provider_unavailable": "Acest furnizor de autentificare nu este disponibil momentan.",
+		"provider_unreachable": "Nu am putut contacta furnizorul de autentificare. Încearcă din nou peste puțin timp.",
+		"unlink_success": "Furnizorul a fost deconectat cu succes",
+		"unlink_error": "Nu am putut deconecta acest furnizor"
+	},
+	"action": {
+		"continue_with": "Continuă cu {{provider}}",
+		"label": "sau continuă cu"
+	},
+	"form": {
+		"title_signing_in": "Te autentificăm cu {{provider}}",
+		"title_max_sessions": "Prea multe sesiuni",
+		"title_failed": "Autentificare eșuată"
+	},
+	"link": {
+		"session_freed_prompt": "După ce eliberezi o sesiune,",
+		"sign_in_again": "autentifică-te din nou",
+		"back_to_login": "Înapoi la autentificare"
+	},
+	"value": {
+		"provider_fallback": "furnizor"
+	}
+}

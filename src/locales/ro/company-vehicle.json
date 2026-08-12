@@ -1,0 +1,55 @@
+{
+	"meta": {
+		"title": "Vehicule companie - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_vehicle_id": "Vehicul invalid; Alege vehiculul din listă",
+		"invalid_vehicle": "Vehicul invalid",
+		"invalid_scope": "Destinația este obligatorie",
+		"invalid_license_plate": "Număr de înmatriculare invalid",
+		"invalid_vin": "Serie de șasiu (VIN) invalidă",
+		"invalid_notes": "Notițe invalide"
+	},
+	"error": {
+		"cannot_update_status": "Starea nu poate fi actualizată"
+	},
+	"status": {
+		"in_use": "În uz",
+		"damaged": "Avariat",
+		"sold": "Vândut",
+		"scrapped": "Casat"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă vehicul de companie nou",
+			"label": "Adaugă",
+			"success": "Vehiculul de companie nou a fost adăugat cu succes"
+		},
+		"update": {
+			"title": "Actualizează vehiculul - {{entry}}",
+			"label": "Actualizează",
+			"success": "Vehiculul de companie a fost actualizat cu succes"
+		},
+		"delete": {
+			"title": "Șterge vehiculul - {{entry}}",
+			"label": "Șterge",
+			"success": "Vehiculul de companie a fost șters cu succes",
+			"confirm": "Sigur vrei să ștergi acest vehicul de companie?"
+		},
+		"restore": {
+			"title": "Restaurează vehiculul - {{entry}}",
+			"label": "Restaurează",
+			"success": "Vehiculul de companie a fost restaurat cu succes",
+			"confirm": "Sigur vrei să restaurezi acest vehicul de companie?"
+		},
+		"statusTransition": {
+			"title": "Actualizează starea - {{entry}}",
+			"label": "Stare",
+			"success": "Starea vehiculului de companie a fost actualizată cu succes"
+		},
+		"view": {
+			"title": "Detalii vehicul - {{entry}}",
+			"label": "Vezi detalii"
+		}
+	}
+}

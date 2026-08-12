@@ -1,0 +1,60 @@
+{
+	"meta": {
+		"title": "Vehicule - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_brand_id": "Marcă invalidă; Alege marca din listă",
+		"invalid_brand": "Marcă invalidă",
+		"invalid_vehicle_type": "Tipul de vehicul este obligatoriu",
+		"invalid_model": "Model invalid",
+		"invalid_length": "Lungime invalidă",
+		"invalid_width": "Lățime invalidă",
+		"invalid_height": "Înălțime invalidă",
+		"invalid_weight": "Greutate invalidă"
+	},
+	"status": {
+		"verified": "Verificat",
+		"draft": "Ciornă",
+		"deleted": "Șters"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă vehicul nou",
+			"label": "Adaugă",
+			"success": "Vehiculul nou a fost adăugat cu succes"
+		},
+		"update": {
+			"title": "Actualizează vehiculul - {{entry}}",
+			"label": "Actualizează",
+			"success": "Vehiculul a fost actualizat cu succes"
+		},
+		"delete": {
+			"title": "Șterge vehiculul - {{entry}}",
+			"label": "Șterge",
+			"success": "Vehiculul a fost șters cu succes",
+			"confirm": "Sigur vrei să ștergi acest vehicul?"
+		},
+		"restore": {
+			"title": "Restaurează vehiculul - {{entry}}",
+			"label": "Restaurează",
+			"success": "Vehiculul a fost restaurat cu succes",
+			"confirm": "Sigur vrei să restaurezi acest vehicul?"
+		},
+		"verified": {
+			"title": "Marchează vehiculul ca verificat - {{entry}}",
+			"label": "Marchează verificat",
+			"success": "Starea vehiculului a fost marcată ca verificat",
+			"confirm": "Sigur vrei să marchezi acest vehicul drept verificat?"
+		},
+		"draft": {
+			"title": "Marchează vehiculul ca ciornă - {{entry}}",
+			"label": "Marchează ciornă",
+			"success": "Starea vehiculului a fost marcată ca ciornă",
+			"confirm": "Sigur vrei să marchezi acest vehicul drept ciornă?"
+		},
+		"view": {
+			"title": "Detalii vehicul - {{entry}}",
+			"label": "Vezi detalii"
+		}
+	}
+}

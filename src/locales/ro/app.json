@@ -1,0 +1,63 @@
+{
+	"name": "{{app_name}}",
+	"description": "{{app_name}}",
+	"page": {
+		"not_found": "{{app_name}} - Pagină negăsită"
+	},
+	"error": {
+		"title": "Eroare",
+		"description": "Ceva nu a funcționat corect",
+		"csrf": "A apărut o eroare la procesarea cererii. Reîncarcă pagina și încearcă din nou.",
+		"form": "Ceva nu a funcționat corect la procesarea cererii tale.",
+		"validation": "Validarea formularului a eșuat.",
+		"undefined_route": "Pagina pe care o cauți nu există sau a fost mutată.",
+		"unauthorized": "Acces refuzat. Verifică-ți permisiunile",
+		"already_logged_in": "Ești deja autentificat",
+		"operation_not_allowed": "Operațiune nepermisă",
+		"entry_required": "Înregistrarea este obligatorie",
+		"service_unavailable": "Serviciu indisponibil",
+		"generic": "Ceva nu a funcționat corect. Încearcă din nou."
+	},
+	"success": {
+		"title": "Succes",
+		"description": "Operațiunea a fost finalizată cu succes",
+		"generic": "Operațiunea a fost finalizată cu succes"
+	},
+	"info": {
+		"generic": "Nimic de raportat aici.",
+		"account_delete": "Hei ..nu îți mai știu numele! Îți mulțumim că ai fost alături de noi. Contul tău a fost marcat pentru ștergere. Toate datele asociate contului vor fi eliminate din baza noastră de date în 5–30 de zile. Ești oricând binevenit să îți creezi un cont nou."
+	},
+	"status": {
+		"active": "Activ",
+		"pending": "În așteptare",
+		"inactive": "Inactiv",
+		"deleted": "Șters",
+		"closed": "Închis"
+	},
+	"action": {
+		"abort": {
+			"title": "Anulează",
+			"label": "Anulează"
+		},
+		"cancel": {
+			"title": "Renunță",
+			"label": "Renunță"
+		},
+		"loading": {
+			"title": "Se încarcă",
+			"label": "Te rugăm să aștepți..."
+		},
+		"saving": {
+			"title": "Se salvează",
+			"label": "Se salvează..."
+		},
+		"confirm": {
+			"title": "Confirmă",
+			"label": "Confirmă"
+		},
+		"submit": {
+			"title": "Trimite",
+			"label": "Trimite"
+		}
+	}
+}

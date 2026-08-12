@@ -1,0 +1,67 @@
+{
+	"meta": {
+		"title": "Dashboard | {{app_name}}"
+	},
+	"labels": {
+		"dashboard": "Dashboard",
+
+		"financial": "Financial",
+		"cash-flow": "Cash Flow",
+		"client": "Clients",
+
+		"content": "Content",
+		"brand": "Brands",
+		"brand-order": "Order",
+		"image": "Images",
+		"image-order": "Order",
+		"address": "Addresses",
+		"place": "Places",
+
+		"settings": "Settings",
+		"template": "Templates",
+		"document-series": "Document Series",
+
+		"logs": "System Logs",
+
+		"cron-history": "Cron History",
+		"log-data": "Log Data",
+		"log-history": "Log History",
+		"mail-queue": "Mail Queue",
+
+		"user": "Users",
+		"permission": "Permissions",
+
+		"vehicle": "Vehicles",
+		"vendor": "Vendors",
+
+		"assets": "Company Assets",
+		"company-vehicle": "Company Vehicle",
+
+		"activity": "Company Activity",
+		"cmr": "CMRs",
+		"cmr-session": "CMR Sessions",
+		"cmr-vehicle": "CMR Vehicle",
+		"work-session": "Work Sessions",
+		"work-session-vehicle": "Work Session Vehicle"
+	},
+	"text": {
+		"showing_entries": "Showing {{first}} to {{last}} of {{total}} entries",
+		"selected_entries_one": "{{count}} entry selected",
+		"selected_entries_many": "{{count}} entries selected",
+		"no_entries": "No entries found",
+		"placeholder_select_default": "Select...",
+		"placeholder_start_date": "Start Date",
+		"placeholder_end_date": "End Date",
+		"label_checkbox_show_deleted": "Show deleted",
+		"label_reset": "Reset",
+
+		"rows_per_page": "Rows per page",
+		"label_data_table": "Data table",
+		"label_pagination": "Table pagination",
+		"label_page": "Page {{page}}",
+		"label_page_previous": "Previous page",
+		"label_page_next": "Next page",
+		"label_select_row": "Select row",
+		"label_select_all_rows": "Select all rows"
+	}
+}

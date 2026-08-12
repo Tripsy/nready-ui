@@ -1,0 +1,55 @@
+{
+	"meta": {
+		"title": "Vehicule sesiune de lucru - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_work_session_id": "Sesiune de lucru invalidă",
+		"invalid_company_vehicle_id": "Vehicul de companie invalid; Alege vehiculul din listă",
+		"invalid_company_vehicle": "Vehicul de companie invalid",
+		"invalid_vehicle_type": "Tip de vehicul invalid",
+		"invalid_vehicle_km_start": "Km de început invalizi",
+		"invalid_vehicle_km_end": "Km de sfârșit invalizi",
+		"invalid_notes": "Notițe invalide"
+	},
+	"error": {
+		"cannot_update_status": "Starea nu poate fi actualizată"
+	},
+	"status": {
+		"assigned": "Alocat",
+		"returned": "Returnat"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă vehicul în sesiunea de lucru",
+			"label": "Adaugă",
+			"success": "Vehiculul nou a fost adăugat cu succes"
+		},
+		"update": {
+			"title": "Actualizează vehiculul - {{entry}}",
+			"label": "Actualizează",
+			"success": "Vehiculul a fost actualizat cu succes"
+		},
+		"delete": {
+			"title": "Șterge vehiculul - {{entry}}",
+			"label": "Șterge",
+			"success": "Vehiculul a fost șters cu succes",
+			"confirm": "Sigur vrei să ștergi acest vehicul?"
+		},
+		"return": {
+			"title": "Marchează vehiculul ca returnat - {{entry}}",
+			"label": "Returnează",
+			"success": "Starea vehiculului a fost marcată ca returnat",
+			"confirm": "Sigur vrei să marchezi acest vehicul drept returnat?"
+		},
+		"view": {
+			"title": "Detalii vehicul sesiune de lucru - {{entry}}",
+			"label": "Vezi detalii"
+		}
+	},
+	"field": {
+		"vehicle": "Vehicul",
+		"km_start": "Km la plecare",
+		"km_end": "Km la sosire",
+		"notes": "Notițe"
+	}
+}

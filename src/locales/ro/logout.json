@@ -1,0 +1,23 @@
+{
+	"meta": {
+		"title": "Deconectare | {{app_name}}"
+	},
+	"message": {
+		"success": "Ai fost deconectat cu succes",
+		"error": "Nu te-am putut deconecta. Încearcă din nou",
+		"not_logged_in": "Nu ești autentificat momentan",
+		"loading_description": "Sesiunea ta se va încheia. Pe curând!",
+		"error_description": "A apărut o eroare la deconectare. Încearcă din nou mai târziu. Dacă problema persistă, contactează suportul!",
+		"success_description": "Sesiunea ta a fost încheiată. Pe curând!"
+	},
+	"form": {
+		"title": "Deconectare"
+	},
+	"link": {
+		"what_next": "Ce urmează?",
+		"go_back_prompt": "Te poți întoarce la",
+		"login": "autentificare",
+		"or_navigate": "sau poți naviga la",
+		"home": "pagina principală"
+	}
+}

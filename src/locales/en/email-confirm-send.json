@@ -1,0 +1,33 @@
+{
+	"meta": {
+		"title": "Email confirmation resend | {{app_name}}"
+	},
+	"form": {
+		"title": "Get Your Email Confirmation",
+		"description": "Use the form below to re-send the confirmation email to the email address you used to register.",
+		"title_status": "Email Confirmation",
+		"title_success": "Email Confirmation Sent",
+		"success_description": "Please check your email and follow instructions to complete the confirmation process."
+	},
+	"field": {
+		"email": "Email Address"
+	},
+	"action": {
+		"submit": "Get confirmation"
+	},
+	"link": {
+		"back_home_prompt": "Meanwhile you can go back to",
+		"back_home": "home page",
+		"not_registered": "Not registered yet?",
+		"create_account": "Create an account"
+	},
+	"validation": {
+		"invalid_email": "Please enter a valid email address"
+	},
+	"message": {
+		"not_active": "No account using this email address was found",
+		"not_allowed": "This account is not allowed / required to confirm its email address",
+		"success": "Success! The confirmation email has been sent successfully.",
+		"failed": "The confirmation email could not be sent."
+	}
+}

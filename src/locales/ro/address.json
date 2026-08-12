@@ -1,0 +1,45 @@
+{
+	"meta": {
+		"title": "Adrese - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_city_id": "Oraș invalid; Alege orașul din listă",
+		"invalid_city": "Oraș invalid",
+		"invalid_details": "Informații despre adresă invalide",
+		"invalid_postal_code": "Cod poștal invalid",
+		"invalid_notes": "Notițe invalide"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă adresă nouă",
+			"label": "Adaugă",
+			"success": "Adresa nouă a fost adăugată cu succes"
+		},
+		"update": {
+			"title": "Editează adresa - {{entry}}",
+			"label": "Actualizează",
+			"success": "Adresa a fost actualizată cu succes"
+		},
+		"delete": {
+			"title": "Șterge adresa - {{entry}}",
+			"label": "Șterge",
+			"success": "Adresa a fost ștearsă cu succes",
+			"confirm": "Sigur vrei să ștergi această adresă?"
+		},
+		"restore": {
+			"title": "Restaurează adresa - {{entry}}",
+			"label": "Restaurează",
+			"success": "Adresa a fost restaurată cu succes",
+			"confirm": "Sigur vrei să restaurezi această adresă?"
+		},
+		"view": {
+			"title": "Detalii adresă - {{entry}}",
+			"label": "Vezi detalii"
+		}
+	},
+	"field": {
+		"city": "Oraș",
+		"details": "Detalii",
+		"postal_code": "Cod poștal"
+	}
+}

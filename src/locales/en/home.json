@@ -1,0 +1,37 @@
+{
+	"meta": {
+		"title": "{{app_name}}"
+	},
+	"hero": {
+		"title_prefix": "Run your",
+		"title_highlight": "fleet",
+		"title_suffix": "from a single dashboard",
+		"subtitle": "CMR documents, work sessions, vehicles and cash flow — all in one place, with the right access for every role on your team."
+	},
+	"feature": {
+		"heading": "Everything Your Operation Needs",
+		"subheading": "A complete toolkit for managing transport documents, fleet activity and back-office operations.",
+		"cmr_title": "CMR & Transport Documents",
+		"cmr_description": "Digitize CMR consignment notes, attach vehicles and sessions, then sign and print from any device.",
+		"fleet_title": "Fleet & Work Sessions",
+		"fleet_description": "Track company vehicles and driver work sessions from dispatch to delivery, in real time.",
+		"cash_flow_title": "Cash Flow",
+		"cash_flow_description": "Record income and expenses per client, vendor or driver, with a full operational history.",
+		"directory_title": "Clients & Vendors",
+		"directory_description": "Keep a shared directory of clients, vendors, brands and addresses across the whole team.",
+		"permissions_title": "Roles & Permissions",
+		"permissions_description": "Grant per-entity, per-operation access so admins, operators and drivers only see what they need.",
+		"dashboard_title": "One Admin Dashboard",
+		"dashboard_description": "Every entity — users, logs, mail queue, templates — managed from a single, consistent CRUD interface."
+	},
+	"cta": {
+		"go_dashboard": "Go to Dashboard",
+		"create_account": "Create Free Account",
+		"sign_in": "Sign In",
+		"back_title": "Back to work",
+		"back_description": "Jump into the admin dashboard to manage users, fleet, documents and more.",
+		"open_dashboard": "Open Dashboard",
+		"ready_title": "Ready to Get Started?",
+		"ready_description": "Create an account to manage your fleet, documents and team in one dashboard."
+	}
+}

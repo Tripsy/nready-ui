@@ -1,0 +1,76 @@
+{
+	"meta": {
+		"title": "Clienți - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_client_type": "Selectează un tip de client valid",
+		"invalid_iban": "IBAN invalid",
+		"invalid_bank_name": "Nume bancă invalid",
+		"invalid_contact_name": "Nume persoană de contact invalid",
+		"invalid_contact_email": "Email de contact invalid",
+		"invalid_contact_phone": "Telefon de contact invalid",
+		"invalid_notes": "Notițe invalide",
+		"invalid_company_name": "Nume firmă invalid",
+		"invalid_company_cui": "CUI invalid",
+		"invalid_company_reg_com": "Nr. reg. com. invalid",
+		"invalid_person_name": "Nume persoană invalid",
+		"invalid_person_identification_number": "CNP invalid (trebuie să conțină 13 cifre)"
+	},
+	"status": {
+		"active": "Activ",
+		"pending": "În așteptare",
+		"inactive": "Inactiv",
+		"deleted": "Șters"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă client nou",
+			"label": "Adaugă",
+			"success": "Clientul nou a fost adăugat cu succes"
+		},
+		"update": {
+			"title": "Editează clientul - {{entry}}",
+			"label": "Actualizează",
+			"success": "Clientul a fost actualizat cu succes"
+		},
+		"delete": {
+			"title": "Șterge clientul - {{entry}}",
+			"label": "Șterge",
+			"success": "Clientul a fost șters cu succes",
+			"confirm": "Sigur vrei să ștergi acest client?"
+		},
+		"enable": {
+			"title": "Activează clientul - {{entry}}",
+			"label": "Activează",
+			"success": "Starea clientului a fost marcată ca activă",
+			"confirm": "Sigur vrei să activezi acest client?"
+		},
+		"disable": {
+			"title": "Dezactivează clientul - {{entry}}",
+			"label": "Dezactivează",
+			"success": "Starea clientului a fost marcată ca inactivă",
+			"confirm": "Sigur vrei să marchezi acest client drept inactiv?"
+		},
+		"restore": {
+			"title": "Restaurează clientul - {{entry}}",
+			"label": "Restaurează",
+			"success": "Clientul a fost restaurat cu succes",
+			"confirm": "Sigur vrei să restaurezi acest client?"
+		},
+		"view": {
+			"title": "Detalii client - {{entry}}",
+			"label": "Vezi detalii"
+		}
+	},
+	"field": {
+		"company_name": "Firmă - Nume",
+		"company_cui": "Firmă - CUI",
+		"company_reg_com": "Firmă - Nr. reg. com.",
+		"person_name": "Persoană - Nume",
+		"person_cnp": "Persoană - CNP",
+		"contact_name": "Contact - Nume",
+		"contact_email": "Contact - Email",
+		"contact_phone": "Contact - Telefon",
+		"notes": "Notițe"
+	}
+}

@@ -1,0 +1,136 @@
+# syntax=docker/dockerfile:1.10
+#
+# The 1.10 frontend is required for `--mount=type=secret,env=...` in the build stage below;
+# 1.7 accepts secrets only as files.
+#
+# Production image for the dashboard.
+#
+# `docker/dockerfile` (lowercase) stays the dev image. This one compiles the app and ships
+# only Next's standalone bundle.
+#
+# Build-time vs run-time configuration
+# ------------------------------------
+# Next inlines every `NEXT_PUBLIC_*` value into the client bundle during `next build`, so
+# those arrive as build args and the resulting image is tied to one environment. Everything
+# the server reads at request time — REMOTE_API_URL, SESSION_TOKEN, REDIS_*, AWS_* — stays a
+# runtime variable and must NOT be added as a build arg: build args are recorded in the
+# image history, which would publish those secrets to anyone who can pull the image.
+
+ARG NODE_VERSION=24.18.0
+
+# ---------------------------------------------------------------------------------------
+# base — pnpm on a slim Debian runtime.
+#
+# `-slim` (glibc) rather than `-alpine` (musl): sharp, which powers Next's image
+# optimisation, ships glibc prebuilds and would otherwise be compiled from source.
+# ---------------------------------------------------------------------------------------
+FROM node:${NODE_VERSION}-slim AS base
+
+ARG PNPM_VERSION=11.17.0
+
+ENV PNPM_HOME=/pnpm \
+    PATH=/pnpm:$PATH
+
+RUN npm install --global pnpm@${PNPM_VERSION}
+
+WORKDIR /build
+
+# ---------------------------------------------------------------------------------------
+# deps — full dependency tree.
+#
+# No separate production install stage here: `output: 'standalone'` already traces the
+# modules the server actually imports and emits them into `.next/standalone/node_modules`,
+# so the runtime tree is a build artefact rather than a second resolve.
+# ---------------------------------------------------------------------------------------
+FROM base AS deps
+
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends python3 make g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+RUN --mount=type=cache,id=pnpm-store-dashboard,target=/pnpm/store \
+    pnpm install --frozen-lockfile
+
+# ---------------------------------------------------------------------------------------
+# build — `next build` with the public configuration baked in.
+# ---------------------------------------------------------------------------------------
+FROM deps AS build
+
+ARG NEXT_PUBLIC_NODE_ENV=production
+ARG NEXT_PUBLIC_APP_DEBUG=false
+ARG NEXT_PUBLIC_APP_URL
+ARG NEXT_PUBLIC_APP_NAME
+ARG NEXT_PUBLIC_TIMEZONE
+ARG NEXT_PUBLIC_REMOTE_API_WS_URL
+ARG NEXT_PUBLIC_REMOTE_API_WS_RECONNECT_DELAY
+ARG NEXT_PUBLIC_LANGUAGE_DEFAULT
+ARG NEXT_PUBLIC_LANGUAGE_SUPPORTED
+ARG NEXT_PUBLIC_LANGUAGE_COOKIE
+ARG NEXT_PUBLIC_LANGUAGE_COOKIE_MAX_AGE
+ARG NEXT_PUBLIC_APP_CURRENCY
+ARG NEXT_PUBLIC_APP_VAT_RATE
+ARG NEXT_PUBLIC_SENTRY_DSN
+ARG NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE
+
+ENV NEXT_PUBLIC_NODE_ENV=${NEXT_PUBLIC_NODE_ENV} \
+    NEXT_PUBLIC_APP_DEBUG=${NEXT_PUBLIC_APP_DEBUG} \
+    NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL} \
+    NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME} \
+    NEXT_PUBLIC_TIMEZONE=${NEXT_PUBLIC_TIMEZONE} \
+    NEXT_PUBLIC_REMOTE_API_WS_URL=${NEXT_PUBLIC_REMOTE_API_WS_URL} \
+    NEXT_PUBLIC_REMOTE_API_WS_RECONNECT_DELAY=${NEXT_PUBLIC_REMOTE_API_WS_RECONNECT_DELAY} \
+    NEXT_PUBLIC_LANGUAGE_DEFAULT=${NEXT_PUBLIC_LANGUAGE_DEFAULT} \
+    NEXT_PUBLIC_LANGUAGE_SUPPORTED=${NEXT_PUBLIC_LANGUAGE_SUPPORTED} \
+    NEXT_PUBLIC_LANGUAGE_COOKIE=${NEXT_PUBLIC_LANGUAGE_COOKIE} \
+    NEXT_PUBLIC_LANGUAGE_COOKIE_MAX_AGE=${NEXT_PUBLIC_LANGUAGE_COOKIE_MAX_AGE} \
+    NEXT_PUBLIC_APP_CURRENCY=${NEXT_PUBLIC_APP_CURRENCY} \
+    NEXT_PUBLIC_APP_VAT_RATE=${NEXT_PUBLIC_APP_VAT_RATE} \
+    NEXT_PUBLIC_SENTRY_DSN=${NEXT_PUBLIC_SENTRY_DSN} \
+    NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE=${NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE} \
+    NEXT_TELEMETRY_DISABLED=1 \
+    NODE_ENV=production
+
+COPY . .
+
+# SENTRY_AUTH_TOKEN uploads the source maps and is only valid for the length of this one
+# RUN, so it never reaches the image history. Without it `next build` still succeeds — it
+# just skips the upload and production stack traces stay minified (see next.config.ts).
+RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
+    --mount=type=secret,id=sentry_org,env=SENTRY_ORG \
+    --mount=type=secret,id=sentry_project,env=SENTRY_PROJECT \
+    pnpm run build
+
+# ---------------------------------------------------------------------------------------
+# runner — the standalone server and its static assets.
+# ---------------------------------------------------------------------------------------
+FROM node:${NODE_VERSION}-slim AS runner
+
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME=0.0.0.0
+
+WORKDIR /app
+
+# `.next/static` and `public` sit outside the standalone trace and have to be placed by
+# hand — Next documents this. Without them the app boots and serves unstyled HTML.
+COPY --from=build --chown=node:node /build/.next/standalone ./
+COPY --from=build --chown=node:node /build/.next/static ./.next/static
+COPY --from=build --chown=node:node /build/public ./public
+
+# IMAGE_STORAGE=local writes uploads under public/uploads, which is container-local and
+# therefore lost on every redeploy. Created here so a bind mount or named volume has
+# somewhere to land; switching IMAGE_STORAGE to s3 removes the need for one.
+RUN mkdir -p /app/public/uploads && chown node:node /app/public/uploads
+
+USER node
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD node -e "fetch('http://127.0.0.1:'+process.env.PORT+'/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
+# Standalone emits its own minimal server; `next start` is not available in this image.
+CMD ["node", "server.js"]

@@ -1,0 +1,23 @@
+{
+	"nav": {
+		"home": "Home",
+		"dashboard": "Dashboard",
+		"driver_panel": "Driver Panel"
+	},
+	"menu": {
+		"login": "Login",
+		"login_title": "Sign in",
+		"register": "Sign Up",
+		"register_title": "Create an account",
+		"account": "My account",
+		"dashboard": "Dashboard",
+		"logout": "Logout"
+	},
+	"aria": {
+		"toggle_menu": "Toggle menu",
+		"toggle_theme": "Toggle theme",
+		"switch_language": "Switch language",
+		"loading_page": "Loading page",
+		"account_error": "An error occurred while loading your account"
+	}
+}

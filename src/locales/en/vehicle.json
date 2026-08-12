@@ -1,0 +1,60 @@
+{
+	"meta": {
+		"title": "Vehicles - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_brand_id": "Invalid brand; Pick brand from select",
+		"invalid_brand": "Invalid brand",
+		"invalid_vehicle_type": "Vehicle type is required",
+		"invalid_model": "Invalid model",
+		"invalid_length": "Invalid length",
+		"invalid_width": "Invalid width",
+		"invalid_height": "Invalid height",
+		"invalid_weight": "Invalid weight"
+	},
+	"status": {
+		"verified": "Verified",
+		"draft": "Draft",
+		"deleted": "Deleted"
+	},
+	"action": {
+		"create": {
+			"title": "Add new vehicle",
+			"label": "Add",
+			"success": "New vehicle added successfully"
+		},
+		"update": {
+			"title": "Update vehicle - {{entry}}",
+			"label": "Update",
+			"success": "Vehicle updated successfully"
+		},
+		"delete": {
+			"title": "Delete vehicle - {{entry}}",
+			"label": "Delete",
+			"success": "Vehicle deleted successfully",
+			"confirm": "Are you sure you want to delete this vehicle?"
+		},
+		"restore": {
+			"title": "Restore vehicle - {{entry}}",
+			"label": "Restore",
+			"success": "Vehicle restored successfully",
+			"confirm": "Are you sure you want to restore this vehicle?"
+		},
+		"verified": {
+			"title": "Mark vehicle as verified - {{entry}}",
+			"label": "Set verified",
+			"success": "Vehicle status marked as verified",
+			"confirm": "Are you sure you want to mark this vehicle as verified?"
+		},
+		"draft": {
+			"title": "Mark vehicle as draft - {{entry}}",
+			"label": "Set draft",
+			"success": "Vehicle status marked as draft",
+			"confirm": "Are you sure you want to mark this vehicle as draft?"
+		},
+		"view": {
+			"title": "Vehicle details - {{entry}}",
+			"label": "View details"
+		}
+	}
+}

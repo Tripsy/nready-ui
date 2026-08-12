@@ -1,0 +1,33 @@
+{
+	"meta": {
+		"title": "Permisiuni - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_entity": "Selectează o entitate",
+		"invalid_operation": "Selectează o operațiune"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă permisiune nouă",
+			"label": "Adaugă",
+			"success": "Permisiunea nouă a fost adăugată"
+		},
+		"update": {
+			"title": "Editează permisiunea",
+			"label": "Actualizează",
+			"success": "Permisiunea a fost actualizată"
+		},
+		"delete": {
+			"title": "Șterge permisiunea",
+			"label": "Șterge",
+			"success": "Permisiunea a fost ștearsă",
+			"confirm": "Sigur vrei să ștergi această permisiune?"
+		},
+		"restore": {
+			"title": "Restaurează permisiunea",
+			"label": "Restaurează",
+			"success": "Permisiunea a fost restaurată",
+			"confirm": "Sigur vrei să restaurezi această permisiune?"
+		}
+	}
+}

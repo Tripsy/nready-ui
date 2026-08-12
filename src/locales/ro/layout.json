@@ -1,0 +1,23 @@
+{
+	"nav": {
+		"home": "Acasă",
+		"dashboard": "Dashboard",
+		"driver_panel": "Panou șofer"
+	},
+	"menu": {
+		"login": "Autentificare",
+		"login_title": "Autentifică-te",
+		"register": "Creează cont",
+		"register_title": "Creează un cont",
+		"account": "Contul meu",
+		"dashboard": "Dashboard",
+		"logout": "Deconectare"
+	},
+	"aria": {
+		"toggle_menu": "Comută meniul",
+		"toggle_theme": "Comută tema",
+		"switch_language": "Schimbă limba",
+		"loading_page": "Se încarcă pagina",
+		"account_error": "A apărut o eroare la încărcarea contului tău"
+	}
+}

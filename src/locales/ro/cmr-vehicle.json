@@ -1,0 +1,52 @@
+{
+	"meta": {
+		"title": "Vehicule CMR - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_cmr_id": "CMR invalid",
+		"invalid_vehicle_id": "Vehicul de companie invalid; Alege vehiculul din listă",
+		"invalid_vehicle": "Vehicul de companie invalid",
+		"invalid_license_plate": "Număr de înmatriculare invalid",
+		"invalid_vin": "Serie de șasiu (VIN) invalidă",
+		"invalid_notes": "Notițe invalide"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă vehicul CMR",
+			"label": "Adaugă",
+			"success": "Vehiculul nou a fost adăugat cu succes"
+		},
+		"update": {
+			"title": "Actualizează vehiculul - {{entry}}",
+			"label": "Actualizează",
+			"success": "Vehiculul a fost actualizat cu succes"
+		},
+		"delete": {
+			"title": "Șterge vehiculul - {{entry}}",
+			"label": "Șterge",
+			"success": "Vehiculul a fost șters cu succes",
+			"confirm": "Sigur vrei să ștergi acest vehicul?"
+		},
+		"restore": {
+			"title": "Restaurează vehiculul - {{entry}}",
+			"label": "Restaurează",
+			"success": "Vehiculul CMR a fost restaurat cu succes",
+			"confirm": "Sigur vrei să restaurezi acest vehicul CMR?"
+		},
+		"view": {
+			"title": "Detalii vehicul CMR - {{entry}}",
+			"label": "Vezi detalii"
+		}
+	},
+	"field": {
+		"vehicle": "Vehicul",
+		"vin": "VIN",
+		"license_plate": "Număr de înmatriculare",
+		"notes": "Notițe"
+	},
+	"button": {
+		"add": "Adaugă vehicul",
+		"update": "Actualizează vehiculul",
+		"delete": "Șterge vehiculul"
+	}
+}
