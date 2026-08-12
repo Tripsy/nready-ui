@@ -15,7 +15,7 @@ paths:
 # Forms Protocol
 
 **Scope:** Client-side validation and the create/update form lifecycle for dashboard entities. Rules must
-match the shape the backend actually accepts — see §3 below and `../nready.dev/.claude/rules/validation.md`.
+match the shape the backend actually accepts — see §3 below and `../nready-api/.claude/rules/validation.md`.
 
 ## 1. Core Philosophy
 
@@ -95,9 +95,9 @@ class CashFlowValidator extends BaseValidator<typeof validatorMessages> {
   in `src/locales/<lang>/index.ts` (e.g. `account-email-update.validation`, not `email-update.validation`).
   A mismatched namespace resolves to nothing and silently surfaces raw keys instead of messages.
 - Before writing or changing a Zod schema here, check the authoritative shape in
-  `../nready.dev/src/features/<entity>/<entity>.validator.ts` (field list, required/optional, formats,
+  `../nready-api/src/features/<entity>/<entity>.validator.ts` (field list, required/optional, formats,
   enum values) — client and backend validation must agree on what "valid" means. The backend's own
-  `../nready.dev/.claude/rules/validation.md` documents its conventions (message-key resolution, partial
+  `../nready-api/.claude/rules/validation.md` documents its conventions (message-key resolution, partial
   update rules, etc.); mirror the *shape*, not the implementation (the backend uses `getMessage()`/i18next,
   this project uses `translateBatch()`).
 

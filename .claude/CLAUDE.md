@@ -1,5 +1,5 @@
 ## Overview
-Next.js app with codename `nready-ui` consuming the `nready.dev` API. Public site (marketing, auth, account self-service) + admin CRUD dashboard for the backend entities.
+Next.js app with codename `nready-ui` consuming the `nready-api` API. Public site (marketing, auth, account self-service) + admin CRUD dashboard for the backend entities.
 
 Started as a copy of `../star-ui` (the frontend for `star-api`) with the fleet/CMR/driver features stripped out. `star-ui` is still the closest reference for anything not covered here.
 
@@ -40,7 +40,7 @@ context yet. Read the relevant one *before* proposing an approach in that area, 
 | `state.md` | Zustand stores, what belongs in a store vs. local state vs. server cache | `src/stores/**`, `src/components/window/**` |
 | `typescript.md` | TS/React conventions, linting rules, type-checking | every `.ts`/`.tsx` |
 
-Backend behaviour has its own set in `../nready.dev/.claude/rules/` (`api.md`, `auth.md`,
+Backend behaviour has its own set in `../nready-api/.claude/rules/` (`api.md`, `auth.md`,
 `database.md`, `error-handling.md`, `validation.md`, ...) — consult those rather than inferring
 backend rules from this project.
 
@@ -91,6 +91,12 @@ pnpm run biome    # Biome check --write (lint + format + circular dependencies)
 pnpm run clean    # Delete .next — Turbopack's dev cache grows until the container OOMs
 ```
 
+**Start the dev server through `/dev-stack`**, not `docker exec -it … pnpm run dev` — it drives
+this container and `nready-api.test` together, launches both detached, waits on their health
+endpoints and writes `logs/dev.log` (gitignored). The driver is
+`../nready-api/.claude/scripts/dev-stack.sh`; `/dev-stack doctor ui` reports the OOM flag and
+memory headroom behind the cache growth noted above.
+
 **pnpm 11 no longer reads the `pnpm` field in `package.json`** — settings live in
 `pnpm-workspace.yaml`. A dependency whose install scripts are blocked reports
 `ERR_PNPM_IGNORED_BUILDS` and pnpm writes a placeholder into `allowBuilds` there for you to
@@ -129,12 +135,12 @@ time: stop the dev server before running either, or it is the one that gets kill
 
 - This FE project has **no database and holds no business logic of its own**
 - It **sends no email** — the backend owns mail entirely. There is no nunjucks/templates stack here; don't reintroduce one.
-- Nearly everything under `src/services/*.service.ts` is a typed wrapper around an `nready.dev` REST endpoint.
-- The backend project is located in `../nready.dev` on which you have access through permission / additionalDirectories
+- Nearly everything under `src/services/*.service.ts` is a typed wrapper around an `nready-api` REST endpoint.
+- The backend project is located in `../nready-api` on which you have access through permission / additionalDirectories
 - The two projects connect purely over HTTP
 - `REMOTE_API_URL` in `.env` is the backend base URL.
 - When a task requires understanding backend behavior — request/response shape, validation rules, permission
-entities/operations, DB schema, business rules read the code in `../nready.dev`
+entities/operations, DB schema, business rules read the code in `../nready-api`
 - `src/app/api/proxy/[...path]/route.ts` forwards dashboard requests to the backend, attaching the session
   cookie as a `Bearer` token.
 - `src/proxy.ts` (the Next.js middleware) resolves auth/permission on every route by
@@ -170,7 +176,7 @@ entities/operations, DB schema, business rules read the code in `../nready.dev`
 │   │   │   ├── image/
 │   │   │   ├── language/
 │   │   │   ├── oauth/         # oauth/[provider] — social login redirect/callback
-│   │   │   ├── proxy/         # [...path] — forwards dashboard requests to nready.dev
+│   │   │   ├── proxy/         # [...path] — forwards dashboard requests to nready-api
 │   │   ├── error.tsx          # Route error boundary
 │   │   ├── favicon.ico
 │   │   ├── global-error.tsx   # Root-layout error boundary (inline-styled, no globals.css)
@@ -196,7 +202,7 @@ entities/operations, DB schema, business rules read the code in `../nready.dev`
 │   ├── locales/               # Language files (en, ro)
 │   ├── models/                # Models (entities)
 │   ├── providers/             # auth, query-client, theme, toast, window-form, ...
-│   ├── services/              # nready.dev service wrappers (account, auth, image, ...)
+│   ├── services/              # nready-api service wrappers (account, auth, image, ...)
 │   ├── stores/
 │   │   ├── data-table.store.ts
 │   │   ├── window.store.ts
@@ -218,7 +224,7 @@ entities/operations, DB schema, business rules read the code in `../nready.dev`
 - **Never commit onto `main`.** GitHub refuses a direct push to it, so a commit made there has to be
   moved off before it can go anywhere. If the current branch is `main` when a commit is requested,
   create the branch first (`git switch -c <type>/<short-name>`) and commit on that. The same applies
-  in `../nready.dev`.
+  in `../nready-api`.
 - When subagents are available and appropriate for the task, prefer delegating noisy operations
   (broad searches, log trawls, build output) to one — this is a preference for keeping the main
   context clean, not an instruction to spawn agents unprompted.
@@ -318,7 +324,7 @@ entities/operations, DB schema, business rules read the code in `../nready.dev`
   80.6452 is row value 806452. Forms accept 2 decimals; anything past the 4th is discarded by that
   round-trip. The VAT helpers in `src/helpers/string.helper.ts` round to the same precision — keep any
   new amount maths on `roundAmount()` rather than returning raw float.
-- **Redis is shared with nready.dev** (one instance, one database), so every key is namespaced by
+- **Redis is shared with nready-api** (one instance, one database), so every key is namespaced by
   `redis.keyPrefix` (`nready-ui` here, `nready-api` there) inside `CacheProvider.buildKey`. Not via
   ioredis's own `keyPrefix` option: that one does not reach the MATCH argument of SCAN, so
   `deleteByPattern` would scan the other app's keys. Build every key through `buildKey`.

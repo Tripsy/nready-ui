@@ -8,14 +8,14 @@
 
 # 📄 Description
 
-(Dashboard) is a demo frontend implementation using [NReady](https://github.com/Tripsy/nready) as a backend API.
+(Dashboard) is a demo frontend implementation using [NReady](https://github.com/Tripsy/nready-api) as a backend API.
 
 This boilerplate provides an authentication system (login, register, recover password, account pages, etc.)
 and includes an administration dashboard (user, cron-history, log-history, log-data, mail-queue, permission, 
-template, client, address, place, brand, cash-flow, etc.)
+template, client, address, place, brand, category, cash-flow, etc.)
 
 This project is still a work in progress, and the next goals are:
-- Include additional [NReady](https://github.com/Tripsy/nready) features in the administration dashboard
+- Include additional [NReady](https://github.com/Tripsy/nready-api) features in the administration dashboard
 
 Meanwhile, we're open to suggestions / feedback, and if you find this project useful, please consider giving it a star ⭐
 
@@ -55,12 +55,15 @@ Meanwhile, we're open to suggestions / feedback, and if you find this project us
     - Auth system: login, register, logout, forgot password, reset password, email confirmation, etc.
 - [x] (Dashboard) 
     - cron-history, log-data, log-history, mail-queue, permission, template, user
-    - brand, cash-flow, address, client, place
+    - brand, category, cash-flow, address, client, place
     - // TODO 
 
 # 🛠 Setup
 
 ### 1. Add `hosts` record
+
+sudo nano /private/etc/hosts
+
 For configuration refer to this guide:  
 [How to Edit the Host File on macOS](https://phoenixnap.com/kb/mac-hosts-file)
 
@@ -221,13 +224,17 @@ room in the container for both, and it is usually the dev server that gets kille
 
 # 📌 TODO
 
-1. Dashboard entities for the nready-only features: product, category, article, order,
+1. Dashboard entities for the nready-only features: product, article, order,
    order-shipping, invoice, grn, warehouse, carrier, discount, subscription, term
+   - `category` is done except for re-parenting, blocked on the backend
+     (`GET /categories/:id` omits the parent relation, and `updateDataWithContent` gates
+     its re-parenting branch on that same unloaded relation)
 2. `stats` feature on the backend — the dashboard home widgets (expenses, revenues,
-   recent activity) call `/stats/*`, which nready.dev does not serve yet
+   recent activity) call `/stats/*`, which nready-api does not serve yet
 3. Hero UI -> theme
 4. Add section "documentation"
 5. Add demo instructions
+6. Setup Sentry on UI
 
 # 🔗 Dependencies
 
