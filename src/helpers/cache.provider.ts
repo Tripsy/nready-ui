@@ -122,11 +122,10 @@ export class CacheProvider {
 	 * Raw read with no fetch-on-miss.
 	 *
 	 * The read-through `get()` always stores whatever the fetch function returned, so it
-	 * cannot express "only some outcomes may be cached" — auth is the case in point: a
-	 * backend outage has to stay a live decision instead of being persisted for the TTL.
-	 * Callers with that constraint drive the cache themselves via `read()`/`set()`.
-	 *
-	 * Worth backporting to `nready.dev`, which has the same gap.
+	 * cannot express "only some outcomes may be cached" — auth is the case in point: the
+	 * proxy's `resolveAuthModel()` *returns* a failure value on a backend outage rather than
+	 * throwing, and a returned value is exactly what `get()` persists for the TTL. Callers
+	 * with that constraint drive the cache themselves via `read()`/`set()`.
 	 */
 	async read(key: string): Promise<CacheData> {
 		try {

@@ -34,7 +34,7 @@
   },
   "permissions": {
     "additionalDirectories": [
-      "../nready.dev"
+      "../nready-api"
     ],
     "allow": [
       "Bash(git add:*)",
