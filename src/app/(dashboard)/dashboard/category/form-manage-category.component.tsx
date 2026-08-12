@@ -46,16 +46,9 @@ export function FormManageCategory() {
 		useWindowForm<CategoryFormValuesType>();
 
 	/*
-	 * Type and parent are both create-only.
-	 *
-	 * Type: the backend `update` schema accepts only `parent_id` and `contents`, and
-	 * re-parenting across types is rejected — so it is fixed once the row exists.
-	 *
-	 * Parent: `GET /categories/:id` does not load the relation, so there is nothing to
-	 * prefill, and `updateDataWithContent` gates its whole re-parenting branch on the
-	 * parent it likewise never loaded — an edit here would be accepted and discarded.
-	 * Rendering the control only on create keeps the form honest until the API returns
-	 * and applies the parent on update.
+	 * Type is create-only: the backend `update` schema accepts only `parent_id` and
+	 * `contents`, and re-parenting across types is rejected — so it is fixed once the row
+	 * exists. The parent itself is editable, which is why the type it scopes is not.
 	 */
 	const isCreate = formOperation === 'create';
 
@@ -165,60 +158,45 @@ export function FormManageCategory() {
 				error={errors.type}
 			/>
 
-			{isCreate && (
-				<>
-					<input
-						type="hidden"
-						name="parent_id"
-						value={formValues.parent_id ?? ''}
-					/>
-					<FormComponentAutoComplete<
-						CategoryFormValuesType,
-						CategoryModel
-					>
-						labelText="Parent"
-						id={elementIds.parent}
-						fieldName="parent"
-						fieldValue={formValues.parent ?? ''}
-						className="pl-8"
-						isRequired={false}
-						disabled={pending}
-						error={errors.parent}
-						onInputChange={(value) => {
-							handleChange('parent', value);
-							handleChange('parent_id', null);
-							setSearchParentCategories(value);
-						}}
-						autoCompleteProps={{
-							suggestions: parentCategorySuggestions,
-							isLoading: isParentCategoryFetching,
-							onSelect: (m) => {
-								handleChange(
-									'parent',
-									displayCategoryLabel(
-										m,
-										selectedLanguage,
-										false,
-									),
-								);
-								handleChange('parent_id', m.id);
-							},
-							getOptionLabel: (m) =>
-								displayCategoryLabel(
-									m,
-									selectedLanguage,
-									false,
-								),
-							getOptionKey: (m) => m.id,
-						}}
-						icons={{
-							left: (
-								<Icons.Category className="opacity-40 h-4.5 w-4.5" />
-							),
-						}}
-					/>
-				</>
-			)}
+			<input
+				type="hidden"
+				name="parent_id"
+				value={formValues.parent_id ?? ''}
+			/>
+			<FormComponentAutoComplete<CategoryFormValuesType, CategoryModel>
+				labelText="Parent"
+				id={elementIds.parent}
+				fieldName="parent"
+				fieldValue={formValues.parent ?? ''}
+				className="pl-8"
+				isRequired={false}
+				disabled={pending}
+				error={errors.parent}
+				// Clearing the field is how a category is promoted to a root, so an empty
+				// input is a valid value here, not an unfinished selection.
+				onInputChange={(value) => {
+					handleChange('parent', value);
+					handleChange('parent_id', null);
+					setSearchParentCategories(value);
+				}}
+				autoCompleteProps={{
+					suggestions: parentCategorySuggestions,
+					isLoading: isParentCategoryFetching,
+					onSelect: (m) => {
+						handleChange(
+							'parent',
+							displayCategoryLabel(m, selectedLanguage, false),
+						);
+						handleChange('parent_id', m.id);
+					},
+					getOptionLabel: (m) =>
+						displayCategoryLabel(m, selectedLanguage, false),
+					getOptionKey: (m) => m.id,
+				}}
+				icons={{
+					left: <Icons.Category className="opacity-40 h-4.5 w-4.5" />,
+				}}
+			/>
 
 			<input
 				type="hidden"

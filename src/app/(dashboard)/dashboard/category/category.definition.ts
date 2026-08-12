@@ -206,13 +206,13 @@ function prepareCreateParams({
 }
 
 /**
- * The backend's `update` schema accepts `parent_id` and `contents` only, and treats the mere
- * presence of `parent_id` as an intentional detach. The form does not offer the parent on
- * update, so sending the key at all would ask for a change the user never made.
+ * The backend's `update` schema accepts `parent_id` and `contents` only — `type` is fixed once
+ * the row exists. `parent_id` is always sent, including as `null`: the backend reads the key's
+ * presence as the intent to re-parent and its emptiness as a promotion to root, and the form
+ * prefills it from the entry, so an unchanged value is a no-op there.
  */
 function prepareUpdateParams({
 	parent: _parent,
-	parent_id: _parentId,
 	type: _type,
 	...params
 }: CategoryFormValuesType) {
@@ -243,6 +243,7 @@ export default async function dataSourceConfig(): Promise<
 			'enable.title',
 			'disable.title',
 			'order.title',
+			'tree.title',
 		] as const,
 		'category.action',
 	);
@@ -508,7 +509,18 @@ export default async function dataSourceConfig(): Promise<
 				entriesSelection: 'free',
 				buttonPosition: 'right',
 				button: {
-					variant: 'default',
+					variant: 'warning',
+				},
+			},
+			tree: {
+				windowType: 'link',
+				windowTitle: translations['tree.title'],
+				windowTarget: Routes.get('category-tree'),
+				permission: ['category', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'warning',
 				},
 			},
 		},

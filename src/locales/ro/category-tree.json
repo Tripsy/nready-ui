@@ -1,0 +1,15 @@
+{
+	"meta": {
+		"title": "Categorii / Arbore - Dashboard | {{app_name}}"
+	},
+	"text": {
+		"no_entries": "Nicio categorie activă pentru acest tip.",
+		"truncated": "Se afișează doar primele {{limit}} categorii active, din {{total}}.",
+		"detached": "Afișată la nivelul principal: părintele ei nu este activ.",
+		"expand_all": "Extinde tot",
+		"collapse_all": "Restrânge tot"
+	},
+	"error": {
+		"load_failed": "Nu s-a putut încărca arborele de categorii. Încearcă din nou."
+	}
+}

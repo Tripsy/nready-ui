@@ -226,15 +226,14 @@ room in the container for both, and it is usually the dev server that gets kille
 
 1. Dashboard entities for the nready-only features: product, article, order,
    order-shipping, invoice, grn, warehouse, carrier, discount, subscription, term
-   - `category` is done except for re-parenting, blocked on the backend
-     (`GET /categories/:id` omits the parent relation, and `updateDataWithContent` gates
-     its re-parenting branch on that same unloaded relation)
 2. `stats` feature on the backend — the dashboard home widgets (expenses, revenues,
    recent activity) call `/stats/*`, which nready-api does not serve yet
 3. Hero UI -> theme
 4. Add section "documentation"
 5. Add demo instructions
 6. Setup Sentry on UI
+7. Discuss with Claude about code comments style
+8. Go to old branch before-star and get the footer additions 
 
 # 🔗 Dependencies
 

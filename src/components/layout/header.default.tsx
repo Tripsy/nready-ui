@@ -33,27 +33,28 @@ export function Header({
 	const [activeHash, setActiveHash] = useState('');
 	const observerRef = useRef<IntersectionObserver | null>(null);
 
-	const navLinks = useMemo(() => {
-		if (authStatus !== 'authenticated') {
-			return [];
-		}
-
-		const result = [];
-
-		result.push({
-			href: Routes.get('home'),
-			label: translations['layout.nav.home'],
-			hash: 'home',
-		});
-
-		result.push({
-			href: Routes.get('dashboard'),
-			label: translations['layout.nav.dashboard'],
-			hash: 'dashboard',
-		});
-
-		return result;
-	}, [authStatus, translations]);
+	/*
+	 * Every entry is public, so the nav is no longer gated on `authStatus` — it used to be,
+	 * because the only destination besides home was the dashboard. Signed-in users still
+	 * reach that from `UserMenu`, which is where the authenticated destinations live.
+	 *
+	 * `hash` marks an entry that scrolls to a section of the home page; an entry pointing at
+	 * a page of its own has none, and the observer below skips it.
+	 */
+	const navLinks = useMemo(
+		() => [
+			{
+				href: Routes.get('home'),
+				label: translations['layout.nav.home'],
+				hash: 'home',
+			},
+			{
+				href: Routes.get('categories'),
+				label: translations['layout.nav.categories'],
+			},
+		],
+		[translations],
+	);
 
 	useEffect(() => {
 		if (pathname !== homePath) {
@@ -83,24 +84,24 @@ export function Header({
 		// Observe all target elements
 		const observer = observerRef.current;
 
-		navLinks.forEach((d) => {
-			const element = document.querySelector(`#${d.hash}`);
-
-			if (element) {
-				observer.observe(element);
-			}
-		});
-
-		// Add delay to ensure DOM is ready
-		setTimeout(() => {
+		const observeSections = () => {
 			navLinks.forEach((d) => {
+				if (!d.hash) {
+					return;
+				}
+
 				const element = document.querySelector(`#${d.hash}`);
 
 				if (element) {
 					observer.observe(element);
 				}
 			});
-		}, 100);
+		};
+
+		observeSections();
+
+		// Add delay to ensure DOM is ready
+		setTimeout(observeSections, 100);
 
 		return () => {
 			if (observerRef.current) {

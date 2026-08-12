@@ -60,6 +60,10 @@
 			"label": "Sortează",
 			"success": "Ordinea a fost actualizată cu succes"
 		},
+		"tree": {
+			"title": "Vezi arborele de categorii",
+			"label": "Arbore"
+		},
 		"view": {
 			"title": "Detalii categorie - {{entry}}",
 			"label": "Vezi detalii"

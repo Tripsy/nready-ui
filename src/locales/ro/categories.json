@@ -1,0 +1,13 @@
+{
+	"meta": {
+		"title": "Categorii de produse | {{app_name}}",
+		"description": "Vezi categoriile de produse disponibile în catalogul nostru."
+	},
+	"text": {
+		"heading": "Categorii de produse",
+		"subheading": "Tot ce se află în catalog, grupat așa cum îl organizăm.",
+		"no_entries": "Momentan nu există categorii de produse de afișat.",
+		"unavailable": "Lista de categorii este temporar indisponibilă. Încearcă din nou mai târziu.",
+		"subcategories": "Subcategorii"
+	}
+}

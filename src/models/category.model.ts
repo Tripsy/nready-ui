@@ -58,6 +58,11 @@ export type CategoryModel<D = Date | string> = {
 };
 
 // Helpers
+/**
+ * `fallback` is what an absent value reads as. It defaults to the dashboard's marker, which
+ * flags a row an editor has to fix; a public surface passes an empty string, where a missing
+ * optional field (a description, say) is not a fault to advertise.
+ */
 export function getCategoryContentProp(
 	category: CategoryModel,
 	language: Language,
@@ -65,9 +70,10 @@ export function getCategoryContentProp(
 		CategoryContentType,
 		'label' | 'slug' | 'description'
 	> = 'label',
+	fallback: string = '[no content]',
 ): string {
 	if (!category.contents?.length) {
-		return '[no content]';
+		return fallback;
 	}
 
 	const contentSelected = category.contents.find(
@@ -86,7 +92,58 @@ export function getCategoryContentProp(
 		return contentDefault[prop];
 	}
 
-	return category.contents[0][prop] ?? '[no content]';
+	return category.contents[0][prop] ?? fallback;
+}
+
+export type CategoryTreeNode = {
+	entry: CategoryModel;
+	children: CategoryTreeNode[];
+	/**
+	 * Its parent is missing from the set the tree was built from, so it is drawn as a root.
+	 * Happens on any partial listing — an active-only fetch whose parent is inactive, or a
+	 * page of results that stops short of it.
+	 */
+	isDetached: boolean;
+};
+
+/**
+ * Nests a flat listing on the `parent.id` every category endpoint returns. Insertion order is
+ * preserved, so a list the backend already ordered by `sort_order` comes out ordered within
+ * each sibling group without a second sort.
+ */
+export function buildCategoryTree(
+	entries: CategoryModel[],
+): CategoryTreeNode[] {
+	const nodes = new Map<number, CategoryTreeNode>(
+		entries.map((entry) => [
+			entry.id,
+			{ entry, children: [], isDetached: false },
+		]),
+	);
+
+	const roots: CategoryTreeNode[] = [];
+
+	for (const entry of entries) {
+		const node = nodes.get(entry.id);
+
+		if (!node) {
+			continue;
+		}
+
+		const parentNode = entry.parent
+			? nodes.get(entry.parent.id)
+			: undefined;
+
+		if (parentNode) {
+			parentNode.children.push(node);
+		} else {
+			node.isDetached = !!entry.parent;
+
+			roots.push(node);
+		}
+	}
+
+	return roots;
 }
 
 export const displayCategoryLabel = (

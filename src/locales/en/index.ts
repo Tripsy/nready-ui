@@ -5,8 +5,10 @@ import auth from '@/locales/en/auth.json';
 import brand from '@/locales/en/brand.json';
 import brand_order from '@/locales/en/brand-order.json';
 import cash_flow from '@/locales/en/cash-flow.json';
+import categories from '@/locales/en/categories.json';
 import category from '@/locales/en/category.json';
 import category_order from '@/locales/en/category-order.json';
+import category_tree from '@/locales/en/category-tree.json';
 import client from '@/locales/en/client.json';
 import cron_history from '@/locales/en/cron-history.json';
 import dashboard from '@/locales/en/dashboard.json';
@@ -42,8 +44,10 @@ const en = {
 	brand,
 	'brand-order': brand_order,
 	'cash-flow': cash_flow,
+	categories,
 	category,
 	'category-order': category_order,
+	'category-tree': category_tree,
 	client,
 	'cron-history': cron_history,
 	dashboard,

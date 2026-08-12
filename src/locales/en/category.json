@@ -60,6 +60,10 @@
 			"label": "Sort",
 			"success": "Order updated successfully"
 		},
+		"tree": {
+			"title": "Browse the category tree",
+			"label": "Tree"
+		},
 		"view": {
 			"title": "Category details - {{entry}}",
 			"label": "View details"

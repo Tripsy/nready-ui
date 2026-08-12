@@ -222,6 +222,7 @@ export const Icons = {
 		Setup: createIcon(FileCog),
 		Return: createIcon(Undo2),
 		Order: createIcon(ListOrdered),
+		Tree: createIcon(FolderTree),
 		Image: createIcon(Camera),
 		Upload: createIcon(Upload),
 		Move: createIcon(Move),

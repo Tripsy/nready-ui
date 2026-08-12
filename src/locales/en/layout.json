@@ -1,7 +1,7 @@
 {
 	"nav": {
 		"home": "Home",
-		"dashboard": "Dashboard"
+		"categories": "Categories"
 	},
 	"menu": {
 		"login": "Login",

@@ -160,6 +160,7 @@ const Routes = new RoutesCollection();
 Routes.add('home', '/');
 Routes.add('docs', '/docs');
 Routes.add('page', '/page/:label');
+Routes.add('categories', '/categories');
 Routes.add('status', '/status/:type');
 
 // API
@@ -222,6 +223,9 @@ Routes.group('dashboard')
 	.add('category-order', '/dashboard/category/order', {
 		permissionEntity: 'category',
 		permissionOperation: 'update',
+	})
+	.add('category-tree', '/dashboard/category/tree', {
+		permissionEntity: 'category',
 	})
 	.add('cash-flow', '/dashboard/cash-flow', {
 		permissionEntity: 'cash-flow',

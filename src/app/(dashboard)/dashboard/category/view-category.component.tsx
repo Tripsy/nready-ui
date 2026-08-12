@@ -5,10 +5,14 @@ import {
 	ViewSection,
 } from '@/app/(dashboard)/_components/view-detail';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getLanguageClient } from '@/config/translate.setup';
 import { formatDate } from '@/helpers/date.helper';
 import { DisplayStatus } from '@/helpers/display.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
-import type { CategoryModel } from '@/models/category.model';
+import {
+	type CategoryModel,
+	getCategoryContentProp,
+} from '@/models/category.model';
 
 export function ViewCategory({ entry }: { entry: CategoryModel }) {
 	const languageContents = Object.values(entry.contents ?? []);
@@ -28,6 +32,18 @@ export function ViewCategory({ entry }: { entry: CategoryModel }) {
 
 			<ViewSection title="Info">
 				<ViewField label="Type" value={formatEnumLabel(entry.type)} />
+				<ViewField
+					label="Parent"
+					value={
+						entry.parent
+							? getCategoryContentProp(
+									entry.parent,
+									getLanguageClient(),
+									'label',
+								)
+							: '-'
+					}
+				/>
 				<ViewField
 					label="Sort Order"
 					value={String(entry.sort_order ?? 0)}

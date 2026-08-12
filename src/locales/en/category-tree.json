@@ -1,0 +1,15 @@
+{
+	"meta": {
+		"title": "Categories / Tree - Dashboard | {{app_name}}"
+	},
+	"text": {
+		"no_entries": "No active categories for this type.",
+		"truncated": "Only the first {{limit}} active categories are shown, out of {{total}}.",
+		"detached": "Shown at the top level: its parent is not active.",
+		"expand_all": "Expand all",
+		"collapse_all": "Collapse all"
+	},
+	"error": {
+		"load_failed": "Could not load the category tree. Please try again."
+	}
+}
