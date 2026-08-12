@@ -18,7 +18,7 @@ import type { ApiResponseFetch } from '@/types/api.type';
 /**
  * Drops the session cookie *and* the proxy's cached `/account/me` entry.
  *
- * Clearing only the cookie would leave the cached auth model authorising the token for the
+ * Clearing only the cookie would leave the cached auth model authorizing the token for the
  * rest of its TTL, so the two always have to be torn down together.
  *
  * @param sessionToken - the current token when the caller already has it; re-read otherwise
@@ -34,33 +34,12 @@ async function destroySession(sessionToken?: string): Promise<void> {
 	await deleteCookie(cookieName);
 }
 
-export async function createAuth(
-	sessionToken: string,
-): Promise<ApiResponseFetch<null>> {
-	if (!sessionToken) {
-		return {
-			message: 'No token provided',
-			success: false,
-		};
-	}
-
-	await setupTrackedCookie(
-		{
-			action: 'set',
-			name: Configuration.get('user.sessionToken'),
-			value: sessionToken,
-		},
-		{
-			httpOnly: true,
-			maxAge: Configuration.get('user.sessionMaxAge'),
-		},
-	);
-
-	return {
-		message: await translate('login.message.auth_success'),
-		success: true,
-	};
-}
+/*
+ * Sessions are created by the `/api/auth/session` and `/api/auth/oauth/:provider` route
+ * handlers, not from here. A server action that writes a session cookie cannot be called from a
+ * form pipeline without resetting the page that called it, and as an action it also sat outside
+ * the CSRF gate that every mutating `/api/` request passes.
+ */
 
 export async function getAuth(): Promise<ApiResponseFetch<AuthModel | null>> {
 	try {

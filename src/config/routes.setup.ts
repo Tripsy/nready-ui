@@ -166,13 +166,14 @@ Routes.add('status', '/status/:type');
 Routes.group('api')
 	.add('proxy', '/api/proxy/:path*')
 	.add('csrf', '/api/csrf')
+	.add('auth-session', '/api/auth/session')
+	// The OAuth equivalent: verifies `state`, redeems the code, writes the session.
+	.add('auth-oauth-session', '/api/auth/oauth/:provider')
+	.add('oauth-start', '/api/oauth/:provider')
 	.add('language', '/api/language')
 	.add('api-image', '/api/image', {
 		auth: RouteAuthEnum.PUBLIC,
-	})
-	// Mints the `state` cookie and bounces the browser to the provider. A route handler
-	// rather than a server action so the button is a plain link the browser can follow.
-	.add('oauth-start', '/api/oauth/:provider');
+	});
 
 // Account
 Routes.group('account')
@@ -188,9 +189,6 @@ Routes.group('account')
 	.add('email-confirm-send', '/account/email-confirm-send')
 	// Where the provider returns the browser; must match `getOAuthRedirectUri`.
 	.add('oauth-callback', '/account/oauth/:provider')
-	// account edit / email-update / password-update / delete are no longer
-	// standalone routes — they open as windows from /account/me (see
-	// _components/account/account.definition.ts).
 	.add('account-me', '/account/me', { auth: RouteAuthEnum.AUTHENTICATED });
 
 // Dashboard

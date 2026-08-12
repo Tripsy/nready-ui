@@ -16,6 +16,8 @@
 		"operation_not_allowed": "Operațiune nepermisă",
 		"entry_required": "Înregistrarea este obligatorie",
 		"service_unavailable": "Serviciu indisponibil",
+		"rate_limited": "Prea multe încercări. Așteaptă câteva minute și încearcă din nou.",
+		"fields_need_attention": "{{count}} câmp(uri) necesită atenție",
 		"generic": "Ceva nu a funcționat corect. Încearcă din nou."
 	},
 	"success": {

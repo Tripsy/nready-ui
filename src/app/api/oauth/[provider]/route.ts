@@ -18,7 +18,7 @@ import {
  *
  * The `state` is minted here and stored in an httpOnly cookie. The callback compares the two
  * and refuses on a mismatch — the backend cannot do this check, since it never sees the
- * browser leave, so this handler and the callback are jointly the entire CSRF defence for
+ * browser leave, so this handler and the callback are jointly the entire CSRF defense for
  * the flow.
  */
 export async function GET(

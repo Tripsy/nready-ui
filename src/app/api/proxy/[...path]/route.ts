@@ -1,5 +1,3 @@
-'use server';
-
 import { type NextRequest, NextResponse } from 'next/server';
 import { Configuration } from '@/config/settings.config';
 import { getRemoteApiUrl } from '@/helpers/api.helper';

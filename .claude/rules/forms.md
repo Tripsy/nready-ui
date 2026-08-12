@@ -160,11 +160,21 @@ login's `AuthTokenList` + post-login redirect). For this pattern only:
 - Everything else (validator class, `getFormValues`, debounced `useFormValidation`, shared field components)
   follows the same conventions as §2–§6.
 
-**`oauth-callback.action.ts` is not one of these**, despite the `.action.ts` name and living next to a
-`.definition.ts`. There is no form — no fields, no `FormData`, no `processForm`, no validator — only a
-provider redirect to redeem. It is therefore the one action file that *does* carry `'use server'` (the
-`state` cookie must be read and cleared server-side; there is no browser form for the CSRF header to
-ride on), and its `.definition.ts` holds only the state shape and translation keys.
+**The OAuth callback is not one of these.** There is no form — no fields, no `FormData`, no
+`processForm`, no validator — only a provider redirect to redeem, so it has no `.action.ts` at all.
+The work happens in the `POST /api/auth/oauth/:provider` **route handler**
+(`src/app/api/auth/oauth/[provider]/route.ts`), reached through `requestOAuthCallback`; only the
+`.definition.ts` remains beside the component, holding the state shape and translation keys.
+
+A route handler rather than a server action because the callback component keeps its outcome in
+`useState` and guards the single-use `code` with a `useRef`: an action's response re-renders the page
+it was posted to and resets both, dropping the result and re-arming the guard so a spent code is
+exchanged twice (see CLAUDE.md, "Never call a server action from inside a form pipeline"). It is still
+server-side, which is what the flow needs — the httpOnly `state` cookie must be read and cleared where
+the browser cannot — and being a mutating `/api/` request it now passes the middleware's CSRF gate,
+which the client fetch carries the header for. The same applies to the session cookie itself: it is
+written by `POST /api/auth/session` (`requestCreateSession`), not by the `createAuth` server action.
+
 `OAuthCallbackSituationType` is its own standalone union (`pending` / `success` / `error` /
 `maxActiveSession`) — it deliberately does **not** extend `FormSituationType`, because most of that
 type describes form outcomes this flow cannot have. The overlap with login (`maxActiveSession`

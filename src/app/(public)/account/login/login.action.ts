@@ -6,13 +6,12 @@ import {
 } from '@/app/(public)/account/login/login.definition';
 import { translate } from '@/config/translate.setup';
 import { processForm } from '@/helpers/form-process.helper';
-import { requestLogin } from '@/services/account.service';
-import { createAuth } from '@/services/auth.service';
+import { requestCreateSession, requestLogin } from '@/services/account.service';
 
 /**
- * Login is a two-step operation: the backend returns a token, which only becomes
- * a session once `createAuth` has written the cookie. Both steps live here so the
- * form only reports success after the session actually exists.
+ * Login is a two-step operation: the backend returns a token, which only becomes a session
+ * once the cookie has been written. Both steps live here so the form only reports success
+ * after the session actually exists.
  */
 async function loginOperation(values: LoginFormValuesType) {
 	const requestResponse = await requestLogin(values);
@@ -22,7 +21,7 @@ async function loginOperation(values: LoginFormValuesType) {
 		requestResponse.data &&
 		'token' in requestResponse.data
 	) {
-		return createAuth(requestResponse.data.token);
+		return requestCreateSession(requestResponse.data.token);
 	}
 
 	// A response without a token is a failure even if the backend flagged success.
@@ -48,23 +47,37 @@ export async function loginAction(
 					return {
 						message: await translate('login.message.not_active'),
 					};
-				case 403:
-					return {
-						message: await translate(
-							'login.message.max_active_sessions',
-						),
-						situation: 'maxActiveSession' as const,
-						resultData: error.body?.data,
-					};
-				case 406:
-					// Already logged in — treat as a successful sign-in.
+				case 403: {
+					const authTokens = (
+						error.body as
+							| { data?: { authTokens?: unknown } }
+							| undefined
+					)?.data?.authTokens;
+
+					if (authTokens) {
+						return {
+							message: await translate(
+								'login.message.max_active_sessions',
+							),
+							situation: 'maxActiveSession' as const,
+							resultData: error.body?.data,
+						};
+					}
+
 					return { situation: 'success' as const };
+				}
 				case 409:
 					return {
 						message: await translate(
 							'login.message.pending_account',
 						),
 						situation: 'pendingAccount' as const,
+					};
+				case 429:
+					return {
+						message: await translate(
+							'login.message.too_many_login_attempts',
+						),
 					};
 				default:
 					return {};

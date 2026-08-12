@@ -30,6 +30,12 @@ export async function passwordRecoverAction(
 							'password-recover.message.not_active',
 						),
 					};
+				// Ahead of the `error.message` default: the throttler's own body text is
+				// resolved in the backend's language, not the one this page is rendered in.
+				case 429:
+					return {
+						message: await translate('app.error.rate_limited'),
+					};
 				default:
 					return { message: error.message };
 			}
