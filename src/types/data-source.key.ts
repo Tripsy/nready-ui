@@ -1,6 +1,7 @@
 import type { AddressModel } from '@/models/address.model';
 import type { BrandModel } from '@/models/brand.model';
 import type { CashFlowModel } from '@/models/cash-flow.model';
+import type { CategoryModel } from '@/models/category.model';
 import type { ClientModel } from '@/models/client.model';
 import type { CronHistoryModel } from '@/models/cron-history.model';
 import type { DocumentSeriesModel } from '@/models/document-series.model';
@@ -21,6 +22,7 @@ export type DatasourceModels = {
 	address: AddressModel;
 	brand: BrandModel;
 	'cash-flow': CashFlowModel;
+	category: CategoryModel;
 	client: ClientModel;
 	'cron-history': CronHistoryModel;
 	'document-series': DocumentSeriesModel;

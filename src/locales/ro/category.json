@@ -1,0 +1,68 @@
+{
+	"meta": {
+		"title": "Categorii - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_type": "Selectează un tip de categorie valid",
+		"invalid_parent": "Categorie părinte invalidă",
+		"invalid_parent_id": "Alege o categorie părinte din sugestii",
+		"invalid_language": "Limbă invalidă",
+		"invalid_label": "Introdu o etichetă",
+		"invalid_slug": "Introdu un slug valid",
+		"invalid_description": "Introdu o descriere",
+		"invalid_meta_title": "Meta titlu invalid",
+		"invalid_meta_description": "Meta descriere invalidă",
+		"invalid_meta_keywords": "Meta cuvinte cheie invalide"
+	},
+	"status": {
+		"active": "Activă",
+		"pending": "În așteptare",
+		"inactive": "Inactivă",
+		"deleted": "Ștearsă"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă categorie nouă",
+			"label": "Adaugă",
+			"success": "Categoria nouă a fost adăugată cu succes"
+		},
+		"update": {
+			"title": "Actualizează categoria - {{entry}}",
+			"label": "Actualizează",
+			"success": "Categoria a fost actualizată cu succes"
+		},
+		"delete": {
+			"title": "Șterge categoria - {{entry}}",
+			"label": "Șterge",
+			"success": "Categoria a fost ștearsă cu succes",
+			"confirm": "Sigur vrei să ștergi această categorie? Nu poate avea descendenți activi."
+		},
+		"restore": {
+			"title": "Restaurează categoria - {{entry}}",
+			"label": "Restaurează",
+			"success": "Categoria a fost restaurată cu succes",
+			"confirm": "Sigur vrei să restaurezi această categorie?"
+		},
+		"enable": {
+			"title": "Activează categoria - {{entry}}",
+			"label": "Activează",
+			"success": "Starea categoriei a fost marcată ca activă",
+			"confirm": "Sigur vrei să activezi această categorie?"
+		},
+		"disable": {
+			"title": "Dezactivează categoria - {{entry}}",
+			"label": "Dezactivează",
+			"success": "Starea categoriei a fost marcată ca inactivă",
+			"confirm": "Sigur vrei să marchezi această categorie drept inactivă? Nu poate avea descendenți activi."
+		},
+		"order": {
+			"title": "Sortează categoriile",
+			"label": "Sortează",
+			"success": "Ordinea a fost actualizată cu succes"
+		},
+		"view": {
+			"title": "Detalii categorie - {{entry}}",
+			"label": "Vezi detalii"
+		}
+	}
+}

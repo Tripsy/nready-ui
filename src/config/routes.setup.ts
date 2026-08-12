@@ -216,6 +216,13 @@ Routes.group('dashboard')
 		permissionEntity: 'brand',
 		permissionOperation: 'update',
 	})
+	.add('category', '/dashboard/category', {
+		permissionEntity: 'category',
+	})
+	.add('category-order', '/dashboard/category/order', {
+		permissionEntity: 'category',
+		permissionOperation: 'update',
+	})
 	.add('cash-flow', '/dashboard/cash-flow', {
 		permissionEntity: 'cash-flow',
 	})

@@ -12,6 +12,8 @@
 		"content": "Content",
 		"brand": "Brands",
 		"brand-order": "Order",
+		"category": "Categories",
+		"category-order": "Order",
 		"image": "Images",
 		"image-order": "Order",
 		"address": "Addresses",

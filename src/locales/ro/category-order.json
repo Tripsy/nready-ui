@@ -1,0 +1,15 @@
+{
+	"meta": {
+		"title": "Categorii / Ordine - Dashboard | {{app_name}}"
+	},
+	"text": {
+		"no_entries": "Nicio categorie activă în acest grup.",
+		"group_too_small": "Un grup are nevoie de cel puțin două categorii pentru a putea salva o ordine."
+	},
+	"success": {
+		"order_updated": "Ordinea categoriilor a fost salvată cu succes."
+	},
+	"error": {
+		"order_failed": "Nu s-a putut salva noua ordine a categoriilor. Încearcă din nou."
+	}
+}

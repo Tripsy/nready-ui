@@ -308,6 +308,14 @@ export class ApiRequest {
 	}
 }
 
+/**
+ * Data sources whose backend endpoint is not the naive `${key}s` plural.
+ * Checked before `PLURAL_ENDPOINT_KEYS`, which cannot express `category -> categories`.
+ */
+const IRREGULAR_ENDPOINT_KEYS: Partial<Record<DataSourceKey, string>> = {
+	category: 'categories',
+};
+
 /** Data sources whose backend endpoint is the plural of the key. */
 const PLURAL_ENDPOINT_KEYS: ReadonlySet<DataSourceKey> = new Set([
 	'brand',
@@ -321,6 +329,12 @@ const PLURAL_ENDPOINT_KEYS: ReadonlySet<DataSourceKey> = new Set([
 ]);
 
 export function resolveRequestPath(key: DataSourceKey) {
+	const irregular = IRREGULAR_ENDPOINT_KEYS[key];
+
+	if (irregular) {
+		return irregular;
+	}
+
 	if (PLURAL_ENDPOINT_KEYS.has(key)) {
 		return `${key}s`;
 	}

@@ -1,0 +1,68 @@
+{
+	"meta": {
+		"title": "Categories - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_type": "Select a valid category type",
+		"invalid_parent": "Invalid parent category",
+		"invalid_parent_id": "Pick a parent category from the suggestions",
+		"invalid_language": "Invalid language",
+		"invalid_label": "Enter a label",
+		"invalid_slug": "Enter a valid slug",
+		"invalid_description": "Enter a description",
+		"invalid_meta_title": "Invalid meta title",
+		"invalid_meta_description": "Invalid meta description",
+		"invalid_meta_keywords": "Invalid meta keywords"
+	},
+	"status": {
+		"active": "Active",
+		"pending": "Pending",
+		"inactive": "Inactive",
+		"deleted": "Deleted"
+	},
+	"action": {
+		"create": {
+			"title": "Add new category",
+			"label": "Add",
+			"success": "New category added successfully"
+		},
+		"update": {
+			"title": "Update category - {{entry}}",
+			"label": "Update",
+			"success": "Category updated successfully"
+		},
+		"delete": {
+			"title": "Delete category - {{entry}}",
+			"label": "Delete",
+			"success": "Category deleted successfully",
+			"confirm": "Are you sure you want to delete this category? It cannot have active descendants."
+		},
+		"restore": {
+			"title": "Restore category - {{entry}}",
+			"label": "Restore",
+			"success": "Category restored successfully",
+			"confirm": "Are you sure you want to restore this category?"
+		},
+		"enable": {
+			"title": "Enable category - {{entry}}",
+			"label": "Enable",
+			"success": "Category status marked as active",
+			"confirm": "Are you sure you want to activate this category?"
+		},
+		"disable": {
+			"title": "Disable category - {{entry}}",
+			"label": "Disable",
+			"success": "Category status marked as inactive",
+			"confirm": "Are you sure you want to mark this category as inactive? It cannot have active descendants."
+		},
+		"order": {
+			"title": "Sort categories",
+			"label": "Sort",
+			"success": "Order updated successfully"
+		},
+		"view": {
+			"title": "Category details - {{entry}}",
+			"label": "View details"
+		}
+	}
+}

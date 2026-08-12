@@ -83,6 +83,7 @@ export function SideMenu() {
 		'dashboard.labels.address',
 		'dashboard.labels.place',
 		'dashboard.labels.brand',
+		'dashboard.labels.category',
 		'dashboard.labels.image',
 		'dashboard.labels.vendor',
 
@@ -158,6 +159,13 @@ export function SideMenu() {
 						text: translations['dashboard.labels.brand'],
 						icon: Icons.Brand,
 						permission: hasPermission(auth, 'brand'),
+					},
+					{
+						page: 'category',
+						href: Routes.get('category'),
+						text: translations['dashboard.labels.category'],
+						icon: Icons.Category,
+						permission: hasPermission(auth, 'category'),
 					},
 					{
 						page: 'image',

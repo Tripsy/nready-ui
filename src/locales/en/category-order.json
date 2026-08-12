@@ -1,0 +1,15 @@
+{
+	"meta": {
+		"title": "Categories / Order - Dashboard | {{app_name}}"
+	},
+	"text": {
+		"no_entries": "No active categories in this group.",
+		"group_too_small": "A group needs at least two categories before an order can be saved."
+	},
+	"success": {
+		"order_updated": "Category order was saved successfully."
+	},
+	"error": {
+		"order_failed": "Could not save the new category order. Please try again."
+	}
+}
