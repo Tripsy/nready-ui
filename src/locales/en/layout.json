@@ -1,8 +1,7 @@
 {
 	"nav": {
 		"home": "Home",
-		"dashboard": "Dashboard",
-		"driver_panel": "Driver Panel"
+		"dashboard": "Dashboard"
 	},
 	"menu": {
 		"login": "Login",

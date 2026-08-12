@@ -151,8 +151,8 @@ export function formatDate(
 /**
  * Combine a date with a specified wall-clock time.
  *
- * `setHours` resolves against the runtime's zone, which is the driver's own device zone —
- * these run client-side. That is the intended reading: "20:00" means 20:00 where the driver
+ * `setHours` resolves against the runtime's zone, which is the user's own device zone —
+ * these run client-side. That is the intended reading: "20:00" means 20:00 where the user
  * is, and serializing the resulting Date yields the correct UTC instant for the backend. Do
  * not reach for `app.timezone` here; company time applies to filter day-boundaries only
  * (see `toUTCISOString`).

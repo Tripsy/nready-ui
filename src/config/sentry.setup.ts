@@ -52,7 +52,7 @@ export function sentryInitOptions(): Sentry.NodeOptions &
 		tracesSampleRate: Configuration.get('sentry.tracesSampleRate'),
 
 		// Off deliberately. The default would attach IP addresses and request headers to
-		// every event, and this app handles driver and client records — anything Sentry
+		// every event, and this app handles user and client records — anything Sentry
 		// needs for triage should be an explicit `context` on the log call instead.
 		sendDefaultPii: false,
 

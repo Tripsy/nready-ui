@@ -79,22 +79,11 @@ export function SideMenu() {
 		'dashboard.labels.client',
 		'dashboard.labels.cash-flow',
 
-		'dashboard.labels.activity',
-		'dashboard.labels.cmr',
-		'dashboard.labels.cmr-session',
-		'dashboard.labels.cmr-vehicle',
-		'dashboard.labels.work-session',
-		'dashboard.labels.work-session-vehicle',
-
-		'dashboard.labels.assets',
-		'dashboard.labels.company-vehicle',
-
 		'dashboard.labels.content',
 		'dashboard.labels.address',
 		'dashboard.labels.place',
 		'dashboard.labels.brand',
 		'dashboard.labels.image',
-		'dashboard.labels.vehicle',
 		'dashboard.labels.vendor',
 
 		'dashboard.labels.settings',
@@ -144,66 +133,6 @@ export function SideMenu() {
 				],
 			},
 			{
-				label: 'activity',
-				text: translations['dashboard.labels.activity'],
-				icon: Icons.Activity,
-				isExpanded: false,
-				items: [
-					{
-						page: 'cmr',
-						href: Routes.get('cmr'),
-						text: translations['dashboard.labels.cmr'],
-						icon: Icons.Cmr,
-						permission: hasPermission(auth, 'cmr'),
-					},
-					{
-						page: 'cmr-session',
-						href: Routes.get('cmr-session'),
-						text: translations['dashboard.labels.cmr-session'],
-						icon: Icons.CmrSession,
-						permission: hasPermission(auth, 'cmr-session'),
-					},
-					{
-						page: 'cmr-vehicle',
-						href: Routes.get('cmr-vehicle'),
-						text: translations['dashboard.labels.cmr-vehicle'],
-						icon: Icons.Vehicle,
-						permission: hasPermission(auth, 'cmr-vehicle'),
-					},
-					{
-						page: 'work-session',
-						href: Routes.get('work-session'),
-						text: translations['dashboard.labels.work-session'],
-						icon: Icons.WorkSession,
-						permission: hasPermission(auth, 'work-session'),
-					},
-					{
-						page: 'work-session-vehicle',
-						href: Routes.get('work-session-vehicle'),
-						text: translations[
-							'dashboard.labels.work-session-vehicle'
-						],
-						icon: Icons.Vehicle,
-						permission: hasPermission(auth, 'work-session-vehicle'),
-					},
-				],
-			},
-			{
-				label: 'assets',
-				text: translations['dashboard.labels.assets'],
-				icon: Icons.Asset,
-				isExpanded: false,
-				items: [
-					{
-						page: 'company-vehicle',
-						href: Routes.get('company-vehicle'),
-						text: translations['dashboard.labels.company-vehicle'],
-						icon: Icons.CompanyVehicle,
-						permission: hasPermission(auth, 'company-vehicle'),
-					},
-				],
-			},
-			{
 				label: 'content',
 				text: translations['dashboard.labels.content'],
 				icon: Icons.Content,
@@ -236,13 +165,6 @@ export function SideMenu() {
 						text: translations['dashboard.labels.image'],
 						icon: Icons.Image,
 						permission: hasPermission(auth, 'image'),
-					},
-					{
-						page: 'vehicle',
-						href: Routes.get('vehicle'),
-						text: translations['dashboard.labels.vehicle'],
-						icon: Icons.Vehicle,
-						permission: hasPermission(auth, 'vehicle'),
 					},
 					{
 						page: 'vendor',

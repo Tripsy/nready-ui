@@ -1,6 +1,6 @@
 {
   "env": {
-    "DOCKER_CONTAINER": "star-ui.test",
+    "DOCKER_CONTAINER": "nready-ui.test",
     "USER_NAME": "David Gabriel"
   },
   "attribution": {
@@ -34,7 +34,7 @@
   },
   "permissions": {
     "additionalDirectories": [
-      "../star-api"
+      "../nready.dev"
     ],
     "allow": [
       "Bash(git add:*)",

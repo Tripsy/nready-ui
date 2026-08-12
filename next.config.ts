@@ -4,7 +4,7 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
 	trailingSlash: false,
 	output: 'standalone', // Recommended for Amplify
-	allowedDevOrigins: ['star-ui.test'],
+	allowedDevOrigins: ['nready-ui.test'],
 	// reactStrictMode: false,
 	experimental: {
 		// nodeMiddleware: true,

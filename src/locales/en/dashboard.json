@@ -31,18 +31,7 @@
 		"user": "Users",
 		"permission": "Permissions",
 
-		"vehicle": "Vehicles",
-		"vendor": "Vendors",
-
-		"assets": "Company Assets",
-		"company-vehicle": "Company Vehicle",
-
-		"activity": "Company Activity",
-		"cmr": "CMRs",
-		"cmr-session": "CMR Sessions",
-		"cmr-vehicle": "CMR Vehicle",
-		"work-session": "Work Sessions",
-		"work-session-vehicle": "Work Session Vehicle"
+		"vendor": "Vendors"
 	},
 	"text": {
 		"showing_entries": "Showing {{first}} to {{last}} of {{total}} entries",

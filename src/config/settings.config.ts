@@ -107,7 +107,7 @@ function loadSettings() {
 		redis: {
 			host: process.env.REDIS_HOST || 'localhost',
 			port: parseInt(process.env.REDIS_PORT || '6379', 10),
-			keyPrefix: process.env.REDIS_KEY_PREFIX || 'star-ui',
+			keyPrefix: process.env.REDIS_KEY_PREFIX || 'nready-ui',
 			password: process.env.REDIS_PASSWORD || '',
 		},
 		cache: {

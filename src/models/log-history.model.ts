@@ -8,22 +8,31 @@ export const LogHistorySourceEnum = {
 export type LogHistorySource =
 	(typeof LogHistorySourceEnum)[keyof typeof LogHistorySourceEnum];
 
+// Backend table names, as `log_history.entity` records them
 export const LogHistoryEntities = [
 	'address',
+	'article',
 	'brand',
+	'carrier',
 	'cash_flow',
+	'category',
 	'client',
-	'cmr',
-	'company-vehicle',
+	'discount',
 	'document_series',
+	'grn',
 	'image',
+	'invoice',
+	'order',
+	'order_shipping',
 	'permission',
 	'place',
+	'product',
+	'subscription',
 	'template',
+	'term',
 	'user',
-	'vehicle',
-	'work-session',
-	'work-session-vehicle',
+	'vendor',
+	'warehouse',
 ];
 export const LogHistoryActions = [
 	'created',

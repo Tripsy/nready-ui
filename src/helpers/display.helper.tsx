@@ -12,8 +12,6 @@ import { Popover, PopoverContent } from '@/components/ui/popover';
 import { getLanguageClient } from '@/config/translate.setup';
 import { cn } from '@/helpers/css.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
-import type { CmrSessionModel } from '@/models/cmr-session.model';
-import { displayWorkSessionLabel } from '@/models/work-session.model';
 import type { DataSourceKey } from '@/types/data-source.key';
 
 export const statusList: Record<
@@ -209,7 +207,7 @@ export function formatAmount(amount: number, currencyCode: string) {
 		currencyDisplay: 'narrowSymbol',
 	});
 
-	// `formatToParts(0)` is only a vehicle for extracting the symbol — the zero is discarded.
+	// `formatToParts(0)` only serves to extract the symbol — the zero itself is discarded.
 	const parts = symbolFormatter.formatToParts(0);
 	const currency =
 		parts.find((part) => part.type === 'currency')?.value ?? currencyCode;
@@ -251,27 +249,6 @@ export function DisplayAmount({
 		<span className={amount < 0 ? classNameNegative : classNamePositive}>
 			{formatted.value} {formatted.currency}
 		</span>
-	);
-}
-
-export function displayColumnSession(cmr_sessions: CmrSessionModel[]) {
-	const lastSession = cmr_sessions.reduce(
-		(max, entry) => (entry.id > max.id ? entry : max),
-		cmr_sessions[0],
-	);
-
-	if (!lastSession) {
-		return '-';
-	}
-
-	return (
-		<div className="flex items-center gap-2">
-			<DisplayStatus
-				status={lastSession.work_session.status}
-				dataSource="work-session"
-			/>
-			{displayWorkSessionLabel(lastSession.work_session)}
-		</div>
 	);
 }
 

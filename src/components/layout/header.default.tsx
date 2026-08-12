@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import { Link } from '@/components/ui/link';
 import Routes from '@/config/routes.setup';
 import { cn } from '@/helpers/css.helper';
-import { UserRoleEnum } from '@/models/user.model';
 import { useAuth } from '@/providers/auth.provider';
 import type { LayoutTranslations } from '@/types/layout.type';
 
@@ -27,7 +26,7 @@ export function Header({
 }) {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-	const { authStatus, auth } = useAuth();
+	const { authStatus } = useAuth();
 
 	const pathname = usePathname();
 	const homePath = Routes.get('home');
@@ -53,16 +52,8 @@ export function Header({
 			hash: 'dashboard',
 		});
 
-		if (auth?.role === UserRoleEnum.DRIVER) {
-			result.push({
-				href: Routes.get('driver-panel'),
-				label: translations['layout.nav.driver_panel'],
-				hash: 'driver-panel',
-			});
-		}
-
 		return result;
-	}, [authStatus, auth, translations]);
+	}, [authStatus, translations]);
 
 	useEffect(() => {
 		if (pathname !== homePath) {

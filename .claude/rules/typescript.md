@@ -35,7 +35,7 @@ on top of this one.
 - `strict: true` (so `noImplicitAny` and `strictNullChecks` are on), `module`/`moduleResolution` are
   `ESNext`/`bundler`, `jsx: react-jsx`, `target: ESNext` — modern syntax needs no downlevel workaround, and
   Unicode property escapes (`\p{...}`) are available.
-- Type-check with `docker exec star-ui.test sh -c "cd /var/www/html && npx tsc --noEmit"`. Nothing here
+- Type-check with `docker exec nready-ui.test sh -c "cd /var/www/html && npx tsc --noEmit"`. Nothing here
   emits JS through `tsc` — Next/Turbopack owns the build — so `tsc` is a checker only.
   **Stop the dev server first**: the container cannot hold both (see CLAUDE.md).
 - Use `// biome-ignore lint/<rule>: <reason>` with a real explanation, never a bare suppression.

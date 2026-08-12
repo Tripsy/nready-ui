@@ -1,22 +1,20 @@
 import {
 	ArrowRight,
-	FileCheck2,
 	LayoutDashboard,
+	Package,
 	ShieldCheck,
-	Truck,
+	ShoppingCart,
 	Users,
 	Wallet,
 } from 'lucide-react';
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
 import { Link } from '@/components/ui/link';
 import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
 import { translate, translateBatch } from '@/config/translate.setup';
 import { logger } from '@/helpers/logger.helper';
 import type { AuthModel } from '@/models/auth.model';
-import { UserRoleEnum } from '@/models/user.model';
 
 export async function generateMetadata(): Promise<Metadata> {
 	return {
@@ -27,8 +25,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const features = [
-	{ icon: FileCheck2, key: 'cmr' },
-	{ icon: Truck, key: 'fleet' },
+	{ icon: Package, key: 'catalog' },
+	{ icon: ShoppingCart, key: 'orders' },
 	{ icon: Wallet, key: 'cash_flow' },
 	{ icon: Users, key: 'directory' },
 	{ icon: ShieldCheck, key: 'permissions' },
@@ -74,11 +72,6 @@ async function getAuth(): Promise<AuthModel | null> {
 
 export default async function Page() {
 	const auth = await getAuth();
-
-	// Driver get redirect to their own operational panel, not the marketing/admin home page.
-	if (auth?.role === UserRoleEnum.DRIVER) {
-		redirect(Routes.get('driver-panel'));
-	}
 
 	const isDashboardUser = auth !== null;
 	const t = await translateBatch(TRANSLATION_KEYS);

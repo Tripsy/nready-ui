@@ -13,9 +13,6 @@
 		"invalid_notes": "Introdu notițe valide",
 		"invalid_client": "Selectează un client valid",
 		"invalid_vendor": "Selectează un furnizor valid",
-		"invalid_employee": "Selectează un angajat valid",
-		"invalid_company_vehicle": "Selectează un vehicul de companie valid",
-		"invalid_cmr": "Selectează un CMR valid",
 		"required_operational_record_type": "Pentru categoria selectată este necesară o înregistrare operațională (ex.: {{type}})"
 	},
 	"status": {

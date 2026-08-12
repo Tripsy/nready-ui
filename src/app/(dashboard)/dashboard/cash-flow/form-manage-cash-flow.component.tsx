@@ -29,18 +29,6 @@ import {
 	ClientStatusEnum,
 	displayClientLabel,
 } from '@/models/client.model';
-import { displayCmrLabel } from '@/models/cmr.model';
-import {
-	type CompanyVehicleModel,
-	CompanyVehicleScopeEnum,
-	CompanyVehicleStatusEnum,
-	displayCompanyVehicleLabel,
-} from '@/models/company-vehicle.model';
-import {
-	displayUserLabel,
-	type UserModel,
-	UserStatusEnum,
-} from '@/models/user.model';
 import {
 	displayVendorLabel,
 	type VendorModel,
@@ -73,10 +61,7 @@ export type CashFlowFormValuesType = {
 	};
 	// display-only fields, not part of validation
 	client: string | null;
-	employee: string | null;
-	company_vehicle: string | null;
 	vendor: string | null;
-	cmr: string | null;
 };
 
 const groupedCategories = filterGroupedCategories([
@@ -139,8 +124,6 @@ export function FormManageCashFlow({ action }: { action: string }) {
 		'externalReference',
 		'notes',
 		'client',
-		'employee',
-		'company_vehicle',
 		'vendor',
 	] as const);
 
@@ -164,52 +147,6 @@ export function FormManageCashFlow({ action }: { action: string }) {
 			},
 			minLength: 3,
 		});
-
-	const [searchEmployee, setSearchEmployee] = useState('');
-
-	const { suggestions: employeeSuggestions, isFetching: isEmployeeFetching } =
-		useRemoteAutocomplete<UserModel>({
-			query: searchEmployee,
-			queryKey: ['s-employee'],
-			queryFn: async (q) => {
-				const res: FindFunctionResponseType<UserModel> | undefined =
-					await requestFind('user', {
-						filter: {
-							term: q,
-							status: UserStatusEnum.ACTIVE,
-						},
-						limit: 10,
-					});
-
-				return res?.entries ?? [];
-			},
-			minLength: 3,
-		});
-
-	const [searchCompanyVehicle, setSearchCompanyVehicle] = useState('');
-
-	const {
-		suggestions: companyVehicleSuggestions,
-		isFetching: isCompanyVehicleFetching,
-	} = useRemoteAutocomplete<CompanyVehicleModel>({
-		query: searchCompanyVehicle,
-		queryKey: ['s-company-vehicle'],
-		queryFn: async (q) => {
-			const res:
-				| FindFunctionResponseType<CompanyVehicleModel>
-				| undefined = await requestFind('company-vehicle', {
-				filter: {
-					term: q,
-					scope: CompanyVehicleScopeEnum.OPERATIONAL,
-					status: CompanyVehicleStatusEnum.IN_USE,
-				},
-				limit: 10,
-			});
-
-			return res?.entries ?? [];
-		},
-		minLength: 3,
-	});
 
 	const [searchVendor, setSearchVendor] = useState('');
 
@@ -263,17 +200,6 @@ export function FormManageCashFlow({ action }: { action: string }) {
 
 		for (const record of operationalRecords) {
 			switch (record.operational_record_type) {
-				case OperationalRecordTypeEnum.EMPLOYEE:
-					if (record.employee) {
-						updatedOperationalRecords[
-							OperationalRecordTypeEnum.EMPLOYEE
-						] = record.employee.id;
-						handleChange(
-							'employee',
-							displayUserLabel(record.employee),
-						);
-					}
-					break;
 				case OperationalRecordTypeEnum.CLIENT:
 					if (record.client) {
 						updatedOperationalRecords[
@@ -294,25 +220,6 @@ export function FormManageCashFlow({ action }: { action: string }) {
 							'vendor',
 							displayVendorLabel(record.vendor),
 						);
-					}
-					break;
-				case OperationalRecordTypeEnum.COMPANY_VEHICLE:
-					if (record.company_vehicle) {
-						updatedOperationalRecords[
-							OperationalRecordTypeEnum.COMPANY_VEHICLE
-						] = record.company_vehicle.id;
-						handleChange(
-							'company_vehicle',
-							displayCompanyVehicleLabel(record.company_vehicle),
-						);
-					}
-					break;
-				case OperationalRecordTypeEnum.CMR:
-					if (record.cmr) {
-						updatedOperationalRecords[
-							OperationalRecordTypeEnum.CMR
-						] = record.cmr.id;
-						handleChange('cmr', displayCmrLabel(record.cmr));
 					}
 					break;
 			}
@@ -507,118 +414,6 @@ export function FormManageCashFlow({ action }: { action: string }) {
 						icons={{
 							left: (
 								<Icons.Client className="opacity-40 h-4.5 w-4.5" />
-							),
-						}}
-					/>
-				</>
-			)}
-
-			{operationalRecordOptions.employee && (
-				<>
-					<input
-						type="hidden"
-						name="operational_records.employee"
-						value={formValues.operational_records?.employee ?? ''}
-					/>
-
-					<FormComponentAutoComplete<
-						CashFlowFormValuesType,
-						UserModel
-					>
-						labelText="Employee"
-						id={elementIds.employee}
-						fieldName="employee"
-						fieldValue={formValues.employee ?? ''}
-						isRequired={
-							operationalRecordOptions.employee === 'required'
-						}
-						className="pl-8"
-						disabled={pending}
-						error={operationalRecordErrors?.employee}
-						onInputChange={(value) => {
-							handleChange('employee', value);
-							handleOperationalRecordChange(
-								OperationalRecordTypeEnum.EMPLOYEE,
-								null,
-							);
-							setSearchEmployee(value);
-						}}
-						autoCompleteProps={{
-							suggestions: employeeSuggestions,
-							isLoading: isEmployeeFetching,
-							onSelect: (m) => {
-								handleChange('employee', m.name);
-								handleOperationalRecordChange(
-									OperationalRecordTypeEnum.EMPLOYEE,
-									m.id,
-								);
-							},
-							getOptionLabel: (m) => m.name,
-							getOptionKey: (m) => m.id,
-						}}
-						icons={{
-							left: (
-								<Icons.User className="opacity-40 h-4.5 w-4.5" />
-							),
-						}}
-					/>
-				</>
-			)}
-
-			{operationalRecordOptions.company_vehicle && (
-				<>
-					<input
-						type="hidden"
-						name="operational_records.company_vehicle"
-						value={
-							formValues.operational_records?.company_vehicle ??
-							''
-						}
-					/>
-
-					<FormComponentAutoComplete<
-						CashFlowFormValuesType,
-						CompanyVehicleModel
-					>
-						labelText="Vehicle"
-						id={elementIds.company_vehicle}
-						fieldName="company_vehicle"
-						fieldValue={formValues.company_vehicle ?? ''}
-						isRequired={
-							operationalRecordOptions.company_vehicle ===
-							'required'
-						}
-						className="pl-8"
-						disabled={pending}
-						error={operationalRecordErrors?.company_vehicle}
-						onInputChange={(value) => {
-							handleChange('company_vehicle', value);
-							handleOperationalRecordChange(
-								OperationalRecordTypeEnum.COMPANY_VEHICLE,
-								null,
-							);
-							setSearchCompanyVehicle(value);
-						}}
-						autoCompleteProps={{
-							suggestions: companyVehicleSuggestions,
-							isLoading: isCompanyVehicleFetching,
-							onSelect: (m) => {
-								handleChange(
-									'company_vehicle',
-									displayCompanyVehicleLabel(m),
-								);
-								handleOperationalRecordChange(
-									OperationalRecordTypeEnum.COMPANY_VEHICLE,
-									m.id,
-								);
-							},
-							getOptionLabel: (m) =>
-								displayCompanyVehicleLabel(m),
-							getOptionKey: (m) => m.id,
-						}}
-						icons={{
-							left: (
-								<Icons.CompanyVehicle className="opacity-40 h-4.5 w-4.5" />
 							),
 						}}
 					/>

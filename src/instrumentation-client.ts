@@ -11,8 +11,8 @@ import {
  * whose whole purpose is to catch a root layout that never got that far.
  *
  * Session replay is deliberately not enabled: it is the largest addition to the client
- * bundle and it records user input, which on the driver panel means real client and
- * consignment data leaving the browser.
+ * bundle and it records user input, which in the dashboard forms means real client and
+ * order data leaving the browser.
  */
 if (isSentryEnabled()) {
 	Sentry.init(sentryInitOptions());

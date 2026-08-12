@@ -1,9 +1,6 @@
 import { arrayHasValue } from '@/helpers/objects.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import type { ClientModel } from '@/models/client.model';
-import type { CmrModel } from '@/models/cmr.model';
-import type { CompanyVehicleModel } from '@/models/company-vehicle.model';
-import type { UserModel } from '@/models/user.model';
 import type { VendorModel } from '@/models/vendor.model';
 import type { Currency, StatusTransitions } from '@/types/common.type';
 
@@ -28,16 +25,6 @@ export const CashFlowCategoryEnum = {
 	// Revenue
 	CUSTOMER: 'customer', // When company receive money from customer (invoice based)
 
-	// Operational Expenses
-	FUEL: 'fuel', // Vehicle fuel
-	MAINTENANCE: 'maintenance', // Vehicle repairs
-	TOLLS: 'tolls', // Road tolls
-
-	// Employee
-	EMPLOYEE_SALARY: 'employee_salary',
-	EMPLOYEE_EXPENSE_ADVANCE: 'employee_advance',
-	EMPLOYEE_TRAVEL_ALLOWANCE: 'employee_allowance',
-
 	// Business Expenses
 	VENDOR: 'vendor', // Third-party services
 	INSURANCE: 'insurance',
@@ -45,7 +32,6 @@ export const CashFlowCategoryEnum = {
 
 	// Correction
 	REFUND: 'refund',
-	EMPLOYEE_REIMBURSEMENT: 'employee_reimbursement',
 } as const;
 
 export type CashFlowCategory =
@@ -77,16 +63,28 @@ export const REFUNDABLE_STATUSES = [CashFlowStatusEnum.COMPLETED];
 // Allowed status transition configuration
 export const STATUS_TRANSITIONS: StatusTransitions<CashFlowStatus> = {
 	[CashFlowStatusEnum.PENDING]: [
+		CashFlowStatusEnum.AUTHORIZED,
 		CashFlowStatusEnum.COMPLETED,
+		CashFlowStatusEnum.FAILED,
+		CashFlowStatusEnum.CANCELED,
+		CashFlowStatusEnum.EXPIRED,
+		CashFlowStatusEnum.REQUIRES_ACTION,
+	],
+
+	[CashFlowStatusEnum.AUTHORIZED]: [
+		CashFlowStatusEnum.COMPLETED,
+		CashFlowStatusEnum.CANCELED,
+		CashFlowStatusEnum.EXPIRED,
+	],
+
+	[CashFlowStatusEnum.REQUIRES_ACTION]: [
+		CashFlowStatusEnum.AUTHORIZED,
+		CashFlowStatusEnum.FAILED,
 		CashFlowStatusEnum.CANCELED,
 	],
 
-	[CashFlowStatusEnum.AUTHORIZED]: [CashFlowStatusEnum.CANCELED],
-
-	[CashFlowStatusEnum.REQUIRES_ACTION]: [CashFlowStatusEnum.CANCELED],
-
 	[CashFlowStatusEnum.COMPLETED]: [
-		// maybe allow nothing
+		// Allow nothing
 	],
 
 	[CashFlowStatusEnum.FAILED]: [],
@@ -95,9 +93,21 @@ export const STATUS_TRANSITIONS: StatusTransitions<CashFlowStatus> = {
 };
 
 export const CashFlowMethodEnum = {
+	// Card methods
+	CREDIT_CARD: 'credit_card',
+	DEBIT_CARD: 'debit_card',
+
+	// Digital wallets
+	PAYPAL: 'paypal',
+
+	// Traditional
 	CASH: 'cash',
 	BANK_TRANSFER: 'bank_transfer',
-	CREDIT_CARD: 'credit_card',
+	CHECK: 'check',
+
+	// Other
+	CRYPTO: 'crypto',
+	GIFT_CARD: 'gift_card',
 } as const;
 
 export type CashFlowMethod =
@@ -108,20 +118,11 @@ export const getExpectedCategoryType = (
 ): CashFlowCategoryType => {
 	const revenueCategories = [CashFlowCategoryEnum.CUSTOMER];
 	const expenseCategories = [
-		CashFlowCategoryEnum.FUEL,
-		CashFlowCategoryEnum.MAINTENANCE,
-		CashFlowCategoryEnum.TOLLS,
-		CashFlowCategoryEnum.EMPLOYEE_SALARY,
-		CashFlowCategoryEnum.EMPLOYEE_EXPENSE_ADVANCE,
-		CashFlowCategoryEnum.EMPLOYEE_TRAVEL_ALLOWANCE,
 		CashFlowCategoryEnum.VENDOR,
 		CashFlowCategoryEnum.INSURANCE,
 		CashFlowCategoryEnum.TAXES,
 	];
-	const correctionCategories = [
-		CashFlowCategoryEnum.REFUND,
-		CashFlowCategoryEnum.EMPLOYEE_REIMBURSEMENT,
-	];
+	const correctionCategories = [CashFlowCategoryEnum.REFUND];
 
 	if (arrayHasValue(category, revenueCategories)) {
 		return CashFlowCategoryTypeEnum.REVENUE;
@@ -146,21 +147,6 @@ export const GroupedCategories = [
 	{
 		label: formatEnumLabel(CashFlowCategoryTypeEnum.EXPENSE),
 		options: [
-			{ label: 'Fuel', value: CashFlowCategoryEnum.FUEL },
-			{ label: 'Maintenance', value: CashFlowCategoryEnum.MAINTENANCE },
-			{ label: 'Tolls', value: CashFlowCategoryEnum.TOLLS },
-			{
-				label: 'Employee Salary',
-				value: CashFlowCategoryEnum.EMPLOYEE_SALARY,
-			},
-			{
-				label: 'Employee Advance',
-				value: CashFlowCategoryEnum.EMPLOYEE_EXPENSE_ADVANCE,
-			},
-			{
-				label: 'Employee Allowance',
-				value: CashFlowCategoryEnum.EMPLOYEE_TRAVEL_ALLOWANCE,
-			},
 			{ label: 'Vendor', value: CashFlowCategoryEnum.VENDOR },
 			{ label: 'Insurance', value: CashFlowCategoryEnum.INSURANCE },
 			{ label: 'Taxes', value: CashFlowCategoryEnum.TAXES },
@@ -168,13 +154,7 @@ export const GroupedCategories = [
 	},
 	{
 		label: formatEnumLabel(CashFlowCategoryTypeEnum.CORRECTION),
-		options: [
-			{ label: 'Refund', value: CashFlowCategoryEnum.REFUND },
-			{
-				label: 'Employee Reimbursement',
-				value: CashFlowCategoryEnum.EMPLOYEE_REIMBURSEMENT,
-			},
-		],
+		options: [{ label: 'Refund', value: CashFlowCategoryEnum.REFUND }],
 	},
 ];
 
@@ -210,9 +190,6 @@ export const getExpectedDirection = (
 export const OperationalRecordTypeEnum = {
 	CLIENT: 'client',
 	VENDOR: 'vendor',
-	EMPLOYEE: 'employee',
-	COMPANY_VEHICLE: 'company_vehicle',
-	CMR: 'cmr',
 } as const;
 
 export type OperationalRecordType =
@@ -231,65 +208,15 @@ const CashFlowCategoryOperationalRecord: CashFlowCategoryOperationalRecordType =
 	{
 		[CashFlowCategoryEnum.CUSTOMER]: {
 			required: [OperationalRecordTypeEnum.CLIENT],
-			optional: [
-				OperationalRecordTypeEnum.EMPLOYEE,
-				OperationalRecordTypeEnum.CMR,
-			],
-		},
-		[CashFlowCategoryEnum.FUEL]: {
-			required: [OperationalRecordTypeEnum.COMPANY_VEHICLE],
-			optional: [
-				OperationalRecordTypeEnum.VENDOR,
-				OperationalRecordTypeEnum.EMPLOYEE,
-			],
-		},
-		[CashFlowCategoryEnum.MAINTENANCE]: {
-			required: [OperationalRecordTypeEnum.COMPANY_VEHICLE],
-			optional: [
-				OperationalRecordTypeEnum.VENDOR,
-				OperationalRecordTypeEnum.EMPLOYEE,
-			],
-		},
-		[CashFlowCategoryEnum.TOLLS]: {
-			required: [OperationalRecordTypeEnum.COMPANY_VEHICLE],
-			optional: [
-				OperationalRecordTypeEnum.VENDOR,
-				OperationalRecordTypeEnum.EMPLOYEE,
-				OperationalRecordTypeEnum.CMR,
-			],
-		},
-		[CashFlowCategoryEnum.EMPLOYEE_SALARY]: {
-			required: [OperationalRecordTypeEnum.EMPLOYEE],
-		},
-		[CashFlowCategoryEnum.EMPLOYEE_EXPENSE_ADVANCE]: {
-			required: [OperationalRecordTypeEnum.EMPLOYEE],
-		},
-		[CashFlowCategoryEnum.EMPLOYEE_TRAVEL_ALLOWANCE]: {
-			required: [OperationalRecordTypeEnum.EMPLOYEE],
-		},
-		[CashFlowCategoryEnum.EMPLOYEE_REIMBURSEMENT]: {
-			required: [OperationalRecordTypeEnum.EMPLOYEE],
 		},
 		[CashFlowCategoryEnum.VENDOR]: {
 			required: [OperationalRecordTypeEnum.VENDOR],
-			optional: [
-				OperationalRecordTypeEnum.EMPLOYEE,
-				OperationalRecordTypeEnum.COMPANY_VEHICLE,
-			],
 		},
 		[CashFlowCategoryEnum.INSURANCE]: {
 			required: [OperationalRecordTypeEnum.VENDOR],
-			optional: [
-				OperationalRecordTypeEnum.EMPLOYEE,
-				OperationalRecordTypeEnum.COMPANY_VEHICLE,
-			],
 		},
 		[CashFlowCategoryEnum.TAXES]: {
 			required: [OperationalRecordTypeEnum.VENDOR],
-			optional: [
-				OperationalRecordTypeEnum.EMPLOYEE,
-				OperationalRecordTypeEnum.COMPANY_VEHICLE,
-			],
 		},
 	};
 
@@ -328,10 +255,7 @@ export const getOperationalRecordOptions = (
 
 export type CashFlowOperationalRecordsType = Partial<{
 	[OperationalRecordTypeEnum.CLIENT]: ClientModel | null;
-	[OperationalRecordTypeEnum.EMPLOYEE]: UserModel | null;
-	[OperationalRecordTypeEnum.COMPANY_VEHICLE]: CompanyVehicleModel | null;
 	[OperationalRecordTypeEnum.VENDOR]: VendorModel | null;
-	[OperationalRecordTypeEnum.CMR]: CmrModel | null;
 }>;
 
 export type CashFlowModel<D = Date | string> = {

@@ -13,9 +13,6 @@
 		"invalid_notes": "Enter a valid notes",
 		"invalid_client": "Select a valid client",
 		"invalid_vendor": "Select a valid vendor",
-		"invalid_employee": "Select a valid employee",
-		"invalid_company_vehicle": "Select a valid company vehicle",
-		"invalid_cmr": "Select a valid CMR",
 		"required_operational_record_type": "For selected category operational record is required (e.g.: {{type}})"
 	},
 	"status": {

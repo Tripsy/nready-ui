@@ -2,7 +2,7 @@ import type { Language } from '@/types/common.type';
 
 export const UserRoleEnum = {
 	ADMIN: 'admin',
-	DRIVER: 'driver',
+	MEMBER: 'member',
 	OPERATOR: 'operator',
 } as const;
 

@@ -16,10 +16,7 @@ import {
 	CashFlowStatusEnum,
 } from '@/models/cash-flow.model';
 import { displayClientLabel } from '@/models/client.model';
-import { displayCmrLabel } from '@/models/cmr.model';
-import { displayCompanyVehicleLabel } from '@/models/company-vehicle.model';
 import type { OperationalRecordModel } from '@/models/operational-record.model';
-import { displayUserLabel } from '@/models/user.model';
 import { displayVendorLabel } from '@/models/vendor.model';
 import { requestOperationalRecords } from '@/services/cash-flow.service';
 
@@ -112,20 +109,6 @@ function ViewCashFlowOperationalRecords({
 										case 'vendor':
 											return m.vendor
 												? displayVendorLabel(m.vendor)
-												: '-';
-										case 'employee':
-											return m.employee
-												? displayUserLabel(m.employee)
-												: '-';
-										case 'company_vehicle':
-											return m.company_vehicle
-												? displayCompanyVehicleLabel(
-														m.company_vehicle,
-													)
-												: '-';
-										case 'cmr':
-											return m.cmr
-												? displayCmrLabel(m.cmr)
 												: '-';
 									}
 								})()}

@@ -8,14 +8,14 @@ on:
     workflow_dispatch:
 
 concurrency:
-    group: deploy-star-ui
+    group: deploy-nready-ui
     cancel-in-progress: false
 
 env:
     AWS_REGION: eu-central-1
-    ECR_REPOSITORY: star-ui
+    ECR_REPOSITORY: nready-ui
     INSTANCE_TAG_NAME: playzone-apps
-    APP_DIR: /srv/apps/star-ui
+    APP_DIR: /srv/apps/nready-ui
 
 permissions:
     # Required for OIDC. Without it configure-aws-credentials fails with a message that
@@ -64,7 +64,7 @@ jobs:
                       NEXT_PUBLIC_NODE_ENV=production
                       NEXT_PUBLIC_APP_DEBUG=false
                       NEXT_PUBLIC_APP_URL=https://rs-app.play-zone.ro
-                      NEXT_PUBLIC_APP_NAME=Star Dashboard
+                      NEXT_PUBLIC_APP_NAME=NReady Dashboard
                       NEXT_PUBLIC_TIMEZONE=Europe/Bucharest
                       NEXT_PUBLIC_REMOTE_API_WS_URL=wss://rs-api.play-zone.ro
                       NEXT_PUBLIC_REMOTE_API_WS_RECONNECT_DELAY=3000
@@ -91,7 +91,7 @@ jobs:
               run: |
                   set -euo pipefail
 
-                  # No migrate step: star-ui owns no schema.
+                  # No migrate step: nready-ui owns no schema.
                   #
                   # `set -eu`, not `set -euo pipefail`: AWS-RunShellScript executes the
                   # script with /bin/sh, which is dash on Ubuntu and has no `pipefail` —
@@ -100,7 +100,7 @@ jobs:
                   COMMAND_ID="$(aws ssm send-command \
                     --document-name AWS-RunShellScript \
                     --targets "Key=tag:Name,Values=${INSTANCE_TAG_NAME}" \
-                    --comment "Deploy star-ui ${IMAGE_TAG}" \
+                    --comment "Deploy nready-ui ${IMAGE_TAG}" \
                     --parameters commands="[
                       \"set -eu\",
                       \"cd ${APP_DIR}\",

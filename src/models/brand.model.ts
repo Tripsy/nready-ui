@@ -12,7 +12,6 @@ export type BrandStatus =
 	(typeof BrandStatusEnum)[keyof typeof BrandStatusEnum];
 
 export const BrandTypeEnum = {
-	VEHICLE: 'vehicle',
 	PRODUCT: 'product',
 } as const;
 

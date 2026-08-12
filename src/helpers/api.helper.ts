@@ -317,13 +317,7 @@ const PLURAL_ENDPOINT_KEYS: ReadonlySet<DataSourceKey> = new Set([
 	'place',
 	'template',
 	'user',
-	'vehicle',
 	'vendor',
-	'company-vehicle',
-	'cmr-session',
-	'cmr-vehicle',
-	'work-session',
-	'work-session-vehicle',
 ]);
 
 export function resolveRequestPath(key: DataSourceKey) {

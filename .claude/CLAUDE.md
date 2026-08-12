@@ -1,5 +1,7 @@
 ## Overview
-Next.js app with codename `star-ui` consuming `star-api` API. Public site (auth, driver panel) + admin CRUD dashboard for all backend entities.
+Next.js app with codename `nready-ui` consuming the `nready.dev` API. Public site (marketing, auth, account self-service) + admin CRUD dashboard for the backend entities.
+
+Started as a copy of `../star-ui` (the frontend for `star-api`) with the fleet/CMR/driver features stripped out. `star-ui` is still the closest reference for anything not covered here.
 
 ## Tech Stack
 
@@ -38,7 +40,7 @@ context yet. Read the relevant one *before* proposing an approach in that area, 
 | `state.md` | Zustand stores, what belongs in a store vs. local state vs. server cache | `src/stores/**`, `src/components/window/**` |
 | `typescript.md` | TS/React conventions, linting rules, type-checking | every `.ts`/`.tsx` |
 
-Backend behaviour has its own set in `../star-api/.claude/rules/` (`api.md`, `auth.md`,
+Backend behaviour has its own set in `../nready.dev/.claude/rules/` (`api.md`, `auth.md`,
 `database.md`, `error-handling.md`, `validation.md`, ...) — consult those rather than inferring
 backend rules from this project.
 
@@ -103,7 +105,7 @@ after any build — a generated artefact, not a change to commit. `git checkout 
 after building, or leave it for the dev server to flip back.
 
 To spot-check a helper without a test suite, Node 24 runs TypeScript directly via type
-stripping — `docker exec star-ui.test sh -c "cd /var/www/html && node probe.ts"`, importing
+stripping — `docker exec nready-ui.test sh -c "cd /var/www/html && node probe.ts"`, importing
 the real module (`./src/helpers/x.helper.ts`). Type-only imports are erased, so a file whose
 only `@/*` imports are `import type` resolves fine outside the path alias. This tests the
 shipped source rather than a copy of it, which is the whole point — a hand-copied
@@ -119,7 +121,7 @@ exported factory and exercise what it returns) over reaching for internals.
 
 The container is capped at 4g (`mem_limit` in `docker-compose.yml`) and Turbopack fills it.
 If the dev server exits with nothing in the log it was SIGKILLed, not crashed — check
-`docker inspect star-ui.test --format '{{.State.OOMKilled}}'`, then `pnpm run clean` and
+`docker inspect nready-ui.test --format '{{.State.OOMKilled}}'`, then `pnpm run clean` and
 restart. There is not enough headroom for the dev server and a `build`/`tsc` at the same
 time: stop the dev server before running either, or it is the one that gets killed.
 
@@ -127,12 +129,12 @@ time: stop the dev server before running either, or it is the one that gets kill
 
 - This FE project has **no database and holds no business logic of its own**
 - It **sends no email** — the backend owns mail entirely. There is no nunjucks/templates stack here; don't reintroduce one.
-- Nearly everything under `src/services/*.service.ts` is a typed wrapper around `star-api` REST endpoint.
-- The backend project is located in `../star-api` on which you have access through permission / additionalDirectories
+- Nearly everything under `src/services/*.service.ts` is a typed wrapper around an `nready.dev` REST endpoint.
+- The backend project is located in `../nready.dev` on which you have access through permission / additionalDirectories
 - The two projects connect purely over HTTP
 - `REMOTE_API_URL` in `.env` is the backend base URL.
 - When a task requires understanding backend behavior — request/response shape, validation rules, permission
-entities/operations, DB schema, business rules read the code in `../star-api`
+entities/operations, DB schema, business rules read the code in `../nready.dev`
 - `src/app/api/proxy/[...path]/route.ts` forwards dashboard requests to the backend, attaching the session
   cookie as a `Bearer` token.
 - `src/proxy.ts` (the Next.js middleware) resolves auth/permission on every route by
@@ -152,12 +154,11 @@ entities/operations, DB schema, business rules read the code in `../star-api`
 │   │   │   ├── _events/       # Cross-component events (data-table action / filter reset)
 │   │   │   ├── _providers/    # data-table.provider.tsx (per-table store + Context)
 │   │   │   ├── dashboard/     # One folder per entity
-│   │   ├── (public)/          # Public site: marketing, auth, account, driver panel
+│   │   ├── (public)/          # Public site: marketing, auth, account
 │   │   │   ├── _components/   # Public-only components (incl. account/ self-service windows)
 │   │   │   ├── _hooks/
 │   │   │   ├── _providers/
 │   │   │   ├── account/       # Auth-entry flows + oauth/[provider] + me/
-│   │   │   ├── driver-panel/
 │   │   │   ├── page/
 │   │   │   ├── status/
 │   │   │   ├── layout.tsx     # Public specific layout
@@ -169,8 +170,7 @@ entities/operations, DB schema, business rules read the code in `../star-api`
 │   │   │   ├── image/
 │   │   │   ├── language/
 │   │   │   ├── oauth/         # oauth/[provider] — social login redirect/callback
-│   │   │   ├── proxy/         # [...path] — forwards dashboard requests to star-api
-│   │   ├── document/          # cmr/ — printable CMR documents
+│   │   │   ├── proxy/         # [...path] — forwards dashboard requests to nready.dev
 │   │   ├── error.tsx          # Route error boundary
 │   │   ├── favicon.ico
 │   │   ├── global-error.tsx   # Root-layout error boundary (inline-styled, no globals.css)
@@ -196,7 +196,7 @@ entities/operations, DB schema, business rules read the code in `../star-api`
 │   ├── locales/               # Language files (en, ro)
 │   ├── models/                # Models (entities)
 │   ├── providers/             # auth, query-client, theme, toast, window-form, ...
-│   ├── services/              # star-api service wrappers (account, auth, image, ...)
+│   ├── services/              # nready.dev service wrappers (account, auth, image, ...)
 │   ├── stores/
 │   │   ├── data-table.store.ts
 │   │   ├── window.store.ts
@@ -218,7 +218,7 @@ entities/operations, DB schema, business rules read the code in `../star-api`
 - **Never commit onto `main`.** GitHub refuses a direct push to it, so a commit made there has to be
   moved off before it can go anywhere. If the current branch is `main` when a commit is requested,
   create the branch first (`git switch -c <type>/<short-name>`) and commit on that. The same applies
-  in `../star-api`.
+  in `../nready.dev`.
 - When subagents are available and appropriate for the task, prefer delegating noisy operations
   (broad searches, log trawls, build output) to one — this is a preference for keeping the main
   context clean, not an instruction to spawn agents unprompted.
@@ -227,17 +227,17 @@ entities/operations, DB schema, business rules read the code in `../star-api`
 
 - **Dates and timezones** (`src/helpers/date.helper.ts`) — three deliberate conventions, don't
   "unify" them:
-  1. *Typed times* (work-session start/end, CMR dates) mean the **driver's device clock**.
-     `combineDateAndTime` uses `setHours`, which resolves in the runtime zone, and these run
-     client-side; serialising the Date gives the backend the right UTC instant.
+  1. *Typed times* mean the **user's device clock**. `combineDateAndTime` uses `setHours`,
+     which resolves in the runtime zone, and these run client-side; serialising the Date gives
+     the backend the right UTC instant.
   2. *Filter day-boundaries* mean **company time** — `toUTCISOString` reads its input as
      `app.timezone` so two managers in different countries filtering the same day get the same
      rows. This is the only place company time applies.
-  3. *Display* is always the driver's device zone, which happens for free: table and stats data
+  3. *Display* is always the user's device zone, which happens for free: table and stats data
      is fetched client-side, so no timestamp is ever server-rendered (verified — the SSR HTML
      for `/dashboard` and `/dashboard/user` contains no formatted dates). Keep it that way; a
      date formatted in a server component would render in the container's UTC.
-- **Route groups**: `src/app/(public)/*` is the public site (marketing/auth/account/driver-panel), and
+- **Route groups**: `src/app/(public)/*` is the public site (marketing/auth/account), and
   `src/app/(dashboard)/dashboard/*` is the admin panel — each has its own `layout.tsx`. Route access
   (`public` / `unauthenticated` / `authenticated` / `protected`, plus permission entity/operation) is
   declared centrally in `src/config/routes.setup.ts` via `Routes.group(...)`, not per-page — `src/proxy.ts`
@@ -296,8 +296,6 @@ entities/operations, DB schema, business rules read the code in `../star-api`
   `translate.setup.ts` (i18n), `init-redis.config.ts`.
 - **Images**: `src/services/image.service.ts` / `image-storage.service.ts` handle upload/list/delete against
   the backend's `image` feature; storage backend is `local` or `s3` (`IMAGE_STORAGE` env var, `@aws-sdk/client-s3`).
-- **CMR documents**: `src/app/document/cmr` renders CMR documents (uses `@siamf/react-signature-pad` for
-  signatures, `react-to-print` for printing).
 - **Locales**: `src/locales/<lang>/*.json`, registered per-language in `src/locales/<lang>/index.ts`;
   `NEXT_PUBLIC_LANGUAGE_SUPPORTED` in `.env` controls which languages are active. Validation messages
   common to several entities live in `shared.json` (`shared.validation`); an entity spreads
@@ -316,8 +314,8 @@ entities/operations, DB schema, business rules read the code in `../star-api`
   80.6452 is row value 806452. Forms accept 2 decimals; anything past the 4th is discarded by that
   round-trip. The VAT helpers in `src/helpers/string.helper.ts` round to the same precision — keep any
   new amount maths on `roundAmount()` rather than returning raw float.
-- **Redis is shared with star-api** (one instance, one database), so every key is namespaced by
-  `redis.keyPrefix` (`star-ui` here, `star-api` there) inside `CacheProvider.buildKey`. Not via
+- **Redis is shared with nready.dev** (one instance, one database), so every key is namespaced by
+  `redis.keyPrefix` (`nready-ui` here, `nready-api` there) inside `CacheProvider.buildKey`. Not via
   ioredis's own `keyPrefix` option: that one does not reach the MATCH argument of SCAN, so
   `deleteByPattern` would scan the other app's keys. Build every key through `buildKey`.
 - **Logging** — never call `console.*` directly; use `logger` / `logRejection` from
@@ -340,7 +338,7 @@ entities/operations, DB schema, business rules read the code in `../star-api`
   means no `init` at all. Client events tunnel through `/sentry-tunnel` on this origin (set in
   `next.config.ts`) to survive ad blockers; that path deliberately sits outside `/api/`, so the
   CSRF gate in `proxy.ts` does not apply and it matches no entry in `routes.setup.ts`.
-  Session replay is off on purpose — bundle weight, and it records driver/client input.
+  Session replay is off on purpose — bundle weight, and it records user/client input.
 - **What may go in a log context** — the third argument of a `logger` call is shipped to Sentry as
   `extra` (or as breadcrumb `data`), so it leaves the browser. Pass identifiers and shapes, never
   records or secrets: `{ key }`, `{ uid }`, `{ payloadLength }` — not the payload, not a user row.

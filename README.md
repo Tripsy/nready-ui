@@ -75,7 +75,7 @@ docker compose up
 Once the container is running, connect to it with:
 
 ```
-docker exec -it star-ui.test /bin/bash
+docker exec -it nready-ui.test /bin/bash
 ```
 
 ### 4. Install dependencies inside the container
@@ -119,7 +119,7 @@ at 2.5G before a single request and pushed the process into the 4g `mem_limit` s
 server quitting silently. Confirm with:
 
 ```bash
-docker inspect star-ui.test --format '{{.State.OOMKilled}}'
+docker inspect nready-ui.test --format '{{.State.OOMKilled}}'
 ```
 
 Run `pnpm run clean` and restart. `experimental.turbopackMemoryLimit` in `next.config.ts` caps
@@ -221,8 +221,10 @@ room in the container for both, and it is usually the dev server that gets kille
 
 # 📌 TODO
 
-1. cmr signature wrap up
-2. monthly driver report
+1. Dashboard entities for the nready-only features: product, category, article, order,
+   order-shipping, invoice, grn, warehouse, carrier, discount, subscription, term
+2. `stats` feature on the backend — the dashboard home widgets (expenses, revenues,
+   recent activity) call `/stats/*`, which nready.dev does not serve yet
 3. Hero UI -> theme
 4. Add section "documentation"
 5. Add demo instructions

@@ -208,7 +208,7 @@ function getFormValues(formData: FormData): UserFormValuesType {
 			getLanguageClient(),
 		role:
 			getFormDataAsEnum(formData, 'role', UserRoleEnum) ||
-			UserRoleEnum.DRIVER,
+			UserRoleEnum.MEMBER,
 		operator_type: getFormDataAsEnum(
 			formData,
 			'operator_type',
@@ -228,7 +228,7 @@ function getFormState(data?: UserModel): FormStateType<UserFormValuesType> {
 			password: null,
 			password_confirm: null,
 			language: data?.language ?? LanguageEnum.EN,
-			role: data?.role ?? UserRoleEnum.DRIVER,
+			role: data?.role ?? UserRoleEnum.MEMBER,
 			operator_type: data?.operator_type ?? null,
 		},
 	};

@@ -1,7 +1,6 @@
 export const LAYOUT_TRANSLATION_KEYS = [
 	'layout.nav.home',
 	'layout.nav.dashboard',
-	'layout.nav.driver_panel',
 	'layout.menu.login',
 	'layout.menu.login_title',
 	'layout.menu.register',

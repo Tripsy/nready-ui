@@ -67,9 +67,6 @@ const validatorMessages = [
 	'invalid_notes',
 	'invalid_client',
 	'invalid_vendor',
-	'invalid_employee',
-	'invalid_company_vehicle',
-	'invalid_cmr',
 	'required_operational_record_type',
 ] as const;
 
@@ -82,18 +79,6 @@ class CashFlowValidator extends BaseValidator<typeof validatorMessages> {
 			),
 			[OperationalRecordTypeEnum.VENDOR]: this.validateId(
 				this.getMessage('invalid_vendor'),
-				{ required: false },
-			),
-			[OperationalRecordTypeEnum.EMPLOYEE]: this.validateId(
-				this.getMessage('invalid_employee'),
-				{ required: false },
-			),
-			[OperationalRecordTypeEnum.COMPANY_VEHICLE]: this.validateId(
-				this.getMessage('invalid_company_vehicle'),
-				{ required: false },
-			),
-			[OperationalRecordTypeEnum.CMR]: this.validateId(
-				this.getMessage('invalid_cmr'),
 				{ required: false },
 			),
 		})
@@ -201,29 +186,14 @@ function getFormValues(formData: FormData): CashFlowFormValuesType {
 				formData,
 				'operational_records.client',
 			),
-			[OperationalRecordTypeEnum.EMPLOYEE]: getFormDataAsNumber(
-				formData,
-				'operational_records.employee',
-			),
 			[OperationalRecordTypeEnum.VENDOR]: getFormDataAsNumber(
 				formData,
 				'operational_records.vendor',
 			),
-			[OperationalRecordTypeEnum.COMPANY_VEHICLE]: getFormDataAsNumber(
-				formData,
-				'operational_records.company_vehicle',
-			),
-			[OperationalRecordTypeEnum.CMR]: getFormDataAsNumber(
-				formData,
-				'operational_records.cmr',
-			),
 		},
 		// display-only, not submitted to validator
 		client: getFormDataAsString(formData, 'client'),
-		employee: getFormDataAsString(formData, 'employee'),
-		company_vehicle: getFormDataAsString(formData, 'company_vehicle'),
 		vendor: getFormDataAsString(formData, 'vendor'),
-		cmr: getFormDataAsString(formData, 'cmr'),
 	};
 }
 
@@ -247,10 +217,7 @@ function getFormState(
 			// Operational records - Data is selected via form component
 			operational_records: undefined,
 			client: null,
-			employee: null,
-			company_vehicle: null,
 			vendor: null,
-			cmr: null,
 		},
 	};
 }
@@ -281,14 +248,8 @@ export type CashFlowDataTableFiltersType = {
 
 	client: { value: string | null; matchMode: 'equals' };
 	client_id: { value: number | null; matchMode: 'equals' };
-	employee: { value: string | null; matchMode: 'equals' };
-	employee_id: { value: number | null; matchMode: 'equals' };
 	vendor: { value: string | null; matchMode: 'equals' };
 	vendor_id: { value: number | null; matchMode: 'equals' };
-	company_vehicle: { value: string | null; matchMode: 'equals' };
-	company_vehicle_id: { value: number | null; matchMode: 'equals' };
-	cmr: { value: string | null; matchMode: 'equals' };
-	cmr_id: { value: number | null; matchMode: 'equals' };
 };
 
 export default async function dataSourceConfig(): Promise<
@@ -366,14 +327,8 @@ export default async function dataSourceConfig(): Promise<
 					is_deleted: { value: false, matchMode: 'equals' },
 					client: { value: '', matchMode: 'equals' },
 					client_id: { value: null, matchMode: 'equals' },
-					employee: { value: '', matchMode: 'equals' },
-					employee_id: { value: null, matchMode: 'equals' },
 					vendor: { value: '', matchMode: 'equals' },
 					vendor_id: { value: null, matchMode: 'equals' },
-					company_vehicle: { value: '', matchMode: 'equals' },
-					company_vehicle_id: { value: null, matchMode: 'equals' },
-					cmr: { value: '', matchMode: 'equals' },
-					cmr_id: { value: null, matchMode: 'equals' },
 				} satisfies CashFlowDataTableFiltersType,
 			},
 			columns: [

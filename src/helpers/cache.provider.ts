@@ -126,7 +126,7 @@ export class CacheProvider {
 	 * backend outage has to stay a live decision instead of being persisted for the TTL.
 	 * Callers with that constraint drive the cache themselves via `read()`/`set()`.
 	 *
-	 * Worth backporting to `star-api`, which has the same gap.
+	 * Worth backporting to `nready.dev`, which has the same gap.
 	 */
 	async read(key: string): Promise<CacheData> {
 		try {

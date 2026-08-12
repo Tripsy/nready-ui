@@ -3,7 +3,10 @@
  * what an allocation resolves on — mirrors `DocumentTypeEnum` on the backend entity.
  */
 export const DocumentTypeEnum = {
-	CMR: 'cmr',
+	INVOICE: 'invoice',
+	ORDER: 'order',
+	GRN: 'grn',
+	SUBSCRIPTION: 'subscription',
 } as const;
 
 export type DocumentType =
@@ -11,10 +14,13 @@ export type DocumentType =
 
 /**
  * Display labels for the document types. A label map rather than `formatEnumLabel`, which
- * title-cases word by word and would render the acronym `cmr` as "Cmr".
+ * title-cases word by word and would render an acronym such as `grn` as "Grn".
  */
 export const DocumentTypeLabels: Record<DocumentType, string> = {
-	[DocumentTypeEnum.CMR]: 'CMR',
+	[DocumentTypeEnum.INVOICE]: 'Invoice',
+	[DocumentTypeEnum.ORDER]: 'Order',
+	[DocumentTypeEnum.GRN]: 'GRN',
+	[DocumentTypeEnum.SUBSCRIPTION]: 'Subscription',
 };
 
 // Mirror the column defaults and constraints on the backend entity/validator
@@ -23,8 +29,8 @@ export const DOCUMENT_SERIES_CODE_MAX_CHARS = 10;
 
 /**
  * A series carries only what is allocated — the code and the running number. How the two are
- * rendered into a reference is a display choice made by whatever shows it (for CMRs, that is
- * `displayCmrReference` in `cmr.model.ts`), so there is no template or padding here.
+ * rendered into a reference is a display choice made by whatever shows it, so there is no
+ * template or padding here.
  *
  * No `deleted_at`: the backend table has no soft delete, because a soft-deleted row would
  * keep its `document_type` taken while disappearing from every query, and the next

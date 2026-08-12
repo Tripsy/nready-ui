@@ -1,8 +1,7 @@
 {
 	"nav": {
 		"home": "Acasă",
-		"dashboard": "Dashboard",
-		"driver_panel": "Panou șofer"
+		"dashboard": "Dashboard"
 	},
 	"menu": {
 		"login": "Autentificare",

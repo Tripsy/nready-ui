@@ -14,7 +14,6 @@ import {
 	getImageContent,
 	type ImageModel,
 	type ImageSection,
-	ImageSectionEnum,
 	type ImageStatus,
 	ImageStatusEnum,
 	type ImageType,
@@ -150,8 +149,7 @@ export default async function dataSourceConfig(): Promise<
 					header: 'Section',
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							capitalize: entry.section !== ImageSectionEnum.CMR,
-							uppercase: entry.section === ImageSectionEnum.CMR,
+							capitalize: true,
 						}),
 				},
 				{

@@ -105,7 +105,7 @@ export abstract class IsValidator {
 	 * Checks if the provided phone number is valid.
 	 *
 	 * Deliberately an E.164 *shape* check rather than a per-country rule: these numbers
-	 * belong to clients, carriers and CMR contacts who are routinely outside Romania, so
+	 * belong to clients, carriers and vendor contacts who are routinely outside Romania, so
 	 * anything narrower would reject legitimate counterparties. Optional leading `+` then
 	 * 7 to 15 digits — E.164 caps a number at 15, and 7 is the shortest plausible national
 	 * one. A leading trunk zero (0722…) is accepted because that is how numbers are written

@@ -65,7 +65,7 @@ export function FormManageDocumentSeries() {
 				fieldName="code"
 				fieldValue={formValues.code ?? ''}
 				isRequired={true}
-				placeholderText="e.g.: CMR"
+				placeholderText="e.g.: INV"
 				disabled={pending}
 				onChange={(e) => handleChange('code', e.target.value)}
 				error={errors.code}

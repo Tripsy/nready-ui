@@ -8,7 +8,7 @@ export const RouteAuthEnum = {
 	PUBLIC: 'public',
 	UNAUTHENTICATED: 'unauthenticated',
 	AUTHENTICATED: 'authenticated',
-	PROTECTED: 'protected', // `admin` OR `operator` OR `driver`
+	PROTECTED: 'protected', // `admin` OR `operator` OR `member`
 } as const;
 
 export type RouteAuth = (typeof RouteAuthEnum)[keyof typeof RouteAuthEnum];
@@ -159,10 +159,8 @@ const Routes = new RoutesCollection();
 
 Routes.add('home', '/');
 Routes.add('docs', '/docs');
-Routes.add('driver-panel', '/driver-panel');
 Routes.add('page', '/page/:label');
 Routes.add('status', '/status/:type');
-Routes.add('document-cmr', '/document/cmr/:tracking_number');
 
 // API
 Routes.group('api')
@@ -251,31 +249,8 @@ Routes.group('dashboard')
 	.add('permission', '/dashboard/permission', {
 		permissionEntity: 'permission',
 	})
-
-	.add('vehicle', '/dashboard/vehicle', {
-		permissionEntity: 'vehicle',
-	})
 	.add('vendor', '/dashboard/vendor', {
 		permissionEntity: 'vendor',
-	})
-	.add('company-vehicle', '/dashboard/company-vehicle', {
-		permissionEntity: 'company-vehicle',
-	})
-
-	.add('cmr', '/dashboard/cmr', {
-		permissionEntity: 'cmr',
-	})
-	.add('cmr-session', '/dashboard/cmr-session', {
-		permissionEntity: 'cmr-session',
-	})
-	.add('cmr-vehicle', '/dashboard/cmr-vehicle', {
-		permissionEntity: 'cmr-vehicle',
-	})
-	.add('work-session', '/dashboard/work-session', {
-		permissionEntity: 'work-session',
-	})
-	.add('work-session-vehicle', '/dashboard/work-session-vehicle', {
-		permissionEntity: 'work-session-vehicle',
 	});
 
 /**

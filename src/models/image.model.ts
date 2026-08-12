@@ -3,9 +3,10 @@ import type { Language } from '@/types/common.type';
 import type { ImagePropertiesType } from '@/types/image.type';
 
 export const ImageSectionEnum = {
-	CMR: 'cmr',
+	PRODUCT: 'product',
 	CATEGORY: 'category',
 	BRAND: 'brand',
+	ARTICLE: 'article',
 } as const;
 
 export type ImageSection =

@@ -32,8 +32,8 @@ export function isOperator(data: AuthModel | null): boolean {
 	return data?.role === UserRoleEnum.OPERATOR;
 }
 
-export function isDriver(data: AuthModel | null): boolean {
-	return data?.role === UserRoleEnum.DRIVER;
+export function isMember(data: AuthModel | null): boolean {
+	return data?.role === UserRoleEnum.MEMBER;
 }
 
 /**
@@ -68,7 +68,7 @@ export function hasPermission(
 		return true;
 	}
 
-	if (!isDriver(auth) && !isOperator(auth)) {
+	if (!isMember(auth) && !isOperator(auth)) {
 		return false;
 	}
 

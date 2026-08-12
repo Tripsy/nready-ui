@@ -83,8 +83,8 @@ export async function GET(request: NextRequest) {
 	const authResponse = await getAuth();
 	const auth = authResponse?.success ? (authResponse.data ?? null) : null;
 
-	// Same gate the rest of the section is behind: someone who cannot read a CMR record
-	// must not be able to read its scanned documents by hitting this route directly.
+	// Same gate the rest of the section is behind: someone who cannot read the record an
+	// image belongs to must not reach its file by hitting this route directly.
 	if (!hasPermission(auth, section, 'read')) {
 		return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 	}

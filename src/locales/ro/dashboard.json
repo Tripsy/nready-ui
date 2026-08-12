@@ -31,18 +31,7 @@
 		"user": "Utilizatori",
 		"permission": "Permisiuni",
 
-		"vehicle": "Vehicule",
-		"vendor": "Furnizori",
-
-		"assets": "Bunuri companie",
-		"company-vehicle": "Vehicul companie",
-
-		"activity": "Activitate companie",
-		"cmr": "CMR-uri",
-		"cmr-session": "Sesiuni CMR",
-		"cmr-vehicle": "Vehicul CMR",
-		"work-session": "Sesiuni de lucru",
-		"work-session-vehicle": "Vehicul sesiune de lucru"
+		"vendor": "Furnizori"
 	},
 	"text": {
 		"showing_entries": "Se afișează {{first}} - {{last}} din {{total}} înregistrări",

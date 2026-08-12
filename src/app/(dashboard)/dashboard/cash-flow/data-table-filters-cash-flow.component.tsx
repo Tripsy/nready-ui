@@ -29,17 +29,7 @@ import {
 	GroupedCategories,
 } from '@/models/cash-flow.model';
 import { type ClientModel, displayClientLabel } from '@/models/client.model';
-import {
-	type CompanyVehicleModel,
-	displayCompanyVehicleLabel,
-} from '@/models/company-vehicle.model';
-import {
-	displayUserLabel,
-	type UserModel,
-	UserRoleEnum,
-} from '@/models/user.model';
 import { displayVendorLabel, type VendorModel } from '@/models/vendor.model';
-import { useAuth } from '@/providers/auth.provider';
 import { type Currency, CurrencyEnum } from '@/types/common.type';
 
 const statuses = toOptionsFromEnum(CashFlowStatusEnum, {
@@ -59,8 +49,6 @@ const methods = toOptionsFromEnum(CashFlowMethodEnum, {
 });
 
 export const DataTableFiltersCashFlow = (): JSX.Element => {
-	const { auth } = useAuth();
-
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'cash-flow'>();
 
@@ -98,14 +86,6 @@ export const DataTableFiltersCashFlow = (): JSX.Element => {
 		setSearchClient('');
 	}, []);
 
-	const [searchEmployee, setSearchEmployee] = useState(
-		filters.employee?.value ?? '',
-	);
-
-	const onResetEmployee = useCallback(() => {
-		setSearchEmployee('');
-	}, []);
-
 	const [searchVendor, setSearchVendor] = useState(
 		filters.vendor?.value ?? '',
 	);
@@ -114,29 +94,9 @@ export const DataTableFiltersCashFlow = (): JSX.Element => {
 		setSearchVendor('');
 	}, []);
 
-	const [searchCompanyVehicle, setSearchCompanyVehicle] = useState(
-		filters.company_vehicle?.value ?? '',
-	);
-
-	const onResetCompanyVehicle = useCallback(() => {
-		setSearchCompanyVehicle('');
-	}, []);
-
 	const resetCallbacks = useMemo(
-		() => [
-			searchGlobal.onReset,
-			onResetClient,
-			onResetEmployee,
-			onResetVendor,
-			onResetCompanyVehicle,
-		],
-		[
-			searchGlobal.onReset,
-			onResetClient,
-			onResetEmployee,
-			onResetVendor,
-			onResetCompanyVehicle,
-		],
+		() => [searchGlobal.onReset, onResetClient, onResetVendor],
+		[searchGlobal.onReset, onResetClient, onResetVendor],
 	);
 
 	useDataTableFilterReset({
@@ -249,27 +209,6 @@ export const DataTableFiltersCashFlow = (): JSX.Element => {
 				getOptionKey={(m) => m.id}
 			/>
 
-			{(!auth || auth?.role !== UserRoleEnum.DRIVER) && (
-				<FormFiltersAutoComplete<
-					CashFlowDataTableFiltersType,
-					UserModel
-				>
-					labelText="Employee"
-					fieldName="employee"
-					fieldNameId="employee_id"
-					fieldValue={searchEmployee}
-					className="pl-8"
-					icons={{
-						left: <Icons.User className="opacity-40 h-4.5 w-4.5" />,
-					}}
-					setFilterValues={setFilterValues}
-					setSearch={setSearchEmployee}
-					dataSourceKey="user"
-					getOptionLabel={(m) => displayUserLabel(m)}
-					getOptionKey={(m) => m.id}
-				/>
-			)}
-
 			<FormFiltersAutoComplete<CashFlowDataTableFiltersType, VendorModel>
 				labelText="Vendor"
 				fieldName="vendor"
@@ -283,27 +222,6 @@ export const DataTableFiltersCashFlow = (): JSX.Element => {
 				setSearch={setSearchVendor}
 				dataSourceKey="vendor"
 				getOptionLabel={(m) => displayVendorLabel(m)}
-				getOptionKey={(m) => m.id}
-			/>
-
-			<FormFiltersAutoComplete<
-				CashFlowDataTableFiltersType,
-				CompanyVehicleModel
-			>
-				labelText="Vehicle"
-				fieldName="company_vehicle"
-				fieldNameId="company_vehicle_id"
-				fieldValue={searchCompanyVehicle}
-				className="pl-8"
-				icons={{
-					left: (
-						<Icons.CompanyVehicle className="opacity-40 h-4.5 w-4.5" />
-					),
-				}}
-				setFilterValues={setFilterValues}
-				setSearch={setSearchCompanyVehicle}
-				dataSourceKey="company-vehicle"
-				getOptionLabel={(m) => displayCompanyVehicleLabel(m)}
 				getOptionKey={(m) => m.id}
 			/>
 

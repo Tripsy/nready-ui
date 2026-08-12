@@ -1,6 +1,6 @@
 services:
     node:
-        container_name: star-ui.test
+        container_name: nready-ui.test
         ports:
             - "80:80"
         build:
