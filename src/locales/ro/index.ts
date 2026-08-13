@@ -4,6 +4,7 @@ import app from '@/locales/ro/app.json';
 import auth from '@/locales/ro/auth.json';
 import brand from '@/locales/ro/brand.json';
 import brand_order from '@/locales/ro/brand-order.json';
+import carrier from '@/locales/ro/carrier.json';
 import cash_flow from '@/locales/ro/cash-flow.json';
 import categories from '@/locales/ro/categories.json';
 import category from '@/locales/ro/category.json';
@@ -43,6 +44,7 @@ const ro = {
 	auth,
 	brand,
 	'brand-order': brand_order,
+	carrier,
 	'cash-flow': cash_flow,
 	categories,
 	category,

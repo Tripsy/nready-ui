@@ -31,10 +31,13 @@
 		"log-history": "Istoric jurnal",
 		"mail-queue": "Coadă email",
 
+		"user-management": "Administrare Utilizatori",
 		"user": "Utilizatori",
 		"permission": "Permisiuni",
 
-		"vendor": "Furnizori"
+		"logistics": "Logistică",
+		"vendor": "Furnizori",
+		"carrier": "Curieri"
 	},
 	"text": {
 		"showing_entries": "Se afișează {{first}} - {{last}} din {{total}} înregistrări",

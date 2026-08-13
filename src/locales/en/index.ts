@@ -4,6 +4,7 @@ import app from '@/locales/en/app.json';
 import auth from '@/locales/en/auth.json';
 import brand from '@/locales/en/brand.json';
 import brand_order from '@/locales/en/brand-order.json';
+import carrier from '@/locales/en/carrier.json';
 import cash_flow from '@/locales/en/cash-flow.json';
 import categories from '@/locales/en/categories.json';
 import category from '@/locales/en/category.json';
@@ -43,6 +44,7 @@ const en = {
 	auth,
 	brand,
 	'brand-order': brand_order,
+	carrier,
 	'cash-flow': cash_flow,
 	categories,
 	category,

@@ -31,10 +31,13 @@
 		"log-history": "Log History",
 		"mail-queue": "Mail Queue",
 
+		"user-management": "User Management",
 		"user": "Users",
 		"permission": "Permissions",
 
-		"vendor": "Vendors"
+		"logistics": "Logistics",
+		"vendor": "Vendors",
+		"carrier": "Carriers"
 	},
 	"text": {
 		"showing_entries": "Showing {{first}} to {{last}} of {{total}} entries",

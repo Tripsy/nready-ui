@@ -319,6 +319,7 @@ const IRREGULAR_ENDPOINT_KEYS: Partial<Record<DataSourceKey, string>> = {
 /** Data sources whose backend endpoint is the plural of the key. */
 const PLURAL_ENDPOINT_KEYS: ReadonlySet<DataSourceKey> = new Set([
 	'brand',
+	'carrier',
 	'client',
 	'image',
 	'permission',

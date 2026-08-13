@@ -1,5 +1,6 @@
 import type { AddressModel } from '@/models/address.model';
 import type { BrandModel } from '@/models/brand.model';
+import type { CarrierModel } from '@/models/carrier.model';
 import type { CashFlowModel } from '@/models/cash-flow.model';
 import type { CategoryModel } from '@/models/category.model';
 import type { ClientModel } from '@/models/client.model';
@@ -21,6 +22,7 @@ export type DatasourceModels = {
 	account: UserModel;
 	address: AddressModel;
 	brand: BrandModel;
+	carrier: CarrierModel;
 	'cash-flow': CashFlowModel;
 	category: CategoryModel;
 	client: ClientModel;

@@ -69,14 +69,18 @@ backend rules from this project.
 - Follow existing code conventions used in the project. When creating or editing a file, check sibling files for the correct structure, approach, and naming.
 - The code should follow **best practices** and **design principles** like SOLID, KISS, DRY, and strong security standards.
 
-## Decision Documentation
+## Code Comments
 
-- Explain your reasoning for non-obvious decisions in comments
-- **Write comments about the code as it is, never as a diff against what it was.** No "this
-  used to run unconditionally", no "the previous order broke X". State the constraint that
-  still applies ("split before the lowercase, which destroys the case boundary the split
+Comments are wanted — they carry what the code cannot say for itself, and they are the
+reference both a future reader and a future session work from.
+
+- **Describe the code as it is, never as a diff against what it was.** No "this used to run
+  unconditionally", no "the previous order broke X", no "chose X over Y". State the constraint
+  that still applies ("split before the lowercase, which destroys the case boundary the split
   reads") and leave the before/after for the commit message
-- If there are two valid approaches, document why you chose one over the other
+- Not absolute: name a past state when it still constrains the present — a workaround an
+  upstream bug requires, a shape kept for data already written — because a reader has to know
+  it to change the code safely
 - Note any performance implications or trade-offs
 
 ## Commands
@@ -291,12 +295,10 @@ entities/operations, DB schema, business rules read the code in `../nready-api`
 - **Per-entity dashboard CRUD pattern**: every entity under `src/app/(dashboard)/dashboard/<entity>/` follows
   the same file set — `page.tsx`, `<entity>.definition.ts` (field/column defs), `data-table-<entity>.component.tsx`,
   `data-table-filters-<entity>.component.tsx`, `form-manage-<entity>.component.tsx`, `view-<entity>.component.tsx`.
-  To add a new dashboard entity (see also README "How to" section), duplicate an existing entity folder (e.g.
-  `user`) and then update, in order: `src/models/<entity>.model.ts`, `src/types/data-source.key.ts`,
-  locale file `src/locales/[language]/<entity>s.json` (+ register in `src/locales/en/index.ts`),
-  `src/models/permission.model.ts`, `src/models/log-history.model.ts`,
-  `src/app/(dashboard)/_components/side-menu.component.tsx`, and the route entry in
-  `Routes.group('dashboard')` (`src/config/routes.setup.ts`).
+  `data-source.config.ts` imports the definition **by path convention**, so the folder and the
+  `<entity>.definition.ts` filename must both equal the `DataSourceKey` exactly.
+  Adding a whole entity is a checklist of its own — run `/add-dashboard-feature <entity>`, which
+  carries the backend-reading order and the full registration list.
 - **Data tables**: list views use a shared `data-table` abstraction backed by `src/stores/data-table.store.ts`
   (Zustand); windows/dialogs are backed by `src/stores/window.store.ts` and `src/components/window`. The two
   stores differ in middleware and write style — read `.claude/rules/state.md` before editing either.
@@ -386,14 +388,3 @@ entities/operations, DB schema, business rules read the code in `../nready-api`
 - **Error boundaries**: `src/app/error.tsx` catches route errors, `src/app/global-error.tsx`
   catches failures in the root layout itself. The latter replaces that layout, so it gets no
   `globals.css` — it is inline-styled and dependency-free by design and must stay that way.
-
-## Adding new feature for `dashboard` (ex: `cars`)
-
-1. Model in `models/`
-2. Copy `dashboard/user` → `dashboard/[entity]`
-3. Add to `types/data-source.key.ts`
-4. Locale JSON + register
-5. Update `permission.model.ts`
-6. Update `log-history.model.ts`
-7. Add to `side-menu.component.tsx`
-8. Add route to `Routes.group('dashboard')`s`

@@ -260,6 +260,9 @@ Routes.group('dashboard')
 	})
 	.add('vendor', '/dashboard/vendor', {
 		permissionEntity: 'vendor',
+	})
+	.add('carrier', '/dashboard/carrier', {
+		permissionEntity: 'carrier',
 	});
 
 /**

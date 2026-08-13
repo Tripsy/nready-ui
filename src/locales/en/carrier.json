@@ -1,0 +1,40 @@
+{
+	"meta": {
+		"title": "Carriers - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_name": "Invalid name",
+		"invalid_website": "Invalid website",
+		"invalid_phone": "Invalid phone",
+		"invalid_email": "Invalid email",
+		"invalid_notes": "Invalid notes"
+	},
+	"action": {
+		"create": {
+			"title": "Add new carrier",
+			"label": "Add",
+			"success": "New carrier added successfully"
+		},
+		"update": {
+			"title": "Update carrier - {{entry}}",
+			"label": "Update",
+			"success": "Carrier updated successfully"
+		},
+		"delete": {
+			"title": "Delete carrier - {{entry}}",
+			"label": "Delete",
+			"success": "Carrier deleted successfully",
+			"confirm": "Are you sure you want to delete this carrier?"
+		},
+		"restore": {
+			"title": "Restore carrier - {{entry}}",
+			"label": "Restore",
+			"success": "Carrier restored successfully",
+			"confirm": "Are you sure you want to restore this carrier?"
+		},
+		"view": {
+			"title": "Carrier details - {{entry}}",
+			"label": "View details"
+		}
+	}
+}

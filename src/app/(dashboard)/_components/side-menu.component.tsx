@@ -78,14 +78,17 @@ export function SideMenu() {
 		'dashboard.labels.financial',
 		'dashboard.labels.client',
 		'dashboard.labels.cash-flow',
+		'dashboard.labels.vendor',
 
 		'dashboard.labels.content',
-		'dashboard.labels.address',
 		'dashboard.labels.place',
 		'dashboard.labels.brand',
 		'dashboard.labels.category',
 		'dashboard.labels.image',
-		'dashboard.labels.vendor',
+
+		'dashboard.labels.logistics',
+		'dashboard.labels.address',
+		'dashboard.labels.carrier',
 
 		'dashboard.labels.settings',
 		'dashboard.labels.template',
@@ -97,6 +100,7 @@ export function SideMenu() {
 		'dashboard.labels.cron-history',
 		'dashboard.labels.mail-queue',
 
+		'dashboard.labels.user-management',
 		'dashboard.labels.user',
 		'dashboard.labels.permission',
 	] as const;
@@ -131,6 +135,13 @@ export function SideMenu() {
 						icon: Icons.CashFlow,
 						permission: hasPermission(auth, 'cash-flow'),
 					},
+					{
+						page: 'vendor',
+						href: Routes.get('vendor'),
+						text: translations['dashboard.labels.vendor'],
+						icon: Icons.Vendor,
+						permission: hasPermission(auth, 'vendor'),
+					},
 				],
 			},
 			{
@@ -145,13 +156,6 @@ export function SideMenu() {
 						text: translations['dashboard.labels.place'],
 						icon: Icons.Location,
 						permission: hasPermission(auth, 'place'),
-					},
-					{
-						page: 'address',
-						href: Routes.get('address'),
-						text: translations['dashboard.labels.address'],
-						icon: Icons.Address,
-						permission: hasPermission(auth, 'address'),
 					},
 					{
 						page: 'brand',
@@ -174,12 +178,27 @@ export function SideMenu() {
 						icon: Icons.Image,
 						permission: hasPermission(auth, 'image'),
 					},
+				],
+			},
+			{
+				label: 'logistics',
+				text: translations['dashboard.labels.logistics'],
+				icon: Icons.Logistics,
+				isExpanded: false,
+				items: [
 					{
-						page: 'vendor',
-						href: Routes.get('vendor'),
-						text: translations['dashboard.labels.vendor'],
-						icon: Icons.Vendor,
-						permission: hasPermission(auth, 'vendor'),
+						page: 'address',
+						href: Routes.get('address'),
+						text: translations['dashboard.labels.address'],
+						icon: Icons.Address,
+						permission: hasPermission(auth, 'address'),
+					},
+					{
+						page: 'carrier',
+						href: Routes.get('carrier'),
+						text: translations['dashboard.labels.carrier'],
+						icon: Icons.Carrier,
+						permission: hasPermission(auth, 'carrier'),
 					},
 				],
 			},
@@ -242,7 +261,7 @@ export function SideMenu() {
 			},
 			{
 				label: 'user-management',
-				text: translations['dashboard.labels.user'],
+				text: translations['dashboard.labels.user-management'],
 				icon: Icons.Account,
 				isExpanded: true,
 				items: [
