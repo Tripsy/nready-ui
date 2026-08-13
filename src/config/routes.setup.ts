@@ -230,6 +230,9 @@ Routes.group('dashboard')
 	.add('cash-flow', '/dashboard/cash-flow', {
 		permissionEntity: 'cash-flow',
 	})
+	.add('discount', '/dashboard/discount', {
+		permissionEntity: 'discount',
+	})
 	.add('log-data', '/dashboard/log-data', {
 		permissionEntity: 'log-data',
 	})

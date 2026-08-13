@@ -78,6 +78,7 @@ export function SideMenu() {
 		'dashboard.labels.financial',
 		'dashboard.labels.client',
 		'dashboard.labels.cash-flow',
+		'dashboard.labels.discount',
 		'dashboard.labels.vendor',
 
 		'dashboard.labels.content',
@@ -134,6 +135,13 @@ export function SideMenu() {
 						text: translations['dashboard.labels.cash-flow'],
 						icon: Icons.CashFlow,
 						permission: hasPermission(auth, 'cash-flow'),
+					},
+					{
+						page: 'discount',
+						href: Routes.get('discount'),
+						text: translations['dashboard.labels.discount'],
+						icon: Icons.Discount,
+						permission: hasPermission(auth, 'discount'),
 					},
 					{
 						page: 'vendor',

@@ -13,6 +13,7 @@ import category_tree from '@/locales/ro/category-tree.json';
 import client from '@/locales/ro/client.json';
 import cron_history from '@/locales/ro/cron-history.json';
 import dashboard from '@/locales/ro/dashboard.json';
+import discount from '@/locales/ro/discount.json';
 import document_series from '@/locales/ro/document-series.json';
 import email_confirm from '@/locales/ro/email-confirm.json';
 import email_confirm_send from '@/locales/ro/email-confirm-send.json';
@@ -53,6 +54,7 @@ const ro = {
 	client,
 	'cron-history': cron_history,
 	dashboard,
+	discount,
 	'document-series': document_series,
 	'email-confirm': email_confirm,
 	'email-confirm-send': email_confirm_send,

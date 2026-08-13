@@ -504,7 +504,11 @@ export const FormComponentSelect = <Fields,>({
 							key={value}
 							id={value}
 							textValue={label}
-							className="rounded-md"
+							// `pr-8` reserves the strip the selected-state indicator occupies.
+							// It is absolutely positioned (`right: 8px`, 16px wide), so it is
+							// outside the item's intrinsic width — without the padding the
+							// label runs underneath it and the popover never widens to fit.
+							className="whitespace-nowrap rounded-md pr-8"
 						>
 							{label}
 							<ListBox.Item.Indicator />
@@ -517,7 +521,11 @@ export const FormComponentSelect = <Fields,>({
 					key={value}
 					id={value}
 					textValue={label}
-					className="rounded-md"
+					// `pr-8` reserves the strip the selected-state indicator occupies. It is
+					// absolutely positioned (`right: 8px`, 16px wide), so it is outside the
+					// item's intrinsic width — without the padding the label runs underneath
+					// it and the popover never widens to fit.
+					className="whitespace-nowrap rounded-md pr-8"
 				>
 					{label}
 					<ListBox.Item.Indicator />
@@ -559,7 +567,7 @@ export const FormComponentSelect = <Fields,>({
 							/>
 							<ComboBox.Trigger />
 						</ComboBox.InputGroup>
-						<ComboBox.Popover className="rounded-md">
+						<ComboBox.Popover className="min-w-fit rounded-md">
 							<ListBox>{listBoxItems}</ListBox>
 						</ComboBox.Popover>
 					</ComboBox>
@@ -585,7 +593,7 @@ export const FormComponentSelect = <Fields,>({
 							<Select.Value />
 							<Select.Indicator />
 						</Select.Trigger>
-						<Select.Popover className="rounded-md">
+						<Select.Popover className="min-w-fit rounded-md">
 							<ListBox>{listBoxItems}</ListBox>
 						</Select.Popover>
 					</Select>
