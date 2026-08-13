@@ -123,7 +123,7 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['view.title'],
 				windowComponent: ViewLogData,
 				windowConfigProps: {
-					size: 'x3l',
+					size: 'xl3',
 					closeOnBackdrop: true,
 					closeOnEscape: true,
 				},

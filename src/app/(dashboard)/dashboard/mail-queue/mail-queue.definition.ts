@@ -152,7 +152,7 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['view.title'],
 				windowComponent: ViewMailQueue,
 				windowConfigProps: {
-					size: 'x4l',
+					size: 'xl4',
 					closeOnBackdrop: true,
 					closeOnEscape: true,
 				},

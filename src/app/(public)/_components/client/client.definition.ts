@@ -196,7 +196,7 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['create.title'],
 				windowComponent: FormManageClient,
 				windowConfigProps: {
-					size: 'x2l',
+					size: 'xl2',
 				},
 				permission: ['client', 'create'],
 				entriesSelection: 'free',
