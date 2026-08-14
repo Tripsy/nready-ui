@@ -225,7 +225,7 @@ room in the container for both, and it is usually the dev server that gets kille
 # 📌 TODO
 
 1. Dashboard entities for the nready-only features: product, article, order,
-   order-shipping, invoice, grn, warehouse, carrier, discount, subscription, term
+   order-shipping, invoice, grn, warehouse, subscription
 2. `stats` feature on the backend — the dashboard home widgets (expenses, revenues,
    recent activity) call `/stats/*`, which nready-api does not serve yet
     - show recent activity - log history
@@ -237,8 +237,7 @@ room in the container for both, and it is usually the dev server that gets kille
 4. Add section "documentation"
 5. Add demo instructions
 6. Setup Sentry on UI
-7. Discuss with Claude about code comments style
-8. Go to old branch before-star and get the footer additions 
+7. Go to old branch before-star and get the footer additions 
 
 # 🔗 Dependencies
 

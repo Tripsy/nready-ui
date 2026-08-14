@@ -326,6 +326,7 @@ const PLURAL_ENDPOINT_KEYS: ReadonlySet<DataSourceKey> = new Set([
 	'permission',
 	'place',
 	'template',
+	'term',
 	'user',
 	'vendor',
 ]);

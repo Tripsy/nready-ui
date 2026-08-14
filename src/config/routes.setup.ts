@@ -266,6 +266,9 @@ Routes.group('dashboard')
 	})
 	.add('carrier', '/dashboard/carrier', {
 		permissionEntity: 'carrier',
+	})
+	.add('term', '/dashboard/term', {
+		permissionEntity: 'term',
 	});
 
 /**

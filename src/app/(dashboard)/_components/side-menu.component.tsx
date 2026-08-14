@@ -85,6 +85,7 @@ export function SideMenu() {
 		'dashboard.labels.place',
 		'dashboard.labels.brand',
 		'dashboard.labels.category',
+		'dashboard.labels.term',
 		'dashboard.labels.image',
 
 		'dashboard.labels.logistics',
@@ -178,6 +179,13 @@ export function SideMenu() {
 						text: translations['dashboard.labels.category'],
 						icon: Icons.Category,
 						permission: hasPermission(auth, 'category'),
+					},
+					{
+						page: 'term',
+						href: Routes.get('term'),
+						text: translations['dashboard.labels.term'],
+						icon: Icons.Term,
+						permission: hasPermission(auth, 'term'),
 					},
 					{
 						page: 'image',

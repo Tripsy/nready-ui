@@ -1,0 +1,39 @@
+{
+	"meta": {
+		"title": "Terms - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_type": "Select a valid type",
+		"invalid_language": "Select a valid language",
+		"invalid_value": "Set the value for this language",
+		"invalid_value_max": "Value must be at most {{max}} characters long"
+	},
+	"action": {
+		"create": {
+			"title": "Add new term",
+			"label": "Add",
+			"success": "New term added successfully"
+		},
+		"update": {
+			"title": "Edit term - {{entry}}",
+			"label": "Update",
+			"success": "Term updated successfully"
+		},
+		"delete": {
+			"title": "Delete term - {{entry}}",
+			"label": "Delete",
+			"success": "Term deleted successfully",
+			"confirm": "Are you sure you want to delete this term?"
+		},
+		"restore": {
+			"title": "Restore term - {{entry}}",
+			"label": "Restore",
+			"success": "Term restored successfully",
+			"confirm": "Are you sure you want to restore this term?"
+		},
+		"view": {
+			"title": "Term - {{entry}}",
+			"label": "View details"
+		}
+	}
+}

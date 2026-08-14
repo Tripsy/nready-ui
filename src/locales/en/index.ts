@@ -34,6 +34,7 @@ import register from '@/locales/en/register.json';
 import shared from '@/locales/en/shared.json';
 import status from '@/locales/en/status.json';
 import template from '@/locales/en/template.json';
+import term from '@/locales/en/term.json';
 import user from '@/locales/en/user.json';
 import vendor from '@/locales/en/vendor.json';
 
@@ -73,6 +74,7 @@ const en = {
 	register,
 	shared,
 	template,
+	term,
 	user,
 	status,
 	vendor,

@@ -105,7 +105,10 @@ export const createDataTableStore = <K extends DataSourceKey, Model>(
 				})),
 				{
 					name: `datatable-store-${String(section)}-${String(dataSource)}`,
-					version: 1, // Bump on breaking changes to `DataTableStateType`/filters shape to drop stale persisted state
+					// Bump on breaking changes to `DataTableStateType`/filters shape to drop stale
+					// persisted state. v2: `term` stopped accepting `value` as a sort field, and a
+					// rehydrated `sortField` the backend rejects fails the whole list request.
+					version: 2,
 					partialize: (state) => ({
 						tableState: state.tableState,
 						selectedEntries: state.selectedEntries,
