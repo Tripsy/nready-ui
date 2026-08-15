@@ -82,6 +82,22 @@ export const statusList: Record<
 		variant: 'warning',
 		icon: Icons.Status.Draft,
 	},
+	rejected: {
+		variant: 'error',
+		icon: Icons.Status.Rejected,
+	},
+	scheduled: {
+		variant: 'default',
+		icon: Icons.Status.Scheduled,
+	},
+	published: {
+		variant: 'success',
+		icon: Icons.Status.Published,
+	},
+	archived: {
+		variant: 'default',
+		icon: Icons.Status.Archived,
+	},
 	in_use: {
 		variant: 'success',
 		icon: Icons.Status.InUse,

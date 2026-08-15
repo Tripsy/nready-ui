@@ -269,6 +269,13 @@ Routes.group('dashboard')
 	})
 	.add('term', '/dashboard/term', {
 		permissionEntity: 'term',
+	})
+	.add('article', '/dashboard/article', {
+		permissionEntity: 'article',
+	})
+	.add('article-order', '/dashboard/article/order', {
+		permissionEntity: 'article',
+		permissionOperation: 'update',
 	});
 
 /**

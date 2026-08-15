@@ -1,4 +1,5 @@
 import type { AddressModel } from '@/models/address.model';
+import type { ArticleModel } from '@/models/article.model';
 import type { BrandModel } from '@/models/brand.model';
 import type { CarrierModel } from '@/models/carrier.model';
 import type { CashFlowModel } from '@/models/cash-flow.model';
@@ -23,6 +24,7 @@ export type DatasourceModels = {
 	// current authenticated user; used only for the account self-service windows.
 	account: UserModel;
 	address: AddressModel;
+	article: ArticleModel;
 	brand: BrandModel;
 	carrier: CarrierModel;
 	'cash-flow': CashFlowModel;

@@ -224,20 +224,26 @@ room in the container for both, and it is usually the dev server that gets kille
 
 # 📌 TODO
 
-1. Dashboard entities for the nready-only features: product, article, order,
-   order-shipping, invoice, grn, warehouse, subscription
-2. `stats` feature on the backend — the dashboard home widgets (expenses, revenues,
+1. Article
+    - images
+    - additional columns in the listing
+    - bugs on add / edit: calendar, spacing after categories & tags 
+    - add / edit should be tabbed
+    - review view presentation
+    - allow tags creation via input        
+2. Dashboard entities for the nready-only features: product, order, order-shipping, invoice, grn, warehouse, subscription
+3. `stats` feature on the backend — the dashboard home widgets (expenses, revenues,
    recent activity) call `/stats/*`, which nready-api does not serve yet
     - show recent activity - log history
     - show a resume of previous day (new entries): users, addresses, clients
     - show expenses and revenues as in star-ui
     - show errors (log data, mail queue, cron-history) from last 24 hours   
     - other stats: user activity in last 24 hours (if is relevant)
-3. Hero UI -> theme
-4. Add section "documentation"
-5. Add demo instructions
-6. Setup Sentry on UI
-7. Go to old branch before-star and get the footer additions 
+4. Hero UI -> theme
+5. Dashboard docs should be specific per feature and provide flow info
+6. Add demo instructions
+7. Setup Sentry on UI
+8. Go to old branch before-star and get the footer additions 
 
 # 🔗 Dependencies
 

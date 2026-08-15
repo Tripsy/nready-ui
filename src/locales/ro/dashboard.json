@@ -4,12 +4,10 @@
 	},
 	"labels": {
 		"dashboard": "Dashboard",
-
 		"financial": "Financiar",
 		"cash-flow": "Flux de numerar",
 		"client": "Clienți",
 		"discount": "Reduceri",
-
 		"content": "Conținut",
 		"brand": "Mărci",
 		"brand-order": "Ordine",
@@ -21,25 +19,23 @@
 		"address": "Adrese",
 		"place": "Localități",
 		"term": "Termeni",
-
 		"settings": "Setări",
 		"template": "Șabloane",
 		"document-series": "Serii documente",
-
 		"logs": "Jurnale sistem",
-
 		"cron-history": "Istoric cron",
 		"log-data": "Date jurnal",
 		"log-history": "Istoric jurnal",
 		"mail-queue": "Coadă email",
-
 		"user-management": "Administrare Utilizatori",
 		"user": "Utilizatori",
 		"permission": "Permisiuni",
-
 		"logistics": "Logistică",
 		"vendor": "Furnizori",
-		"carrier": "Curieri"
+		"carrier": "Curieri",
+		"publishing": "Publicare",
+		"article": "Articole",
+		"article-order": "Ordine"
 	},
 	"text": {
 		"showing_entries": "Se afișează {{first}} - {{last}} din {{total}} înregistrări",
@@ -51,7 +47,6 @@
 		"placeholder_end_date": "Dată de sfârșit",
 		"label_checkbox_show_deleted": "Arată șterse",
 		"label_reset": "Resetează",
-
 		"rows_per_page": "Rânduri pe pagină",
 		"label_data_table": "Tabel de date",
 		"label_pagination": "Paginare tabel",

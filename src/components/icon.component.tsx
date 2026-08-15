@@ -1,4 +1,5 @@
 import {
+	Archive,
 	ArchiveRestore,
 	ArrowDown,
 	ArrowLeft,
@@ -10,6 +11,7 @@ import {
 	BookText,
 	Building2,
 	Calendar,
+	CalendarClock,
 	Camera,
 	Car,
 	Check,
@@ -60,15 +62,19 @@ import {
 	MapPinHouse,
 	Minus,
 	Move,
+	Newspaper,
 	Package,
+	PenLine,
 	PiggyBank,
 	Play,
 	Plus,
 	Printer,
 	RefreshCcw,
 	Route,
+	Rss,
 	Save,
 	Search,
+	Send,
 	Settings,
 	Share2,
 	Shell,
@@ -143,6 +149,7 @@ export const Icons = {
 	Financial: createIcon(BookText),
 	Client: createIcon(IdCard),
 	Address: createIcon(MapPinHouse),
+	Article: createIcon(Newspaper),
 	Brand: createIcon(FileSignal),
 	Category: createIcon(FolderTree),
 	Term: createIcon(Tags),
@@ -157,6 +164,7 @@ export const Icons = {
 	Share: createIcon(Share2),
 	Print: createIcon(Printer),
 	Image: createIcon(Camera),
+	Publishing: createIcon(Rss),
 
 	Direction: {
 		ArrowUp: createIcon(ArrowUp),
@@ -187,6 +195,10 @@ export const Icons = {
 
 		Verified: createIcon(Check),
 		Draft: createIcon(FilePenLine),
+		Rejected: createIcon(CircleX),
+		Scheduled: createIcon(CalendarClock),
+		Published: createIcon(Send),
+		Archived: createIcon(Archive),
 
 		InUse: createIcon(Car),
 		Damaged: createIcon(Hammer),
@@ -234,6 +246,11 @@ export const Icons = {
 		Image: createIcon(Camera),
 		Upload: createIcon(Upload),
 		Move: createIcon(Move),
+		Schedule: createIcon(CalendarClock),
+		Publish: createIcon(Send),
+		Reject: createIcon(CircleX),
+		Revert: createIcon(PenLine),
+		Archive: createIcon(Archive),
 	},
 };
 

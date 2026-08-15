@@ -1,6 +1,8 @@
 import account from '@/locales/ro/account.json';
 import address from '@/locales/ro/address.json';
 import app from '@/locales/ro/app.json';
+import article from '@/locales/ro/article.json';
+import article_order from '@/locales/ro/article-order.json';
 import auth from '@/locales/ro/auth.json';
 import brand from '@/locales/ro/brand.json';
 import brand_order from '@/locales/ro/brand-order.json';
@@ -43,6 +45,8 @@ const ro = {
 	account,
 	address: address,
 	app,
+	article,
+	'article-order': article_order,
 	auth,
 	brand,
 	'brand-order': brand_order,

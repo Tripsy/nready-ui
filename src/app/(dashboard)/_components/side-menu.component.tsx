@@ -92,6 +92,9 @@ export function SideMenu() {
 		'dashboard.labels.address',
 		'dashboard.labels.carrier',
 
+		'dashboard.labels.publishing',
+		'dashboard.labels.article',
+
 		'dashboard.labels.settings',
 		'dashboard.labels.template',
 		'dashboard.labels.document-series',
@@ -215,6 +218,21 @@ export function SideMenu() {
 						text: translations['dashboard.labels.carrier'],
 						icon: Icons.Carrier,
 						permission: hasPermission(auth, 'carrier'),
+					},
+				],
+			},
+			{
+				label: 'publishing',
+				text: translations['dashboard.labels.publishing'],
+				icon: Icons.Publishing,
+				isExpanded: false,
+				items: [
+					{
+						page: 'article',
+						href: Routes.get('article'),
+						text: translations['dashboard.labels.article'],
+						icon: Icons.Article,
+						permission: hasPermission(auth, 'article'),
 					},
 				],
 			},
