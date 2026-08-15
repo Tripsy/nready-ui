@@ -29,7 +29,11 @@ import {
 	type CategoryModel,
 	displayCategoryLabel,
 } from '@/models/category.model';
-import { displayTermValue, type TermModel } from '@/models/term.model';
+import {
+	displayTermValue,
+	type TermModel,
+	TermTypeEnum,
+} from '@/models/term.model';
 import { useWindowForm } from '@/providers/window-form.provider';
 import { type Language, LanguageEnum } from '@/types/common.type';
 import type { PageMeta } from '@/types/page-meta.type';
@@ -60,9 +64,23 @@ export type ArticleContentFormType = {
  * records but not a bare `number[]`; `prepareParamsFromFormValues` flattens them back to the
  * id arrays the API takes.
  */
+/** The `{ id, label }` pairs a seeded form holds, as the id-keyed map the pickers take. */
+function toLabelMap(links: { id: number; label?: string }[] | undefined) {
+	const map: Record<number, string> = {};
+
+	for (const link of links ?? []) {
+		if (link.label) {
+			map[link.id] = link.label;
+		}
+	}
+
+	return map;
+}
+
 export type ArticleFormValuesType = {
 	layout: ArticleLayout;
 	featured_status: ArticleFeaturedStatus | null;
+	featured_expire_at: string | null;
 	visibility: ArticleVisibility;
 	publish_at: string | null;
 	archive_at: string | null;
@@ -84,8 +102,14 @@ export type ArticleFormValuesType = {
 	source_url: string | null;
 	source_disclaimer: string | null;
 	source_about: string | null;
-	categories: { id: number }[];
-	tags: { id: number }[];
+	/*
+	 * `label` rides along only so the pickers can show names for the ids an existing article
+	 * starts with — `read` stores the wording nowhere else the form can reach. It is dropped
+	 * by the validator and never submitted: `getFormValues` rebuilds these from the hidden
+	 * inputs, which carry ids alone.
+	 */
+	categories: { id: number; label?: string }[];
+	tags: { id: number; label?: string }[];
 	contents: ArticleContentFormType[];
 };
 
@@ -127,6 +151,7 @@ const TAB_FIELDS: Record<FormTabId, readonly (keyof ArticleFormValuesType)[]> =
 		settings: [
 			'layout',
 			'featured_status',
+			'featured_expire_at',
 			'visibility',
 			'publish_at',
 			'archive_at',
@@ -200,6 +225,7 @@ export function FormManageArticle() {
 	const elementIds = useElementIds([
 		'layout',
 		'featuredStatus',
+		'featuredExpireAt',
 		'visibility',
 		'publishAt',
 		'archiveAt',
@@ -326,6 +352,12 @@ export function FormManageArticle() {
 			},
 		});
 	};
+
+	// Seeded once from the values the window opened with; the pickers own their labels after.
+	const [initialLinkLabels] = useState(() => ({
+		categories: toLabelMap(formValues.categories),
+		tags: toLabelMap(formValues.tags),
+	}));
 
 	const categoryIds = (formValues.categories ?? []).map(
 		(category) => category.id,
@@ -534,25 +566,71 @@ export function FormManageArticle() {
 								</p>
 							</div>
 
-							<div className="flex flex-row flex-wrap items-end gap-4">
-								<FormComponentSelect<ArticleFormValuesType>
-									labelText="Featured"
-									id={elementIds.featuredStatus}
-									fieldName="featured_status"
-									fieldValue={formValues.featured_status}
-									options={featuredStatuses}
-									placeholderText="-none-"
-									className={SELECT_WIDTH}
-									disabled={pending}
-									onChange={(value) =>
-										handleChange(
-											'featured_status',
-											(value as ArticleFeaturedStatus) ||
-												null,
-										)
-									}
-									error={errors.featured_status}
-								/>
+							<div className="space-y-2">
+								<div className="flex flex-row flex-wrap items-end gap-4">
+									<FormComponentSelect<ArticleFormValuesType>
+										labelText="Featured"
+										id={elementIds.featuredStatus}
+										fieldName="featured_status"
+										fieldValue={formValues.featured_status}
+										options={featuredStatuses}
+										placeholderText="-none-"
+										className={SELECT_WIDTH}
+										disabled={pending}
+										onChange={(value) => {
+											const featuredStatus =
+												(value as ArticleFeaturedStatus) ||
+												null;
+
+											handleChange(
+												'featured_status',
+												featuredStatus,
+											);
+
+											/*
+											 * The expiry belongs to the slot, and the API
+											 * rejects a date without one. Dropping it with the
+											 * slot keeps the form from carrying a value the
+											 * disabled field no longer shows.
+											 */
+											if (!featuredStatus) {
+												handleChange(
+													'featured_expire_at',
+													null,
+												);
+											}
+										}}
+										error={errors.featured_status}
+									/>
+
+									<FormComponentCalendar<ArticleFormValuesType>
+										labelText="Featured Until"
+										id={elementIds.featuredExpireAt}
+										fieldName="featured_expire_at"
+										fieldValue={
+											formValues.featured_expire_at ?? ''
+										}
+										placeholderText="-select-"
+										disabled={
+											pending ||
+											!formValues.featured_status
+										}
+										onSelect={(value) =>
+											handleChange(
+												'featured_expire_at',
+												value === '' ? null : value,
+											)
+										}
+										error={errors.featured_expire_at}
+									/>
+								</div>
+
+								<p className="text-xs text-muted">
+									Featured Until drops the article out of its
+									featured group on the day given, applied by
+									a daily job. Leave empty to keep it featured
+									until removed by hand.
+								</p>
 							</div>
 
 							<div className="space-y-2">
@@ -813,6 +891,7 @@ export function FormManageArticle() {
 										false,
 									)
 								}
+								initialLabels={initialLinkLabels.categories}
 								value={categoryIds}
 								onChange={(ids) =>
 									handleChange(
@@ -832,6 +911,7 @@ export function FormManageArticle() {
 								getOptionLabel={(entry) =>
 									displayTermValue(entry)
 								}
+								initialLabels={initialLinkLabels.tags}
 								value={tagIds}
 								onChange={(ids) =>
 									handleChange(
@@ -841,6 +921,21 @@ export function FormManageArticle() {
 								}
 								emptyText="No tags linked."
 								disabled={pending}
+								// A tag is a term with one wording per language; the search box
+								// fills the language being edited and the create window handles
+								// the rest.
+								buildPrefillEntry={(typedValue) => ({
+									type: TermTypeEnum.TAG,
+									contents: [
+										{
+											language: language,
+											value: typedValue,
+										},
+									],
+								})}
+								createLabel={(typedValue) =>
+									`Create tag "${typedValue}"`
+								}
 							/>
 						</div>
 					</div>

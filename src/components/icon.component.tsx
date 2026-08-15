@@ -82,6 +82,7 @@ import {
 	SquareParkingOff,
 	SquarePen,
 	SquareX,
+	Star,
 	TableOfContents,
 	Tag,
 	Tags,
@@ -165,6 +166,7 @@ export const Icons = {
 	Print: createIcon(Printer),
 	Image: createIcon(Camera),
 	Publishing: createIcon(Rss),
+	Featured: createIcon(Star),
 
 	Direction: {
 		ArrowUp: createIcon(ArrowUp),

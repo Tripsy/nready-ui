@@ -17,6 +17,7 @@
 		"archive_before_publish": "Data de arhivare trebuie să fie după data publicării",
 		"invalid_layout": "Selectează un layout valid",
 		"invalid_featured_status": "Selectează o poziție promovată validă",
+		"featured_expire_without_status": "Alege o poziție promovată înainte de a seta data de expirare",
 		"invalid_visibility": "Selectează o vizibilitate validă",
 		"invalid_visibility_rule": "Regulă de vizibilitate invalidă",
 		"invalid_country_code": "Folosește coduri de țară din două litere, separate prin virgulă",

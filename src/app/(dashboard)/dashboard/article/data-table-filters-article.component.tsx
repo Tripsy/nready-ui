@@ -244,9 +244,13 @@ export const DataTableFiltersArticle = (): JSX.Element => {
 			/>
 
 			{/*
-			 * Only the "on" state is a filter: the backend applies the display window when
-			 * `is_published` is true and ignores the flag otherwise, so unchecking it widens the
-			 * list back to every status rather than asking for unpublished articles.
+			 * Narrower than Status = published: the backend also requires the article to be
+			 * inside its display window, so scheduled (`publish_at` in the future) and expired
+			 * (`archive_at` passed) rows drop out.
+			 *
+			 * Only the "on" state is a filter — the backend ignores the flag when false, so
+			 * unchecking it widens the list back to every status rather than asking for
+			 * unpublished articles.
 			 */}
 			<div className="flex self-end pb-3">
 				<FormComponentCheckbox
@@ -258,7 +262,7 @@ export const DataTableFiltersArticle = (): JSX.Element => {
 						setFilterValue('is_published', value)
 					}
 				>
-					Published only
+					Live now
 				</FormComponentCheckbox>
 			</div>
 

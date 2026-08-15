@@ -5,8 +5,10 @@ import {
 	FormManageArticle,
 } from '@/app/(dashboard)/dashboard/article/form-manage-article.component';
 import { ViewArticle } from '@/app/(dashboard)/dashboard/article/view-article.component';
+import { Icons } from '@/components/icon.component';
 import Routes from '@/config/routes.setup';
 import { getLanguageClient, translateBatch } from '@/config/translate.setup';
+import { DisplayFlagged } from '@/helpers/display.helper';
 import {
 	getFormDataAsBoolean,
 	getFormDataAsEnum,
@@ -39,8 +41,10 @@ import {
 	ArticleStatusEnum,
 	type ArticleVisibility,
 	ArticleVisibilityEnum,
+	displayArticleCategories,
 	displayArticleLabel,
 	getArticleContentProp,
+	getArticleLinkLabels,
 } from '@/models/article.model';
 import { type AuthModel, hasPermission } from '@/models/auth.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
@@ -81,6 +85,7 @@ const validatorMessages = [
 	'invalid_meta_keywords',
 	'invalid_layout',
 	'invalid_featured_status',
+	'featured_expire_without_status',
 	'invalid_visibility',
 	'invalid_visibility_rule',
 	'invalid_boolean',
@@ -177,6 +182,10 @@ class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 					this.getMessage('invalid_featured_status'),
 					{ required: false },
 				),
+				featured_expire_at: this.validateDate(
+					this.getMessage('invalid_date'),
+					{ required: false },
+				),
 				visibility: this.validateEnum(
 					ArticleVisibilityEnum,
 					this.getMessage('invalid_visibility'),
@@ -256,6 +265,18 @@ class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 					});
 				}
 
+				// The expiry has nothing to expire without a slot, and the backend rejects
+				// the pair outright — caught here on the field holding the stray date.
+				if (data.featured_expire_at && !data.featured_status) {
+					ctx.addIssue({
+						code: 'custom',
+						path: ['featured_expire_at'],
+						message: this.getMessage(
+							'featured_expire_without_status',
+						),
+					});
+				}
+
 				// The column is `varchar(2)[]`, and the backend rejects the whole array on the
 				// first bad entry — naming the field here beats a generic list error.
 				const invalidCountry = splitList(
@@ -324,6 +345,7 @@ function getFormValues(formData: FormData): ArticleFormValuesType {
 		visibility:
 			getFormDataAsEnum(formData, 'visibility', ArticleVisibilityEnum) ||
 			ARTICLE_DEFAULT_VISIBILITY,
+		featured_expire_at: getFormDataAsString(formData, 'featured_expire_at'),
 		publish_at: getFormDataAsString(formData, 'publish_at'),
 		archive_at: getFormDataAsString(formData, 'archive_at'),
 		public_at: getFormDataAsString(formData, 'public_at'),
@@ -361,9 +383,16 @@ function toCalendarValue(value: ArticleModel['publish_at']): string | null {
 	return (value instanceof Date ? value.toISOString() : value).slice(0, 10);
 }
 
+/** `displayDate` formats a string; a list row carries the ISO one, a hydrated entry a `Date`. */
+function toDateValue(value: Date | string): string {
+	return value instanceof Date ? value.toISOString() : value;
+}
+
 function getFormState(
 	data?: ArticleModel,
 ): FormStateType<ArticleFormValuesType> {
+	const linkLabels = getArticleLinkLabels(data, getLanguageClient());
+
 	return {
 		errors: {},
 		message: null,
@@ -371,6 +400,9 @@ function getFormState(
 		values: {
 			layout: data?.layout ?? ARTICLE_DEFAULT_LAYOUT,
 			featured_status: data?.featured_status ?? null,
+			featured_expire_at: toCalendarValue(
+				data?.featured_expire_at ?? null,
+			),
 			visibility: data?.visibility ?? ARTICLE_DEFAULT_VISIBILITY,
 			publish_at: toCalendarValue(data?.publish_at ?? null),
 			archive_at: toCalendarValue(data?.archive_at ?? null),
@@ -387,11 +419,16 @@ function getFormState(
 			source_url: data?.source?.url ?? null,
 			source_disclaimer: data?.source?.disclaimer ?? null,
 			source_about: data?.source?.about ?? null,
-			// `read` returns the link rows, which carry the foreign key rather than the entity.
+			// `read` returns the link rows with their category/term joined; the label is
+			// carried into the form so the pickers can name the ids they start with.
 			categories: (data?.categories ?? []).map((link) => ({
 				id: link.category_id,
+				label: linkLabels.categories[link.category_id],
 			})),
-			tags: (data?.tags ?? []).map((link) => ({ id: link.tag_id })),
+			tags: (data?.tags ?? []).map((link) => ({
+				id: link.tag_id,
+				label: linkLabels.tags[link.tag_id],
+			})),
 			// Mirror of `buildContents`, which puts the by-line back together.
 			contents: (data?.contents ?? []).map((content) => ({
 				language: content.language,
@@ -638,10 +675,18 @@ export default async function dataSourceConfig(): Promise<
 					header: 'Title',
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: getArticleContentProp(
-								entry,
-								getLanguageClient(),
-							),
+							customValue: DisplayFlagged({
+								value: getArticleContentProp(
+									entry,
+									getLanguageClient(),
+								),
+								isFlagged: !!entry.featured_status,
+								icon: Icons.Featured,
+								title: entry.featured_status
+									? `Featured: ${entry.featured_status}`
+									: undefined,
+								className: 'text-warning fill-warning',
+							}),
 							markDeleted: true,
 						}),
 				},
@@ -659,20 +704,43 @@ export default async function dataSourceConfig(): Promise<
 					maxWidth: 128,
 				},
 				{
+					field: 'source_mode',
+					header: 'Source',
+					body: (entry, column) =>
+						DataTableValue(entry, column, {
+							capitalize: true,
+						}),
+					minWidth: 104,
+					maxWidth: 104,
+				},
+				{
+					// Not sortable: an article has any number of categories, so there is no
+					// single column to order on.
+					field: 'categories',
+					header: 'Category',
+					body: (entry, column) =>
+						DataTableValue(entry, column, {
+							customValue:
+								displayArticleCategories(
+									entry,
+									getLanguageClient(),
+								).join(', ') || '-',
+						}),
+				},
+				{
+					// Sorts on `publish_at` alone — the fallback below is a display choice and
+					// the backend has no column mixing the two, so an unscheduled article sorts
+					// by its NULL rather than by the date shown.
 					field: 'publish_at',
 					header: 'Publish At',
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							displayDate: true,
-						}),
-				},
-				{
-					field: 'created_at',
-					header: 'Created At',
-					sortable: true,
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
+							// An article with no publish date reads as filed when it was
+							// created, which is the date an editor is looking for.
+							customValue: toDateValue(
+								entry.publish_at ?? entry.created_at,
+							),
 							displayDate: true,
 						}),
 				},

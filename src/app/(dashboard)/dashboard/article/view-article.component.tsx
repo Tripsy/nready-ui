@@ -41,6 +41,14 @@ export function ViewArticle({ entry }: { entry: ArticleModel }) {
 							: null
 					}
 				/>
+				<ViewField
+					label="Featured Until"
+					value={
+						entry.featured_expire_at
+							? formatDate(entry.featured_expire_at, 'date-time')
+							: null
+					}
+				/>
 				<ViewField label="Author" value={entry.author?.name} />
 				<ViewField
 					label="Publish At"

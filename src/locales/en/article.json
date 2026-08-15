@@ -17,6 +17,7 @@
 		"archive_before_publish": "The archive date must be after the publish date",
 		"invalid_layout": "Select a valid layout",
 		"invalid_featured_status": "Select a valid featured slot",
+		"featured_expire_without_status": "Pick a featured slot before setting the expiry date",
 		"invalid_visibility": "Select a valid visibility",
 		"invalid_visibility_rule": "Invalid visibility rule",
 		"invalid_country_code": "Use two-letter country codes, separated by commas",

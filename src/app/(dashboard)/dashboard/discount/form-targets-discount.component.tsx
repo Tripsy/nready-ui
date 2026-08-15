@@ -1,5 +1,10 @@
-'use client';
-
+/*
+ * No `'use client'`: this is not a boundary, only a piece of `form-manage-discount`, which
+ * already runs in the client graph. Carrying the directive would make it a client *entry*,
+ * and an entry's props have to be serializable — the callbacks below are ordinary functions
+ * passed between client components, which the Next TS plugin can only read as unserializable
+ * ones.
+ */
 import { type JSX, useState } from 'react';
 import { FormComponentAutoComplete } from '@/components/form/form-element.component';
 import { Icons } from '@/components/icon.component';

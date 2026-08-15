@@ -225,23 +225,23 @@ room in the container for both, and it is usually the dev server that gets kille
 # 📌 TODO
 
 1. Article
-    - images
-    - additional columns in the listing
+    - images (add for brand too)
     - review view presentation
-    - allow tags creation via input        
-2. Dashboard entities for the nready-only features: product, order, order-shipping, invoice, grn, warehouse, subscription
-3. `stats` feature on the backend — the dashboard home widgets (expenses, revenues,
+2. Go to old branch before-star and get the footer additions
+3. /articles, /articles/categories, /articles/{article-slug}
+4. `stats` feature on the backend — the dashboard home widgets (expenses, revenues,
    recent activity) call `/stats/*`, which nready-api does not serve yet
-    - show recent activity - log history
-    - show a resume of previous day (new entries): users, addresses, clients
-    - show expenses and revenues as in star-ui
-    - show errors (log data, mail queue, cron-history) from last 24 hours   
-    - other stats: user activity in last 24 hours (if is relevant)
-4. Hero UI -> theme
-5. Dashboard docs should be specific per feature and provide flow info
-6. Add demo instructions
-7. Setup Sentry on UI
-8. Go to old branch before-star and get the footer additions 
+   - show recent activity - log history
+   - show a resume of previous day (new entries): users, addresses, clients
+   - show expenses and revenues as in star-ui
+   - show errors (log data, mail queue, cron-history) from last 24 hours
+   - other stats: user activity in last 24 hours (if is relevant)  
+5. Dashboard docs should be specific per feature and provide flow info           
+6. nready-native 
+7. Dashboard entities for the nready-only features: product, order, order-shipping, invoice, grn, warehouse, subscription
+8. Hero UI -> theme
+9. Add demo instructions
+10. Setup Sentry on UI
 
 # 🔗 Dependencies
 

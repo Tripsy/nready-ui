@@ -183,6 +183,39 @@ export const DisplayStatus = ({
 	);
 };
 
+/**
+ * A value preceded by a marker icon while the flag is on, for a column where the flag is a
+ * property of the value rather than a column of its own (a featured article's title).
+ *
+ * The icon is `aria-hidden`, so the meaning has to reach a screen reader some other way — the
+ * `title` is a pointer tooltip only.
+ */
+export const DisplayFlagged = ({
+	value,
+	isFlagged,
+	icon: Icon,
+	title,
+	className,
+}: {
+	value: string | JSX.Element;
+	isFlagged: boolean;
+	icon: ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
+	title?: string;
+	className?: string;
+}) => {
+	return (
+		<span className="inline-flex items-center gap-1.5" title={title}>
+			{isFlagged && (
+				<Icon
+					className={cn('w-4 h-4 shrink-0', className)}
+					aria-hidden={true}
+				/>
+			)}
+			{value}
+		</span>
+	);
+};
+
 export const DisplayDeleted = ({
 	value,
 	isDeleted,

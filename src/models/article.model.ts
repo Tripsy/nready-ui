@@ -1,4 +1,9 @@
 import { Configuration } from '@/config/settings.config';
+import {
+	type CategoryModel,
+	getCategoryContentProp,
+} from '@/models/category.model';
+import { displayTermValue, type TermModel } from '@/models/term.model';
 import type { Language } from '@/types/common.type';
 import type { PageMeta } from '@/types/page-meta.type';
 
@@ -107,6 +112,8 @@ export type ArticleModel<D = Date | string> = {
 	archive_at: D | null;
 	featured_status: ArticleFeaturedStatus | null;
 	featured_order: number;
+	/** Only meaningful alongside a `featured_status`; the backend rejects one without the other. */
+	featured_expire_at: D | null;
 	visibility: ArticleVisibility;
 	public_at?: D | null;
 	source_mode: ArticleSourceMode;
@@ -117,9 +124,12 @@ export type ArticleModel<D = Date | string> = {
 	author_id: number | null;
 	author?: { id: number; name: string; email?: string } | null;
 	contents?: ArticleContentType[];
-	/** Link rows, not the categories themselves — `read` selects only the foreign key. */
-	categories?: { category_id: number }[];
-	tags?: { tag_id: number }[];
+	/**
+	 * Link rows. `read` selects only the foreign key; `find` also joins the category and its
+	 * translation in the requested language, so a list row can name them.
+	 */
+	categories?: { category_id: number; category?: CategoryModel<D> | null }[];
+	tags?: { tag_id: number; tag?: TermModel<D> | null }[];
 	visibility_rule?: ArticleVisibilityRuleType | null;
 
 	// Timestamps
@@ -170,3 +180,64 @@ export const displayArticleLabel = (
 ): string => {
 	return `#${entry.id} ${getArticleContentProp(entry, language)}`;
 };
+
+/**
+ * The category labels a list row carries, in the requested language.
+ *
+ * Empty when the article has none, and also on a row that came from `read` — that route
+ * returns the link rows without the category, so there is nothing to name.
+ */
+export function displayArticleCategories(
+	entry: ArticleModel,
+	language: Language,
+): string[] {
+	return (entry.categories ?? [])
+		.map((link) =>
+			link.category
+				? getCategoryContentProp(link.category, language, 'label', '')
+				: '',
+		)
+		.filter((label) => label.length > 0);
+}
+
+/**
+ * Label per linked category or tag, keyed by the id the form holds, for the current language.
+ *
+ * `read` returns the link rows with their term/category joined; a list row carries no tags at
+ * all and no wording for a link whose translation is missing, so an id with nothing to show is
+ * left out rather than mapped to a placeholder — the caller decides how a nameless id reads.
+ */
+export function getArticleLinkLabels(
+	entry: ArticleModel | undefined,
+	language: Language,
+): { categories: Record<number, string>; tags: Record<number, string> } {
+	const categories: Record<number, string> = {};
+	const tags: Record<number, string> = {};
+
+	for (const link of entry?.categories ?? []) {
+		if (link.category) {
+			const label = getCategoryContentProp(
+				link.category,
+				language,
+				'label',
+				'',
+			);
+
+			if (label) {
+				categories[link.category_id] = label;
+			}
+		}
+	}
+
+	for (const link of entry?.tags ?? []) {
+		// `displayTermValue` reads the first content, which is the requested language when
+		// `read` was given one and the term's first translation otherwise.
+		const value = link.tag ? displayTermValue(link.tag) : '';
+
+		if (value && value !== '-') {
+			tags[link.tag_id] = value;
+		}
+	}
+
+	return { categories, tags };
+}

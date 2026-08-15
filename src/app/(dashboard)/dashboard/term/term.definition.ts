@@ -55,6 +55,8 @@ class TermValidator extends BaseValidator<typeof validatorMessages> {
 			language: this.validateLanguage(
 				this.getMessage('invalid_language'),
 			),
+			// Mirrors the backend rule: every term is stored lower-cased, so what the editor
+			// typed and what comes back on the next read are the same string.
 			value: this.validateString(
 				{
 					invalid: this.getMessage('invalid_value'),
@@ -63,7 +65,7 @@ class TermValidator extends BaseValidator<typeof validatorMessages> {
 					}),
 				},
 				{ maxChars: VALUE_MAX_CHARS },
-			),
+			).transform((value) => value.trim().toLowerCase()),
 		});
 	}
 
