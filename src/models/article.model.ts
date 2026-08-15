@@ -82,8 +82,17 @@ export type ArticleContentType = {
  */
 export type ArticleVisibilityRuleType = {
 	requires_auth: boolean;
-	requires_subscription: string[] | null;
+	/*
+	 * A flag, not a plan list: the backend's access policy only ever proved the reader held
+	 * *an* active subscription, so plan identifiers promised a gate nothing enforced.
+	 */
+	requires_subscription: boolean;
 	allowed_countries: string[] | null;
+	/*
+	 * Defaults to true and is not editable from the dashboard — every article is listed unless
+	 * something outside this form says otherwise. Kept on the type because the API still
+	 * returns it.
+	 */
 	is_listed: boolean;
 };
 

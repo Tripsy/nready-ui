@@ -21,7 +21,8 @@
 		"invalid_visibility_rule": "Invalid visibility rule",
 		"invalid_country_code": "Use two-letter country codes, separated by commas",
 		"invalid_source": "Invalid source details",
-		"invalid_boolean": "Invalid value"
+		"invalid_boolean": "Invalid value",
+		"invalid_author": "Enter the author name"
 	},
 	"status": {
 		"draft": "Draft",

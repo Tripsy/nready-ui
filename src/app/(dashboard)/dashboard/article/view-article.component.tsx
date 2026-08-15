@@ -89,15 +89,11 @@ export function ViewArticle({ entry }: { entry: ArticleModel }) {
 						}
 					/>
 					<ViewField
-						label="Listed"
-						value={entry.visibility_rule.is_listed ? 'Yes' : 'No'}
-					/>
-					<ViewField
-						label="Required subscriptions"
+						label="Requires subscription"
 						value={
-							entry.visibility_rule.requires_subscription?.join(
-								', ',
-							) ?? null
+							entry.visibility_rule.requires_subscription
+								? 'Yes'
+								: 'No'
 						}
 					/>
 					<ViewField

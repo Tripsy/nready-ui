@@ -12,6 +12,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Configuration } from '@/config/settings.config';
 import { getLanguageClient } from '@/config/translate.setup';
+import { cn } from '@/helpers/css.helper';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
 import { renderMarkdown } from '@/helpers/markdown.helper';
 import { formatEnumLabel, toKebabCase } from '@/helpers/string.helper';
@@ -35,7 +36,11 @@ import type { PageMeta } from '@/types/page-meta.type';
 
 /**
  * `content` is markdown — that is what the backend stores and what the public site will render.
- * The preview below is the only place it becomes HTML inside the dashboard.
+ * The preview on the Content tab is the only place it becomes HTML inside the dashboard.
+ *
+ * The by-line is flattened into `author_*` rather than nested: `FormValuesType` types an array
+ * field as `Record<string, FormValueType>[]`, and `PageMeta` is the only object admitted as a
+ * value — an `ArticleAuthorType` in here would not type. `buildContents` reassembles it.
  */
 export type ArticleContentFormType = {
 	language: Language;
@@ -43,6 +48,10 @@ export type ArticleContentFormType = {
 	title: string | null;
 	brief: string | null;
 	content: string | null;
+	author_name: string | null;
+	author_email: string | null;
+	author_avatar: string | null;
+	author_description: string | null;
 	meta: PageMeta;
 };
 
@@ -65,11 +74,10 @@ export type ArticleFormValuesType = {
 	 * of mixed shapes. `buildVisibilityRule` / `buildSource` assemble them on the way out and
 	 * `getFormState` takes them apart on the way in — each pair changes together.
 	 *
-	 * The two list fields are comma-separated here and split at the boundary.
+	 * `rule_allowed_countries` is comma-separated here and split at the boundary.
 	 */
 	rule_requires_auth: boolean;
-	rule_is_listed: boolean;
-	rule_requires_subscription: string | null;
+	rule_requires_subscription: boolean;
 	rule_allowed_countries: string | null;
 	rule_password: string | null;
 	source_label: string | null;
@@ -95,6 +103,96 @@ const visibilities = toOptionsFromEnum(ArticleVisibilityEnum, {
 	formatter: formatEnumLabel,
 });
 
+/*
+ * The three Settings selects share one width instead of sizing to their current value. Their
+ * option sets are fixed and short, and a select that resizes as you change it shifts whatever
+ * sits beside it — here, the Public At picker on the visibility row. Sized for the longest
+ * option across all three ("Restricted", ~120px with the chevron and padding) and rounded up to
+ * the 4px scale.
+ */
+const SELECT_WIDTH = 'w-32';
+
+const FORM_TABS = [
+	{ id: 'settings', label: 'Settings' },
+	{ id: 'content', label: 'Content' },
+	{ id: 'seo', label: 'SEO' },
+	{ id: 'attribution', label: 'Attribution' },
+] as const;
+
+type FormTabId = (typeof FORM_TABS)[number]['id'];
+
+/** The article-level fields each tab owns, for the error counts on the tab strip. */
+const TAB_FIELDS: Record<FormTabId, readonly (keyof ArticleFormValuesType)[]> =
+	{
+		settings: [
+			'layout',
+			'featured_status',
+			'visibility',
+			'publish_at',
+			'archive_at',
+			'public_at',
+			'rule_requires_auth',
+			'rule_requires_subscription',
+			'rule_allowed_countries',
+			'rule_password',
+		],
+		content: ['categories', 'tags'],
+		seo: [],
+		attribution: [
+			'source_label',
+			'source_url',
+			'source_disclaimer',
+			'source_about',
+		],
+	};
+
+/**
+ * The per-language fields each tab owns. `meta` covers the whole nested SEO object, and `slug`
+ * sits with it — the slug is the article's URL, which is an addressing concern rather than
+ * something the writer composes.
+ */
+const TAB_CONTENT_FIELDS: Record<FormTabId, readonly string[]> = {
+	settings: [],
+	content: ['title', 'brief', 'content'],
+	seo: ['slug', 'meta'],
+	attribution: [
+		'author_name',
+		'author_email',
+		'author_avatar',
+		'author_description',
+	],
+};
+
+/**
+ * Messages held anywhere inside an error value.
+ *
+ * `FormErrorsType` nests differently per field — a plain `string[]`, a record of them, or an
+ * array of records for a list field — and the count only has to be a total, so this walks
+ * whatever shape it is handed rather than encoding each one.
+ */
+function countMessages(value: unknown): number {
+	if (!value) {
+		return 0;
+	}
+
+	if (Array.isArray(value)) {
+		return value.reduce<number>(
+			(total, entry) =>
+				total + (typeof entry === 'string' ? 1 : countMessages(entry)),
+			0,
+		);
+	}
+
+	if (typeof value === 'object') {
+		return Object.values(value).reduce<number>(
+			(total, entry) => total + countMessages(entry),
+			0,
+		);
+	}
+
+	return 0;
+}
+
 export function FormManageArticle() {
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<ArticleFormValuesType>();
@@ -107,13 +205,22 @@ export function FormManageArticle() {
 		'archiveAt',
 		'publicAt',
 		'ruleRequiresAuth',
-		'ruleIsListed',
 		'ruleSubscription',
 		'ruleCountries',
 		'rulePassword',
 		'source',
 		'contents',
 	] as const);
+
+	const [tab, setTab] = useState<FormTabId>('settings');
+
+	/*
+	 * One language for the whole form: Content, SEO and the by-line on Attribution all edit the
+	 * same translation, so moving between those tabs must not change which one is open.
+	 */
+	const [language, setLanguage] = useState<Language>(() =>
+		Configuration.defaultLanguage(),
+	);
 
 	const isRestricted =
 		formValues.visibility === ArticleVisibilityEnum.RESTRICTED;
@@ -165,19 +272,28 @@ export function FormManageArticle() {
 		);
 	};
 
+	/** A translation with nothing in it yet, so a spread always has every key to overwrite. */
+	const emptyContent = (value: Language): ArticleContentFormType => ({
+		language: value,
+		slug: null,
+		title: null,
+		brief: null,
+		content: null,
+		author_name: null,
+		author_email: null,
+		author_avatar: null,
+		author_description: null,
+		meta: { title: null },
+	});
+
 	const handleContentChange = (
-		language: Language,
 		field: keyof Omit<ArticleContentFormType, 'language' | 'meta'>,
 		value: string,
 	) => {
 		const current = contentsMap[language];
 
 		const next: ArticleContentFormType = {
-			meta: { title: null },
-			slug: null,
-			title: null,
-			brief: null,
-			content: null,
+			...emptyContent(language),
 			...current,
 			language,
 			[field]: value,
@@ -195,18 +311,11 @@ export function FormManageArticle() {
 		syncContents({ ...contentsMap, [language]: next });
 	};
 
-	const handleMetaChange = (
-		language: Language,
-		field: keyof PageMeta,
-		value: string,
-	) => {
+	const handleMetaChange = (field: keyof PageMeta, value: string) => {
 		syncContents({
 			...contentsMap,
 			[language]: {
-				slug: null,
-				title: null,
-				brief: null,
-				content: null,
+				...emptyContent(language),
 				...contentsMap[language],
 				language,
 				meta: {
@@ -224,515 +333,748 @@ export function FormManageArticle() {
 	const tagIds = (formValues.tags ?? []).map((tag) => tag.id);
 
 	/*
-	 * `FormErrorsType` types an array field's errors per item, but "at least one translation"
-	 * is raised on the array itself and `accumulateZodErrors` stores that as a plain message
-	 * list under the key. The cast reflects what is actually there at runtime.
+	 * `errors.contents` arrives in one of two shapes, and which one depends on where the issue
+	 * was raised:
+	 *
+	 *  - a plain `string[]` when the message belongs to the array itself ("at least one
+	 *    translation"), because `accumulateZodErrors` pushes messages into a list at the leaf;
+	 *  - an object keyed by the index as a **string** (`{ '0': { title: [...] } }`) when the
+	 *    issues belong to individual translations — the accumulator builds every intermediate
+	 *    container with `{}`, so a numeric path segment never produces a real array.
+	 *
+	 * Indexing by number still reads the per-item entry (`obj[0]` is `obj['0']`), which is why
+	 * the field-level lookups below work; anything iterating has to use `Object.values`.
 	 */
-	const contentsError = errors.contents as unknown as string[] | undefined;
+	const contentsError = Array.isArray(errors.contents)
+		? (errors.contents as unknown as string[])
+		: undefined;
+
+	const contentErrorEntries: unknown[] = Array.isArray(errors.contents)
+		? []
+		: Object.values(errors.contents ?? {});
+
+	const contentIndex = (formValues.contents ?? []).findIndex(
+		(content) => content.language === language,
+	);
+
+	const contentErrors =
+		contentIndex >= 0 ? errors.contents?.[contentIndex] : undefined;
+
+	const currentContent = contentsMap[language];
+
+	/**
+	 * Errors per tab, so one on a panel the editor cannot see still announces itself. Counted
+	 * across every language rather than the open one — a missing Romanian title is the Content
+	 * tab's problem whichever translation happens to be selected.
+	 */
+	const tabErrors = FORM_TABS.reduce<Record<FormTabId, number>>(
+		(counts, { id }) => {
+			const fieldErrors = TAB_FIELDS[id].reduce<number>(
+				(total, field) => total + countMessages(errors[field]),
+				0,
+			);
+
+			const perLanguage = contentErrorEntries.reduce<number>(
+				(total, entry) => {
+					if (!entry || typeof entry !== 'object') {
+						return total;
+					}
+
+					return (
+						total +
+						TAB_CONTENT_FIELDS[id].reduce<number>(
+							(sum, field) =>
+								sum +
+								countMessages(
+									(entry as Record<string, unknown>)[field],
+								),
+							0,
+						)
+					);
+				},
+				0,
+			);
+
+			// The "at least one translation" message has no field of its own; it belongs to
+			// Content, which is where an editor would go to fix it.
+			const arrayLevel =
+				id === 'content' ? (contentsError?.length ?? 0) : 0;
+
+			counts[id] = fieldErrors + perLanguage + arrayLevel;
+
+			return counts;
+		},
+		{} as Record<FormTabId, number>,
+	);
+
+	const isPreviewed = previewed[language] ?? false;
 
 	return (
 		<>
-			<div className="form-section flex-row flex-wrap gap-4">
-				<FormComponentSelect<ArticleFormValuesType>
-					labelText="Layout"
-					id={elementIds.layout}
-					fieldName="layout"
-					fieldValue={formValues.layout}
-					options={layouts}
-					disabled={pending}
-					onChange={(value) =>
-						handleChange('layout', value as ArticleLayout)
-					}
-					error={errors.layout}
-				/>
-
-				<FormComponentSelect<ArticleFormValuesType>
-					labelText="Featured"
-					id={elementIds.featuredStatus}
-					fieldName="featured_status"
-					fieldValue={formValues.featured_status}
-					options={featuredStatuses}
-					placeholderText="-none-"
-					disabled={pending}
-					onChange={(value) =>
-						handleChange(
-							'featured_status',
-							(value as ArticleFeaturedStatus) || null,
-						)
-					}
-					error={errors.featured_status}
-				/>
-
-				{/*
-				 * The position within a featured group is not edited here — it is a property of
-				 * the group's running order, which the order page owns.
-				 */}
-				<FormComponentSelect<ArticleFormValuesType>
-					labelText="Visibility"
-					id={elementIds.visibility}
-					fieldName="visibility"
-					fieldValue={formValues.visibility}
-					options={visibilities}
-					disabled={pending}
-					onChange={(value) =>
-						handleChange('visibility', value as ArticleVisibility)
-					}
-					error={errors.visibility}
-				/>
-			</div>
-
-			<div className="form-section flex-row flex-wrap gap-4">
-				<FormComponentCalendar<ArticleFormValuesType>
-					labelText="Publish At"
-					id={elementIds.publishAt}
-					fieldName="publish_at"
-					fieldValue={formValues.publish_at ?? ''}
-					placeholderText="-select-"
-					disabled={pending}
-					onSelect={(value) =>
-						handleChange('publish_at', value === '' ? null : value)
-					}
-					error={errors.publish_at}
-				/>
-
-				<FormComponentCalendar<ArticleFormValuesType>
-					labelText="Archive At"
-					id={elementIds.archiveAt}
-					fieldName="archive_at"
-					fieldValue={formValues.archive_at ?? ''}
-					placeholderText="-select-"
-					disabled={pending}
-					onSelect={(value) =>
-						handleChange('archive_at', value === '' ? null : value)
-					}
-					error={errors.archive_at}
-				/>
-
-				{/*
-				 * `public_at` schedules the end of a restriction, so it only means anything
-				 * while one is in force. Switching back to public drops the date and the rule
-				 * row server-side, which is why nothing here has to clear them.
-				 */}
-				{isRestricted && (
-					<FormComponentCalendar<ArticleFormValuesType>
-						labelText="Public At"
-						id={elementIds.publicAt}
-						fieldName="public_at"
-						fieldValue={formValues.public_at ?? ''}
-						placeholderText="-select-"
+			{/*
+			 * A group of toggle buttons rather than a second `Tabs`: this switches the language
+			 * of two panels below without owning one of its own, which is not what a tablist
+			 * describes.
+			 */}
+			<fieldset className="flex items-center gap-2">
+				<legend className="sr-only">Content language</legend>
+				<span className="text-sm font-medium" aria-hidden="true">
+					Language
+				</span>
+				{languages.map((value) => (
+					<button
+						key={value}
+						type="button"
+						aria-pressed={value === language}
 						disabled={pending}
-						onSelect={(value) =>
-							handleChange(
-								'public_at',
-								value === '' ? null : value,
-							)
-						}
-						error={errors.public_at}
-					/>
-				)}
-			</div>
+						onClick={() => setLanguage(value)}
+						className={cn(
+							'rounded-md border px-3 py-1 text-sm transition-colors',
+							value === language
+								? 'border-focus bg-accent-soft font-medium'
+								: 'border-border opacity-70 hover:opacity-100',
+						)}
+					>
+						{value.toUpperCase()}
+					</button>
+				))}
+			</fieldset>
 
-			{isRestricted && (
-				<div className="form-section">
-					<h3 className="font-bold border-b border-line pb-2">
-						Visibility rule
-					</h3>
+			<Tabs
+				selectedKey={tab}
+				onSelectionChange={(key) => setTab(key as FormTabId)}
+				className="w-full"
+			>
+				<TabsList>
+					{FORM_TABS.map(({ id, label }) => (
+						<TabsTrigger key={id} id={id}>
+							{label}
+							{tabErrors[id] > 0 && (
+								<span className="ml-1.5 rounded-full bg-danger px-1.5 text-xs text-white">
+									{tabErrors[id]}
+									<span className="sr-only">
+										{' '}
+										field(s) need attention
+									</span>
+								</span>
+							)}
+						</TabsTrigger>
+					))}
+				</TabsList>
 
-					<div className="flex flex-row flex-wrap gap-6">
-						<FormComponentCheckbox
-							id={elementIds.ruleRequiresAuth}
-							fieldName="rule_requires_auth"
-							checked={formValues.rule_requires_auth}
-							disabled={pending}
-							onCheckedChange={(value) =>
-								handleChange('rule_requires_auth', value)
-							}
-						>
-							Requires sign-in
-						</FormComponentCheckbox>
+				<TabsContent id="settings">
+					<div className="space-y-6 pt-4">
+						<div className="form-section">
+							<div className="flex flex-row flex-wrap items-end gap-4">
+								<FormComponentSelect<ArticleFormValuesType>
+									labelText="Layout"
+									id={elementIds.layout}
+									fieldName="layout"
+									fieldValue={formValues.layout}
+									options={layouts}
+									className={SELECT_WIDTH}
+									disabled={pending}
+									onChange={(value) =>
+										handleChange(
+											'layout',
+											value as ArticleLayout,
+										)
+									}
+									error={errors.layout}
+								/>
+							</div>
 
-						<FormComponentCheckbox
-							id={elementIds.ruleIsListed}
-							fieldName="rule_is_listed"
-							checked={formValues.rule_is_listed}
-							disabled={pending}
-							onCheckedChange={(value) =>
-								handleChange('rule_is_listed', value)
-							}
-						>
-							Listed in indexes and feeds
-						</FormComponentCheckbox>
+							<div className="space-y-2">
+								<div className="flex flex-row flex-wrap items-end gap-4">
+									<FormComponentCalendar<ArticleFormValuesType>
+										labelText="Publish At"
+										id={elementIds.publishAt}
+										fieldName="publish_at"
+										fieldValue={formValues.publish_at ?? ''}
+										placeholderText="-select-"
+										disabled={pending}
+										onSelect={(value) =>
+											handleChange(
+												'publish_at',
+												value === '' ? null : value,
+											)
+										}
+										error={errors.publish_at}
+									/>
+
+									<FormComponentCalendar<ArticleFormValuesType>
+										labelText="Archive At"
+										id={elementIds.archiveAt}
+										fieldName="archive_at"
+										fieldValue={formValues.archive_at ?? ''}
+										placeholderText="-select-"
+										disabled={pending}
+										onSelect={(value) =>
+											handleChange(
+												'archive_at',
+												value === '' ? null : value,
+											)
+										}
+										error={errors.archive_at}
+									/>
+								</div>
+
+								{/*
+								 * Spelled out on screen rather than only in a comment: both dates are
+								 * day-granular and applied by a daily job, which is not something an
+								 * editor can infer from a date picker.
+								 */}
+								<p className="text-xs text-muted">
+									Publish At releases a scheduled article;
+									Archive At retires a published one. Both
+									take effect on the day given, not at a time
+									of day, and the archive date must fall after
+									the publish date. Leave empty to publish or
+									keep the article indefinitely.
+								</p>
+							</div>
+
+							<div className="flex flex-row flex-wrap items-end gap-4">
+								<FormComponentSelect<ArticleFormValuesType>
+									labelText="Featured"
+									id={elementIds.featuredStatus}
+									fieldName="featured_status"
+									fieldValue={formValues.featured_status}
+									options={featuredStatuses}
+									placeholderText="-none-"
+									className={SELECT_WIDTH}
+									disabled={pending}
+									onChange={(value) =>
+										handleChange(
+											'featured_status',
+											(value as ArticleFeaturedStatus) ||
+												null,
+										)
+									}
+									error={errors.featured_status}
+								/>
+							</div>
+
+							<div className="space-y-2">
+								<div className="flex flex-row flex-wrap items-end gap-4">
+									<FormComponentSelect<ArticleFormValuesType>
+										labelText="Visibility"
+										id={elementIds.visibility}
+										fieldName="visibility"
+										fieldValue={formValues.visibility}
+										options={visibilities}
+										className={SELECT_WIDTH}
+										disabled={pending}
+										onChange={(value) =>
+											handleChange(
+												'visibility',
+												value as ArticleVisibility,
+											)
+										}
+										error={errors.visibility}
+									/>
+
+									{isRestricted && (
+										<FormComponentCalendar<ArticleFormValuesType>
+											labelText="Public At"
+											id={elementIds.publicAt}
+											fieldName="public_at"
+											fieldValue={
+												formValues.public_at ?? ''
+											}
+											placeholderText="-select-"
+											disabled={pending}
+											onSelect={(value) =>
+												handleChange(
+													'public_at',
+													value === '' ? null : value,
+												)
+											}
+											error={errors.public_at}
+										/>
+									)}
+								</div>
+
+								{isRestricted && (
+									<p className="text-xs text-muted">
+										Public At is the day the restriction
+										ends and the article becomes public. A
+										daily job applies it, then clears the
+										date and drops the rule below —
+										releasing an article is final, so
+										re-restricting it means stating the
+										terms again. Leave empty to keep the
+										restriction until it is lifted by hand.
+									</p>
+								)}
+							</div>
+						</div>
+
+						{isRestricted && (
+							<div className="form-section">
+								<h3 className="font-bold border-b border-line pb-2">
+									Visibility rule
+								</h3>
+
+								<div className="flex flex-row flex-wrap gap-6">
+									<FormComponentCheckbox
+										id={elementIds.ruleRequiresAuth}
+										fieldName="rule_requires_auth"
+										checked={formValues.rule_requires_auth}
+										disabled={pending}
+										onCheckedChange={(value) =>
+											handleChange(
+												'rule_requires_auth',
+												value,
+											)
+										}
+									>
+										Requires sign-in
+									</FormComponentCheckbox>
+
+									<FormComponentCheckbox
+										id={elementIds.ruleSubscription}
+										fieldName="rule_requires_subscription"
+										checked={
+											formValues.rule_requires_subscription
+										}
+										disabled={pending}
+										onCheckedChange={(value) =>
+											handleChange(
+												'rule_requires_subscription',
+												value,
+											)
+										}
+									>
+										Requires an active subscription
+									</FormComponentCheckbox>
+								</div>
+
+								<FormComponentInput<ArticleFormValuesType>
+									id={elementIds.ruleCountries}
+									labelText="Allowed countries"
+									fieldName="rule_allowed_countries"
+									fieldValue={
+										formValues.rule_allowed_countries ?? ''
+									}
+									placeholderText="eg: RO, GB"
+									disabled={pending}
+									onChange={(e) =>
+										handleChange(
+											'rule_allowed_countries',
+											e.target.value,
+										)
+									}
+									error={errors.rule_allowed_countries}
+								/>
+
+								{/*
+								 * Always blank on an update — the API returns the hash to nobody.
+								 * Left empty it is omitted from the payload, so an unrelated save
+								 * cannot wipe the stored password.
+								 */}
+								<FormComponentInput<ArticleFormValuesType>
+									id={elementIds.rulePassword}
+									labelText="Access password"
+									fieldName="rule_password"
+									fieldValue={formValues.rule_password ?? ''}
+									placeholderText="leave empty to keep the current one"
+									disabled={pending}
+									onChange={(e) =>
+										handleChange(
+											'rule_password',
+											e.target.value,
+										)
+									}
+									error={errors.rule_password}
+								/>
+							</div>
+						)}
 					</div>
+				</TabsContent>
 
-					<FormComponentInput<ArticleFormValuesType>
-						id={elementIds.ruleSubscription}
-						labelText="Required subscriptions"
-						fieldName="rule_requires_subscription"
-						fieldValue={formValues.rule_requires_subscription ?? ''}
-						placeholderText="eg: premium, archive"
-						disabled={pending}
-						onChange={(e) =>
-							handleChange(
-								'rule_requires_subscription',
-								e.target.value,
-							)
-						}
-						error={errors.rule_requires_subscription}
-					/>
+				<TabsContent id="content">
+					<div className="space-y-6 pt-4">
+						<div className="form-section">
+							{contentsError?.length ? (
+								<p className="text-sm text-danger">
+									{contentsError.join(' ')}
+								</p>
+							) : null}
 
-					<FormComponentInput<ArticleFormValuesType>
-						id={elementIds.ruleCountries}
-						labelText="Allowed countries"
-						fieldName="rule_allowed_countries"
-						fieldValue={formValues.rule_allowed_countries ?? ''}
-						placeholderText="eg: RO, GB"
-						disabled={pending}
-						onChange={(e) =>
-							handleChange(
-								'rule_allowed_countries',
-								e.target.value,
-							)
-						}
-						error={errors.rule_allowed_countries}
-					/>
+							<FormComponentInput<ArticleContentFormType>
+								id={`${elementIds.contents}-${language}-title`}
+								labelText="Title"
+								fieldName="title"
+								fieldValue={currentContent?.title ?? ''}
+								isRequired={true}
+								disabled={pending}
+								onChange={(e) =>
+									handleContentChange('title', e.target.value)
+								}
+								error={contentErrors?.title}
+							/>
 
-					{/*
-					 * Always blank on an update — the API returns the hash to nobody. Left empty
-					 * it is omitted from the payload, so an unrelated save cannot wipe the
-					 * stored password.
-					 */}
-					<FormComponentInput<ArticleFormValuesType>
-						id={elementIds.rulePassword}
-						labelText="Access password"
-						fieldName="rule_password"
-						fieldValue={formValues.rule_password ?? ''}
-						placeholderText="leave empty to keep the current one"
-						disabled={pending}
-						onChange={(e) =>
-							handleChange('rule_password', e.target.value)
-						}
-						error={errors.rule_password}
-					/>
-				</div>
-			)}
+							<FormComponentTextarea<ArticleContentFormType>
+								id={`${elementIds.contents}-${language}-brief`}
+								labelText="Brief"
+								fieldName="brief"
+								fieldValue={currentContent?.brief ?? ''}
+								rows={3}
+								disabled={pending}
+								onChange={(e) =>
+									handleContentChange('brief', e.target.value)
+								}
+								error={contentErrors?.brief}
+							/>
 
-			<div className="form-section">
-				<h3 className="font-bold border-b border-line pb-2">
-					Source attribution
-				</h3>
+							<div className="space-y-2">
+								<div className="flex items-center justify-between">
+									{/*
+									 * The label is hand-rolled so the preview toggle can sit
+									 * beside it, which is also why the field below carries no
+									 * label of its own — and no `isRequired`, which would
+									 * render a second, orphaned asterisk under an empty label.
+									 */}
+									<span className="text-sm font-medium">
+										Content
+										<span className="text-danger"> *</span>
+									</span>
+									<button
+										type="button"
+										className="text-sm underline opacity-70 hover:opacity-100"
+										onClick={() =>
+											setPreviewed((current) => ({
+												...current,
+												[language]: !isPreviewed,
+											}))
+										}
+									>
+										{isPreviewed ? 'Edit' : 'Preview'}
+									</button>
+								</div>
 
-				<div className="grid gap-4 sm:grid-cols-2">
-					<FormComponentInput<ArticleFormValuesType>
-						id={`${elementIds.source}-label`}
-						labelText="Label"
-						fieldName="source_label"
-						fieldValue={formValues.source_label ?? ''}
-						disabled={pending}
-						onChange={(e) =>
-							handleChange('source_label', e.target.value)
-						}
-						error={errors.source_label}
-					/>
+								{isPreviewed ? (
+									// Sanitized by `renderMarkdown`; see the helper for why the two
+									// steps stay together.
+									<div
+										// `min-h-84` (21rem) matches the measured height of the
+										// 16-row textarea it replaces, so toggling Preview on an
+										// empty draft does not collapse the panel.
+										className="markdown-body min-h-84 rounded-md border border-line p-3"
+										// biome-ignore lint/security/noDangerouslySetInnerHtml: markdown rendered and sanitized by `renderMarkdown`
+										dangerouslySetInnerHTML={{
+											__html: renderMarkdown(
+												currentContent?.content,
+											),
+										}}
+									/>
+								) : (
+									<FormComponentTextarea<ArticleContentFormType>
+										id={`${elementIds.contents}-${language}-content`}
+										labelText=""
+										fieldName="content"
+										fieldValue={
+											currentContent?.content ?? ''
+										}
+										rows={16}
+										placeholderText="# Heading&#10;&#10;Write the article in markdown…"
+										disabled={pending}
+										onChange={(e) =>
+											handleContentChange(
+												'content',
+												e.target.value,
+											)
+										}
+										error={contentErrors?.content}
+									/>
+								)}
+							</div>
+						</div>
 
-					<FormComponentInput<ArticleFormValuesType>
-						id={`${elementIds.source}-url`}
-						labelText="URL"
-						fieldName="source_url"
-						fieldValue={formValues.source_url ?? ''}
-						placeholderText="https://…"
-						disabled={pending}
-						onChange={(e) =>
-							handleChange('source_url', e.target.value)
-						}
-						error={errors.source_url}
-					/>
-				</div>
+						{/*
+						 * `items-start` because `.form-section .form-element` carries `h-full`:
+						 * without it the taller column (the one with chips) stretches the other,
+						 * and that column's empty-state line is pushed away from its input.
+						 */}
+						<div className="form-section grid items-start gap-4 sm:grid-cols-2">
+							<FormPickerArticle<CategoryModel>
+								labelText="Categories"
+								fieldName="category_id"
+								dataSource="category"
+								// The backend defaults the category listing to `article` already;
+								// stating it keeps the picker off the product tree if that default
+								// ever moves.
+								filter={{ type: 'article' }}
+								getOptionLabel={(entry) =>
+									displayCategoryLabel(
+										entry,
+										getLanguageClient(),
+										false,
+									)
+								}
+								value={categoryIds}
+								onChange={(ids) =>
+									handleChange(
+										'categories',
+										ids.map((id) => ({ id })),
+									)
+								}
+								emptyText="No categories linked."
+								disabled={pending}
+							/>
 
-				<FormComponentInput<ArticleFormValuesType>
-					id={`${elementIds.source}-disclaimer`}
-					labelText="Disclaimer"
-					fieldName="source_disclaimer"
-					fieldValue={formValues.source_disclaimer ?? ''}
-					disabled={pending}
-					onChange={(e) =>
-						handleChange('source_disclaimer', e.target.value)
-					}
-					error={errors.source_disclaimer}
-				/>
+							<FormPickerArticle<TermModel>
+								labelText="Tags"
+								fieldName="tag_id"
+								dataSource="term"
+								filter={{ type: 'tag' }}
+								getOptionLabel={(entry) =>
+									displayTermValue(entry)
+								}
+								value={tagIds}
+								onChange={(ids) =>
+									handleChange(
+										'tags',
+										ids.map((id) => ({ id })),
+									)
+								}
+								emptyText="No tags linked."
+								disabled={pending}
+							/>
+						</div>
+					</div>
+				</TabsContent>
 
-				<FormComponentTextarea<ArticleFormValuesType>
-					id={`${elementIds.source}-about`}
-					labelText="About the source"
-					fieldName="source_about"
-					fieldValue={formValues.source_about ?? ''}
-					rows={2}
-					disabled={pending}
-					onChange={(e) =>
-						handleChange('source_about', e.target.value)
-					}
-					error={errors.source_about}
-				/>
-			</div>
+				<TabsContent id="seo">
+					<div className="space-y-6 pt-4">
+						<div className="form-section">
+							{/*
+							 * The slug is the article's public URL, so it lives with the rest
+							 * of the addressing. Derived from the title while the editor has
+							 * not written one — see `handleContentChange`.
+							 */}
+							<FormComponentInput<ArticleContentFormType>
+								id={`${elementIds.contents}-${language}-slug`}
+								labelText="Slug"
+								fieldName="slug"
+								fieldValue={currentContent?.slug ?? ''}
+								isRequired={true}
+								placeholderText="eg: how-to-brew-coffee"
+								disabled={pending}
+								onChange={(e) =>
+									handleContentChange('slug', e.target.value)
+								}
+								error={contentErrors?.slug}
+							/>
 
-			<div className="form-section grid gap-4 sm:grid-cols-2">
-				<FormPickerArticle<CategoryModel>
-					labelText="Categories"
-					fieldName="category_id"
-					dataSource="category"
-					// The backend defaults the category listing to `article` already; stating it
-					// keeps the picker off the product tree if that default ever moves.
-					filter={{ type: 'article' }}
-					getOptionLabel={(entry) =>
-						displayCategoryLabel(entry, getLanguageClient(), false)
-					}
-					value={categoryIds}
-					onChange={(ids) =>
-						handleChange(
-							'categories',
-							ids.map((id) => ({ id })),
-						)
-					}
-					emptyText="No categories linked."
-					disabled={pending}
-				/>
+							<FormComponentInput<PageMeta>
+								id={`${elementIds.contents}-${language}-meta-title`}
+								labelText="Meta Title"
+								fieldName="title"
+								fieldValue={currentContent?.meta?.title ?? ''}
+								disabled={pending}
+								onChange={(e) =>
+									handleMetaChange('title', e.target.value)
+								}
+								error={contentErrors?.meta?.title}
+							/>
 
-				<FormPickerArticle<TermModel>
-					labelText="Tags"
-					fieldName="tag_id"
-					dataSource="term"
-					filter={{ type: 'tag' }}
-					getOptionLabel={(entry) => displayTermValue(entry)}
-					value={tagIds}
-					onChange={(ids) =>
-						handleChange(
-							'tags',
-							ids.map((id) => ({ id })),
-						)
-					}
-					emptyText="No tags linked."
-					disabled={pending}
-				/>
-			</div>
+							<FormComponentTextarea<PageMeta>
+								id={`${elementIds.contents}-${language}-meta-description`}
+								labelText="Meta Description"
+								fieldName="description"
+								fieldValue={
+									currentContent?.meta?.description ?? ''
+								}
+								rows={3}
+								disabled={pending}
+								onChange={(e) =>
+									handleMetaChange(
+										'description',
+										e.target.value,
+									)
+								}
+								error={contentErrors?.meta?.description}
+							/>
+
+							<FormComponentInput<PageMeta>
+								id={`${elementIds.contents}-${language}-meta-keywords`}
+								labelText="Meta Keywords"
+								fieldName="keywords"
+								fieldValue={
+									currentContent?.meta?.keywords ?? ''
+								}
+								disabled={pending}
+								onChange={(e) =>
+									handleMetaChange('keywords', e.target.value)
+								}
+								error={contentErrors?.meta?.keywords}
+							/>
+						</div>
+					</div>
+				</TabsContent>
+
+				<TabsContent id="attribution">
+					<div className="space-y-6 pt-4">
+						<div className="form-section">
+							<h3 className="font-bold border-b border-line pb-2">
+								Author
+							</h3>
+
+							{/*
+							 * Per-language, and it overrides the filing account field by field —
+							 * `author_id` is stamped from the session on create and records who
+							 * filed the article, not how the credit should read.
+							 */}
+							<div className="grid gap-4 sm:grid-cols-2">
+								<FormComponentInput<ArticleContentFormType>
+									id={`${elementIds.contents}-${language}-author-name`}
+									labelText="Name"
+									fieldName="author_name"
+									fieldValue={
+										currentContent?.author_name ?? ''
+									}
+									placeholderText="leave empty to credit the filing account"
+									disabled={pending}
+									onChange={(e) =>
+										handleContentChange(
+											'author_name',
+											e.target.value,
+										)
+									}
+									error={contentErrors?.author_name}
+								/>
+
+								<FormComponentInput<ArticleContentFormType>
+									id={`${elementIds.contents}-${language}-author-email`}
+									labelText="Email"
+									fieldName="author_email"
+									fieldValue={
+										currentContent?.author_email ?? ''
+									}
+									disabled={pending}
+									onChange={(e) =>
+										handleContentChange(
+											'author_email',
+											e.target.value,
+										)
+									}
+									error={contentErrors?.author_email}
+								/>
+							</div>
+
+							<FormComponentInput<ArticleContentFormType>
+								id={`${elementIds.contents}-${language}-author-avatar`}
+								labelText="Avatar URL"
+								fieldName="author_avatar"
+								fieldValue={currentContent?.author_avatar ?? ''}
+								placeholderText="https://…"
+								disabled={pending}
+								onChange={(e) =>
+									handleContentChange(
+										'author_avatar',
+										e.target.value,
+									)
+								}
+								error={contentErrors?.author_avatar}
+							/>
+
+							<FormComponentTextarea<ArticleContentFormType>
+								id={`${elementIds.contents}-${language}-author-description`}
+								labelText="Bio"
+								fieldName="author_description"
+								fieldValue={
+									currentContent?.author_description ?? ''
+								}
+								rows={3}
+								disabled={pending}
+								onChange={(e) =>
+									handleContentChange(
+										'author_description',
+										e.target.value,
+									)
+								}
+								error={contentErrors?.author_description}
+							/>
+						</div>
+
+						<div className="form-section">
+							<h3 className="font-bold border-b border-line pb-2">
+								Source
+							</h3>
+
+							{/* Not per-language: provenance is a property of the article. */}
+							<div className="grid gap-4 sm:grid-cols-2">
+								<FormComponentInput<ArticleFormValuesType>
+									id={`${elementIds.source}-label`}
+									labelText="Label"
+									fieldName="source_label"
+									fieldValue={formValues.source_label ?? ''}
+									disabled={pending}
+									onChange={(e) =>
+										handleChange(
+											'source_label',
+											e.target.value,
+										)
+									}
+									error={errors.source_label}
+								/>
+
+								<FormComponentInput<ArticleFormValuesType>
+									id={`${elementIds.source}-url`}
+									labelText="URL"
+									fieldName="source_url"
+									fieldValue={formValues.source_url ?? ''}
+									placeholderText="https://…"
+									disabled={pending}
+									onChange={(e) =>
+										handleChange(
+											'source_url',
+											e.target.value,
+										)
+									}
+									error={errors.source_url}
+								/>
+							</div>
+
+							<FormComponentInput<ArticleFormValuesType>
+								id={`${elementIds.source}-disclaimer`}
+								labelText="Disclaimer"
+								fieldName="source_disclaimer"
+								fieldValue={formValues.source_disclaimer ?? ''}
+								disabled={pending}
+								onChange={(e) =>
+									handleChange(
+										'source_disclaimer',
+										e.target.value,
+									)
+								}
+								error={errors.source_disclaimer}
+							/>
+
+							<FormComponentTextarea<ArticleFormValuesType>
+								id={`${elementIds.source}-about`}
+								labelText="About the source"
+								fieldName="source_about"
+								fieldValue={formValues.source_about ?? ''}
+								rows={2}
+								disabled={pending}
+								onChange={(e) =>
+									handleChange('source_about', e.target.value)
+								}
+								error={errors.source_about}
+							/>
+						</div>
+					</div>
+				</TabsContent>
+			</Tabs>
 
 			<input
 				type="hidden"
 				name="contents"
 				value={JSON.stringify(formValues.contents ?? [])}
 			/>
-
-			<Tabs
-				defaultSelectedKey={Configuration.defaultLanguage()}
-				className="w-full"
-			>
-				<div className="flex items-center border-b border-line pb-2 gap-2">
-					<h3 className="font-bold whitespace-nowrap">
-						Language specific
-					</h3>
-					<TabsList>
-						{languages.map((language) => (
-							<TabsTrigger key={language} id={language}>
-								{language.toUpperCase()}
-							</TabsTrigger>
-						))}
-					</TabsList>
-				</div>
-
-				{contentsError?.length ? (
-					<p className="pt-2 text-sm text-danger">
-						{contentsError.join(' ')}
-					</p>
-				) : null}
-
-				{languages.map((language) => {
-					const contentIndex = (formValues.contents ?? []).findIndex(
-						(content) => content.language === language,
-					);
-
-					const contentErrors =
-						contentIndex >= 0
-							? errors.contents?.[contentIndex]
-							: undefined;
-
-					const isPreviewed = previewed[language] ?? false;
-
-					return (
-						<TabsContent key={`form-${language}`} id={language}>
-							<div className="form-section">
-								<FormComponentInput<ArticleContentFormType>
-									id={`${elementIds.contents}-${language}-title`}
-									labelText="Title"
-									fieldName="title"
-									fieldValue={
-										contentsMap[language]?.title ?? ''
-									}
-									isRequired={true}
-									disabled={pending}
-									onChange={(e) =>
-										handleContentChange(
-											language,
-											'title',
-											e.target.value,
-										)
-									}
-									error={contentErrors?.title}
-								/>
-
-								<FormComponentInput<ArticleContentFormType>
-									id={`${elementIds.contents}-${language}-slug`}
-									labelText="Slug"
-									fieldName="slug"
-									fieldValue={
-										contentsMap[language]?.slug ?? ''
-									}
-									isRequired={true}
-									placeholderText="eg: how-to-brew-coffee"
-									disabled={pending}
-									onChange={(e) =>
-										handleContentChange(
-											language,
-											'slug',
-											e.target.value,
-										)
-									}
-									error={contentErrors?.slug}
-								/>
-
-								<FormComponentTextarea<ArticleContentFormType>
-									id={`${elementIds.contents}-${language}-brief`}
-									labelText="Brief"
-									fieldName="brief"
-									fieldValue={
-										contentsMap[language]?.brief ?? ''
-									}
-									rows={3}
-									disabled={pending}
-									onChange={(e) =>
-										handleContentChange(
-											language,
-											'brief',
-											e.target.value,
-										)
-									}
-									error={contentErrors?.brief}
-								/>
-
-								<div className="space-y-2">
-									<div className="flex items-center justify-between">
-										<span className="text-sm font-medium">
-											Content (markdown)
-										</span>
-										<button
-											type="button"
-											className="text-sm underline opacity-70 hover:opacity-100"
-											onClick={() =>
-												setPreviewed((current) => ({
-													...current,
-													[language]: !isPreviewed,
-												}))
-											}
-										>
-											{isPreviewed ? 'Edit' : 'Preview'}
-										</button>
-									</div>
-
-									{isPreviewed ? (
-										// Sanitized by `renderMarkdown`; see the helper for why the
-										// two steps stay together.
-										<div
-											className="markdown-body rounded-md border border-line p-3"
-											// biome-ignore lint/security/noDangerouslySetInnerHtml: markdown rendered and sanitized by `renderMarkdown`
-											dangerouslySetInnerHTML={{
-												__html: renderMarkdown(
-													contentsMap[language]
-														?.content,
-												),
-											}}
-										/>
-									) : (
-										<FormComponentTextarea<ArticleContentFormType>
-											id={`${elementIds.contents}-${language}-content`}
-											labelText=""
-											fieldName="content"
-											fieldValue={
-												contentsMap[language]
-													?.content ?? ''
-											}
-											rows={14}
-											isRequired={true}
-											placeholderText="# Heading&#10;&#10;Write the article in markdown…"
-											disabled={pending}
-											onChange={(e) =>
-												handleContentChange(
-													language,
-													'content',
-													e.target.value,
-												)
-											}
-											error={contentErrors?.content}
-										/>
-									)}
-								</div>
-
-								<FormComponentInput<PageMeta>
-									id={`${elementIds.contents}-${language}-meta-title`}
-									labelText="Meta Title"
-									fieldName="title"
-									fieldValue={
-										contentsMap[language]?.meta?.title ?? ''
-									}
-									disabled={pending}
-									onChange={(e) =>
-										handleMetaChange(
-											language,
-											'title',
-											e.target.value,
-										)
-									}
-									error={contentErrors?.meta?.title}
-								/>
-
-								<FormComponentInput<PageMeta>
-									id={`${elementIds.contents}-${language}-meta-description`}
-									labelText="Meta Description"
-									fieldName="description"
-									fieldValue={
-										contentsMap[language]?.meta
-											?.description ?? ''
-									}
-									disabled={pending}
-									onChange={(e) =>
-										handleMetaChange(
-											language,
-											'description',
-											e.target.value,
-										)
-									}
-									error={contentErrors?.meta?.description}
-								/>
-
-								<FormComponentInput<PageMeta>
-									id={`${elementIds.contents}-${language}-meta-keywords`}
-									labelText="Meta Keywords"
-									fieldName="keywords"
-									fieldValue={
-										contentsMap[language]?.meta?.keywords ??
-										''
-									}
-									disabled={pending}
-									onChange={(e) =>
-										handleMetaChange(
-											language,
-											'keywords',
-											e.target.value,
-										)
-									}
-									error={contentErrors?.meta?.keywords}
-								/>
-							</div>
-						</TabsContent>
-					);
-				})}
-			</Tabs>
 		</>
 	);
 }

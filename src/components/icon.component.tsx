@@ -231,6 +231,7 @@ export const Icons = {
 		Disable: createIcon(LockKeyhole),
 		Restore: createIcon(ArchiveRestore),
 		Permissions: createIcon(Wrench),
+		SetupPermissions: createIcon(Wrench),
 		View: createIcon(Eye),
 		Complete: createIcon(Check),
 		Drop: createIcon(CircleX),

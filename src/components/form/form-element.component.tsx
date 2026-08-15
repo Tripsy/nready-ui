@@ -743,6 +743,16 @@ export const FormComponentCalendarWithoutFormElement = <Fields,>({
 	// local calendar parts, matching what the calendar displays.
 	const value = fieldValue ? parseDate(fieldValue) : null;
 
+	/*
+	 * The popover has to be told what to anchor to. HeroUI's `DatePicker.Popover` renders
+	 * react-aria's `Popover` without passing a `triggerRef`, and its own trigger context is
+	 * private to the trigger — so with nothing to measure, react-aria positions the calendar at
+	 * the viewport's top-left corner instead of under the field. The trigger merges an outer
+	 * ref with its internal one, and the popover spreads unknown props straight through, so
+	 * handing the same ref to both is what connects them.
+	 */
+	const triggerRef = useRef<HTMLButtonElement | null>(null);
+
 	const toCalendarDate = (date: Date) =>
 		new CalendarDate(
 			date.getFullYear(),
@@ -763,6 +773,7 @@ export const FormComponentCalendarWithoutFormElement = <Fields,>({
 				aria-label={ariaLabel ?? placeholderText}
 			>
 				<DatePicker.Trigger
+					ref={triggerRef}
 					id={id}
 					// Also on the trigger, not just the root: react-aria defaults this
 					// button's name to "Calendar", so without it every picker in a form
@@ -779,7 +790,10 @@ export const FormComponentCalendarWithoutFormElement = <Fields,>({
 					</DatePicker.TriggerIndicator>
 					{fieldValue || placeholderText}
 				</DatePicker.Trigger>
-				<DatePicker.Popover className="rounded-md">
+				<DatePicker.Popover
+					triggerRef={triggerRef}
+					className="rounded-md"
+				>
 					<Calendar />
 				</DatePicker.Popover>
 			</DatePicker>

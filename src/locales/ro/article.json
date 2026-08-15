@@ -21,7 +21,8 @@
 		"invalid_visibility_rule": "Regulă de vizibilitate invalidă",
 		"invalid_country_code": "Folosește coduri de țară din două litere, separate prin virgulă",
 		"invalid_source": "Detalii sursă invalide",
-		"invalid_boolean": "Valoare invalidă"
+		"invalid_boolean": "Valoare invalidă",
+		"invalid_author": "Introdu numele autorului"
 	},
 	"status": {
 		"draft": "Ciornă",

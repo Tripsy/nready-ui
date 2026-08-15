@@ -227,8 +227,6 @@ room in the container for both, and it is usually the dev server that gets kille
 1. Article
     - images
     - additional columns in the listing
-    - bugs on add / edit: calendar, spacing after categories & tags 
-    - add / edit should be tabbed
     - review view presentation
     - allow tags creation via input        
 2. Dashboard entities for the nready-only features: product, order, order-shipping, invoice, grn, warehouse, subscription

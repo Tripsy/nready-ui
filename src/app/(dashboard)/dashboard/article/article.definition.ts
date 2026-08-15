@@ -86,31 +86,72 @@ const validatorMessages = [
 	'invalid_boolean',
 	'invalid_country_code',
 	'invalid_source',
+	'invalid_author',
 	'archive_before_publish',
 ] as const;
 
 class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 	contentsSchema() {
-		return z.object({
-			language: this.validateLanguage(
-				this.getMessage('invalid_language'),
-			),
-			slug: this.validateString(
-				this.getMessage('invalid_slug'),
-			).transform((value) => value.trim().toLowerCase()),
-			title: this.validateString(this.getMessage('invalid_title')),
-			brief: this.validateString(this.getMessage('invalid_brief'), {
-				required: false,
-			}),
-			content: this.validateString(this.getMessage('invalid_content')),
-			meta: this.validateMeta({
-				invalid_meta_title: this.getMessage('invalid_meta_title'),
-				invalid_meta_description: this.getMessage(
-					'invalid_meta_description',
+		return z
+			.object({
+				language: this.validateLanguage(
+					this.getMessage('invalid_language'),
 				),
-				invalid_meta_keywords: this.getMessage('invalid_meta_keywords'),
-			}),
-		});
+				slug: this.validateString(
+					this.getMessage('invalid_slug'),
+				).transform((value) => value.trim().toLowerCase()),
+				title: this.validateString(this.getMessage('invalid_title')),
+				brief: this.validateString(this.getMessage('invalid_brief'), {
+					required: false,
+				}),
+				content: this.validateString(
+					this.getMessage('invalid_content'),
+				),
+				author_name: this.validateString(
+					this.getMessage('invalid_author'),
+					{ required: false },
+				),
+				author_email: this.validateString(
+					this.getMessage('invalid_author'),
+					{ required: false },
+				),
+				author_avatar: this.validateString(
+					this.getMessage('invalid_author'),
+					{ required: false },
+				),
+				author_description: this.validateString(
+					this.getMessage('invalid_author'),
+					{ required: false },
+				),
+				meta: this.validateMeta({
+					invalid_meta_title: this.getMessage('invalid_meta_title'),
+					invalid_meta_description: this.getMessage(
+						'invalid_meta_description',
+					),
+					invalid_meta_keywords: this.getMessage(
+						'invalid_meta_keywords',
+					),
+				}),
+			})
+			.superRefine((content, ctx) => {
+				/*
+				 * The backend's author object requires a name, so a by-line with a bio and no name
+				 * is rejected there as a whole-object failure with nothing to point at. Caught here
+				 * on the field the editor has to fix.
+				 */
+				const hasDetail =
+					!!content.author_email ||
+					!!content.author_avatar ||
+					!!content.author_description;
+
+				if (hasDetail && !content.author_name) {
+					ctx.addIssue({
+						code: 'custom',
+						path: ['author_name'],
+						message: this.getMessage('invalid_author'),
+					});
+				}
+			});
 	}
 
 	idListSchema(message: string) {
@@ -153,12 +194,8 @@ class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 					this.getMessage('invalid_boolean'),
 					{ required: false },
 				),
-				rule_is_listed: this.validateBoolean(
+				rule_requires_subscription: this.validateBoolean(
 					this.getMessage('invalid_boolean'),
-					{ required: false },
-				),
-				rule_requires_subscription: this.validateString(
-					this.getMessage('invalid_visibility_rule'),
 					{ required: false },
 				),
 				rule_allowed_countries: this.validateString(
@@ -294,8 +331,7 @@ function getFormValues(formData: FormData): ArticleFormValuesType {
 			formData,
 			'rule_requires_auth',
 		),
-		rule_is_listed: getFormDataAsBoolean(formData, 'rule_is_listed'),
-		rule_requires_subscription: getFormDataAsString(
+		rule_requires_subscription: getFormDataAsBoolean(
 			formData,
 			'rule_requires_subscription',
 		),
@@ -341,11 +377,8 @@ function getFormState(
 			public_at: toCalendarValue(data?.public_at ?? null),
 			// Mirror of `buildVisibilityRule`, which puts these back together.
 			rule_requires_auth: data?.visibility_rule?.requires_auth ?? false,
-			// The backend defaults a new rule to listed, so a fresh form has to agree.
-			rule_is_listed: data?.visibility_rule?.is_listed ?? true,
 			rule_requires_subscription:
-				data?.visibility_rule?.requires_subscription?.join(', ') ??
-				null,
+				data?.visibility_rule?.requires_subscription ?? false,
 			rule_allowed_countries:
 				data?.visibility_rule?.allowed_countries?.join(', ') ?? null,
 			// Never seeded: the API returns the bcrypt hash to nobody.
@@ -359,12 +392,17 @@ function getFormState(
 				id: link.category_id,
 			})),
 			tags: (data?.tags ?? []).map((link) => ({ id: link.tag_id })),
+			// Mirror of `buildContents`, which puts the by-line back together.
 			contents: (data?.contents ?? []).map((content) => ({
 				language: content.language,
 				slug: content.slug,
 				title: content.title,
 				brief: content.brief,
 				content: content.content ?? null,
+				author_name: content.author?.name ?? null,
+				author_email: content.author?.email ?? null,
+				author_avatar: content.author?.avatar ?? null,
+				author_description: content.author?.description ?? null,
 				meta: content.meta ?? { title: null },
 			})),
 		},
@@ -386,13 +424,39 @@ function buildVisibilityRule(data: ArticleManageOutput) {
 		return undefined;
 	}
 
+	/*
+	 * `is_listed` is omitted deliberately — the dashboard does not expose it, and the backend
+	 * defaults it to true, which is the intended state for every article this form creates.
+	 */
 	return {
 		requires_auth: data.rule_requires_auth ?? false,
-		is_listed: data.rule_is_listed ?? true,
-		requires_subscription: splitList(data.rule_requires_subscription),
+		requires_subscription: data.rule_requires_subscription ?? false,
 		allowed_countries: splitList(data.rule_allowed_countries),
 		...(data.rule_password ? { password: data.rule_password } : {}),
 	};
+}
+
+/**
+ * The by-line the API stores, rebuilt from the flat form fields.
+ *
+ * `null` when no name was given: the backend requires one inside the object, and an absent
+ * by-line is the normal case — the article then reads as filed by `author_id`.
+ */
+function buildContents(data: ArticleManageOutput) {
+	return data.contents.map((content) => {
+		const {
+			author_name: name,
+			author_email: email,
+			author_avatar: avatar,
+			author_description: description,
+			...rest
+		} = content;
+
+		return {
+			...rest,
+			author: name ? { name, email, avatar, description } : null,
+		};
+	});
 }
 
 /** `null` clears the stored attribution; an object with nothing in it would not. */
@@ -412,7 +476,6 @@ function buildSource(data: ArticleManageOutput) {
 function prepareParamsFromFormValues(data: ArticleManageOutput) {
 	const {
 		rule_requires_auth: _requiresAuth,
-		rule_is_listed: _isListed,
 		rule_requires_subscription: _requiresSubscription,
 		rule_allowed_countries: _allowedCountries,
 		rule_password: _password,
@@ -429,6 +492,7 @@ function prepareParamsFromFormValues(data: ArticleManageOutput) {
 		// `FormValuesType` has no place for a bare `number[]`.
 		categories: data.categories.map((category) => category.id),
 		tags: data.tags.map((tag) => tag.id),
+		contents: buildContents(data),
 		visibility_rule: buildVisibilityRule(data),
 		source: buildSource(data),
 	};
