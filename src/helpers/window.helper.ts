@@ -1,3 +1,4 @@
+import type { QueryClient } from '@tanstack/react-query';
 import { replaceVars } from '@/helpers/string.helper';
 import type { EntriesSelectionType } from '@/types/action.type';
 import type {
@@ -7,6 +8,39 @@ import type {
 } from '@/types/window.type';
 
 export const WINDOW_CACHE_LABEL = 'window-entry';
+
+/**
+ * Drops the reloaded copy of the given entries held by every open window on them.
+ *
+ * Invalidating only the window that wrote is not enough: the cache key carries the window
+ * uid, which is `<dataSource>-<action>-<id>`, so a view and a form on the same row cache it
+ * under separate keys and the untouched ones keep serving their pre-write copy for the whole
+ * `staleTime`. Matching on the uid prefix keeps an unrelated data source that happens to
+ * share the id out of it.
+ *
+ * Only queries with an open window are active, so the refetch cost is bounded by how many
+ * windows are stacked on that row — in practice one or two.
+ */
+export function invalidateWindowEntries(
+	queryClient: QueryClient,
+	dataSource: string,
+	entryIds: readonly number[],
+) {
+	if (entryIds.length === 0) {
+		return Promise.resolve();
+	}
+
+	const ids = new Set(entryIds);
+
+	return queryClient.invalidateQueries({
+		predicate: (query) =>
+			query.queryKey[0] === WINDOW_CACHE_LABEL &&
+			typeof query.queryKey[2] === 'number' &&
+			ids.has(query.queryKey[2]) &&
+			typeof query.queryKey[1] === 'string' &&
+			query.queryKey[1].startsWith(`${dataSource}-`),
+	});
+}
 
 export function displayWindowTitle({
 	entriesSelection,

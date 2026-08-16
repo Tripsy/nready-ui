@@ -105,12 +105,20 @@ export const displayImageLabel = (m: ImageModel) => {
 };
 
 /**
+ * The route that signs a private-bucket object and redirects to it.
+ *
+ * Exported so a renderer can recognise a `src` pointing here: such a `src` cannot go through
+ * next/image's optimizer (see `isOptimizableImageSrc`).
+ */
+export const IMAGE_VIEW_ROUTE = '/api/image/view';
+
+/**
  * The `src` to render a stored image from.
  *
  * Local files are served statically by Next straight off `/public`. S3 objects live in a
  * private bucket and are only reachable through a presigned URL, which cannot be minted
  * here — this function is synchronous and runs inside client components. So S3 paths point
- * at `/api/image/view`, which authorizes the request and redirects to a signed URL.
+ * at `IMAGE_VIEW_ROUTE`, which authorizes the request and redirects to a signed URL.
  */
 export function showImage(path: string, storage?: ImageStorage) {
 	if (storage === ImageStorageEnum.LOCAL) {
@@ -122,5 +130,28 @@ export function showImage(path: string, storage?: ImageStorage) {
 		storage: storage ?? ImageStorageEnum.S3,
 	});
 
-	return `/api/image/view?${params.toString()}`;
+	return `${IMAGE_VIEW_ROUTE}?${params.toString()}`;
+}
+
+/**
+ * Whether a `src` can be served through next/image's optimizer.
+ *
+ * Three shapes cannot:
+ * - `blob:`/`data:` carry their bytes in the browser, and the optimizer refetches `src`
+ *   server-side, so it has nothing to resolve.
+ * - `IMAGE_VIEW_ROUTE` is fetched by the optimizer through an internal mocked request that
+ *   carries no cookies, so the route's permission gate sees an anonymous caller and answers
+ *   403; and even authorized it answers a 307 to S3, whose empty body the optimizer rejects
+ *   as `"url" parameter is valid but internal response is invalid`. Either way the optimizer
+ *   returns 400 and the image is broken — verified against the running server.
+ *
+ * Serving these raw costs nothing: a staged preview is a local file that never leaves the
+ * tab, and an S3 object is already delivered by the bucket rather than by this app.
+ */
+export function isOptimizableImageSrc(src: string) {
+	return !(
+		src.startsWith('blob:') ||
+		src.startsWith('data:') ||
+		src.startsWith(IMAGE_VIEW_ROUTE)
+	);
 }

@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect } from 'react';
 import { dispatchFilterReset } from '@/app/(dashboard)/_events/data-table-filter-reset.event';
 import { logRejection } from '@/helpers/logger.helper';
-import { WINDOW_CACHE_LABEL } from '@/helpers/window.helper';
+import { invalidateWindowEntries } from '@/helpers/window.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import { useToast } from '@/providers/toast.provider';
 import { useModalStore } from '@/stores/window.store';
@@ -58,24 +58,14 @@ export function useWindowFormProcessed<
 					);
 				}
 
-				/*
-				 * Invalidate every window holding a reloaded copy of this entry, not only the
-				 * one that saved. The cache key carries the window uid, which is
-				 * `<dataSource>-<action>-<id>`, so the view and the form cache the same row
-				 * under separate keys; clearing just the saving window leaves the view serving
-				 * its pre-save copy for the whole `staleTime`. Matching on the uid prefix keeps
-				 * an unrelated data source that happens to share the id out of it.
-				 */
-				if (windowConfig.action === 'update' && entryId) {
-					await queryClient.invalidateQueries({
-						predicate: (query) =>
-							query.queryKey[0] === WINDOW_CACHE_LABEL &&
-							query.queryKey[2] === entryId &&
-							typeof query.queryKey[1] === 'string' &&
-							query.queryKey[1].startsWith(
-								`${windowConfig.dataSource}-`,
-							),
-					});
+				// Keyed on the entry rather than on the action: a form window on an existing
+				// row has written to it whatever the action is called.
+				if (entryId) {
+					await invalidateWindowEntries(
+						queryClient,
+						windowConfig.dataSource,
+						[entryId],
+					);
 				}
 
 				close(windowConfig.uid);

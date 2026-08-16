@@ -12,6 +12,7 @@ import { Popover, PopoverContent } from '@/components/ui/popover';
 import { getLanguageClient } from '@/config/translate.setup';
 import { cn } from '@/helpers/css.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
+import { isOptimizableImageSrc } from '@/models/image.model';
 import type { DataSourceKey } from '@/types/data-source.key';
 
 export const statusList: Record<
@@ -324,12 +325,7 @@ function ImagePreview({
 }: ImagePreviewProps) {
 	const [isOpen, setIsOpen] = useState(false);
 
-	/*
-	 * Object and data URLs carry their bytes in the browser, so the optimizer — which refetches
-	 * `src` server-side — cannot resolve them and next/image rejects the request outright.
-	 * Serving them raw costs nothing: a staged preview is a local file that never leaves the tab.
-	 */
-	const unoptimized = src.startsWith('blob:') || src.startsWith('data:');
+	const unoptimized = !isOptimizableImageSrc(src);
 
 	return (
 		<Popover isOpen={isOpen} onOpenChange={setIsOpen}>
