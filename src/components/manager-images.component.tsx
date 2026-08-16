@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Icons } from '@/components/icon.component';
+import { LanguageSwitcher } from '@/components/language-switcher.component';
 import { SortableList } from '@/components/sortable-list.component';
 import {
 	ErrorComponent,
@@ -1226,29 +1227,13 @@ export function ManagerImages({
 			<div className="flex justify-between items-center">
 				{/* Language section */}
 				{Object.keys(attributeFields).length > 0 && (
-					<section
-						aria-labelledby="language-zone"
-						className="flex gap-2"
-					>
-						{languages.map((lang) => (
-							<Button
-								key={lang}
-								variant="outline"
-								size="xs"
-								disabled={saving}
-								onClick={() => setActiveLanguage(lang)}
-								className={cn(
-									'relative font-semibold uppercase transition-all duration-200 rounded-md',
-									activeLanguage === lang
-										? 'bg-warning/80 text-warning-foreground hover:text-warning-foreground hover:bg-warning/70'
-										: 'hover:text-warning-foreground hover:bg-warning/50 hover:shadow-sm',
-								)}
-								aria-label={lang.toUpperCase()}
-							>
-								{lang}
-							</Button>
-						))}
-					</section>
+					<LanguageSwitcher
+						languages={languages}
+						selected={activeLanguage}
+						onSelect={setActiveLanguage}
+						disabled={saving}
+						className="mb-0"
+					/>
 				)}
 
 				{/* Save button */}

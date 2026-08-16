@@ -6,7 +6,7 @@ import {
 	ViewRow,
 	ViewSection,
 } from '@/app/(dashboard)/_components/view-detail';
-import { ViewLanguageSwitcher } from '@/app/(dashboard)/_components/view-language-switcher';
+import { LanguageSwitcher } from '@/components/language-switcher.component';
 import { getLanguageClient } from '@/config/translate.setup';
 import { formatDate } from '@/helpers/date.helper';
 import { DisplayStatus } from '@/helpers/display.helper';
@@ -50,7 +50,7 @@ export function ViewArticle({ entry }: { entry: ArticleModel }) {
 
 			{content && (
 				<>
-					<ViewLanguageSwitcher
+					<LanguageSwitcher
 						languages={languages}
 						selected={content.language}
 						onSelect={setLanguage}

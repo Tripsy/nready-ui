@@ -5,7 +5,7 @@ import {
 	ViewField,
 	ViewSection,
 } from '@/app/(dashboard)/_components/view-detail';
-import { ViewLanguageSwitcher } from '@/app/(dashboard)/_components/view-language-switcher';
+import { LanguageSwitcher } from '@/components/language-switcher.component';
 import { formatDate } from '@/helpers/date.helper';
 import { DisplayStatus } from '@/helpers/display.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
@@ -59,7 +59,7 @@ export function ViewBrand({ entry }: { entry: BrandModel }) {
 
 			{content && (
 				<div>
-					<ViewLanguageSwitcher
+					<LanguageSwitcher
 						label="Language specific"
 						languages={languages}
 						selected={content.language}
