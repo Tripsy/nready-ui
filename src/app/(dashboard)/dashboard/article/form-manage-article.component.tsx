@@ -909,7 +909,7 @@ export function FormManageArticle() {
 								dataSource="term"
 								filter={{ type: 'tag' }}
 								getOptionLabel={(entry) =>
-									displayTermValue(entry)
+									displayTermValue(entry, getLanguageClient())
 								}
 								initialLabels={initialLinkLabels.tags}
 								value={tagIds}

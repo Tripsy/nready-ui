@@ -58,19 +58,24 @@ export function useWindowFormProcessed<
 					);
 				}
 
-				// Invalidate reloaded entry cache on update
+				/*
+				 * Invalidate every window holding a reloaded copy of this entry, not only the
+				 * one that saved. The cache key carries the window uid, which is
+				 * `<dataSource>-<action>-<id>`, so the view and the form cache the same row
+				 * under separate keys; clearing just the saving window leaves the view serving
+				 * its pre-save copy for the whole `staleTime`. Matching on the uid prefix keeps
+				 * an unrelated data source that happens to share the id out of it.
+				 */
 				if (windowConfig.action === 'update' && entryId) {
-					const windowDefinition = windowConfig?.definition;
-
-					if (windowDefinition?.reloadEntry) {
-						await queryClient.invalidateQueries({
-							queryKey: [
-								WINDOW_CACHE_LABEL,
-								windowConfig.uid,
-								entryId,
-							],
-						});
-					}
+					await queryClient.invalidateQueries({
+						predicate: (query) =>
+							query.queryKey[0] === WINDOW_CACHE_LABEL &&
+							query.queryKey[2] === entryId &&
+							typeof query.queryKey[1] === 'string' &&
+							query.queryKey[1].startsWith(
+								`${windowConfig.dataSource}-`,
+							),
+					});
 				}
 
 				close(windowConfig.uid);

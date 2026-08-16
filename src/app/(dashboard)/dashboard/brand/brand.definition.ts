@@ -4,6 +4,7 @@ import {
 	type BrandFormValuesType,
 	FormManageBrand,
 } from '@/app/(dashboard)/dashboard/brand/form-manage-brand.component';
+import { ManagerBrandImages } from '@/app/(dashboard)/dashboard/brand/manager-brand-images.component';
 import { ViewBrand } from '@/app/(dashboard)/dashboard/brand/view-brand.component';
 import Routes from '@/config/routes.setup';
 import { translateBatch } from '@/config/translate.setup';
@@ -172,6 +173,7 @@ export default async function dataSourceConfig(): Promise<
 			'enable.title',
 			'disable.title',
 			'order.title',
+			'managerImages.title',
 		] as const,
 		'brand.action',
 	);
@@ -371,6 +373,22 @@ export default async function dataSourceConfig(): Promise<
 				button: {
 					variant: 'outline',
 					hover: 'error',
+				},
+			},
+			managerImages: {
+				windowType: 'other',
+				windowTitle: translations['managerImages.title'],
+				windowComponent: ManagerBrandImages,
+				windowConfigProps: {
+					size: 'xl2',
+				},
+				permission: ['brand', 'read'],
+				entriesSelection: 'single',
+				buttonPosition: 'left',
+				button: {
+					variant: 'outline',
+					hover: 'default',
+					icon: 'Image',
 				},
 			},
 			view: {

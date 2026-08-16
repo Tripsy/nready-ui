@@ -52,6 +52,10 @@
 			"success": "Brand status marked as inactive",
 			"confirm": "Are you sure you want to mark this brand as inactive?"
 		},
+		"managerImages": {
+			"title": "Brand logo - {{entry}}",
+			"label": "Logo"
+		},
 		"view": {
 			"title": "Brand details - {{entry}}",
 			"label": "View details"

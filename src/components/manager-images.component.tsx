@@ -328,13 +328,22 @@ function ImageCard({
 
 	const configuredFields = getConfiguredFields(attributeFields);
 
+	/*
+	 * A staged entry's `path` is the object URL of the local file, which the browser renders
+	 * directly. `showImage` is only for stored images — it would hand the blob URL to the view
+	 * route, which resolves paths inside the storage backend and cannot see a browser blob.
+	 */
+	const previewSrc = entry.file
+		? entry.path
+		: showImage(entry.path, entry.storage);
+
 	return (
 		<div className="group rounded-lg border border-border bg-surface overflow-hidden shadow-sm">
 			{/* Preview row */}
 			<div className="flex items-start gap-3 p-3">
 				<div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border border-border bg-surface-secondary/30">
 					{displayImage({
-						src: showImage(entry.path, entry.storage),
+						src: previewSrc,
 						alt: fileName,
 					})}
 				</div>

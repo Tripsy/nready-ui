@@ -52,6 +52,10 @@
 			"success": "Starea mărcii a fost marcată ca inactivă",
 			"confirm": "Sigur vrei să marchezi această marcă drept inactivă?"
 		},
+		"managerImages": {
+			"title": "Logo marcă - {{entry}}",
+			"label": "Logo"
+		},
 		"view": {
 			"title": "Detalii marcă - {{entry}}",
 			"label": "Vezi detalii"

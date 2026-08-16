@@ -93,6 +93,10 @@
 			"success": "Article archived",
 			"confirm": "Are you sure you want to archive this article? It stops being displayed."
 		},
+		"managerImages": {
+			"title": "Article images - {{entry}}",
+			"label": "Images"
+		},
 		"view": {
 			"title": "Article details - {{entry}}",
 			"label": "View details"

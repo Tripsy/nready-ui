@@ -324,6 +324,13 @@ function ImagePreview({
 }: ImagePreviewProps) {
 	const [isOpen, setIsOpen] = useState(false);
 
+	/*
+	 * Object and data URLs carry their bytes in the browser, so the optimizer — which refetches
+	 * `src` server-side — cannot resolve them and next/image rejects the request outright.
+	 * Serving them raw costs nothing: a staged preview is a local file that never leaves the tab.
+	 */
+	const unoptimized = src.startsWith('blob:') || src.startsWith('data:');
+
 	return (
 		<Popover isOpen={isOpen} onOpenChange={setIsOpen}>
 			<Popover.Trigger
@@ -336,6 +343,7 @@ function ImagePreview({
 					className={cn('h-full w-full object-contain', className)}
 					width={width}
 					height={height}
+					unoptimized={unoptimized}
 				/>
 			</Popover.Trigger>
 			<PopoverContent
@@ -356,6 +364,7 @@ function ImagePreview({
 						height={800}
 						sizes="80vw"
 						priority
+						unoptimized={unoptimized}
 						style={{
 							maxWidth: '80vw',
 							maxHeight: '80vh',

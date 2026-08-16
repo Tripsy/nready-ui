@@ -201,11 +201,12 @@ export function displayArticleCategories(
 }
 
 /**
- * Label per linked category or tag, keyed by the id the form holds, for the current language.
+ * Label per linked category or tag, keyed by the id the form holds, for the given language.
  *
- * `read` returns the link rows with their term/category joined; a list row carries no tags at
- * all and no wording for a link whose translation is missing, so an id with nothing to show is
- * left out rather than mapped to a placeholder — the caller decides how a nameless id reads.
+ * Both wordings fall back through the default language and then whatever translation exists,
+ * so a link stays readable under a language it was never translated into. An id is dropped
+ * only when its row carries no wording at all — which is every tag on a list row, since `find`
+ * joins none — rather than mapped to a placeholder; the caller decides how a nameless id reads.
  */
 export function getArticleLinkLabels(
 	entry: ArticleModel | undefined,
@@ -230,9 +231,7 @@ export function getArticleLinkLabels(
 	}
 
 	for (const link of entry?.tags ?? []) {
-		// `displayTermValue` reads the first content, which is the requested language when
-		// `read` was given one and the term's first translation otherwise.
-		const value = link.tag ? displayTermValue(link.tag) : '';
+		const value = link.tag ? displayTermValue(link.tag, language) : '';
 
 		if (value && value !== '-') {
 			tags[link.tag_id] = value;

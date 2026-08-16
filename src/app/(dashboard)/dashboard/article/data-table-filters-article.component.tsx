@@ -239,7 +239,7 @@ export const DataTableFiltersArticle = (): JSX.Element => {
 				setSearch={setSearchTag}
 				dataSourceKey="term"
 				filter={{ type: 'tag' }}
-				getOptionLabel={(m) => displayTermValue(m)}
+				getOptionLabel={(m) => displayTermValue(m, getLanguageClient())}
 				getOptionKey={(m) => m.id}
 			/>
 

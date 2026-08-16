@@ -1,14 +1,29 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/helpers/css.helper';
 
+const FIELD_GRID =
+	'grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3';
+
 type ViewSectionProps = {
 	readonly title?: string;
 	readonly children: ReactNode;
 	readonly className?: string;
+	/**
+	 * `grid` (the default) flows every child through one responsive grid, so where a field
+	 * lands depends on how many precede it. `rows` hands that placement to the caller, whose
+	 * children are then `ViewRow`s — the way to keep two fields together on a line, or to end
+	 * a line early, neither of which auto-flow can express.
+	 */
+	readonly layout?: 'grid' | 'rows';
 };
 
-/** Titled, divider-underlined group of `ViewField`s laid out in a responsive grid. */
-export function ViewSection({ title, children, className }: ViewSectionProps) {
+/** Titled, divider-underlined group of `ViewField`s. */
+export function ViewSection({
+	title,
+	children,
+	className,
+	layout = 'grid',
+}: ViewSectionProps) {
 	return (
 		<div className={className}>
 			{title && (
@@ -16,11 +31,22 @@ export function ViewSection({ title, children, className }: ViewSectionProps) {
 					{title}
 				</h3>
 			)}
-			<div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+			<div className={layout === 'rows' ? 'space-y-4' : FIELD_GRID}>
 				{children}
 			</div>
 		</div>
 	);
+}
+
+/** One line of a `layout="rows"` section; splits into columns exactly as the grid does. */
+export function ViewRow({
+	children,
+	className,
+}: {
+	readonly children: ReactNode;
+	readonly className?: string;
+}) {
+	return <div className={cn(FIELD_GRID, className)}>{children}</div>;
 }
 
 type ViewFieldProps = {

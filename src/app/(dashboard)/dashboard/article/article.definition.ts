@@ -4,6 +4,7 @@ import {
 	type ArticleFormValuesType,
 	FormManageArticle,
 } from '@/app/(dashboard)/dashboard/article/form-manage-article.component';
+import { ManagerArticleImages } from '@/app/(dashboard)/dashboard/article/manager-article-images.component';
 import { ViewArticle } from '@/app/(dashboard)/dashboard/article/view-article.component';
 import { Icons } from '@/components/icon.component';
 import Routes from '@/config/routes.setup';
@@ -575,6 +576,7 @@ export default async function dataSourceConfig(): Promise<
 			'revert.title',
 			'archive.title',
 			'order.title',
+			'managerImages.title',
 		] as const,
 		'article.action',
 	);
@@ -968,6 +970,22 @@ export default async function dataSourceConfig(): Promise<
 				buttonPosition: 'right',
 				button: {
 					variant: 'default',
+				},
+			},
+			managerImages: {
+				windowType: 'other',
+				windowTitle: translations['managerImages.title'],
+				windowComponent: ManagerArticleImages,
+				windowConfigProps: {
+					size: 'xl4',
+				},
+				permission: ['article', 'read'],
+				entriesSelection: 'single',
+				buttonPosition: 'left',
+				button: {
+					variant: 'outline',
+					hover: 'default',
+					icon: 'Image',
 				},
 			},
 			view: {

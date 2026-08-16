@@ -93,6 +93,10 @@
 			"success": "Articolul a fost arhivat",
 			"confirm": "Sigur vrei să arhivezi acest articol? Nu va mai fi afișat."
 		},
+		"managerImages": {
+			"title": "Imagini articol - {{entry}}",
+			"label": "Imagini"
+		},
 		"view": {
 			"title": "Detalii articol - {{entry}}",
 			"label": "Vezi detalii"

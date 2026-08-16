@@ -1,10 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import {
 	ViewField,
 	ViewSection,
 } from '@/app/(dashboard)/_components/view-detail';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ViewLanguageSwitcher } from '@/app/(dashboard)/_components/view-language-switcher';
 import { getLanguageClient } from '@/config/translate.setup';
 import { formatDate } from '@/helpers/date.helper';
 import { DisplayStatus } from '@/helpers/display.helper';
@@ -16,7 +17,12 @@ import {
 
 export function ViewCategory({ entry }: { entry: CategoryModel }) {
 	const languageContents = Object.values(entry.contents ?? []);
-	const contentTabDefault = languageContents[0]?.language;
+	const languages = languageContents.map((value) => value.language);
+	const [language, setLanguage] = useState(languages[0]);
+
+	const content =
+		languageContents.find((value) => value.language === language) ??
+		languageContents[0];
 
 	return (
 		<div className="space-y-6">
@@ -71,63 +77,35 @@ export function ViewCategory({ entry }: { entry: CategoryModel }) {
 				)}
 			</ViewSection>
 
-			{languageContents.length > 0 && (
+			{content && (
 				<div>
-					<Tabs
-						defaultSelectedKey={contentTabDefault}
-						className="w-full"
-					>
-						<div className="flex items-center justify-center border-b border-line pb-2 mb-4">
-							<h3 className="font-bold whitespace-nowrap">
-								Language specific
-							</h3>
-							<TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
-								{languageContents.map((value) => (
-									<TabsTrigger
-										key={value.language}
-										id={value.language}
-									>
-										{value.language.toUpperCase()}
-									</TabsTrigger>
-								))}
-							</TabsList>
-						</div>
-						{languageContents.map((value) => {
-							return (
-								<TabsContent
-									key={`content-${value.language}`}
-									id={value.language}
-								>
-									<div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
-										<ViewField
-											label="Label"
-											value={value.label}
-										/>
-										<ViewField
-											label="Slug"
-											value={value.slug}
-										/>
-										<ViewField
-											label="Description"
-											value={value.description}
-										/>
-										<ViewField
-											label="Meta - Title"
-											value={value.meta?.title}
-										/>
-										<ViewField
-											label="Meta - Description"
-											value={value.meta?.description}
-										/>
-										<ViewField
-											label="Meta - Keywords"
-											value={value.meta?.keywords}
-										/>
-									</div>
-								</TabsContent>
-							);
-						})}
-					</Tabs>
+					<ViewLanguageSwitcher
+						label="Language specific"
+						languages={languages}
+						selected={content.language}
+						onSelect={setLanguage}
+					/>
+
+					<ViewSection>
+						<ViewField label="Label" value={content.label} />
+						<ViewField label="Slug" value={content.slug} />
+						<ViewField
+							label="Description"
+							value={content.description}
+						/>
+						<ViewField
+							label="Meta - Title"
+							value={content.meta?.title}
+						/>
+						<ViewField
+							label="Meta - Description"
+							value={content.meta?.description}
+						/>
+						<ViewField
+							label="Meta - Keywords"
+							value={content.meta?.keywords}
+						/>
+					</ViewSection>
 				</div>
 			)}
 		</div>

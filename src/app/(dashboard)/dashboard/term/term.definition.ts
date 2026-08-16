@@ -6,7 +6,7 @@ import {
 } from '@/app/(dashboard)/dashboard/term/form-manage-term.component';
 import { ViewTerm } from '@/app/(dashboard)/dashboard/term/view-term.component';
 import { Configuration } from '@/config/settings.config';
-import { translateBatch } from '@/config/translate.setup';
+import { getLanguageClient, translateBatch } from '@/config/translate.setup';
 import { getFormDataAsEnum } from '@/helpers/form.helper';
 import {
 	requestCreate,
@@ -218,7 +218,10 @@ export default async function dataSourceConfig(): Promise<
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
-							customValue: displayTermValue(entry),
+							customValue: displayTermValue(
+								entry,
+								getLanguageClient(),
+							),
 						}),
 				},
 				{

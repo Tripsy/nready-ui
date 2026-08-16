@@ -1,19 +1,43 @@
 'use client';
 
+import { useState } from 'react';
 import {
 	ViewField,
+	ViewRow,
 	ViewSection,
 } from '@/app/(dashboard)/_components/view-detail';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ViewLanguageSwitcher } from '@/app/(dashboard)/_components/view-language-switcher';
+import { getLanguageClient } from '@/config/translate.setup';
 import { formatDate } from '@/helpers/date.helper';
 import { DisplayStatus } from '@/helpers/display.helper';
 import { renderMarkdown } from '@/helpers/markdown.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
-import type { ArticleModel } from '@/models/article.model';
+import {
+	type ArticleModel,
+	getArticleLinkLabels,
+} from '@/models/article.model';
 
 export function ViewArticle({ entry }: { entry: ArticleModel }) {
 	const languageContents = entry.contents ?? [];
-	const contentTabDefault = languageContents[0]?.language;
+	const languages = languageContents.map((content) => content.language);
+	const [language, setLanguage] = useState(languages[0]);
+
+	const content =
+		languageContents.find((value) => value.language === language) ??
+		languageContents[0];
+
+	/*
+	 * Link wording follows the switcher, because these read inside the content block. A link
+	 * with no translation in the selected language falls back rather than vanishing, so the
+	 * list still names every link the article carries.
+	 */
+	const linkLabels = getArticleLinkLabels(
+		entry,
+		content?.language ?? getLanguageClient(),
+	);
+
+	const categoryLabels = Object.values(linkLabels.categories).join(', ');
+	const tagLabels = Object.values(linkLabels.tags).join(', ');
 
 	return (
 		<div className="space-y-6">
@@ -24,96 +48,88 @@ export function ViewArticle({ entry }: { entry: ArticleModel }) {
 				</div>
 			</div>
 
-			<ViewSection title="Info">
-				<ViewField
-					label="Visibility"
-					value={formatEnumLabel(entry.visibility)}
-				/>
+			{content && (
+				<>
+					<ViewLanguageSwitcher
+						languages={languages}
+						selected={content.language}
+						onSelect={setLanguage}
+					/>
+
+					<ViewSection title="Info" layout="rows">
+						<ViewRow>
+							<ViewField
+								label="Layout"
+								value={
+									entry.layout
+										? formatEnumLabel(entry.layout)
+										: null
+								}
+							/>
+							<ViewField label="Title" value={content.title} />
+						</ViewRow>
+
+						<ViewRow>
+							<ViewField
+								label="Brief"
+								value={content.brief}
+								full
+							/>
+						</ViewRow>
+
+						<ViewRow>
+							<ViewField
+								label="Categories"
+								value={categoryLabels}
+								full
+							/>
+						</ViewRow>
+
+						<ViewRow>
+							<ViewField label="Tags" value={tagLabels} full />
+						</ViewRow>
+					</ViewSection>
+
+					<ViewSection title="Content" layout="rows">
+						{/*
+						 * The stored value is markdown; this is the only place the dashboard
+						 * turns it into HTML. `renderMarkdown` sanitizes, which is what makes
+						 * the injection safe.
+						 */}
+						<div
+							className="markdown-body"
+							// biome-ignore lint/security/noDangerouslySetInnerHtml: markdown rendered and sanitized by `renderMarkdown`
+							dangerouslySetInnerHTML={{
+								__html: renderMarkdown(content.content),
+							}}
+						/>
+					</ViewSection>
+
+					<ViewSection title="SEO" layout="rows">
+						<ViewField label="Slug" value={content.slug} />
+						<ViewField
+							label="Meta - Title"
+							value={content.meta?.title}
+						/>
+						<ViewField
+							label="Meta - Description"
+							value={content.meta?.description}
+						/>
+						<ViewField
+							label="Meta - Keywords"
+							value={content.meta?.keywords}
+						/>
+					</ViewSection>
+				</>
+			)}
+
+			<ViewSection title="Attribution">
 				<ViewField
 					label="Source Mode"
 					value={formatEnumLabel(entry.source_mode)}
 				/>
-				<ViewField
-					label="Featured"
-					value={
-						entry.featured_status
-							? `${formatEnumLabel(entry.featured_status)} (#${entry.featured_order})`
-							: null
-					}
-				/>
-				<ViewField
-					label="Featured Until"
-					value={
-						entry.featured_expire_at
-							? formatDate(entry.featured_expire_at, 'date-time')
-							: null
-					}
-				/>
 				<ViewField label="Author" value={entry.author?.name} />
-				<ViewField
-					label="Publish At"
-					value={
-						entry.publish_at
-							? formatDate(entry.publish_at, 'date-time')
-							: null
-					}
-				/>
-				<ViewField
-					label="Archive At"
-					value={
-						entry.archive_at
-							? formatDate(entry.archive_at, 'date-time')
-							: null
-					}
-				/>
-				<ViewField
-					label="Layout"
-					value={entry.layout ? formatEnumLabel(entry.layout) : null}
-				/>
-				<ViewField
-					label="Public At"
-					value={
-						entry.public_at
-							? formatDate(entry.public_at, 'date-time')
-							: null
-					}
-				/>
-				<ViewField
-					label="Categories"
-					value={(entry.categories ?? []).length.toString()}
-				/>
-				<ViewField
-					label="Tags"
-					value={(entry.tags ?? []).length.toString()}
-				/>
 			</ViewSection>
-
-			{entry.visibility_rule && (
-				<ViewSection title="Visibility rule">
-					<ViewField
-						label="Requires sign-in"
-						value={
-							entry.visibility_rule.requires_auth ? 'Yes' : 'No'
-						}
-					/>
-					<ViewField
-						label="Requires subscription"
-						value={
-							entry.visibility_rule.requires_subscription
-								? 'Yes'
-								: 'No'
-						}
-					/>
-					<ViewField
-						label="Allowed countries"
-						value={
-							entry.visibility_rule.allowed_countries?.join(
-								', ',
-							) ?? null
-						}
-					/>
-				</ViewSection>
-			)}
 
 			{entry.source && (
 				<ViewSection title="Source">
@@ -127,101 +143,116 @@ export function ViewArticle({ entry }: { entry: ArticleModel }) {
 				</ViewSection>
 			)}
 
-			{languageContents.length > 0 && (
-				<div>
-					<Tabs
-						defaultSelectedKey={contentTabDefault}
-						className="w-full"
-					>
-						<div className="flex items-center justify-center border-b border-line pb-2 mb-4">
-							<h3 className="font-bold whitespace-nowrap">
-								Language specific
-							</h3>
-							<TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
-								{languageContents.map((content) => (
-									<TabsTrigger
-										key={content.language}
-										id={content.language}
-									>
-										{content.language.toUpperCase()}
-									</TabsTrigger>
-								))}
-							</TabsList>
-						</div>
-
-						{languageContents.map((content) => (
-							<TabsContent
-								key={`content-${content.language}`}
-								id={content.language}
-							>
-								<div className="space-y-4">
-									<div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
-										<ViewField
-											label="Title"
-											value={content.title}
-										/>
-										<ViewField
-											label="Slug"
-											value={content.slug}
-										/>
-										<ViewField
-											label="Brief"
-											value={content.brief}
-										/>
-										<ViewField
-											label="Meta - Title"
-											value={content.meta?.title}
-										/>
-										<ViewField
-											label="Meta - Description"
-											value={content.meta?.description}
-										/>
-										<ViewField
-											label="Meta - Keywords"
-											value={content.meta?.keywords}
-										/>
-									</div>
-
-									{/*
-									 * The stored value is markdown; this is the only place the
-									 * dashboard turns it into HTML. `renderMarkdown` sanitizes,
-									 * which is what makes the injection safe.
-									 */}
-									<div
-										className="markdown-body rounded-md border border-line p-4"
-										// biome-ignore lint/security/noDangerouslySetInnerHtml: markdown rendered and sanitized by `renderMarkdown`
-										dangerouslySetInnerHTML={{
-											__html: renderMarkdown(
-												content.content,
-											),
-										}}
-									/>
-								</div>
-							</TabsContent>
-						))}
-					</Tabs>
-				</div>
-			)}
-
-			<ViewSection title="Timestamps">
+			<ViewSection title="Visibility">
 				<ViewField
-					label="Created At"
-					value={formatDate(entry.created_at, 'date-time')}
+					label="Visibility"
+					value={formatEnumLabel(entry.visibility)}
 				/>
 				<ViewField
-					label="Updated At"
-					value={formatDate(entry.updated_at, 'date-time')}
+					label="Public At"
+					value={
+						entry.public_at
+							? formatDate(entry.public_at, 'date-time')
+							: null
+					}
 				/>
-				{entry.deleted_at && (
+				{entry.visibility_rule && (
+					<>
+						<ViewField
+							label="Requires sign-in"
+							value={
+								entry.visibility_rule.requires_auth
+									? 'Yes'
+									: 'No'
+							}
+						/>
+						<ViewField
+							label="Requires subscription"
+							value={
+								entry.visibility_rule.requires_subscription
+									? 'Yes'
+									: 'No'
+							}
+						/>
+						<ViewField
+							label="Allowed countries"
+							value={
+								entry.visibility_rule.allowed_countries?.join(
+									', ',
+								) ?? null
+							}
+						/>
+					</>
+				)}
+			</ViewSection>
+
+			<ViewSection title="Featured">
+				<ViewField
+					label="Status"
+					value={
+						entry.featured_status
+							? formatEnumLabel(entry.featured_status)
+							: null
+					}
+				/>
+				<ViewField
+					label="Order"
+					value={
+						entry.featured_status
+							? `#${entry.featured_order}`
+							: null
+					}
+				/>
+				<ViewField
+					label="Featured Until"
+					value={
+						entry.featured_expire_at
+							? formatDate(entry.featured_expire_at, 'date-time')
+							: null
+					}
+				/>
+			</ViewSection>
+
+			<ViewSection title="Timestamps" layout="rows">
+				<ViewRow>
 					<ViewField
-						label="Deleted At"
+						label="Publish At"
 						value={
-							<span className="text-danger">
-								{formatDate(entry.deleted_at, 'date-time')}
-							</span>
+							entry.publish_at
+								? formatDate(entry.publish_at, 'date-time')
+								: null
 						}
 					/>
-				)}
+					<ViewField
+						label="Archive At"
+						value={
+							entry.archive_at
+								? formatDate(entry.archive_at, 'date-time')
+								: null
+						}
+					/>
+				</ViewRow>
+
+				<ViewRow>
+					<ViewField
+						label="Created At"
+						value={formatDate(entry.created_at, 'date-time')}
+					/>
+					<ViewField
+						label="Updated At"
+						value={formatDate(entry.updated_at, 'date-time')}
+					/>
+					{entry.deleted_at && (
+						<ViewField
+							label="Deleted At"
+							value={
+								<span className="text-danger">
+									{formatDate(entry.deleted_at, 'date-time')}
+								</span>
+							}
+						/>
+					)}
+				</ViewRow>
 			</ViewSection>
 		</div>
 	);
