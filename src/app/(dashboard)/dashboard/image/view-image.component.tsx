@@ -5,7 +5,7 @@ import {
 	ViewField,
 	ViewSection,
 } from '@/app/(dashboard)/_components/view-detail';
-import { LanguageSwitcher } from '@/components/language-switcher.component';
+import { ManagerLanguageSwitcher } from '@/components/manager-language-switcher.component';
 import { formatDate } from '@/helpers/date.helper';
 import { DisplayStatus, displayImage } from '@/helpers/display.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
@@ -62,7 +62,7 @@ export function ViewImage({ entry }: { entry: ImageModel }) {
 
 			{content && (
 				<div>
-					<LanguageSwitcher
+					<ManagerLanguageSwitcher
 						label="Language specific"
 						languages={languages}
 						selected={content.language}

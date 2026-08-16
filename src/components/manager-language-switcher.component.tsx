@@ -1,8 +1,9 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { cn } from '@/helpers/css.helper';
 
-type LanguageSwitcherProps<T extends string> = {
+type ManagerLanguageSwitcherProps<T extends string> = {
 	readonly label?: string;
 	readonly languages: readonly T[];
 	readonly selected: T;
@@ -23,34 +24,35 @@ type LanguageSwitcherProps<T extends string> = {
  * `src/components`; an import reaching the other way would point a common component at
  * route-group code.
  */
-export function LanguageSwitcher<T extends string>({
+export function ManagerLanguageSwitcher<T extends string>({
 	label,
 	languages,
 	selected,
 	onSelect,
 	disabled,
 	className,
-}: LanguageSwitcherProps<T>) {
+}: ManagerLanguageSwitcherProps<T>) {
 	return (
 		<div className={cn('flex items-center gap-2 mb-4', className)}>
 			{label && <h3 className="font-bold whitespace-nowrap">{label}</h3>}
 			{languages.map((language) => (
-				<button
+				<Button
 					key={language}
-					type="button"
+					variant="outline"
+					size="xs"
 					aria-pressed={language === selected}
 					disabled={disabled}
 					onClick={() => onSelect(language)}
 					className={cn(
-						'rounded-md border px-3 py-1 text-sm transition-colors',
+						'relative font-semibold uppercase transition-all duration-200 rounded-md',
 						language === selected
-							? 'border-focus bg-accent-soft font-medium'
-							: 'border-border opacity-70 hover:opacity-100',
-						disabled && 'cursor-not-allowed opacity-50',
+							? 'bg-warning/80 text-warning-foreground hover:text-warning-foreground hover:bg-warning/70'
+							: 'hover:text-warning-foreground hover:bg-warning/50 hover:shadow-sm',
 					)}
+					aria-label={language.toUpperCase()}
 				>
-					{language.toUpperCase()}
-				</button>
+					{language}
+				</Button>
 			))}
 		</div>
 	);

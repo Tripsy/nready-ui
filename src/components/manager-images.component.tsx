@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Icons } from '@/components/icon.component';
-import { LanguageSwitcher } from '@/components/language-switcher.component';
+import { ManagerLanguageSwitcher } from '@/components/manager-language-switcher.component';
 import { SortableList } from '@/components/sortable-list.component';
 import {
 	ErrorComponent,
@@ -1227,7 +1227,7 @@ export function ManagerImages({
 			<div className="flex justify-between items-center">
 				{/* Language section */}
 				{Object.keys(attributeFields).length > 0 && (
-					<LanguageSwitcher
+					<ManagerLanguageSwitcher
 						languages={languages}
 						selected={activeLanguage}
 						onSelect={setActiveLanguage}
