@@ -1,9 +1,14 @@
 'use client';
 
 import { createContext, type ReactNode, useContext, useState } from 'react';
+import type { BreadcrumbItem } from '@/components/layout/breadcrumb.component';
 import type { DataSourceKey } from '@/types/data-source.key';
 
-export type BreadcrumbType = { label: string; href?: string };
+/**
+ * Alias of the shared breadcrumb's item, kept under this name because every dashboard page
+ * types its trail with it. The shape is declared once, next to the component that renders it.
+ */
+export type BreadcrumbType = BreadcrumbItem;
 export type SelectedPageType = DataSourceKey | null;
 
 const BreadcrumbContext = createContext<

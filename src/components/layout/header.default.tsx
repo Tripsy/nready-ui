@@ -49,8 +49,12 @@ export function Header({
 				hash: 'home',
 			},
 			{
-				href: Routes.get('categories'),
-				label: translations['layout.nav.categories'],
+				href: Routes.get('products'),
+				label: translations['layout.nav.products'],
+			},
+			{
+				href: Routes.get('articles'),
+				label: translations['layout.nav.articles'],
 			},
 		],
 		[translations],

@@ -10,6 +10,7 @@
 		"invalid_brief": "Invalid brief",
 		"invalid_content": "Write the article content",
 		"invalid_categories": "Invalid categories",
+		"categories_required": "At least one category is required",
 		"invalid_tags": "Invalid tags",
 		"invalid_meta_title": "Invalid meta title",
 		"invalid_meta_description": "Invalid meta description",

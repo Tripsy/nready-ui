@@ -1,7 +1,8 @@
 {
 	"nav": {
 		"home": "Acasă",
-		"categories": "Categorii"
+		"products": "Produse",
+		"articles": "Articole"
 	},
 	"menu": {
 		"login": "Autentificare",

@@ -10,6 +10,7 @@
 		"invalid_brief": "Rezumat invalid",
 		"invalid_content": "Scrie conținutul articolului",
 		"invalid_categories": "Categorii invalide",
+		"categories_required": "Este necesară cel puțin o categorie",
 		"invalid_tags": "Etichete invalide",
 		"invalid_meta_title": "Meta titlu invalid",
 		"invalid_meta_description": "Meta descriere invalidă",

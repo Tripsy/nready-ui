@@ -129,6 +129,12 @@ and run `node --import ./register.mjs probe.ts`. Delete all three afterwards —
 the scratchpad, not the repo. Prefer asserting through the module's public surface (call the
 exported factory and exercise what it returns) over reaching for internals.
 
+**After running `tsc` with the dev server stopped, `pnpm run clean` before restarting it.**
+Otherwise the restarted dev server answers **404 for every route** — `/`, `/articles`,
+`/dashboard/article` alike — with no compile step and nothing in the log, because it reads a
+`.next` the type-check left inconsistent. It looks exactly like a routing bug in whatever you
+just edited, which is what makes it expensive; observed twice.
+
 The container is capped at 4g (`mem_limit` in `docker-compose.yml`) and Turbopack fills it.
 If the dev server exits with nothing in the log it was SIGKILLed, not crashed — check
 `docker inspect nready-ui.test --format '{{.State.OOMKilled}}'`, then `pnpm run clean` and
@@ -388,3 +394,11 @@ entities/operations, DB schema, business rules read the code in `../nready-api`
 - **Error boundaries**: `src/app/error.tsx` catches route errors, `src/app/global-error.tsx`
   catches failures in the root layout itself. The latter replaces that layout, so it gets no
   `globals.css` — it is inline-styled and dependency-free by design and must stay that way.
+- **No `loading.tsx` above a route that can `notFound()`.** A `loading.tsx` is a Suspense
+  boundary, and Next flushes the shell — status line included — the moment it reaches one. A
+  `notFound()` that resolves after that still renders `not-found.tsx`, but the response is
+  already committed as **200**, so a crawler is told the missing slug is a real page. This is
+  why `(public)` has no `loading.tsx`: `/articles/:slug` and `/page/:label` both 404. Soft
+  navigation still shows movement through `NavigationProgress`, mounted in the root layout.
+  `(dashboard)/dashboard/loading.tsx` is fine — nothing under it calls `notFound()`. Verified
+  by measuring the status both ways.

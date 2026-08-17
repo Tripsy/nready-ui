@@ -1,0 +1,23 @@
+{
+	"meta": {
+		"title": "Articole | {{app_name}}",
+		"description": "Notițe, ghiduri și povești de lansare de la echipa care construiește platforma."
+	},
+	"text": {
+		"heading": "Articole",
+		"subheading": "Notițe, ghiduri și povești de lansare de la echipa care construiește platforma.",
+		"no_entries": "Momentan nu există articole publicate. Revino în curând.",
+		"unavailable": "Lista de articole este temporar indisponibilă. Încearcă din nou mai târziu.",
+		"featured": "Recomandat",
+		"by": "de",
+		"back_to_list": "Toate articolele",
+		"restricted": "Acest articol nu poate fi citit aici.",
+		"source": "Sursă",
+		"not_found_heading": "Articolul nu a fost găsit",
+		"not_found_message": "Articolul pe care îl cauți nu există sau nu mai este publicat.",
+		"category_subheading": "Tot ce am publicat pe acest subiect.",
+		"loading_more": "Se încarcă mai multe articole…",
+		"spotlight": "În prim-plan",
+		"latest": "Recente"
+	}
+}

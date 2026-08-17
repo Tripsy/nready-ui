@@ -80,6 +80,7 @@ const validatorMessages = [
 	'invalid_brief',
 	'invalid_content',
 	'invalid_categories',
+	'categories_required',
 	'invalid_tags',
 	'invalid_meta_title',
 	'invalid_meta_description',
@@ -160,15 +161,22 @@ class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 			});
 	}
 
-	idListSchema(message: string) {
-		return z
-			.array(
-				z.object({
-					id: this.validateNumber(message, { onlyPositive: true }),
-				}),
-				{ message },
-			)
-			.default([]);
+	/**
+	 * `requiredMessage` makes the list non-empty. Mirrors the backend's own rule rather than
+	 * adding a UI-only one — an article with no category has no public URL, so the form has
+	 * to say so before the request rather than surfacing a 422 after it.
+	 */
+	idListSchema(message: string, requiredMessage?: string) {
+		const schema = z.array(
+			z.object({
+				id: this.validateNumber(message, { onlyPositive: true }),
+			}),
+			{ message },
+		);
+
+		return requiredMessage
+			? schema.min(1, requiredMessage).default([])
+			: schema.default([]);
 	}
 
 	manage = () =>
@@ -234,6 +242,7 @@ class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 				),
 				categories: this.idListSchema(
 					this.getMessage('invalid_categories'),
+					this.getMessage('categories_required'),
 				),
 				tags: this.idListSchema(this.getMessage('invalid_tags')),
 				contents: this.contentsSchema()

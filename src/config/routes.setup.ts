@@ -160,7 +160,15 @@ const Routes = new RoutesCollection();
 Routes.add('home', '/');
 Routes.add('docs', '/docs');
 Routes.add('page', '/page/:label');
-Routes.add('categories', '/categories');
+Routes.add('products', '/products');
+Routes.add('products-categories', '/products/categories');
+Routes.add('articles', '/articles');
+Routes.add('articles-categories', '/articles/categories');
+// Added after `articles-categories` on purpose: `match` returns the first pattern that fits,
+// and `/articles/:category` fits that path too. Next resolves the file-system routes by the
+// same precedence, static segment before dynamic.
+Routes.add('articles-category', '/articles/:category');
+Routes.add('article-view', '/articles/:category/:slug');
 Routes.add('status', '/status/:type');
 
 // API

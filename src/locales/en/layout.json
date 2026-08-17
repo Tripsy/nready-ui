@@ -1,7 +1,8 @@
 {
 	"nav": {
 		"home": "Home",
-		"categories": "Categories"
+		"products": "Products",
+		"articles": "Articles"
 	},
 	"menu": {
 		"login": "Login",

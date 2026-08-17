@@ -3,6 +3,8 @@ import address from '@/locales/en/address.json';
 import app from '@/locales/en/app.json';
 import article from '@/locales/en/article.json';
 import article_order from '@/locales/en/article-order.json';
+import articles from '@/locales/en/articles.json';
+import articles_categories from '@/locales/en/articles-categories.json';
 import auth from '@/locales/en/auth.json';
 import brand from '@/locales/en/brand.json';
 import brand_order from '@/locales/en/brand-order.json';
@@ -32,6 +34,7 @@ import password_recover from '@/locales/en/password-recover.json';
 import password_recover_change from '@/locales/en/password-recover-change.json';
 import permission from '@/locales/en/permission.json';
 import place from '@/locales/en/place.json';
+import products from '@/locales/en/products.json';
 import register from '@/locales/en/register.json';
 import shared from '@/locales/en/shared.json';
 import status from '@/locales/en/status.json';
@@ -47,6 +50,8 @@ const en = {
 	app,
 	article,
 	'article-order': article_order,
+	articles,
+	'articles-categories': articles_categories,
 	auth,
 	brand,
 	'brand-order': brand_order,
@@ -75,6 +80,7 @@ const en = {
 	'password-recover-change': password_recover_change,
 	permission,
 	place,
+	products,
 	register,
 	shared,
 	template,

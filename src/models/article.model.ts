@@ -1,10 +1,13 @@
+import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
 import {
 	type CategoryModel,
 	getCategoryContentProp,
 } from '@/models/category.model';
+import type { ImageStorage } from '@/models/image.model';
 import { displayTermValue, type TermModel } from '@/models/term.model';
 import type { Language } from '@/types/common.type';
+import type { ImagePropertiesType } from '@/types/image.type';
 import type { PageMeta } from '@/types/page-meta.type';
 
 export const ArticleStatusEnum = {
@@ -104,6 +107,18 @@ export type ArticleVisibilityRuleType = {
 export const ARTICLE_DEFAULT_LAYOUT = ArticleLayoutEnum.DEFAULT;
 export const ARTICLE_DEFAULT_VISIBILITY = ArticleVisibilityEnum.PUBLIC;
 
+/**
+ * The one image a public surface shows for an article: the first of its gallery, by
+ * `sort_order`. Present only on the public endpoints, which attach it — the dashboard
+ * manages images through the `image` feature instead.
+ */
+export type ArticleCoverImageType = {
+	id: number;
+	path: string;
+	storage: ImageStorage;
+	properties: ImagePropertiesType | null;
+};
+
 export type ArticleModel<D = Date | string> = {
 	id: number;
 	status: ArticleStatus;
@@ -131,6 +146,8 @@ export type ArticleModel<D = Date | string> = {
 	categories?: { category_id: number; category?: CategoryModel<D> | null }[];
 	tags?: { tag_id: number; tag?: TermModel<D> | null }[];
 	visibility_rule?: ArticleVisibilityRuleType | null;
+	/** Public endpoints only; `null` when the article has no gallery image. */
+	cover_image?: ArticleCoverImageType | null;
 
 	// Timestamps
 	created_at: D;
@@ -198,6 +215,75 @@ export function displayArticleCategories(
 				: '',
 		)
 		.filter((label) => label.length > 0);
+}
+
+/**
+ * The category an article is *shown* under: the first of its links that carries a
+ * translation. An article can be filed under several, but a page needs one — it is the
+ * category segment of the article's public URL and the chip above its title.
+ *
+ * `null` on an article with no category, and on a row that came from the dashboard `read`
+ * route, which returns the link ids without the category.
+ */
+export function getArticlePrimaryCategory(
+	entry: ArticleModel,
+	language: Language,
+): { id: number; label: string; slug: string } | null {
+	for (const link of entry.categories ?? []) {
+		if (!link.category) {
+			continue;
+		}
+
+		const label = getCategoryContentProp(
+			link.category,
+			language,
+			'label',
+			'',
+		);
+		const slug = getCategoryContentProp(
+			link.category,
+			language,
+			'slug',
+			'',
+		);
+
+		if (label && slug) {
+			return { id: link.category_id, label, slug };
+		}
+	}
+
+	return null;
+}
+
+/**
+ * Segment standing in for the category of an article that has none, so every article still
+ * has one address. Matched by the article page against the article's real category, which
+ * is absent here — so the URL stays canonical rather than redirecting to itself.
+ */
+export const ARTICLE_CATEGORY_FALLBACK_SLUG = 'other';
+
+/**
+ * The public URL of an article: `/articles/<category-slug>/<article-slug>`.
+ *
+ * Returns `null` when the article carries no slug in this language — there is no address to
+ * build, and a caller has to render it unlinked rather than point at a URL that 404s.
+ */
+export function buildArticlePath(
+	entry: ArticleModel,
+	language: Language,
+): string | null {
+	const slug = getArticleContentProp(entry, language, 'slug', '');
+
+	if (!slug) {
+		return null;
+	}
+
+	const category = getArticlePrimaryCategory(entry, language);
+
+	return Routes.get('article-view', {
+		category: category?.slug ?? ARTICLE_CATEGORY_FALLBACK_SLUG,
+		slug,
+	});
 }
 
 /**
