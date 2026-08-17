@@ -49,6 +49,10 @@ export type ArticleListTranslations = Record<
 export async function loadPublicArticles(params: {
 	language: Language;
 	category_id?: number;
+	/** Any of these tags, for the article page's "similar articles" box. */
+	tag_id?: number[];
+	/** Article to leave out, so a sidebar never recommends the page it sits on. */
+	exclude_id?: number;
 	featured_status?: ArticleFeaturedStatus;
 	limit?: number;
 }): Promise<{ entries: ArticleModel[]; total: number } | null> {

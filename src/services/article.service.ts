@@ -16,7 +16,10 @@ export type PublicArticlesParams = {
 	term?: string;
 	featured_status?: ArticleFeaturedStatus;
 	category_id?: number;
-	tag_id?: number;
+	/** Any of these tags — the article page's "similar" box passes the whole set. */
+	tag_id?: number[];
+	/** Article to leave out, so a sidebar never recommends the page it sits on. */
+	exclude_id?: number;
 	page?: number;
 	limit?: number;
 };
@@ -30,6 +33,7 @@ function buildPublicArticlesQuery(params: PublicArticlesParams): string {
 		featured_status,
 		category_id,
 		tag_id,
+		exclude_id,
 	} = params;
 
 	return buildQueryString({
@@ -37,7 +41,14 @@ function buildPublicArticlesQuery(params: PublicArticlesParams): string {
 		direction: 'DESC',
 		page,
 		limit,
-		filter: { language, term, featured_status, category_id, tag_id },
+		filter: {
+			language,
+			term,
+			featured_status,
+			category_id,
+			tag_id,
+			exclude_id,
+		},
 	});
 }
 

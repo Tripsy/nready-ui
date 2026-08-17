@@ -50,6 +50,22 @@ export const buildQueryString = (params: QueryFiltersType): string => {
 						return;
 					}
 
+					/*
+					 * A list filter repeats the key with the PHP-style `[]` suffix, which
+					 * is the shape the backend's `qs` query parser reads back as an array.
+					 * `String()` on the array itself would send one comma-joined value.
+					 */
+					if (Array.isArray(filterValue)) {
+						filterValue.forEach((entry) => {
+							query.append(
+								`filter[${filterKey}][]`,
+								String(entry),
+							);
+						});
+
+						return;
+					}
+
 					query.append(`filter[${filterKey}]`, String(filterValue));
 				});
 			} else {

@@ -2,6 +2,24 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
+import {
+	ARTICLE_AUTHOR_TRANSLATION_KEYS,
+	ArticleAuthor,
+} from '@/app/(public)/_components/article/article-author.component';
+import {
+	ARTICLE_SHARE_TRANSLATION_KEYS,
+	ArticleShare,
+} from '@/app/(public)/_components/article/article-share.component';
+import {
+	ARTICLE_SIDEBAR_TRANSLATION_KEYS,
+	ArticleSidebar,
+} from '@/app/(public)/_components/article/article-sidebar.component';
+import {
+	ARTICLE_SOURCE_TRANSLATION_KEYS,
+	ArticleSource,
+	hasArticleSourceDetails,
+} from '@/app/(public)/_components/article/article-source.component';
+import { Breadcrumb } from '@/app/(public)/_components/breadcrumb.component';
 import { Icons } from '@/components/icon.component';
 import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
@@ -33,11 +51,14 @@ const REVALIDATE_SECONDS = 600;
 const TRANSLATION_PREFIX = 'articles';
 
 const TRANSLATION_KEYS = [
+	'text.heading',
 	'text.back_to_list',
-	'text.by',
 	'text.restricted',
 	'text.unavailable',
-	'text.source',
+	...ARTICLE_AUTHOR_TRANSLATION_KEYS,
+	...ARTICLE_SHARE_TRANSLATION_KEYS,
+	...ARTICLE_SIDEBAR_TRANSLATION_KEYS,
+	...ARTICLE_SOURCE_TRANSLATION_KEYS,
 ] as const;
 
 /**
@@ -177,118 +198,144 @@ export default async function Page(props: Props) {
 	 */
 	const canonicalCategory = category?.slug ?? ARTICLE_CATEGORY_FALLBACK_SLUG;
 
+	const articlePath = Routes.get('article-view', {
+		category: canonicalCategory,
+		slug: content.slug,
+	});
+
 	if (categorySlug !== canonicalCategory) {
-		redirect(
-			Routes.get('article-view', {
-				category: canonicalCategory,
-				slug: content.slug,
-			}),
-		);
+		redirect(articlePath);
 	}
 
-	const authorName = content.author?.name ?? entry.author?.name ?? null;
+	/*
+	 * The by-line the article carries, falling back to the account that filed it — which has
+	 * a name and nothing else, so the box then reads as a bare attribution.
+	 */
+	const author = content.author?.name
+		? content.author
+		: entry.author?.name
+			? { name: entry.author.name }
+			: null;
+
 	const publishedAt = formatRelativeDate(entry.publish_at);
+
+	// `read` returns the tag links without the term itself, so ids are all there is — which
+	// is exactly what the listing filter takes.
+	const tagIds = (entry.tags ?? []).map((link) => link.tag_id);
 
 	return (
 		<div className="container-default py-12 md:py-16">
-			<article className="mx-auto max-w-3xl">
-				<BackToList label={translations['text.back_to_list']} />
+			<Breadcrumb
+				items={[
+					{
+						label: translations['text.heading'],
+						href: Routes.get('articles'),
+					},
+					...(category
+						? [
+								{
+									label: category.label,
+									href: Routes.get('articles-category', {
+										category: category.slug,
+									}),
+								},
+							]
+						: []),
+					{ label: content.title },
+				]}
+			/>
 
-				{category && (
-					// Its own row: `BackToList` is an inline link, so the chip would
-					// otherwise sit beside it rather than above the title.
-					<div className="mt-6">
-						<Link
-							href={Routes.get('articles-category', {
-								category: category.slug,
-							})}
-							className="inline-block rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent-soft-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-						>
-							{category.label}
-						</Link>
-					</div>
-				)}
-
-				<h1 className="mt-3 text-3xl md:text-4xl font-semibold">
-					{content.title}
-				</h1>
-
-				<div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
-					{publishedAt && (
-						<span className="flex items-center gap-1.5">
-							<Icons.Calendar className="opacity-40" />
-							<time dateTime={String(entry.publish_at)}>
-								{publishedAt}
-							</time>
-						</span>
-					)}
-
-					{authorName && (
-						<span className="flex items-center gap-1.5">
-							<Icons.User className="opacity-40" />
-							{translations['text.by']} {authorName}
-						</span>
-					)}
-				</div>
-
-				{entry.cover_image && (
-					<Image
-						src={showImage(
-							entry.cover_image.path,
-							entry.cover_image.storage,
-						)}
-						width={entry.cover_image.properties?.width ?? 1200}
-						height={entry.cover_image.properties?.height ?? 675}
-						alt=""
-						priority
-						className="mt-8 aspect-16/9 w-full rounded-2xl object-cover"
-						sizes="(min-width: 768px) 768px, 100vw"
-					/>
-				)}
-
-				{content.brief && (
-					<p className="mt-6 text-lg text-muted">{content.brief}</p>
-				)}
-
+			<div className="mt-6 flex flex-col gap-10 lg:flex-row lg:gap-12">
 				{/*
-				 * The stored value is markdown. `renderMarkdownServer` sanitizes it, which is
-				 * what makes the injection safe; it runs here rather than on the client so the
-				 * body is in the HTML a crawler receives.
+				 * `min-w-0` so a wide code block or table scrolls inside the column
+				 * rather than pushing the sidebar out of the row.
 				 */}
-				<div
-					className="markdown-body mt-8"
-					// biome-ignore lint/security/noDangerouslySetInnerHtml: markdown rendered and sanitized by `renderMarkdownServer`
-					dangerouslySetInnerHTML={{
-						__html: renderMarkdownServer(content.content),
-					}}
-				/>
+				<article className="min-w-0 flex-1">
+					<h1 className="text-3xl md:text-4xl font-semibold">
+						{content.title}
+					</h1>
 
-				{entry.source && (entry.source.label || entry.source.url) && (
-					<footer className="mt-10 border-t border-border pt-6 text-sm text-muted">
-						<p>
-							{translations['text.source']}:{' '}
-							{entry.source.url ? (
-								<a
-									href={entry.source.url}
-									target="_blank"
-									rel="noopener noreferrer nofollow"
-									className="hover:text-foreground transition-colors"
-								>
-									{entry.source.label || entry.source.url}
-								</a>
-							) : (
-								entry.source.label
-							)}
-						</p>
-
-						{entry.source.disclaimer && (
-							<p className="mt-2 italic">
-								{entry.source.disclaimer}
-							</p>
+					<div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3 text-sm text-muted">
+						{publishedAt ? (
+							<span className="flex items-center gap-1.5">
+								<Icons.Calendar className="opacity-40" />
+								<time dateTime={String(entry.publish_at)}>
+									{publishedAt}
+								</time>
+							</span>
+						) : (
+							// Holds the left half of the row so the share links stay on
+							// the right when an article carries no publish date.
+							<span />
 						)}
-					</footer>
-				)}
-			</article>
+
+						<ArticleShare
+							path={articlePath}
+							title={content.title}
+							translations={translations}
+						/>
+					</div>
+
+					{content.brief && (
+						<p className="mt-6 text-lg font-semibold text-muted">
+							{content.brief}
+						</p>
+					)}
+
+					{entry.cover_image && (
+						<Image
+							src={showImage(
+								entry.cover_image.path,
+								entry.cover_image.storage,
+							)}
+							width={entry.cover_image.properties?.width ?? 1200}
+							height={entry.cover_image.properties?.height ?? 675}
+							alt=""
+							priority
+							className="mt-6 aspect-16/9 w-full rounded-2xl object-cover"
+							sizes="(min-width: 1024px) 800px, 100vw"
+						/>
+					)}
+
+					{/*
+					 * The stored value is markdown. `renderMarkdownServer` sanitizes it,
+					 * which is what makes the injection safe; it runs here rather than on
+					 * the client so the body is in the HTML a crawler receives.
+					 */}
+					<div
+						className="markdown-body mt-8"
+						// biome-ignore lint/security/noDangerouslySetInnerHtml: markdown rendered and sanitized by `renderMarkdownServer`
+						dangerouslySetInnerHTML={{
+							__html: renderMarkdownServer(content.content),
+						}}
+					/>
+
+					{author && (
+						<ArticleAuthor
+							name={author.name}
+							email={author.email}
+							avatar={author.avatar}
+							description={author.description}
+							translations={translations}
+						/>
+					)}
+
+					{hasArticleSourceDetails(entry.source) && (
+						<ArticleSource
+							source={entry.source}
+							translations={translations}
+						/>
+					)}
+				</article>
+
+				<ArticleSidebar
+					language={language}
+					articleId={entry.id}
+					tagIds={tagIds}
+					categoryId={category?.id}
+					translations={translations}
+				/>
+			</div>
 		</div>
 	);
 }

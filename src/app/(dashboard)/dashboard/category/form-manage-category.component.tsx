@@ -74,6 +74,15 @@ export function FormManageCategory() {
 						// suggestion list is scoped the same way the backend validates it.
 						type: formValues.type,
 						status: CategoryStatusEnum.ACTIVE,
+						/*
+						 * Drops categories already at their type's depth limit
+						 * (article: parent > category, product: parent > category >
+						 * sub-category). It answers for a single new child, so moving an
+						 * existing category that carries children of its own can still be
+						 * refused on save — the service is the gate, this only keeps the
+						 * obvious dead ends out of the list.
+						 */
+						can_parent: true,
 						language: selectedLanguage,
 					},
 					limit: 10,

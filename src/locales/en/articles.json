@@ -9,7 +9,6 @@
 		"no_entries": "There are no published articles yet. Check back soon.",
 		"unavailable": "The article list is temporarily unavailable. Please try again later.",
 		"featured": "Featured",
-		"by": "by",
 		"back_to_list": "All articles",
 		"restricted": "This article is not available to read here.",
 		"source": "Source",
@@ -18,6 +17,14 @@
 		"category_subheading": "Everything we have published under this topic.",
 		"loading_more": "Loading more articles…",
 		"spotlight": "Spotlight",
-		"latest": "Latest"
+		"latest": "Latest",
+		"about_the_author": "About the author",
+		"about_the_source": "About the source",
+		"share": "Share this article",
+		"share_facebook": "Share on Facebook",
+		"share_x": "Share on X",
+		"share_whatsapp": "Share on WhatsApp",
+		"similar_articles": "Similar articles",
+		"latest_articles": "Latest articles"
 	}
 }
