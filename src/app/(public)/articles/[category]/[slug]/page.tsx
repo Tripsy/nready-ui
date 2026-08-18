@@ -21,6 +21,11 @@ import {
 	hasArticleSourceDetails,
 } from '@/app/(public)/_components/article/article-source.component';
 import { Breadcrumb } from '@/app/(public)/_components/breadcrumb.component';
+import {
+	COMMENT_TRANSLATION_KEYS,
+	COMMENT_TRANSLATION_PREFIX,
+} from '@/components/comment/comment.definition';
+import { CommentThread } from '@/components/comment/comment-thread.component';
 import { Icons } from '@/components/icon.component';
 import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
@@ -40,6 +45,7 @@ import {
 	type ArticleModel,
 	getArticlePrimaryCategory,
 } from '@/models/article.model';
+import { CommentEntityTypeEnum } from '@/models/comment.model';
 import { showImage } from '@/models/image.model';
 import { requestPublicArticle } from '@/services/article.service';
 import type { Language } from '@/types/common.type';
@@ -166,8 +172,12 @@ export default async function Page(props: Props) {
 	const { category: categorySlug, slug } = await props.params;
 	const language = await getLanguage();
 
-	const [translations, result] = await Promise.all([
+	// The comments section owns its copy under its own namespace — it is rendered by whatever
+	// page hosts it, not by this one alone — so it is batched separately rather than folded
+	// into the article's keys.
+	const [translations, commentTranslations, result] = await Promise.all([
 		translateBatch(TRANSLATION_KEYS, TRANSLATION_PREFIX),
+		translateBatch(COMMENT_TRANSLATION_KEYS, COMMENT_TRANSLATION_PREFIX),
 		getArticle(slug, language),
 	]);
 
@@ -328,6 +338,13 @@ export default async function Page(props: Props) {
 						translations={translations}
 					/>
 
+					{/*
+					 * After the by-line and the source, which belong to the article itself:
+					 * the discussion is about it and reads as a separate section, not as
+					 * part of the piece. Client-rendered for the same reason the rating is —
+					 * this page is served from a 600s data cache, and a comment approved in
+					 * the meantime would not appear until that window passed.
+					 */}
 					{author && (
 						<ArticleAuthor
 							name={author.name}
@@ -344,6 +361,12 @@ export default async function Page(props: Props) {
 							translations={translations}
 						/>
 					)}
+
+					<CommentThread
+						entityType={CommentEntityTypeEnum.ARTICLE}
+						entityId={entry.id}
+						translations={commentTranslations}
+					/>
 				</article>
 
 				<ArticleSidebar

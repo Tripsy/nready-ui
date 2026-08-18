@@ -1,0 +1,92 @@
+{
+	"meta": {
+		"title": "Comentarii - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_content": "Comentariul trebuie să aibă între 2 și 5000 de caractere",
+		"invalid_type": "Alege tipul comentariului",
+		"invalid_is_pinned": "Valoare invalidă pentru fixare",
+		"invalid_guest_name": "Numele trebuie să aibă între 2 și 100 de caractere",
+		"invalid_guest_email": "Introdu o adresă de email validă",
+		"invalid_guest_website": "Site-ul poate avea cel mult 255 de caractere"
+	},
+	"action": {
+		"update": {
+			"title": "Editează comentariul - {{entry}}",
+			"label": "Editează",
+			"success": "Comentariul a fost actualizat"
+		},
+		"delete": {
+			"title": "Șterge comentariul",
+			"label": "Șterge",
+			"success": "Comentariul a fost șters",
+			"confirm": "Sigur vrei să ștergi comentariul selectat? Răspunsurile la el vor fi șterse odată cu el."
+		},
+		"approve": {
+			"title": "Aprobă comentariul",
+			"label": "Aprobă",
+			"success": "Comentariul a fost aprobat",
+			"confirm": "Sigur vrei să aprobi comentariul selectat?"
+		},
+		"reject": {
+			"title": "Respinge comentariul",
+			"label": "Respinge",
+			"success": "Comentariul a fost respins",
+			"confirm": "Sigur vrei să respingi comentariul selectat?"
+		},
+		"spam": {
+			"title": "Marchează ca spam",
+			"label": "Spam",
+			"success": "Comentariul a fost marcat ca spam",
+			"confirm": "Sigur vrei să marchezi comentariul selectat ca spam?"
+		},
+		"flag": {
+			"title": "Semnalează comentariul",
+			"label": "Semnalează",
+			"success": "Comentariul a fost semnalat",
+			"confirm": "Sigur vrei să semnalezi comentariul selectat?"
+		},
+		"view": {
+			"title": "Detalii comentariu - {{entry}}",
+			"label": "Vezi"
+		},
+		"viewUser": {
+			"title": "Vezi utilizatorul"
+		}
+	},
+	"status": {
+		"pending": "În așteptare",
+		"approved": "Aprobat",
+		"rejected": "Respins",
+		"spam": "Spam",
+		"flagged": "Semnalat"
+	},
+	"thread": {
+		"heading": "Comentarii",
+		"empty": "Niciun comentariu încă. Fii primul care lasă unul.",
+		"unavailable": "Comentariile sunt temporar indisponibile. Încearcă din nou mai târziu.",
+		"load_more": "Încarcă mai multe comentarii",
+		"loading": "Se încarcă…",
+		"guest": "Vizitator",
+		"staff": "Echipa",
+		"pinned": "Fixat",
+		"reply": "Răspunde",
+		"replies": "Răspunsuri",
+		"see_replies": "Vezi răspunsurile",
+		"collapse_replies": "Ascunde răspunsurile",
+		"reply_to": "Răspunzi lui",
+		"cancel": "Anulează"
+	},
+	"form": {
+		"heading": "Lasă un comentariu",
+		"content_placeholder": "Spune-ne ce crezi…",
+		"guest_name": "Numele tău",
+		"guest_email": "Emailul tău",
+		"guest_email_note": "Emailul tău nu este publicat niciodată.",
+		"guest_website": "Site-ul tău (opțional)",
+		"submit": "Trimite comentariul",
+		"success": "Mulțumim — comentariul a fost trimis și va apărea după ce un moderator îl aprobă.",
+		"failed": "Comentariul nu a putut fi trimis",
+		"write_another": "Scrie alt comentariu"
+	}
+}

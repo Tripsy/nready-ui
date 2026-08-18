@@ -287,6 +287,9 @@ Routes.group('dashboard')
 	})
 	.add('rating', '/dashboard/rating', {
 		permissionEntity: 'rating',
+	})
+	.add('comment', '/dashboard/comment', {
+		permissionEntity: 'comment',
 	});
 
 /**

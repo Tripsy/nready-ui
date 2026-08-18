@@ -95,6 +95,7 @@ export function SideMenu() {
 		'dashboard.labels.publishing',
 		'dashboard.labels.article',
 		'dashboard.labels.rating',
+		'dashboard.labels.comment',
 
 		'dashboard.labels.settings',
 		'dashboard.labels.template',
@@ -241,6 +242,13 @@ export function SideMenu() {
 						text: translations['dashboard.labels.rating'],
 						icon: Icons.Rating,
 						permission: hasPermission(auth, 'rating'),
+					},
+					{
+						page: 'comment',
+						href: Routes.get('comment'),
+						text: translations['dashboard.labels.comment'],
+						icon: Icons.Comment,
+						permission: hasPermission(auth, 'comment'),
 					},
 				],
 			},

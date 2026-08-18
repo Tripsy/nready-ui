@@ -1,0 +1,92 @@
+{
+	"meta": {
+		"title": "Comments - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_content": "The comment must be between 2 and 5000 characters",
+		"invalid_type": "Select a comment type",
+		"invalid_is_pinned": "Invalid pinned value",
+		"invalid_guest_name": "Your name must be between 2 and 100 characters",
+		"invalid_guest_email": "Enter a valid email address",
+		"invalid_guest_website": "The website must be at most 255 characters"
+	},
+	"action": {
+		"update": {
+			"title": "Edit comment - {{entry}}",
+			"label": "Edit",
+			"success": "Comment updated"
+		},
+		"delete": {
+			"title": "Delete comment",
+			"label": "Delete",
+			"success": "Comment deleted",
+			"confirm": "Are you sure you want to delete the selected comment? Its replies will be deleted with it."
+		},
+		"approve": {
+			"title": "Approve comment",
+			"label": "Approve",
+			"success": "Comment approved",
+			"confirm": "Are you sure you want to approve the selected comment?"
+		},
+		"reject": {
+			"title": "Reject comment",
+			"label": "Reject",
+			"success": "Comment rejected",
+			"confirm": "Are you sure you want to reject the selected comment?"
+		},
+		"spam": {
+			"title": "Mark as spam",
+			"label": "Spam",
+			"success": "Comment marked as spam",
+			"confirm": "Are you sure you want to mark the selected comment as spam?"
+		},
+		"flag": {
+			"title": "Flag comment",
+			"label": "Flag",
+			"success": "Comment flagged",
+			"confirm": "Are you sure you want to flag the selected comment?"
+		},
+		"view": {
+			"title": "Comment details - {{entry}}",
+			"label": "View"
+		},
+		"viewUser": {
+			"title": "View user"
+		}
+	},
+	"status": {
+		"pending": "Pending",
+		"approved": "Approved",
+		"rejected": "Rejected",
+		"spam": "Spam",
+		"flagged": "Flagged"
+	},
+	"thread": {
+		"heading": "Comments",
+		"empty": "No comments yet. Be the first to leave one.",
+		"unavailable": "Comments are temporarily unavailable. Please try again later.",
+		"load_more": "Load more comments",
+		"loading": "Loading…",
+		"guest": "Guest",
+		"staff": "Staff",
+		"pinned": "Pinned",
+		"reply": "Reply",
+		"replies": "Replies",
+		"see_replies": "See replies",
+		"collapse_replies": "Collapse replies",
+		"reply_to": "Replying to",
+		"cancel": "Cancel"
+	},
+	"form": {
+		"heading": "Leave a comment",
+		"content_placeholder": "Share your thoughts…",
+		"guest_name": "Your name",
+		"guest_email": "Your email",
+		"guest_email_note": "Your email is never published.",
+		"guest_website": "Your website (optional)",
+		"submit": "Post comment",
+		"success": "Thanks — your comment was submitted and will appear once a moderator approves it.",
+		"failed": "Your comment could not be submitted",
+		"write_another": "Write another comment"
+	}
+}

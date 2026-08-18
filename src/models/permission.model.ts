@@ -8,6 +8,7 @@ export const PermissionEntitiesSuggestions = [
 	'cash-flow',
 	'category',
 	'client',
+	'comment',
 	'cron-history',
 	'discount',
 	'document-series',

@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { LoadingIcon } from '@/components/status.component';
+import { showAvatar } from '@/components/ui/avatar.component';
 import { Button } from '@/components/ui/button';
 import Routes from '@/config/routes.setup';
 import { useAuth } from '@/providers/auth.provider';
@@ -100,9 +101,7 @@ export function UserMenu({ translations }: UserMenuProps) {
 		return (
 			<Dropdown>
 				<Dropdown.Trigger className={triggerClass}>
-					<div className="h-8 w-8 bg-accent text-accent-foreground text-sm shrink-0 overflow-hidden flex items-center justify-center rounded-full">
-						{auth.name.charAt(0).toUpperCase()}
-					</div>
+					{showAvatar(auth.name)}
 					<span className="text-sm font-medium hidden sm:inline-block">
 						{auth.name}
 					</span>

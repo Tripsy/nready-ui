@@ -15,6 +15,7 @@ import category from '@/locales/ro/category.json';
 import category_order from '@/locales/ro/category-order.json';
 import category_tree from '@/locales/ro/category-tree.json';
 import client from '@/locales/ro/client.json';
+import comment from '@/locales/ro/comment.json';
 import cron_history from '@/locales/ro/cron-history.json';
 import dashboard from '@/locales/ro/dashboard.json';
 import discount from '@/locales/ro/discount.json';
@@ -63,6 +64,7 @@ const ro = {
 	'category-order': category_order,
 	'category-tree': category_tree,
 	client,
+	comment,
 	'cron-history': cron_history,
 	dashboard,
 	discount,

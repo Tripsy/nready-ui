@@ -442,7 +442,17 @@ export const FormComponentTextarea = <Fields,>({
 
 	return (
 		<FormElement
-			label={{ for: id, text: labelText, required: isRequired }}
+			/*
+			 * No `labelText`, no label element — an empty one still renders its required
+			 * asterisk, which reads as a field whose name failed to load. The name then has to
+			 * come from somewhere a screen reader can use, so it falls back to the placeholder;
+			 * a control with neither is unlabelled, which is why one of the two is required.
+			 */
+			label={
+				labelText
+					? { for: id, text: labelText, required: isRequired }
+					: undefined
+			}
 			error={error}
 		>
 			<FormElementWrapper>
@@ -452,6 +462,7 @@ export const FormComponentTextarea = <Fields,>({
 					value={fieldValue ?? ''}
 					className={cn(borderClass, className)}
 					placeholder={placeholderText}
+					aria-label={labelText ? undefined : placeholderText}
 					disabled={disabled}
 					aria-invalid={!!error}
 					onChange={onChange}

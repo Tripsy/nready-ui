@@ -36,7 +36,8 @@
 		"publishing": "Publishing",
 		"article": "Articles",
 		"article-order": "Order",
-		"rating": "Ratings"
+		"rating": "Ratings",
+		"comment": "Comments"
 	},
 	"text": {
 		"showing_entries": "Showing {{first}} to {{last}} of {{total}} entries",

@@ -36,7 +36,8 @@
 		"publishing": "Publicare",
 		"article": "Articole",
 		"article-order": "Ordine",
-		"rating": "Evaluări"
+		"rating": "Evaluări",
+		"comment": "Comentarii"
 	},
 	"text": {
 		"showing_entries": "Se afișează {{first}} - {{last}} din {{total}} înregistrări",
