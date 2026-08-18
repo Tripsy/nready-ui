@@ -35,6 +35,7 @@ import password_recover_change from '@/locales/ro/password-recover-change.json';
 import permission from '@/locales/ro/permission.json';
 import place from '@/locales/ro/place.json';
 import products from '@/locales/ro/products.json';
+import rating from '@/locales/ro/rating.json';
 import register from '@/locales/ro/register.json';
 import shared from '@/locales/ro/shared.json';
 import status from '@/locales/ro/status.json';
@@ -81,6 +82,7 @@ const ro = {
 	permission,
 	place,
 	products,
+	rating,
 	register,
 	shared,
 	template,

@@ -284,6 +284,9 @@ Routes.group('dashboard')
 	.add('article-order', '/dashboard/article/order', {
 		permissionEntity: 'article',
 		permissionOperation: 'update',
+	})
+	.add('rating', '/dashboard/rating', {
+		permissionEntity: 'rating',
 	});
 
 /**

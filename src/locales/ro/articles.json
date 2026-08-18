@@ -24,6 +24,10 @@
 		"share_facebook": "Distribuie pe Facebook",
 		"share_x": "Distribuie pe X",
 		"share_whatsapp": "Distribuie pe WhatsApp",
+		"rating": "Ți-a fost util acest articol?",
+		"rating_up": "Da, mi-a fost util",
+		"rating_down": "Nu, nu mi-a fost util",
+		"rating_failed": "Evaluarea ta nu a putut fi salvată",
 		"similar_articles": "Articole similare",
 		"latest_articles": "Articole recente"
 	}

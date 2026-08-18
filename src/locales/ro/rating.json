@@ -1,0 +1,20 @@
+{
+	"meta": {
+		"title": "Evaluări - Dashboard | {{app_name}}"
+	},
+	"action": {
+		"delete": {
+			"title": "Șterge evaluarea",
+			"label": "Șterge",
+			"success": "Evaluarea a fost ștearsă",
+			"confirm": "Sigur vrei să ștergi evaluarea selectată?"
+		},
+		"view": {
+			"title": "Detalii evaluare - {{entry}}",
+			"label": "Vezi"
+		},
+		"viewUser": {
+			"title": "Vezi utilizatorul"
+		}
+	}
+}

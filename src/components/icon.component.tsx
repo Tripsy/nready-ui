@@ -79,6 +79,7 @@ import {
 	Share2,
 	Shell,
 	Shield,
+	SmilePlus,
 	SquareParkingOff,
 	SquarePen,
 	SquareX,
@@ -87,6 +88,7 @@ import {
 	Tag,
 	Tags,
 	TextSearch,
+	ThumbsDown,
 	ThumbsUp,
 	TicketCheck,
 	TicketPercent,
@@ -205,6 +207,9 @@ export const Icons = {
 	Image: createIcon(Camera),
 	Publishing: createIcon(Rss),
 	Featured: createIcon(Star),
+	Rating: createIcon(SmilePlus),
+	RatingUp: createIcon(ThumbsUp),
+	RatingDown: createIcon(ThumbsDown),
 
 	Direction: {
 		ArrowUp: createIcon(ArrowUp),

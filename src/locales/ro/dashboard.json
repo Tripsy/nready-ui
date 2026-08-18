@@ -35,7 +35,8 @@
 		"carrier": "Curieri",
 		"publishing": "Publicare",
 		"article": "Articole",
-		"article-order": "Ordine"
+		"article-order": "Ordine",
+		"rating": "Evaluări"
 	},
 	"text": {
 		"showing_entries": "Se afișează {{first}} - {{last}} din {{total}} înregistrări",

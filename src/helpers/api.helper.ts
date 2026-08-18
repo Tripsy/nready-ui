@@ -342,6 +342,7 @@ const PLURAL_ENDPOINT_KEYS: ReadonlySet<DataSourceKey> = new Set([
 	'image',
 	'permission',
 	'place',
+	'rating',
 	'template',
 	'term',
 	'user',

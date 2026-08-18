@@ -94,6 +94,7 @@ export function SideMenu() {
 
 		'dashboard.labels.publishing',
 		'dashboard.labels.article',
+		'dashboard.labels.rating',
 
 		'dashboard.labels.settings',
 		'dashboard.labels.template',
@@ -233,6 +234,13 @@ export function SideMenu() {
 						text: translations['dashboard.labels.article'],
 						icon: Icons.Article,
 						permission: hasPermission(auth, 'article'),
+					},
+					{
+						page: 'rating',
+						href: Routes.get('rating'),
+						text: translations['dashboard.labels.rating'],
+						icon: Icons.Rating,
+						permission: hasPermission(auth, 'rating'),
 					},
 				],
 			},

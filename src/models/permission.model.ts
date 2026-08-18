@@ -22,6 +22,7 @@ export const PermissionEntitiesSuggestions = [
 	'permission',
 	'place',
 	'product',
+	'rating',
 	'subscription',
 	'template',
 	'term',

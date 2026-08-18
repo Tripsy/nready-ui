@@ -35,7 +35,8 @@
 		"carrier": "Carriers",
 		"publishing": "Publishing",
 		"article": "Articles",
-		"article-order": "Order"
+		"article-order": "Order",
+		"rating": "Ratings"
 	},
 	"text": {
 		"showing_entries": "Showing {{first}} to {{last}} of {{total}} entries",

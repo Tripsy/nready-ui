@@ -14,6 +14,7 @@ import type { LogHistoryModel } from '@/models/log-history.model';
 import type { MailQueueModel } from '@/models/mail-queue.model';
 import type { PermissionModel } from '@/models/permission.model';
 import type { PlaceModel } from '@/models/place.model';
+import type { RatingModel } from '@/models/rating.model';
 import type { TemplateModel } from '@/models/template.model';
 import type { TermModel } from '@/models/term.model';
 import type { UserModel } from '@/models/user.model';
@@ -39,6 +40,7 @@ export type DatasourceModels = {
 	'mail-queue': MailQueueModel;
 	permission: PermissionModel;
 	place: PlaceModel;
+	rating: RatingModel;
 	template: TemplateModel;
 	term: TermModel;
 	user: UserModel;

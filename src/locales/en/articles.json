@@ -24,6 +24,10 @@
 		"share_facebook": "Share on Facebook",
 		"share_x": "Share on X",
 		"share_whatsapp": "Share on WhatsApp",
+		"rating": "Was this article useful?",
+		"rating_up": "Yes, this was useful",
+		"rating_down": "No, this was not useful",
+		"rating_failed": "Your rating could not be saved",
 		"similar_articles": "Similar articles",
 		"latest_articles": "Latest articles"
 	}

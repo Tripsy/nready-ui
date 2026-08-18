@@ -35,6 +35,7 @@ import password_recover_change from '@/locales/en/password-recover-change.json';
 import permission from '@/locales/en/permission.json';
 import place from '@/locales/en/place.json';
 import products from '@/locales/en/products.json';
+import rating from '@/locales/en/rating.json';
 import register from '@/locales/en/register.json';
 import shared from '@/locales/en/shared.json';
 import status from '@/locales/en/status.json';
@@ -81,6 +82,7 @@ const en = {
 	permission,
 	place,
 	products,
+	rating,
 	register,
 	shared,
 	template,

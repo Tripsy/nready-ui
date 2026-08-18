@@ -6,6 +6,7 @@ import {
 	ARTICLE_AUTHOR_TRANSLATION_KEYS,
 	ArticleAuthor,
 } from '@/app/(public)/_components/article/article-author.component';
+import { ArticleRating } from '@/app/(public)/_components/article/article-rating.component';
 import {
 	ARTICLE_SHARE_TRANSLATION_KEYS,
 	ArticleShare,
@@ -56,6 +57,12 @@ const TRANSLATION_KEYS = [
 	'text.restricted',
 	'text.unavailable',
 	...ARTICLE_AUTHOR_TRANSLATION_KEYS,
+	// Listed here rather than imported: `ArticleRating` is a client module, whose value
+	// exports are client references by the time this one reads them.
+	'text.rating',
+	'text.rating_up',
+	'text.rating_down',
+	'text.rating_failed',
 	...ARTICLE_SHARE_TRANSLATION_KEYS,
 	...ARTICLE_SIDEBAR_TRANSLATION_KEYS,
 	...ARTICLE_SOURCE_TRANSLATION_KEYS,
@@ -308,6 +315,17 @@ export default async function Page(props: Props) {
 						dangerouslySetInnerHTML={{
 							__html: renderMarkdownServer(content.content),
 						}}
+					/>
+
+					{/*
+					 * Below the body and above the by-line: the reader has just finished
+					 * the article, which is the only moment the question makes sense.
+					 * Client-rendered — the count and the reader's own vote are resolved
+					 * per visitor, and this page is served from a 600s data cache.
+					 */}
+					<ArticleRating
+						articleId={entry.id}
+						translations={translations}
 					/>
 
 					{author && (
