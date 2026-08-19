@@ -22,29 +22,10 @@
 			"success": "Comment deleted",
 			"confirm": "Are you sure you want to delete the selected comment? Its replies will be deleted with it."
 		},
-		"approve": {
-			"title": "Approve comment",
-			"label": "Approve",
-			"success": "Comment approved",
-			"confirm": "Are you sure you want to approve the selected comment?"
-		},
-		"reject": {
-			"title": "Reject comment",
-			"label": "Reject",
-			"success": "Comment rejected",
-			"confirm": "Are you sure you want to reject the selected comment?"
-		},
-		"spam": {
-			"title": "Mark as spam",
-			"label": "Spam",
-			"success": "Comment marked as spam",
-			"confirm": "Are you sure you want to mark the selected comment as spam?"
-		},
-		"flag": {
-			"title": "Flag comment",
-			"label": "Flag",
-			"success": "Comment flagged",
-			"confirm": "Are you sure you want to flag the selected comment?"
+		"statusTransition": {
+			"title": "Update status - {{entry}}",
+			"label": "Status",
+			"success": "Comment status updated successfully"
 		},
 		"view": {
 			"title": "Comment details - {{entry}}",
@@ -88,5 +69,8 @@
 		"success": "Thanks — your comment was submitted and will appear once a moderator approves it.",
 		"failed": "Your comment could not be submitted",
 		"write_another": "Write another comment"
+	},
+	"error": {
+		"cannot_update_status": "This comment cannot change status from its current state"
 	}
 }

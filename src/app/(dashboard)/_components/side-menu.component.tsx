@@ -96,6 +96,7 @@ export function SideMenu() {
 		'dashboard.labels.article',
 		'dashboard.labels.rating',
 		'dashboard.labels.comment',
+		'dashboard.labels.complaint',
 
 		'dashboard.labels.settings',
 		'dashboard.labels.template',
@@ -249,6 +250,13 @@ export function SideMenu() {
 						text: translations['dashboard.labels.comment'],
 						icon: Icons.Comment,
 						permission: hasPermission(auth, 'comment'),
+					},
+					{
+						page: 'complaint',
+						href: Routes.get('complaint'),
+						text: translations['dashboard.labels.complaint'],
+						icon: Icons.Complaint,
+						permission: hasPermission(auth, 'complaint'),
 					},
 				],
 			},

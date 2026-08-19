@@ -37,7 +37,8 @@
 		"article": "Articole",
 		"article-order": "Ordine",
 		"rating": "Evaluări",
-		"comment": "Comentarii"
+		"comment": "Comentarii",
+		"complaint": "Reclamații"
 	},
 	"text": {
 		"showing_entries": "Se afișează {{first}} - {{last}} din {{total}} înregistrări",

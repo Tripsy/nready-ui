@@ -22,29 +22,10 @@
 			"success": "Comentariul a fost șters",
 			"confirm": "Sigur vrei să ștergi comentariul selectat? Răspunsurile la el vor fi șterse odată cu el."
 		},
-		"approve": {
-			"title": "Aprobă comentariul",
-			"label": "Aprobă",
-			"success": "Comentariul a fost aprobat",
-			"confirm": "Sigur vrei să aprobi comentariul selectat?"
-		},
-		"reject": {
-			"title": "Respinge comentariul",
-			"label": "Respinge",
-			"success": "Comentariul a fost respins",
-			"confirm": "Sigur vrei să respingi comentariul selectat?"
-		},
-		"spam": {
-			"title": "Marchează ca spam",
-			"label": "Spam",
-			"success": "Comentariul a fost marcat ca spam",
-			"confirm": "Sigur vrei să marchezi comentariul selectat ca spam?"
-		},
-		"flag": {
-			"title": "Semnalează comentariul",
-			"label": "Semnalează",
-			"success": "Comentariul a fost semnalat",
-			"confirm": "Sigur vrei să semnalezi comentariul selectat?"
+		"statusTransition": {
+			"title": "Actualizează statusul - {{entry}}",
+			"label": "Status",
+			"success": "Statusul comentariului a fost actualizat"
 		},
 		"view": {
 			"title": "Detalii comentariu - {{entry}}",
@@ -88,5 +69,8 @@
 		"success": "Mulțumim — comentariul a fost trimis și va apărea după ce un moderator îl aprobă.",
 		"failed": "Comentariul nu a putut fi trimis",
 		"write_another": "Scrie alt comentariu"
+	},
+	"error": {
+		"cannot_update_status": "Acest comentariu nu poate trece în alt status din starea curentă"
 	}
 }

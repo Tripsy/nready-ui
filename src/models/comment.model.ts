@@ -1,4 +1,5 @@
 import { formatEnumLabel } from '@/helpers/string.helper';
+import type { StatusTransitions } from '@/types/common.type';
 
 /**
  * Mirrors `comment` in the backend. The table has no `deleted_at` — a removed comment is gone,
@@ -35,10 +36,7 @@ export type CommentStatus =
  * Which moves a moderator may make from each state, mirroring `STATUS_TRANSITIONS` on the entity.
  * The action buttons are gated on this, so a button never offers a move the backend answers 409 to.
  */
-export const COMMENT_STATUS_TRANSITIONS: Record<
-	CommentStatus,
-	readonly CommentStatus[]
-> = {
+export const COMMENT_STATUS_TRANSITIONS: StatusTransitions<CommentStatus> = {
 	[CommentStatusEnum.PENDING]: [
 		CommentStatusEnum.APPROVED,
 		CommentStatusEnum.REJECTED,
@@ -60,11 +58,6 @@ export const COMMENT_STATUS_TRANSITIONS: Record<
 		CommentStatusEnum.SPAM,
 	],
 };
-
-export const canTransitionComment = (
-	entry: CommentModel,
-	next: CommentStatus,
-): boolean => COMMENT_STATUS_TRANSITIONS[entry.status].includes(next);
 
 /** What kind of contribution the comment is. */
 export const CommentTypeEnum = {

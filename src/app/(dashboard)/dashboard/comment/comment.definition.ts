@@ -4,6 +4,7 @@ import {
 	type CommentFormValuesType,
 	FormManageComment,
 } from '@/app/(dashboard)/dashboard/comment/form-manage-comment.component';
+import { StatusTransitionComment } from '@/app/(dashboard)/dashboard/comment/status-transition-comment.component';
 import { ViewComment } from '@/app/(dashboard)/dashboard/comment/view-comment.component';
 import { translateBatch } from '@/config/translate.setup';
 import {
@@ -11,31 +12,29 @@ import {
 	getFormDataAsEnum,
 	getFormDataAsString,
 } from '@/helpers/form.helper';
+import { getStatusTransitions } from '@/helpers/model.helper';
 import {
 	requestDelete,
 	requestFind,
 	requestUpdate,
-	requestUpdateStatus,
 } from '@/helpers/services.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
 import { type AuthModel, hasPermission } from '@/models/auth.model';
 import {
 	COMMENT_DEFAULT_TYPE,
+	COMMENT_STATUS_TRANSITIONS,
 	type CommentEntityType,
 	type CommentModel,
 	type CommentStatus,
-	CommentStatusEnum,
 	type CommentType,
 	CommentTypeEnum,
-	canTransitionComment,
 	displayCommentAuthor,
 	displayCommentLabel,
 	displayCommentThread,
 } from '@/models/comment.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type {
-	ActionConfigPermission,
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
@@ -132,10 +131,7 @@ export default async function dataSourceConfig(): Promise<
 			'update.title',
 			'view.title',
 			'delete.title',
-			'approve.title',
-			'reject.title',
-			'spam.title',
-			'flag.title',
+			'statusTransition.title',
 			'viewUser.title',
 		] as const,
 		'comment.action',
@@ -169,9 +165,11 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	/**
-	 * The status cell's inline button offers the one move that matters from where the row is:
-	 * approve anything awaiting a decision, and take an approved comment down. Every other move
-	 * is on the action bar.
+	 * The status badge opens the transition window rather than performing a move.
+	 *
+	 * Unlike `complaint`, whose state is a boolean and so has exactly one move from anywhere, a
+	 * comment can go several ways from most of its states — the badge cannot pick one, so it
+	 * offers the choice.
 	 */
 	function displayButtonStatus(
 		auth: AuthModel | null,
@@ -182,34 +180,12 @@ export default async function dataSourceConfig(): Promise<
 					return undefined;
 				}
 
-				return entry.status === CommentStatusEnum.APPROVED
-					? 'reject'
-					: 'approve';
-			},
-		};
-	}
-
-	/** One action per moderation decision; they differ only in target status and styling. */
-	function statusAction(
-		action: 'approve' | 'reject' | 'spam' | 'flag',
-		status: CommentStatus,
-		hover: 'default' | 'success' | 'error',
-	) {
-		return {
-			windowType: 'action' as const,
-			windowTitle: translations[`${action}.title`],
-			permission: ['comment', 'update'] as ActionConfigPermission,
-			entriesSelection: 'single' as const,
-			// Gated on the same transition map the backend holds, so a button is never offered
-			// for a move that would come back 409.
-			customEntryCheck: (entry: CommentModel) =>
-				canTransitionComment(entry, status),
-			operationFunction: (entry: CommentModel) =>
-				requestUpdateStatus('comment', entry, status),
-			buttonPosition: 'left' as const,
-			button: {
-				variant: 'outline' as const,
-				hover: hover,
+				return getStatusTransitions(
+					entry.status,
+					COMMENT_STATUS_TRANSITIONS,
+				).length > 0
+					? 'statusTransition'
+					: undefined;
 			},
 		};
 	}
@@ -343,14 +319,32 @@ export default async function dataSourceConfig(): Promise<
 				validateForm: validateForm,
 				getFormState: getFormState,
 			},
-			approve: statusAction(
-				'approve',
-				CommentStatusEnum.APPROVED,
-				'success',
-			),
-			reject: statusAction('reject', CommentStatusEnum.REJECTED, 'error'),
-			spam: statusAction('spam', CommentStatusEnum.SPAM, 'error'),
-			flag: statusAction('flag', CommentStatusEnum.FLAGGED, 'default'),
+			/*
+			 * One window for every moderation decision, since a comment has no single next
+			 * state. `windowType: 'other'` because the window owns the request itself — the
+			 * moves are rendered from the transition map and each one issues its own
+			 * `statusUpdate`, so there is no single `operationFunction` to declare here.
+			 */
+			statusTransition: {
+				windowType: 'other',
+				windowTitle: translations['statusTransition.title'],
+				windowComponent: StatusTransitionComment,
+				windowConfigProps: {
+					size: 'lg',
+				},
+				permission: ['comment', 'update'],
+				entriesSelection: 'single',
+				customEntryCheck: (entry: CommentModel) =>
+					getStatusTransitions(
+						entry.status,
+						COMMENT_STATUS_TRANSITIONS,
+					).length > 0,
+				buttonPosition: 'left',
+				button: {
+					variant: 'outline',
+					hover: 'default',
+				},
+			},
 			// Hard delete, and it takes the replies with it — `parent_id` cascades in the
 			// database, so there is no orphaned subtree left behind and nothing to restore.
 			delete: {

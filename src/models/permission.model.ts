@@ -9,6 +9,7 @@ export const PermissionEntitiesSuggestions = [
 	'category',
 	'client',
 	'comment',
+	'complaint',
 	'cron-history',
 	'discount',
 	'document-series',

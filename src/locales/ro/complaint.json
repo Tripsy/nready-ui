@@ -1,0 +1,43 @@
+{
+	"meta": {
+		"title": "Reclamații - Dashboard | {{app_name}}"
+	},
+	"status": {
+		"open": "Deschisă",
+		"resolved": "Rezolvată",
+		"deleted": "Ștearsă"
+	},
+	"action": {
+		"resolve": {
+			"title": "Rezolvă reclamația",
+			"label": "Rezolvă",
+			"success": "Reclamația a fost rezolvată",
+			"confirm": "Sigur vrei să marchezi reclamația selectată ca rezolvată?"
+		},
+		"reopen": {
+			"title": "Redeschide reclamația",
+			"label": "Redeschide",
+			"success": "Reclamația a fost redeschisă",
+			"confirm": "Sigur vrei să redeschizi reclamația selectată? Moderatorul și data deciziei anterioare se șterg."
+		},
+		"delete": {
+			"title": "Șterge reclamația",
+			"label": "Șterge",
+			"success": "Reclamația a fost ștearsă",
+			"confirm": "Sigur vrei să ștergi reclamația selectată? Poate fi restaurată ulterior."
+		},
+		"restore": {
+			"title": "Restaurează reclamația",
+			"label": "Restaurează",
+			"success": "Reclamația a fost restaurată",
+			"confirm": "Sigur vrei să restaurezi reclamația selectată?"
+		},
+		"view": {
+			"title": "Detalii reclamație - {{entry}}",
+			"label": "Vezi"
+		},
+		"viewUser": {
+			"title": "Vezi utilizatorul"
+		}
+	}
+}

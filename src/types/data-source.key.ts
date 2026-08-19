@@ -6,6 +6,7 @@ import type { CashFlowModel } from '@/models/cash-flow.model';
 import type { CategoryModel } from '@/models/category.model';
 import type { ClientModel } from '@/models/client.model';
 import type { CommentModel } from '@/models/comment.model';
+import type { ComplaintModel } from '@/models/complaint.model';
 import type { CronHistoryModel } from '@/models/cron-history.model';
 import type { DiscountModel } from '@/models/discount.model';
 import type { DocumentSeriesModel } from '@/models/document-series.model';
@@ -33,6 +34,7 @@ export type DatasourceModels = {
 	category: CategoryModel;
 	client: ClientModel;
 	comment: CommentModel;
+	complaint: ComplaintModel;
 	'cron-history': CronHistoryModel;
 	discount: DiscountModel;
 	'document-series': DocumentSeriesModel;

@@ -16,6 +16,7 @@ import category_order from '@/locales/en/category-order.json';
 import category_tree from '@/locales/en/category-tree.json';
 import client from '@/locales/en/client.json';
 import comment from '@/locales/en/comment.json';
+import complaint from '@/locales/en/complaint.json';
 import cron_history from '@/locales/en/cron-history.json';
 import dashboard from '@/locales/en/dashboard.json';
 import discount from '@/locales/en/discount.json';
@@ -65,6 +66,7 @@ const en = {
 	'category-tree': category_tree,
 	client,
 	comment,
+	complaint,
 	'cron-history': cron_history,
 	dashboard,
 	discount,

@@ -35,6 +35,14 @@ export const statusList: Record<
 		variant: 'default',
 		icon: Icons.Status.Deleted,
 	},
+	open: {
+		variant: 'warning',
+		icon: Icons.Status.Pending,
+	},
+	resolved: {
+		variant: 'success',
+		icon: Icons.Status.Success,
+	},
 	ok: {
 		variant: 'success',
 		icon: Icons.Status.Ok,
