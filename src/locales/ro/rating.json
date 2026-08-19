@@ -16,5 +16,14 @@
 		"viewUser": {
 			"title": "Vezi utilizatorul"
 		}
+	},
+	"reaction": {
+		"action": "Reacționează la acest comentariu",
+		"failed": "Reacția ta nu a putut fi salvată",
+		"like": "Îmi place",
+		"dislike": "Nu îmi place",
+		"love": "Ador",
+		"insightful": "Interesant",
+		"funny": "Amuzant"
 	}
 }

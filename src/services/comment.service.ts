@@ -19,6 +19,12 @@ import type { ApiResponseFetch } from '@/types/api.type';
 export type CommentThreadType = {
 	entries: CommentModel[];
 	pagination: { page: number; limit: number; total: number };
+	/**
+	 * The earliest reply under each root on this page, keyed by the comment it answers — a thread
+	 * shows its first reply without being unrolled, and this is what spares one request per root
+	 * to find it. Empty when reading a reply list, which is already replies.
+	 */
+	first_replies: Record<number, CommentModel>;
 };
 
 /**

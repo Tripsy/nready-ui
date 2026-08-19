@@ -27,6 +27,10 @@ import {
 } from '@/components/comment/comment.definition';
 import { CommentThread } from '@/components/comment/comment-thread.component';
 import { Icons } from '@/components/icon.component';
+import {
+	RATING_TRANSLATION_KEYS,
+	RATING_TRANSLATION_PREFIX,
+} from '@/components/rating/rating.definition';
 import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
 import {
@@ -175,11 +179,16 @@ export default async function Page(props: Props) {
 	// The comments section owns its copy under its own namespace — it is rendered by whatever
 	// page hosts it, not by this one alone — so it is batched separately rather than folded
 	// into the article's keys.
-	const [translations, commentTranslations, result] = await Promise.all([
-		translateBatch(TRANSLATION_KEYS, TRANSLATION_PREFIX),
-		translateBatch(COMMENT_TRANSLATION_KEYS, COMMENT_TRANSLATION_PREFIX),
-		getArticle(slug, language),
-	]);
+	const [translations, commentTranslations, ratingTranslations, result] =
+		await Promise.all([
+			translateBatch(TRANSLATION_KEYS, TRANSLATION_PREFIX),
+			translateBatch(
+				COMMENT_TRANSLATION_KEYS,
+				COMMENT_TRANSLATION_PREFIX,
+			),
+			translateBatch(RATING_TRANSLATION_KEYS, RATING_TRANSLATION_PREFIX),
+			getArticle(slug, language),
+		]);
 
 	if (result.status !== 'ok') {
 		return (
@@ -366,6 +375,7 @@ export default async function Page(props: Props) {
 						entityType={CommentEntityTypeEnum.ARTICLE}
 						entityId={entry.id}
 						translations={commentTranslations}
+						ratingTranslations={ratingTranslations}
 					/>
 				</article>
 

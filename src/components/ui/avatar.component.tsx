@@ -6,6 +6,39 @@ import { isOptimizableImageSrc } from '@/models/image.model';
 const AVATAR_DEFAULT_SIZE = 32;
 
 /**
+ * The circles a nameless avatar is drawn from. Picked by name rather than at random: the same
+ * person keeps their colour across a page, across a re-render, and across a reload — a colour that
+ * changed under them would read as a different person.
+ */
+const AVATAR_COLORS = [
+	'bg-sky-500',
+	'bg-rose-500',
+	'bg-violet-500',
+	'bg-emerald-500',
+	'bg-amber-500',
+	'bg-indigo-500',
+	'bg-teal-500',
+	'bg-fuchsia-500',
+];
+
+/**
+ * A stable index into the palette.
+ *
+ * Multiplying before adding is what spreads it: summing code points and taking the remainder
+ * clusters names of similar length and letters onto the same colour, which is how three of four
+ * seeded authors ended up sharing one.
+ */
+function avatarColor(name: string): string {
+	let hash = 0;
+
+	for (const character of name) {
+		hash = (hash * 31 + (character.codePointAt(0) ?? 0)) >>> 0;
+	}
+
+	return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+}
+
+/**
  * The initial a nameless avatar falls back to. Anything that is not a letter or a digit is
  * skipped — an emoji or a quote mark as the first character says nothing about who wrote it.
  */
@@ -65,7 +98,8 @@ export function showAvatar(
 			aria-hidden="true"
 			style={style}
 			className={cn(
-				'flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent text-accent-foreground text-sm',
+				'flex shrink-0 items-center justify-center overflow-hidden rounded-full text-sm text-white',
+				avatarColor(name),
 				options?.className,
 			)}
 		>

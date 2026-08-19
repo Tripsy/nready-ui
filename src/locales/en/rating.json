@@ -16,5 +16,14 @@
 		"viewUser": {
 			"title": "View user"
 		}
+	},
+	"reaction": {
+		"action": "React to this comment",
+		"failed": "Your reaction could not be saved",
+		"like": "Like",
+		"dislike": "Dislike",
+		"love": "Love",
+		"insightful": "Insightful",
+		"funny": "Funny"
 	}
 }

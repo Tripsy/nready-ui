@@ -104,6 +104,27 @@ export type RatingPublicReadType = {
 	own: RatingOwnEntryType[];
 };
 
+/**
+ * The same two halves for a set of targets, keyed by target id — what a list of rated things
+ * reads so its request count does not grow with its length.
+ *
+ * A target nobody has rated is absent from both maps rather than present and empty, so read them
+ * with a fallback: the ids asked about are the caller's own list, not something to rediscover here.
+ */
+export type RatingSummaryListType = {
+	summaries: Record<number, RatingSummaryType>;
+	own: Record<number, RatingOwnEntryType[]>;
+};
+
+/** How many reactions a target carries, whichever they are. */
+export const countRatingReactions = (summary?: RatingSummaryType): number =>
+	summary
+		? Object.values(summary.emoji).reduce(
+				(total, count) => total + count,
+				0,
+			)
+		: 0;
+
 /** The two directions a `like` rating can hold, mirroring `CHK_rating_like_range`. */
 export const RATING_LIKE_UP = 1;
 export const RATING_LIKE_DOWN = -1;

@@ -2,6 +2,7 @@ import { ApiRequest } from '@/helpers/api.helper';
 import type {
 	RatingEntityType,
 	RatingPublicReadType,
+	RatingSummaryListType,
 	RatingType,
 } from '@/models/rating.model';
 import type { ApiResponseFetch } from '@/types/api.type';
@@ -37,6 +38,25 @@ export async function requestRatingSummary(
 ): Promise<ApiResponseFetch<RatingPublicReadType>> {
 	return await new ApiRequest().doFetch(
 		buildTargetPath(entityType, entityId),
+		{ method: 'GET' },
+	);
+}
+
+/**
+ * The aggregates for several targets at once, plus whatever this visitor cast on each.
+ *
+ * One request for a whole list: a page of comments would otherwise call the single read once per
+ * comment. The backend caps how many ids it will answer for, so callers page their list rather
+ * than asking about everything they hold.
+ */
+export async function requestRatingSummaryList(
+	entityType: RatingEntityType,
+	entityIds: number[],
+): Promise<ApiResponseFetch<RatingSummaryListType>> {
+	const query = new URLSearchParams({ entity_ids: entityIds.join(',') });
+
+	return await new ApiRequest().doFetch(
+		`/public/ratings/${entityType}?${query.toString()}`,
 		{ method: 'GET' },
 	);
 }
