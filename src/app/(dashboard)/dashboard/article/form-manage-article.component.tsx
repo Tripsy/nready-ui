@@ -98,6 +98,14 @@ export type ArticleFormValuesType = {
 	rule_requires_subscription: boolean;
 	rule_allowed_countries: string | null;
 	rule_password: string | null;
+	/*
+	 * The reader-participation switches. Flat booleans here for the same reason as the rule
+	 * fields above — `buildSettings` assembles them into the `settings` object the API takes,
+	 * which stores them inside `article.details`.
+	 */
+	allow_rating: boolean;
+	allow_comments: boolean;
+	allow_complaints: boolean;
 	source_label: string | null;
 	source_url: string | null;
 	source_disclaimer: string | null;
@@ -160,6 +168,9 @@ const TAB_FIELDS: Record<FormTabId, readonly (keyof ArticleFormValuesType)[]> =
 			'rule_requires_subscription',
 			'rule_allowed_countries',
 			'rule_password',
+			'allow_rating',
+			'allow_comments',
+			'allow_complaints',
 		],
 		content: ['categories', 'tags'],
 		seo: [],
@@ -234,6 +245,9 @@ export function FormManageArticle() {
 		'ruleSubscription',
 		'ruleCountries',
 		'rulePassword',
+		'allowRating',
+		'allowComments',
+		'allowComplaints',
 		'source',
 		'contents',
 	] as const);
@@ -363,6 +377,17 @@ export function FormManageArticle() {
 		(category) => category.id,
 	);
 	const tagIds = (formValues.tags ?? []).map((tag) => tag.id);
+
+	/*
+	 * A link list is validated as a whole — "at least one category", "not a valid id" — never
+	 * per entry, so `accumulateZodErrors` leaves the messages as a `string[]` at the leaf. The
+	 * declared type still allows the per-item shape every array field could carry, which is
+	 * what this narrows away; anything else reads as no error rather than as a rendered object.
+	 */
+	const linkError = (error: unknown): string[] | undefined =>
+		Array.isArray(error) && typeof error[0] === 'string'
+			? (error as string[])
+			: undefined;
 
 	/*
 	 * `errors.contents` arrives in one of two shapes, and which one depends on where the issue
@@ -688,6 +713,57 @@ export function FormManageArticle() {
 							</div>
 						</div>
 
+						<div className="form-section">
+							<div className="text-sm font-semibold">
+								Reader participation
+							</div>
+
+							<div className="flex flex-col md:flex-row flex-wrap gap-4">
+								<FormComponentCheckbox
+									id={elementIds.allowRating}
+									fieldName="allow_rating"
+									checked={formValues.allow_rating}
+									disabled={pending}
+									onCheckedChange={(value) =>
+										handleChange('allow_rating', value)
+									}
+								>
+									Allow ratings
+								</FormComponentCheckbox>
+
+								<FormComponentCheckbox
+									id={elementIds.allowComments}
+									fieldName="allow_comments"
+									checked={formValues.allow_comments}
+									disabled={pending}
+									onCheckedChange={(value) =>
+										handleChange('allow_comments', value)
+									}
+								>
+									Allow comments
+								</FormComponentCheckbox>
+
+								<FormComponentCheckbox
+									id={elementIds.allowComplaints}
+									fieldName="allow_complaints"
+									checked={formValues.allow_complaints}
+									disabled={pending}
+									onCheckedChange={(value) =>
+										handleChange('allow_complaints', value)
+									}
+								>
+									Allow reports
+								</FormComponentCheckbox>
+							</div>
+
+							<p className="text-xs text-muted">
+								What readers may add to this article. Unchecking
+								one takes it off the page for everyone; anything
+								already posted stays stored and reappears if it
+								is turned back on.
+							</p>
+						</div>
+
 						{isRestricted && (
 							<div className="form-section">
 								<h3 className="font-bold border-b border-line pb-2">
@@ -901,6 +977,7 @@ export function FormManageArticle() {
 								}
 								emptyText="No categories linked."
 								disabled={pending}
+								error={linkError(errors.categories)}
 							/>
 
 							<FormPickerArticle<TermModel>
@@ -921,6 +998,7 @@ export function FormManageArticle() {
 								}
 								emptyText="No tags linked."
 								disabled={pending}
+								error={linkError(errors.tags)}
 								// A tag is a term with one wording per language; the search box
 								// fills the language being edited and the create window handles
 								// the rest.

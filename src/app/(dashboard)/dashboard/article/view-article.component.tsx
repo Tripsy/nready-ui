@@ -186,6 +186,23 @@ export function ViewArticle({ entry }: { entry: ArticleModel }) {
 				)}
 			</ViewSection>
 
+			{entry.settings && (
+				<ViewSection title="Reader participation">
+					<ViewField
+						label="Ratings"
+						value={entry.settings.allow_rating ? 'Yes' : 'No'}
+					/>
+					<ViewField
+						label="Comments"
+						value={entry.settings.allow_comments ? 'Yes' : 'No'}
+					/>
+					<ViewField
+						label="Reports"
+						value={entry.settings.allow_complaints ? 'Yes' : 'No'}
+					/>
+				</ViewSection>
+			)}
+
 			<ViewSection title="Featured">
 				<ViewField
 					label="Status"

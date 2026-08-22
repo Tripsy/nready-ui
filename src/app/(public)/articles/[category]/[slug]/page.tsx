@@ -51,6 +51,7 @@ import { logger } from '@/helpers/logger.helper';
 import { renderMarkdownServer } from '@/helpers/markdown-server.helper';
 import {
 	ARTICLE_CATEGORY_FALLBACK_SLUG,
+	ARTICLE_DEFAULT_SETTINGS,
 	type ArticleContentType,
 	type ArticleModel,
 	getArticlePrimaryCategory,
@@ -259,6 +260,13 @@ export default async function Page(props: Props) {
 	// is exactly what the listing filter takes.
 	const tagIds = (entry.tags ?? []).map((link) => link.tag_id);
 
+	/*
+	 * What this article accepts from its readers. The API resolves the three against its own
+	 * defaults before returning them, so the fallback only covers a response from an older
+	 * backend — one that does not send `settings` at all.
+	 */
+	const settings = entry.settings ?? ARTICLE_DEFAULT_SETTINGS;
+
 	return (
 		<div className="container-default py-12 md:py-16">
 			<Breadcrumb
@@ -356,19 +364,25 @@ export default async function Page(props: Props) {
 					 * The two sit at opposite ends of one row: the rating is the answer
 					 * the article asks for, the report the exception to it.
 					 */}
-					<section className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
-						<ArticleRating
-							articleId={entry.id}
-							translations={translations}
-						/>
+					{(settings.allow_rating || settings.allow_complaints) && (
+						<section className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
+							{settings.allow_rating && (
+								<ArticleRating
+									articleId={entry.id}
+									translations={translations}
+								/>
+							)}
 
-						<ComplaintReport
-							entityType={ComplaintEntityTypeEnum.ARTICLE}
-							entityId={entry.id}
-							reasons={COMPLAINT_ARTICLE_REASONS}
-							translations={complaintTranslations}
-						/>
-					</section>
+							{settings.allow_complaints && (
+								<ComplaintReport
+									entityType={ComplaintEntityTypeEnum.ARTICLE}
+									entityId={entry.id}
+									reasons={COMPLAINT_ARTICLE_REASONS}
+									translations={complaintTranslations}
+								/>
+							)}
+						</section>
+					)}
 
 					{/*
 					 * After the by-line and the source, which belong to the article itself:
@@ -394,13 +408,15 @@ export default async function Page(props: Props) {
 						/>
 					)}
 
-					<CommentThread
-						entityType={CommentEntityTypeEnum.ARTICLE}
-						entityId={entry.id}
-						translations={commentTranslations}
-						ratingTranslations={ratingTranslations}
-						complaintTranslations={complaintTranslations}
-					/>
+					{settings.allow_comments && (
+						<CommentThread
+							entityType={CommentEntityTypeEnum.ARTICLE}
+							entityId={entry.id}
+							translations={commentTranslations}
+							ratingTranslations={ratingTranslations}
+							complaintTranslations={complaintTranslations}
+						/>
+					)}
 				</article>
 
 				<ArticleSidebar

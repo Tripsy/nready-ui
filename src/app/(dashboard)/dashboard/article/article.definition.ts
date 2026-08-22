@@ -32,6 +32,7 @@ import {
 } from '@/helpers/validator.helper';
 import {
 	ARTICLE_DEFAULT_LAYOUT,
+	ARTICLE_DEFAULT_SETTINGS,
 	ARTICLE_DEFAULT_VISIBILITY,
 	type ArticleFeaturedStatus,
 	ArticleFeaturedStatusEnum,
@@ -224,6 +225,18 @@ class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 					this.getMessage('invalid_visibility_rule'),
 					{ required: false },
 				),
+				allow_rating: this.validateBoolean(
+					this.getMessage('invalid_boolean'),
+					{ required: false },
+				),
+				allow_comments: this.validateBoolean(
+					this.getMessage('invalid_boolean'),
+					{ required: false },
+				),
+				allow_complaints: this.validateBoolean(
+					this.getMessage('invalid_boolean'),
+					{ required: false },
+				),
 				source_label: this.validateString(
 					this.getMessage('invalid_source'),
 					{ required: false },
@@ -372,6 +385,9 @@ function getFormValues(formData: FormData): ArticleFormValuesType {
 			'rule_allowed_countries',
 		),
 		rule_password: getFormDataAsString(formData, 'rule_password'),
+		allow_rating: getFormDataAsBoolean(formData, 'allow_rating'),
+		allow_comments: getFormDataAsBoolean(formData, 'allow_comments'),
+		allow_complaints: getFormDataAsBoolean(formData, 'allow_complaints'),
 		source_label: getFormDataAsString(formData, 'source_label'),
 		source_url: getFormDataAsString(formData, 'source_url'),
 		source_disclaimer: getFormDataAsString(formData, 'source_disclaimer'),
@@ -425,6 +441,20 @@ function getFormState(
 				data?.visibility_rule?.allowed_countries?.join(', ') ?? null,
 			// Never seeded: the API returns the bcrypt hash to nobody.
 			rule_password: null,
+			/*
+			 * `read` returns these already resolved — the article's own override where it has
+			 * one, the API's default everywhere else — so an existing article seeds the boxes
+			 * with what actually applies to it. A new one falls back to the mirrored defaults.
+			 */
+			allow_rating:
+				data?.settings?.allow_rating ??
+				ARTICLE_DEFAULT_SETTINGS.allow_rating,
+			allow_comments:
+				data?.settings?.allow_comments ??
+				ARTICLE_DEFAULT_SETTINGS.allow_comments,
+			allow_complaints:
+				data?.settings?.allow_complaints ??
+				ARTICLE_DEFAULT_SETTINGS.allow_complaints,
 			source_label: data?.source?.label ?? null,
 			source_url: data?.source?.url ?? null,
 			source_disclaimer: data?.source?.disclaimer ?? null,
@@ -506,6 +536,22 @@ function buildContents(data: ArticleManageOutput) {
 	});
 }
 
+/**
+ * The three switches, sent in full on every save: the form shows all of them, so what an editor
+ * saw is what is stored. The API drops any value matching its own default rather than writing an
+ * override, so an untouched form leaves `article.details` empty.
+ */
+function buildSettings(data: ArticleManageOutput) {
+	return {
+		allow_rating:
+			data.allow_rating ?? ARTICLE_DEFAULT_SETTINGS.allow_rating,
+		allow_comments:
+			data.allow_comments ?? ARTICLE_DEFAULT_SETTINGS.allow_comments,
+		allow_complaints:
+			data.allow_complaints ?? ARTICLE_DEFAULT_SETTINGS.allow_complaints,
+	};
+}
+
 /** `null` clears the stored attribution; an object with nothing in it would not. */
 function buildSource(data: ArticleManageOutput) {
 	const source = {
@@ -526,6 +572,9 @@ function prepareParamsFromFormValues(data: ArticleManageOutput) {
 		rule_requires_subscription: _requiresSubscription,
 		rule_allowed_countries: _allowedCountries,
 		rule_password: _password,
+		allow_rating: _allowRating,
+		allow_comments: _allowComments,
+		allow_complaints: _allowComplaints,
 		source_label: _sourceLabel,
 		source_url: _sourceUrl,
 		source_disclaimer: _sourceDisclaimer,
@@ -542,6 +591,7 @@ function prepareParamsFromFormValues(data: ArticleManageOutput) {
 		contents: buildContents(data),
 		visibility_rule: buildVisibilityRule(data),
 		source: buildSource(data),
+		settings: buildSettings(data),
 	};
 }
 

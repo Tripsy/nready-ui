@@ -504,7 +504,7 @@ export const FormComponentSelect = <Fields,>({
 		? (options as GroupedOptionsType).map((group) => (
 				<ListBox.Section
 					key={group.label}
-					className="[&:not(:first-child)]:mt-1 [&:not(:first-child)]:border-t [&:not(:first-child)]:border-border [&:not(:first-child)]:pt-1"
+					className="not-first:mt-1 not-first:border-t not-first:border-border not-first:pt-1"
 				>
 					<Header className="px-2 pt-1.5 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
 						{group.label}

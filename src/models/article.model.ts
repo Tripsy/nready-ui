@@ -104,6 +104,35 @@ export type ArticleVisibilityRuleType = {
 	is_listed: boolean;
 };
 
+/**
+ * The reader-contributed features an article opts into. Stored on the API inside `details`, and
+ * mirrored here as the resolved shape the read endpoints return: an article that overrides
+ * nothing still comes back with all three, filled from the API's own defaults (all true unless
+ * `ARTICLE_ALLOW_*` says otherwise). A payload may send any subset — an omitted key is left alone.
+ */
+export const ArticleSettingEnum = {
+	ALLOW_RATING: 'allow_rating',
+	ALLOW_COMMENTS: 'allow_comments',
+	ALLOW_COMPLAINTS: 'allow_complaints',
+} as const;
+
+export type ArticleSetting =
+	(typeof ArticleSettingEnum)[keyof typeof ArticleSettingEnum];
+
+export type ArticleSettingsType = Record<ArticleSetting, boolean>;
+
+/**
+ * What the dashboard seeds a new article's switches with. It mirrors the API's shipped defaults
+ * rather than reading them — they are backend env (`ARTICLE_ALLOW_*`) and the browser cannot see
+ * them. Harmless where the two agree, which is every deployment that has not turned one off: the
+ * API drops any value equal to its own default instead of storing it as an override.
+ */
+export const ARTICLE_DEFAULT_SETTINGS: ArticleSettingsType = {
+	allow_rating: true,
+	allow_comments: true,
+	allow_complaints: true,
+};
+
 export const ARTICLE_DEFAULT_LAYOUT = ArticleLayoutEnum.DEFAULT;
 export const ARTICLE_DEFAULT_VISIBILITY = ArticleVisibilityEnum.PUBLIC;
 
@@ -134,6 +163,8 @@ export type ArticleModel<D = Date | string> = {
 	source_mode: ArticleSourceMode;
 	source?: ArticleSourceType | null;
 	details?: Record<string, string | number | boolean> | null;
+	/** Resolved by the API from `details`; a create or update posts back any subset of it. */
+	settings?: ArticleSettingsType;
 
 	// Relations
 	author_id: number | null;
