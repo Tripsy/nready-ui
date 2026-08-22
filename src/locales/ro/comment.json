@@ -56,7 +56,13 @@
 		"see_replies": "Vezi răspunsurile",
 		"collapse_replies": "Ascunde răspunsurile",
 		"reply_to": "Răspunzi lui",
-		"cancel": "Anulează"
+		"cancel": "Anulează",
+		"show_more": "mai mult",
+		"menu": "Opțiuni comentariu",
+		"copy_link": "Copiază linkul comentariului",
+		"copy_link_success": "Link copiat",
+		"copy_link_failed": "Linkul nu a putut fi copiat",
+		"report": "Raportează comentariul"
 	},
 	"form": {
 		"heading": "Lasă un comentariu",
@@ -66,11 +72,25 @@
 		"guest_email_note": "Emailul tău nu este publicat niciodată.",
 		"guest_website": "Site-ul tău (opțional)",
 		"submit": "Trimite comentariul",
-		"success": "Mulțumim — comentariul a fost trimis și va apărea după ce un moderator îl aprobă.",
+		"success": "Îți mulțumim, comentariul tău a fost trimis.",
 		"failed": "Comentariul nu a putut fi trimis",
 		"write_another": "Scrie alt comentariu"
 	},
 	"error": {
 		"cannot_update_status": "Acest comentariu nu poate trece în alt status din starea curentă"
+	},
+	"unsubscribe": {
+		"meta_title": "Notificări comentarii | {{app_name}}",
+		"heading": "Notificări comentarii",
+		"intro": "Primești notificări despre comentarii la",
+		"all": "Toate comentariile noi din discuțiile în care particip",
+		"replies_to_me": "Doar răspunsurile la comentariile mele",
+		"unsubscribed": "Nimic — oprește aceste emailuri",
+		"save": "Salvează preferința",
+		"saving": "Se salvează…",
+		"saved": "Preferința a fost salvată",
+		"failed": "Preferința nu a putut fi salvată",
+		"invalid": "Acest link nu mai este valid. Este posibil să fi fost deja folosit pentru a elimina abonarea.",
+		"back": "Înapoi la site"
 	}
 }

@@ -39,5 +39,38 @@
 		"viewUser": {
 			"title": "View user"
 		}
+	},
+	"report": {
+		"action": "Report",
+		"reported": "Reported",
+		"title": "Report this content",
+		"intro": "Tell us what is wrong with it. Our team reviews every report.",
+		"reason": "Reason",
+		"details": "Details",
+		"details_placeholder": "Anything that helps us check this (optional)",
+		"submit": "Send report",
+		"update": "Update report",
+		"success": "Thank you, your report has been sent",
+		"failed": "Your report could not be sent",
+		"resolved": "Your report has been reviewed, so it can no longer be changed or withdrawn.",
+		"withdraw": "Withdraw report",
+		"withdraw_success": "Your report has been withdrawn",
+		"withdraw_failed": "Your report could not be withdrawn",
+		"guest": "You need an account to report content.",
+		"sign_in": "Sign in",
+		"close": "Close"
+	},
+	"reason": {
+		"spam": "Spam",
+		"offensive": "Offensive",
+		"harassment": "Harassment",
+		"hate_speech": "Hate speech",
+		"misinformation": "Misinformation",
+		"ai_slop": "AI generated filler",
+		"copyright": "Copyright infringement"
+	},
+	"validation": {
+		"invalid_reason": "Choose a reason",
+		"invalid_description": "The details must be between 2 and 2000 characters"
 	}
 }

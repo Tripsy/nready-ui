@@ -1,5 +1,3 @@
-'use client';
-
 import { useMutation } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import { Icons } from '@/components/icon.component';
@@ -33,7 +31,6 @@ const REACTIONS: {
 	reaction: RatingEmoji;
 	Icon: typeof Icons.RatingUp;
 	labelKey: keyof RatingTranslations;
-	/** Its own hue, so the five read as distinct marks rather than one grey row. */
 	colorClass: string;
 }[] = [
 	{

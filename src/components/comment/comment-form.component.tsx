@@ -46,7 +46,9 @@ function CommentFormFields({
 	translations,
 	onPosted,
 	onCancel,
-}: Omit<CommentFormProps, 'onSuccess'> & { onPosted: () => void }) {
+}: Omit<CommentFormProps, 'onSuccess'> & {
+	onPosted: (message: string | null) => void;
+}) {
 	const { auth } = useAuth();
 
 	/*
@@ -88,14 +90,16 @@ function CommentFormFields({
 	] as const);
 
 	/*
-	 * A submitted comment is `pending` moderation, so the thread it was posted to does not
-	 * change — the notice the parent renders is the only feedback there is.
+	 * What the reader is told is the backend's own wording, passed up rather than chosen here: a
+	 * member's comment is usually public the moment it is written while a guest's waits for a
+	 * moderator, and only the response knows which of the two happened. The local copy is the
+	 * fallback for a response that carries no message, so it says neither.
 	 */
 	useEffect(() => {
 		if (formSituation === 'success') {
-			onPosted();
+			onPosted(formMessage);
 		}
-	}, [formSituation, onPosted]);
+	}, [formSituation, formMessage, onPosted]);
 
 	return (
 		<form
@@ -213,25 +217,32 @@ function CommentFormFields({
  * the root form shows.
  */
 export function CommentForm({ onSuccess, ...props }: CommentFormProps) {
-	const [posted, setPosted] = useState(false);
+	const [posted, setPosted] = useState<{ message: string | null } | null>(
+		null,
+	);
 	// Bumped to remount the form, which is what clears its action state and its validation.
 	const [attempt, setAttempt] = useState(0);
 
-	const onPosted = useCallback(() => {
-		setPosted(true);
-		onSuccess?.();
-	}, [onSuccess]);
+	const onPosted = useCallback(
+		(message: string | null) => {
+			setPosted({ message });
+			onSuccess?.();
+		},
+		[onSuccess],
+	);
 
 	const onWriteAnother = useCallback(() => {
-		setPosted(false);
+		setPosted(null);
 		setAttempt((current) => current + 1);
 	}, []);
 
 	if (posted) {
 		return (
 			<div className="mt-4 space-y-3">
+				{/* The backend's wording where there is one — it is the half that knows whether
+				    the comment is already on the page or waiting for a moderator. */}
 				<p className="text-sm text-success">
-					{props.translations['form.success']}
+					{posted.message || props.translations['form.success']}
 				</p>
 
 				<button

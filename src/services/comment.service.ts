@@ -1,5 +1,11 @@
 import { ApiRequest } from '@/helpers/api.helper';
-import type { CommentEntityType, CommentModel } from '@/models/comment.model';
+import type {
+	CommentEntityType,
+	CommentLocationModel,
+	CommentModel,
+	CommentSubscriptionModel,
+	CommentSubscriptionType,
+} from '@/models/comment.model';
 import type { ApiResponseFetch } from '@/types/api.type';
 
 /**
@@ -109,4 +115,56 @@ export async function requestDeleteComment(
 	return await new ApiRequest().doFetch(`/public/comments/${id}`, {
 		method: 'DELETE',
 	});
+}
+
+/**
+ * The subscription behind an unsubscribe link, and the preference change the landing page makes.
+ *
+ * The token in the path is the whole credential — a guest subscriber holds no session — which is
+ * why the read runs `remote-api` from the server component that renders the page: there is no
+ * session for the proxy to attach, and the answer must not be cached, since it is one row
+ * belonging to whoever holds that link.
+ */
+export async function requestCommentSubscription(
+	token: string,
+): Promise<ApiResponseFetch<CommentSubscriptionModel>> {
+	return await new ApiRequest()
+		.setRequestMode('remote-api')
+		.doFetch(`/public/comment-subscriptions/${token}`, {
+			method: 'GET',
+			cache: 'no-store',
+		});
+}
+
+/** Changes what the subscriber hears about — `unsubscribed` included, which is the opt-out. */
+export async function requestUpdateCommentSubscription(
+	token: string,
+	notificationType: CommentSubscriptionType,
+): Promise<ApiResponseFetch<{ notification_type: CommentSubscriptionType }>> {
+	return await new ApiRequest().doFetch(
+		`/public/comment-subscriptions/${token}`,
+		{
+			method: 'PUT',
+			body: JSON.stringify({ notification_type: notificationType }),
+		},
+	);
+}
+
+/**
+ * Where one comment lives (`GET /public/comments/:id`) — the target it hangs from and the comment
+ * it answers, which is everything the permalink page needs to build an address for it.
+ *
+ * Server-side through `remote-api`, and uncached: it is read once, when somebody follows a link
+ * out of an email, and a comment that has been rejected or removed since must answer 404 rather
+ * than from a cache.
+ */
+export async function requestCommentLocation(
+	id: number,
+): Promise<ApiResponseFetch<CommentLocationModel>> {
+	return await new ApiRequest()
+		.setRequestMode('remote-api')
+		.doFetch(`/public/comments/${id}`, {
+			method: 'GET',
+			cache: 'no-store',
+		});
 }

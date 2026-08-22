@@ -223,20 +223,12 @@ room in the container for both, and it is usually the dev server that gets kille
 8. Update `Routes.group('dashboard')` in `src/config/routes.setup.ts`
 
 # 📌 TODO
-
-1. `stats` feature on the backend — the dashboard home widgets (expenses, revenues,
-   recent activity) call `/stats/*`, which nready-api does not serve yet
-   - show recent activity - log history
-   - show a resume of previous day (new entries): users, addresses, clients
-   - show expenses and revenues as in star-ui
-   - show errors (log data, mail queue, cron-history) from last 24 hours
-   - other stats: user activity in last 24 hours (if is relevant)  
-2. Dashboard docs should be specific per feature and provide flow info           
-3. nready-native 
-4. Dashboard entities for the nready-only features: product, order, order-shipping, invoice, grn, warehouse, subscription
-5. Hero UI -> theme
-6. Add demo instructions
-7. Setup Sentry on UI
+ 
+1. Dashboard docs should be specific per feature and provide flow info           
+2. nready-native 
+3. Hero UI -> theme
+4. Add demo instructions
+5. Setup Sentry on UI
 
 # 🔗 Dependencies
 

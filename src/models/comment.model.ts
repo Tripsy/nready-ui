@@ -7,7 +7,6 @@ import type { StatusTransitions } from '@/types/common.type';
  * There is no create either: a comment is written by a reader through `/public/comments`.
  */
 
-/** What a comment hangs from. A product is absent on purpose: that is a `review`. */
 export const CommentEntityTypeEnum = {
 	ARTICLE: 'article',
 	REVIEW: 'review',
@@ -70,6 +69,41 @@ export type CommentType =
 	(typeof CommentTypeEnum)[keyof typeof CommentTypeEnum];
 
 export const COMMENT_DEFAULT_TYPE: CommentType = CommentTypeEnum.COMMENT;
+
+export type CommentLocationModel = {
+	id: number;
+	entity_type: CommentEntityType;
+	entity_id: number;
+	parent_id: number | null;
+};
+
+/**
+ * What a subscriber hears about. `unsubscribed` is one of the three rather than a deleted row:
+ * the backend keeps the row so that commenting again does not silently re-subscribe somebody who
+ * opted out.
+ */
+export const CommentSubscriptionTypeEnum = {
+	ALL: 'all',
+	REPLIES_TO_ME: 'replies_to_me',
+	UNSUBSCRIBED: 'unsubscribed',
+} as const;
+
+export type CommentSubscriptionType =
+	(typeof CommentSubscriptionTypeEnum)[keyof typeof CommentSubscriptionTypeEnum];
+
+/**
+ * What `/public/comment-subscriptions/:token` answers with — everything the unsubscribe page has
+ * to show, and nothing the token's holder does not already know: the address is the one the email
+ * they are holding was sent to.
+ */
+export type CommentSubscriptionModel = {
+	entity_type: CommentEntityType;
+	entity_id: number;
+	user_email: string;
+	/** What the notification was written in — and what the landing page renders in. */
+	language: string;
+	notification_type: CommentSubscriptionType;
+};
 
 /**
  * `user_ip_hash` is a column on the table but is never selected by the backend's list or read

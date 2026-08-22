@@ -5,14 +5,23 @@ import {
 	useQuery,
 	useQueryClient,
 } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
-import type { CommentTranslations } from '@/components/comment/comment.definition';
+import { useCallback, useEffect, useState } from 'react';
+import {
+	type CommentAnchorType,
+	type CommentTranslations,
+	commentAnchorId,
+	parseCommentAnchor,
+} from '@/components/comment/comment.definition';
+import { CommentBody } from '@/components/comment/comment-body.component';
 import { CommentForm } from '@/components/comment/comment-form.component';
+import { CommentMenu } from '@/components/comment/comment-menu.component';
+import type { ComplaintTranslations } from '@/components/complaint/complaint.definition';
 import { Icons } from '@/components/icon.component';
 import type { RatingTranslations } from '@/components/rating/rating.definition';
 import { RatingReactions } from '@/components/rating/rating-reactions.component';
 import { showAvatar } from '@/components/ui/avatar.component';
 import { getResponseData } from '@/helpers/api.helper';
+import { cn } from '@/helpers/css.helper';
 import { formatRelativeDate } from '@/helpers/date.helper';
 import { useRatingSummaries } from '@/hooks/use-rating-summaries.hook';
 import type { CommentEntityType, CommentModel } from '@/models/comment.model';
@@ -26,6 +35,14 @@ import {
 } from '@/services/comment.service';
 
 const PAGE_SIZE = 10;
+
+/**
+ * How long the thread keeps looking for a comment a link named, in attempts of `ANCHOR_RETRY_MS`
+ * each — long enough to page through a busy thread and open a reply list, short enough that a
+ * dead link stops costing anything.
+ */
+const ANCHOR_RETRY_MS = 300;
+const ANCHOR_MAX_ATTEMPTS = 20;
 
 /**
  * The whole thread's query keys. Roots and each parent's replies are separate entries — they are
@@ -92,9 +109,12 @@ function CommentEntry({
 	previewReply,
 	translations,
 	ratingTranslations,
+	complaintTranslations,
 	ratings,
 	onRatingChanged,
 	onPosted,
+	openRepliesFor,
+	highlightedAnchor,
 }: {
 	entry: CommentModel;
 	entityType: CommentEntityType;
@@ -103,6 +123,7 @@ function CommentEntry({
 	previewReply?: CommentModel;
 	translations: CommentTranslations;
 	ratingTranslations: RatingTranslations;
+	complaintTranslations: ComplaintTranslations;
 	/**
 	 * The reaction counts for the whole list this comment was rendered in, fetched once by that
 	 * list. Each row reads its own slice rather than asking for it.
@@ -110,9 +131,25 @@ function CommentEntry({
 	ratings?: RatingSummaryListType;
 	onRatingChanged: () => void;
 	onPosted: () => void;
+	/** The thread a link asked for, which this comment unrolls when the link named it. */
+	openRepliesFor?: number | null;
+	/** The comment a link led to, marked until the reader looks away from it. */
+	highlightedAnchor?: string | null;
 }) {
 	const [showReplies, setShowReplies] = useState(false);
 	const [showReplyForm, setShowReplyForm] = useState(false);
+
+	/*
+	 * A link to a reply names the thread it lives in, and that thread is closed until somebody
+	 * opens it — so the link opens it. An effect rather than the initial state: the fragment is
+	 * read after mount (there is no `location` while this renders on the server), and a cached
+	 * page can have these on screen before it is.
+	 */
+	useEffect(() => {
+		if (openRepliesFor !== null && openRepliesFor === entry.id) {
+			setShowReplies(true);
+		}
+	}, [openRepliesFor, entry.id]);
 
 	// Replies are fetched only once opened: most threads are read, not unrolled, and a page of
 	// roots would otherwise cost one request per root on arrival.
@@ -151,8 +188,21 @@ function CommentEntry({
 	 */
 	const hasMoreReplies = isRoot && entry.reply_count > 1;
 
+	const anchorId = commentAnchorId(entry);
+
 	return (
-		<li className="py-5">
+		/*
+		 * `scroll-mt` keeps a comment reached by its link clear of the sticky header rather than
+		 * under it; the ring marks which of a page of comments the link meant.
+		 */
+		<li
+			id={anchorId}
+			className={cn(
+				'scroll-mt-24 py-5',
+				highlightedAnchor === anchorId &&
+					'rounded-lg ring-2 ring-accent',
+			)}
+		>
 			<div className="flex gap-3">
 				{showAvatar(author, { link: entry.user?.avatar })}
 
@@ -181,15 +231,10 @@ function CommentEntry({
 						</time>
 					</div>
 
-					{/*
-					 * Plain text, deliberately: the body is whatever a visitor typed, and
-					 * rendering it as markdown would put their formatting — and anything an
-					 * injection survives — into the page. `whitespace-pre-line` keeps the
-					 * paragraph breaks they intended.
-					 */}
-					<p className="mt-2 whitespace-pre-line text-foreground">
-						{entry.content}
-					</p>
+					<CommentBody
+						content={entry.content}
+						translations={translations}
+					/>
 
 					{/*
 					 * The icon is the reply action; the number beside it is how many replies
@@ -233,6 +278,12 @@ function CommentEntry({
 							own={ratings?.own[entry.id]}
 							translations={ratingTranslations}
 							onChanged={onRatingChanged}
+						/>
+
+						<CommentMenu
+							entry={entry}
+							translations={translations}
+							complaintTranslations={complaintTranslations}
 						/>
 					</div>
 
@@ -287,11 +338,18 @@ function CommentEntry({
 											ratingTranslations={
 												ratingTranslations
 											}
+											complaintTranslations={
+												complaintTranslations
+											}
 											ratings={replyRatings}
 											onRatingChanged={
 												onReplyRatingChanged
 											}
 											onPosted={onPosted}
+											openRepliesFor={openRepliesFor}
+											highlightedAnchor={
+												highlightedAnchor
+											}
 										/>
 									))
 								)}
@@ -319,11 +377,16 @@ function CommentEntry({
 									entityId={entityId}
 									translations={translations}
 									ratingTranslations={ratingTranslations}
+									complaintTranslations={
+										complaintTranslations
+									}
 									// The roots request covers the previews too, so this reply's
 									// counts arrived with its parent's.
 									ratings={ratings}
 									onRatingChanged={onRatingChanged}
 									onPosted={onPosted}
+									openRepliesFor={openRepliesFor}
+									highlightedAnchor={highlightedAnchor}
 								/>
 							</ul>
 						)
@@ -348,13 +411,44 @@ export function CommentThread({
 	entityId,
 	translations,
 	ratingTranslations,
+	complaintTranslations,
 }: {
 	entityType: CommentEntityType;
 	entityId: number;
 	translations: CommentTranslations;
 	ratingTranslations: RatingTranslations;
+	complaintTranslations: ComplaintTranslations;
 }) {
 	const queryClient = useQueryClient();
+
+	/*
+	 * The comment a link led here for. Read after mount rather than during render — there is no
+	 * `location` on the server — and cleared once it has been reached, so paging further does not
+	 * scroll the reader back to it.
+	 */
+	const [anchor, setAnchor] = useState<CommentAnchorType | null>(null);
+	const [highlightedAnchor, setHighlightedAnchor] = useState<string | null>(
+		null,
+	);
+	const [anchorAttempt, setAnchorAttempt] = useState(0);
+
+	/*
+	 * On arrival, and again whenever the fragment changes: a link to a comment on the page the
+	 * reader is already on is a hash change, which navigates nothing and would otherwise leave
+	 * the effect below with the anchor it resolved on load.
+	 */
+	useEffect(() => {
+		const readAnchor = () => {
+			setAnchor(parseCommentAnchor(window.location.hash));
+			setAnchorAttempt(0);
+		};
+
+		readAnchor();
+
+		window.addEventListener('hashchange', readAnchor);
+
+		return () => window.removeEventListener('hashchange', readAnchor);
+	}, []);
 
 	/*
 	 * Accumulating rather than paging: "load more" appends to a discussion the reader is part
@@ -384,9 +478,59 @@ export function CommentThread({
 	});
 
 	/*
-	 * A posted comment lands `pending`, so nothing here changes yet — the refetch is for the
-	 * case that matters: a reply whose parent's `reply_count` moved because a moderator
-	 * approved something while this page was open.
+	 * Walking the thread until the linked comment is on screen. It may sit past the page that has
+	 * been loaded, and a reply sits inside a collapsed thread that `openRepliesFor` unrolls once
+	 * its parent arrives — so each attempt loads what it can and looks again shortly after. The
+	 * retry is what covers the replies: they arrive through their own query, which this effect
+	 * has no other way to hear about.
+	 *
+	 * It gives up after `ANCHOR_MAX_ATTEMPTS`, because a link can name a comment that has since
+	 * been removed, and a fragment is not worth searching for forever.
+	 */
+	useEffect(() => {
+		if (!anchor) {
+			return;
+		}
+
+		const anchorId = commentAnchorId({
+			id: anchor.id,
+			parent_id: anchor.parentId,
+		});
+
+		const element = document.getElementById(anchorId);
+
+		if (element) {
+			element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+			setHighlightedAnchor(anchorId);
+			setAnchor(null);
+
+			return;
+		}
+
+		if (hasNextPage && !isFetchingNextPage) {
+			void fetchNextPage();
+		}
+
+		if (anchorAttempt >= ANCHOR_MAX_ATTEMPTS) {
+			setAnchor(null);
+
+			return;
+		}
+
+		const timer = setTimeout(
+			() => setAnchorAttempt((attempt) => attempt + 1),
+			ANCHOR_RETRY_MS,
+		);
+
+		return () => clearTimeout(timer);
+	}, [anchor, anchorAttempt, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+	/*
+	 * A posted comment is public straight away unless the backend is holding comments for
+	 * moderation (`comment.autoApprove`), so this refetch is usually what puts it on screen —
+	 * and when it is not, it still catches the case that matters: a parent whose `reply_count`
+	 * moved because a moderator approved something while this page was open.
 	 */
 	const onPosted = useCallback(() => {
 		queryClient.invalidateQueries({
@@ -452,9 +596,12 @@ export function CommentThread({
 							previewReply={firstReplies[entry.id]}
 							translations={translations}
 							ratingTranslations={ratingTranslations}
+							complaintTranslations={complaintTranslations}
 							ratings={ratings}
 							onRatingChanged={onRatingChanged}
 							onPosted={onPosted}
+							openRepliesFor={anchor?.parentId ?? null}
+							highlightedAnchor={highlightedAnchor}
 						/>
 					))}
 				</ul>

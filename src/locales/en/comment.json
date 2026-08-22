@@ -56,7 +56,13 @@
 		"see_replies": "See replies",
 		"collapse_replies": "Collapse replies",
 		"reply_to": "Replying to",
-		"cancel": "Cancel"
+		"cancel": "Cancel",
+		"show_more": "more",
+		"menu": "Comment options",
+		"copy_link": "Copy comment link",
+		"copy_link_success": "Link copied",
+		"copy_link_failed": "The link could not be copied",
+		"report": "Report comment"
 	},
 	"form": {
 		"heading": "Leave a comment",
@@ -66,11 +72,25 @@
 		"guest_email_note": "Your email is never published.",
 		"guest_website": "Your website (optional)",
 		"submit": "Post comment",
-		"success": "Thanks — your comment was submitted and will appear once a moderator approves it.",
+		"success": "Thank you, your comment has been submitted.",
 		"failed": "Your comment could not be submitted",
 		"write_another": "Write another comment"
 	},
 	"error": {
 		"cannot_update_status": "This comment cannot change status from its current state"
+	},
+	"unsubscribe": {
+		"meta_title": "Comment notifications | {{app_name}}",
+		"heading": "Comment notifications",
+		"intro": "You are receiving comment notifications at",
+		"all": "All new comments on the discussions I take part in",
+		"replies_to_me": "Only replies to my own comments",
+		"unsubscribed": "Nothing — stop these emails",
+		"save": "Save preference",
+		"saving": "Saving…",
+		"saved": "Preference saved",
+		"failed": "Your preference could not be saved",
+		"invalid": "This unsubscribe link is no longer valid. It may have already been used to remove the subscription.",
+		"back": "Back to the site"
 	}
 }

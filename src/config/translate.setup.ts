@@ -143,8 +143,12 @@ export const translateLoaded = (
 export const translate = async (
 	key: string,
 	replacements: Record<string, string | number> = {},
+	language?: Language,
 ): Promise<string> => {
-	const languageSelected = await getLanguage();
+	const languageSelected =
+		language && Configuration.isSupportedLanguage(language)
+			? language
+			: await getLanguage();
 	const languageResource = await loadLanguageResource(languageSelected);
 
 	const value = getTranslatedString(languageResource, key);
@@ -181,9 +185,13 @@ export const translateBatch = async <
 >(
 	requests: T,
 	keyPrefix?: string,
+	language?: Language,
 ): Promise<Record<TranslateKey<T[number]>, string>> => {
-	const language = await getLanguage();
-	const resource = await loadLanguageResource(language);
+	const languageSelected =
+		language && Configuration.isSupportedLanguage(language)
+			? language
+			: await getLanguage();
+	const resource = await loadLanguageResource(languageSelected);
 
 	const result: Record<string, string> = {};
 
@@ -208,12 +216,3 @@ export const translateBatch = async <
 
 	return result;
 };
-
-// export async function getLocaleValue<T>(key: string): Promise<T | undefined> {
-// 	const language = await getLanguage();
-// 	const resource = await loadLanguageResource(language);
-//
-// 	const value = getObjectValue(resource, key);
-//
-// 	return value as T | undefined;
-// }

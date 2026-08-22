@@ -20,6 +20,8 @@ export type PublicArticlesParams = {
 	tag_id?: number[];
 	/** Article to leave out, so a sidebar never recommends the page it sits on. */
 	exclude_id?: number;
+	/** One article by id — how a permalink resolves a target it only knows the id of. */
+	id?: number;
 	page?: number;
 	limit?: number;
 };
@@ -34,6 +36,7 @@ function buildPublicArticlesQuery(params: PublicArticlesParams): string {
 		category_id,
 		tag_id,
 		exclude_id,
+		id,
 	} = params;
 
 	return buildQueryString({
@@ -48,6 +51,7 @@ function buildPublicArticlesQuery(params: PublicArticlesParams): string {
 			category_id,
 			tag_id,
 			exclude_id,
+			id,
 		},
 	});
 }

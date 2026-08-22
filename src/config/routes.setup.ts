@@ -169,6 +169,13 @@ Routes.add('articles-categories', '/articles/categories');
 // same precedence, static segment before dynamic.
 Routes.add('articles-category', '/articles/:category');
 Routes.add('article-view', '/articles/:category/:slug');
+// The permalink a notification email links a comment by. It resolves the comment's target and
+// redirects, so a link in an old inbox survives the article being re-slugged or re-filed.
+Routes.add('comment-link', '/comments/:id');
+// The unsubscribe landing an emailed notification links to. Public and tokenized: a guest
+// subscriber has no account, and requiring one to stop unsolicited email would be requiring an
+// account to withdraw consent.
+Routes.add('comment-unsubscribe', '/comments/unsubscribe/:token');
 Routes.add('status', '/status/:type');
 
 // API

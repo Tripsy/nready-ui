@@ -133,7 +133,7 @@ export function ArticleRating({
 	];
 
 	return (
-		<section className="mt-10 flex flex-wrap items-center gap-4 border-t border-line pt-6">
+		<div className="flex flex-wrap items-center gap-4">
 			<span className="text-sm text-muted">
 				{translations['text.rating']}
 			</span>
@@ -172,6 +172,6 @@ export function ArticleRating({
 					},
 				)}
 			</div>
-		</section>
+		</div>
 	);
 }

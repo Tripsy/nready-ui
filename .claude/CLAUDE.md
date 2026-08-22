@@ -38,6 +38,7 @@ context yet. Read the relevant one *before* proposing an approach in that area, 
 | `forms.md` | Validators, `<entity>.definition.ts`, the `processForm` pipeline, both form hosts | form/definition/action files, form helpers |
 | `data-fetching.md` | TanStack Query, service layer, query keys, cache invalidation | `src/services/**`, api helpers, data-table components |
 | `state.md` | Zustand stores, what belongs in a store vs. local state vs. server cache | `src/stores/**`, `src/components/window/**` |
+| `comment.md` | The public comment/rating/report widgets: translations across the server boundary, per-visitor reads, comment anchors | `src/components/{comment,complaint,rating}/**` |
 | `typescript.md` | TS/React conventions, linting rules, type-checking | every `.ts`/`.tsx` |
 
 Backend behaviour has its own set in `../nready-api/.claude/rules/` (`api.md`, `auth.md`,
@@ -135,11 +136,20 @@ Otherwise the restarted dev server answers **404 for every route** — `/`, `/ar
 `.next` the type-check left inconsistent. It looks exactly like a routing bug in whatever you
 just edited, which is what makes it expensive; observed twice.
 
-The container is capped at 4g (`mem_limit` in `docker-compose.yml`) and Turbopack fills it.
+This container is capped at **6g** (`mem_limit` in `docker-compose.yml`; the API's is 4g) and
+Turbopack fills a large part of it — around 3.2g is its *resting* level with the dev server up,
+not a leak. The Turbopack arena is capped separately at 2g (`turbopackMemoryLimit` in
+`next.config.ts`); those two numbers are the lever, not the cache.
+
 If the dev server exits with nothing in the log it was SIGKILLed, not crashed — check
 `docker inspect nready-ui.test --format '{{.State.OOMKilled}}'`, then `pnpm run clean` and
-restart. There is not enough headroom for the dev server and a `build`/`tsc` at the same
-time: stop the dev server before running either, or it is the one that gets killed.
+restart. **`OOMKilled` can read `false` on an exit 137**: the process is killed from outside the
+container (host memory pressure, Docker Desktop reclaiming) rather than by the cgroup limit, and
+the symptom is the same — an API or UI that answers 404/500 to everything until it is restarted.
+`/dev-stack status` reports both the exit code and that flag.
+
+There is not enough headroom for the dev server and a `build`/`tsc` at the same time: stop the dev
+server before running either, or it is the one that gets killed.
 
 ## Context
 

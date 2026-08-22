@@ -39,5 +39,38 @@
 		"viewUser": {
 			"title": "Vezi utilizatorul"
 		}
+	},
+	"report": {
+		"action": "Raportează",
+		"reported": "Raportat",
+		"title": "Raportează acest conținut",
+		"intro": "Spune-ne ce este în neregulă. Echipa noastră verifică fiecare raportare.",
+		"reason": "Motiv",
+		"details": "Detalii",
+		"details_placeholder": "Orice ne ajută să verificăm (opțional)",
+		"submit": "Trimite raportarea",
+		"update": "Actualizează raportarea",
+		"success": "Îți mulțumim, raportarea a fost trimisă",
+		"failed": "Raportarea nu a putut fi trimisă",
+		"resolved": "Raportarea ta a fost analizată, așa că nu mai poate fi modificată sau retrasă.",
+		"withdraw": "Retrage raportarea",
+		"withdraw_success": "Raportarea a fost retrasă",
+		"withdraw_failed": "Raportarea nu a putut fi retrasă",
+		"guest": "Ai nevoie de un cont pentru a raporta conținut.",
+		"sign_in": "Autentifică-te",
+		"close": "Închide"
+	},
+	"reason": {
+		"spam": "Spam",
+		"offensive": "Conținut ofensator",
+		"harassment": "Hărțuire",
+		"hate_speech": "Discurs instigator la ură",
+		"misinformation": "Dezinformare",
+		"ai_slop": "Conținut generat de AI",
+		"copyright": "Încălcarea drepturilor de autor"
+	},
+	"validation": {
+		"invalid_reason": "Alege un motiv",
+		"invalid_description": "Detaliile trebuie să aibă între 2 și 2000 de caractere"
 	}
 }

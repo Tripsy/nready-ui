@@ -63,6 +63,30 @@ export type ComplaintModel<D = Date | string> = {
 };
 
 /**
+ * What the reporter themselves filed against one target, as `/public/complaints/:type/:id` answers
+ * it. A narrower row than the dashboard's: the moderation trail (`resolved_at`, `resolved_by`,
+ * `deleted_at`) is not the reporter's to read, and `user_id` is their own by construction.
+ *
+ * `own` is null when they have filed nothing — a withdrawn complaint frees the slot, so it reads
+ * as nothing too.
+ */
+export type ComplaintOwnEntryType<D = Date | string> = Pick<
+	ComplaintModel<D>,
+	| 'id'
+	| 'entity_type'
+	| 'entity_id'
+	| 'reason'
+	| 'description'
+	| 'is_resolved'
+	| 'created_at'
+	| 'updated_at'
+>;
+
+export type ComplaintPublicReadType = {
+	own: ComplaintOwnEntryType | null;
+};
+
+/**
  * What was reported, as one cell. There is no foreign key behind these two columns — `entity_type`
  * picks the table at read time — and a comment is hard-deleted, so the id may name a row that is
  * no longer there. The complaint outlives it on purpose.

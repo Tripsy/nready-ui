@@ -26,6 +26,12 @@ import {
 	COMMENT_TRANSLATION_PREFIX,
 } from '@/components/comment/comment.definition';
 import { CommentThread } from '@/components/comment/comment-thread.component';
+import {
+	COMPLAINT_ARTICLE_REASONS,
+	COMPLAINT_TRANSLATION_KEYS,
+	COMPLAINT_TRANSLATION_PREFIX,
+} from '@/components/complaint/complaint.definition';
+import { ComplaintReport } from '@/components/complaint/complaint-report.component';
 import { Icons } from '@/components/icon.component';
 import {
 	RATING_TRANSLATION_KEYS,
@@ -50,6 +56,7 @@ import {
 	getArticlePrimaryCategory,
 } from '@/models/article.model';
 import { CommentEntityTypeEnum } from '@/models/comment.model';
+import { ComplaintEntityTypeEnum } from '@/models/complaint.model';
 import { showImage } from '@/models/image.model';
 import { requestPublicArticle } from '@/services/article.service';
 import type { Language } from '@/types/common.type';
@@ -176,19 +183,22 @@ export default async function Page(props: Props) {
 	const { category: categorySlug, slug } = await props.params;
 	const language = await getLanguage();
 
-	// The comments section owns its copy under its own namespace — it is rendered by whatever
-	// page hosts it, not by this one alone — so it is batched separately rather than folded
-	// into the article's keys.
-	const [translations, commentTranslations, ratingTranslations, result] =
-		await Promise.all([
-			translateBatch(TRANSLATION_KEYS, TRANSLATION_PREFIX),
-			translateBatch(
-				COMMENT_TRANSLATION_KEYS,
-				COMMENT_TRANSLATION_PREFIX,
-			),
-			translateBatch(RATING_TRANSLATION_KEYS, RATING_TRANSLATION_PREFIX),
-			getArticle(slug, language),
-		]);
+	const [
+		translations,
+		commentTranslations,
+		ratingTranslations,
+		complaintTranslations,
+		result,
+	] = await Promise.all([
+		translateBatch(TRANSLATION_KEYS, TRANSLATION_PREFIX),
+		translateBatch(COMMENT_TRANSLATION_KEYS, COMMENT_TRANSLATION_PREFIX),
+		translateBatch(RATING_TRANSLATION_KEYS, RATING_TRANSLATION_PREFIX),
+		translateBatch(
+			COMPLAINT_TRANSLATION_KEYS,
+			COMPLAINT_TRANSLATION_PREFIX,
+		),
+		getArticle(slug, language),
+	]);
 
 	if (result.status !== 'ok') {
 		return (
@@ -338,14 +348,27 @@ export default async function Page(props: Props) {
 
 					{/*
 					 * Below the body and above the by-line: the reader has just finished
-					 * the article, which is the only moment the question makes sense.
-					 * Client-rendered — the count and the reader's own vote are resolved
-					 * per visitor, and this page is served from a 600s data cache.
+					 * the article, which is the only moment either question makes sense.
+					 * Both are client-rendered — the counts, the reader's own vote and
+					 * their own report are resolved per visitor, and this page is served
+					 * from a 600s data cache.
+					 *
+					 * The two sit at opposite ends of one row: the rating is the answer
+					 * the article asks for, the report the exception to it.
 					 */}
-					<ArticleRating
-						articleId={entry.id}
-						translations={translations}
-					/>
+					<section className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
+						<ArticleRating
+							articleId={entry.id}
+							translations={translations}
+						/>
+
+						<ComplaintReport
+							entityType={ComplaintEntityTypeEnum.ARTICLE}
+							entityId={entry.id}
+							reasons={COMPLAINT_ARTICLE_REASONS}
+							translations={complaintTranslations}
+						/>
+					</section>
 
 					{/*
 					 * After the by-line and the source, which belong to the article itself:
@@ -376,6 +399,7 @@ export default async function Page(props: Props) {
 						entityId={entry.id}
 						translations={commentTranslations}
 						ratingTranslations={ratingTranslations}
+						complaintTranslations={complaintTranslations}
 					/>
 				</article>
 
