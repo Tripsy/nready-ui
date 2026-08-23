@@ -3,6 +3,7 @@ import {
 	buildCommentExcerpt,
 	type CommentTranslations,
 } from '@/components/comment/comment.definition';
+import { Button } from '@/components/ui/button';
 
 /**
  * A comment's text, folded when it runs long.
@@ -45,13 +46,14 @@ export function CommentBody({
 				 * than on a line of its own — a thread of folded comments would otherwise grow a
 				 * column of buttons down its left edge.
 				 */
-				<button
+				<Button
 					type="button"
+					variant="ghost"
 					onClick={() => setExpanded(true)}
 					className="ml-1 text-sm text-accent hover:underline"
 				>
 					{translations['thread.show_more']}
-				</button>
+				</Button>
 			)}
 		</p>
 	);

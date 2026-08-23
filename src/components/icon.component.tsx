@@ -73,6 +73,8 @@ import {
 	Package,
 	PenLine,
 	PiggyBank,
+	Pin,
+	PinOff,
 	Play,
 	Plus,
 	Printer,
@@ -326,6 +328,8 @@ export const Icons = {
 		Reopen: createIcon(Undo2),
 		Revert: createIcon(PenLine),
 		Archive: createIcon(Archive),
+		Pin: createIcon(Pin),
+		Unpin: createIcon(PinOff),
 	},
 };
 

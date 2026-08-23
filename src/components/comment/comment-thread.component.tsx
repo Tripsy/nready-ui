@@ -11,8 +11,10 @@ import {
 	type CommentTranslations,
 	commentAnchorId,
 	parseCommentAnchor,
+	resolveCommentAbilities,
 } from '@/components/comment/comment.definition';
 import { CommentBody } from '@/components/comment/comment-body.component';
+import { CommentEdit } from '@/components/comment/comment-edit.component';
 import { CommentForm } from '@/components/comment/comment-form.component';
 import { CommentMenu } from '@/components/comment/comment-menu.component';
 import type { ComplaintTranslations } from '@/components/complaint/complaint.definition';
@@ -20,6 +22,7 @@ import { Icons } from '@/components/icon.component';
 import type { RatingTranslations } from '@/components/rating/rating.definition';
 import { RatingReactions } from '@/components/rating/rating-reactions.component';
 import { showAvatar } from '@/components/ui/avatar.component';
+import { Button } from '@/components/ui/button';
 import { getResponseData } from '@/helpers/api.helper';
 import { cn } from '@/helpers/css.helper';
 import { formatRelativeDate } from '@/helpers/date.helper';
@@ -29,6 +32,7 @@ import {
 	RatingEntityTypeEnum,
 	type RatingSummaryListType,
 } from '@/models/rating.model';
+import { useAuth } from '@/providers/auth.provider';
 import {
 	type CommentThreadType,
 	requestCommentThread,
@@ -136,8 +140,26 @@ function CommentEntry({
 	/** The comment a link led to, marked until the reader looks away from it. */
 	highlightedAnchor?: string | null;
 }) {
+	const { auth } = useAuth();
+
 	const [showReplies, setShowReplies] = useState(false);
 	const [showReplyForm, setShowReplyForm] = useState(false);
+	const [isEditing, setIsEditing] = useState(false);
+
+	const abilities = resolveCommentAbilities(auth, entry);
+
+	const startEdit = useCallback(() => setIsEditing(true), []);
+	const cancelEdit = useCallback(() => setIsEditing(false), []);
+
+	/*
+	 * A saved edit, a removal, a pin, a hide — every one of them changes what the thread holds, so
+	 * they all land on the same refetch the reply form uses. The editor closes with it: what comes
+	 * back is the row it was editing.
+	 */
+	const onEntryChanged = useCallback(() => {
+		setIsEditing(false);
+		onPosted();
+	}, [onPosted]);
 
 	/*
 	 * A link to a reply names the thread it lives in, and that thread is closed until somebody
@@ -229,12 +251,36 @@ function CommentEntry({
 						>
 							{formatRelativeDate(entry.created_at)}
 						</time>
+
+						{/*
+						 * The text on screen is not the text that was posted. `edited_at` and not
+						 * `updated_at`: the latter moves for a pin or a moderation decision, which
+						 * would mark comments whose author never went back to them.
+						 */}
+						{entry.edited_at && (
+							<span
+								className="text-xs text-muted"
+								title={String(entry.edited_at)}
+							>
+								{translations['thread.edited']}
+							</span>
+						)}
 					</div>
 
-					<CommentBody
-						content={entry.content}
-						translations={translations}
-					/>
+					{isEditing ? (
+						<CommentEdit
+							entry={entry}
+							isOwn={abilities.isOwn}
+							translations={translations}
+							onSaved={onEntryChanged}
+							onCancel={cancelEdit}
+						/>
+					) : (
+						<CommentBody
+							content={entry.content}
+							translations={translations}
+						/>
+					)}
 
 					{/*
 					 * The icon is the reply action; the number beside it is how many replies
@@ -248,7 +294,8 @@ function CommentEntry({
 						 * couple of pixels below the reaction icon beside it.
 						 */}
 						<span className="inline-flex items-center gap-1.5">
-							<button
+							<Button
+								variant="ghost"
 								type="button"
 								onClick={() =>
 									setShowReplyForm((open) => !open)
@@ -259,7 +306,7 @@ function CommentEntry({
 								className="flex items-center transition-colors hover:text-foreground"
 							>
 								<Icons.Comment className="h-4 w-4" />
-							</button>
+							</Button>
 
 							{isRoot && (
 								<span
@@ -284,17 +331,20 @@ function CommentEntry({
 							entry={entry}
 							translations={translations}
 							complaintTranslations={complaintTranslations}
+							onEdit={startEdit}
+							onChanged={onEntryChanged}
 						/>
 					</div>
 
 					{hasMoreReplies && !showReplies && (
-						<button
+						<Button
+							variant="ghost"
 							type="button"
 							onClick={() => setShowReplies(true)}
 							className="mt-2 text-sm text-accent hover:underline"
 						>
 							{translations['thread.see_replies']}
-						</button>
+						</Button>
 					)}
 
 					{showReplyForm && (
@@ -360,13 +410,14 @@ function CommentEntry({
 							 * thread the way out should be where the reading stopped, not back
 							 * up at the top.
 							 */}
-							<button
+							<Button
+								variant="ghost"
 								type="button"
 								onClick={() => setShowReplies(false)}
 								className="mt-2 text-sm text-accent hover:underline"
 							>
 								{translations['thread.collapse_replies']}
-							</button>
+							</Button>
 						</>
 					) : (
 						previewReply && (
@@ -608,16 +659,17 @@ export function CommentThread({
 			)}
 
 			{hasNextPage && (
-				<button
+				<Button
 					type="button"
+					variant="outline"
 					onClick={() => void fetchNextPage()}
 					disabled={isFetchingNextPage}
-					className="mt-4 rounded-full border border-line px-4 py-1.5 text-sm text-muted transition-colors hover:bg-accent-soft hover:text-accent-soft-foreground disabled:opacity-60"
+					className="mt-4 text-muted"
 				>
 					{isFetchingNextPage
 						? translations['thread.loading']
 						: translations['thread.load_more']}
-				</button>
+				</Button>
 			)}
 
 			<div className="mt-8 border-t border-line pt-6">

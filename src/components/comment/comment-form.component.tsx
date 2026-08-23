@@ -13,6 +13,7 @@ import {
 	FormComponentTextarea,
 } from '@/components/form/form-element.component';
 import { FormError } from '@/components/form/form-error.component';
+import { Button } from '@/components/ui/button';
 import { createHandleChange } from '@/helpers/form.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useFormSituation } from '@/hooks/use-form-situation.hook';
@@ -192,14 +193,15 @@ function CommentFormFields({
 				/>
 
 				{onCancel && (
-					<button
+					<Button
 						type="button"
+						variant="ghost"
 						onClick={onCancel}
 						disabled={pending}
-						className="text-sm text-muted hover:text-foreground transition-colors disabled:opacity-60"
+						className="text-sm text-muted hover:text-foreground transition-colors"
 					>
 						{translations['thread.cancel']}
-					</button>
+					</Button>
 				)}
 			</div>
 
@@ -245,13 +247,14 @@ export function CommentForm({ onSuccess, ...props }: CommentFormProps) {
 					{posted.message || props.translations['form.success']}
 				</p>
 
-				<button
+				<Button
 					type="button"
+					variant="ghost"
 					onClick={onWriteAnother}
 					className="text-sm text-accent hover:underline"
 				>
 					{props.translations['form.write_another']}
-				</button>
+				</Button>
 			</div>
 		);
 	}

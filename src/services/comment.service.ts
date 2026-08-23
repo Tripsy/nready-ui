@@ -3,6 +3,7 @@ import type {
 	CommentEntityType,
 	CommentLocationModel,
 	CommentModel,
+	CommentStatus,
 	CommentSubscriptionModel,
 	CommentSubscriptionType,
 } from '@/models/comment.model';
@@ -88,9 +89,9 @@ export async function requestCreateComment(params: {
 }
 
 /**
- * Edits the visitor's own comment — only the text, and only while it is still awaiting
- * moderation. Once approved it is answered 400: the text is what a moderator passed and what
- * readers have already seen.
+ * Edits the visitor's own comment — only the text, and only while it is `pending` or `approved`.
+ * Once a moderator has rejected, spammed or flagged it the backend answers 400: that text is the
+ * record their decision was taken against.
  *
  * Answers 404 for a comment the caller does not own, which is the same answer an id that never
  * existed gives.
@@ -114,6 +115,63 @@ export async function requestDeleteComment(
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(`/public/comments/${id}`, {
 		method: 'DELETE',
+	});
+}
+
+/**
+ * The moderation endpoints (`/comments`), reached from the article page by a staff reader so a
+ * comment can be dealt with where it is read rather than only from the dashboard.
+ *
+ * These are the **dashboard** routes, not the public ones: each is permission-gated backend-side
+ * (`comment.update` / `comment.delete`, and an admin passes everything). The permission checks in
+ * the UI decide what to *offer* — they are not what makes any of this safe, and a reader without
+ * the permission gets a 403 whatever the menu showed.
+ *
+ * They go through `/api/proxy` like every other write, which is what attaches the session.
+ */
+
+/** Rewrites another reader's comment, or pins it. A partial update — send only what changes. */
+export async function requestModerateComment(
+	id: number,
+	params: { content?: string; is_pinned?: boolean },
+): Promise<ApiResponseFetch<CommentModel>> {
+	return await new ApiRequest().doFetch(`/comments/${id}`, {
+		method: 'PUT',
+		body: JSON.stringify(params),
+	});
+}
+
+/**
+ * Removes a comment outright. The table has no soft delete and `parent_id` cascades, so the whole
+ * thread under it goes too — which is why the control behind this confirms first.
+ */
+export async function requestModerateDeleteComment(
+	id: number,
+): Promise<ApiResponseFetch<null>> {
+	return await new ApiRequest().doFetch(`/comments/${id}`, {
+		method: 'DELETE',
+	});
+}
+
+/**
+ * The moderation decision. Only the moves `COMMENT_STATUS_TRANSITIONS` allows from the comment's
+ * current state are accepted — from the article page that is always `approved`, since a public
+ * thread returns nothing else, so this is how a comment is taken *off* the page. Putting one back
+ * on it is the dashboard's job, where the pending queue is visible.
+ *
+ * `moderation_reason` describes the state the comment is in now and is overwritten on each
+ * decision; the backend caps it and accepts its absence.
+ */
+export async function requestModerateCommentStatus(
+	id: number,
+	status: CommentStatus,
+	moderationReason?: string,
+): Promise<ApiResponseFetch<null>> {
+	return await new ApiRequest().doFetch(`/comments/${id}/status/${status}`, {
+		method: 'PATCH',
+		body: JSON.stringify(
+			moderationReason ? { moderation_reason: moderationReason } : {},
+		),
 	});
 }
 

@@ -7,9 +7,12 @@ import {
 	getFormDataAsString,
 } from '@/helpers/form.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
+import { type AuthModel, hasPermission } from '@/models/auth.model';
 import {
 	type CommentEntityType,
 	CommentEntityTypeEnum,
+	type CommentModel,
+	CommentStatusEnum,
 } from '@/models/comment.model';
 import type { FormErrorsType, FormSituationType } from '@/types/form.type';
 
@@ -41,6 +44,31 @@ export const COMMENT_TRANSLATION_KEYS = [
 	'thread.copy_link_success',
 	'thread.copy_link_failed',
 	'thread.report',
+	'thread.edit',
+	'thread.edit_save',
+	'thread.edit_success',
+	'thread.edit_failed',
+	'thread.edited',
+	'thread.delete',
+	'thread.delete_title',
+	'thread.delete_confirm',
+	'thread.delete_success',
+	'thread.delete_failed',
+	'thread.pin',
+	'thread.unpin',
+	'thread.pin_success',
+	'thread.pin_failed',
+	'thread.hide',
+	'thread.hide_title',
+	'thread.hide_intro',
+	'thread.hide_rejected',
+	'thread.hide_spam',
+	'thread.hide_reason',
+	'thread.hide_reason_note',
+	'thread.hide_reason_long',
+	'thread.hide_submit',
+	'thread.hide_success',
+	'thread.hide_failed',
 	'form.heading',
 	'form.content_placeholder',
 	'form.guest_name',
@@ -153,6 +181,67 @@ export function buildCommentState(
 		situation: null,
 	};
 }
+
+/**
+ * What this reader may do to this comment — resolved in one place so the menu, the inline editor
+ * and the thread cannot disagree about it.
+ *
+ * Everything here decides what to **offer**. The backend gates each endpoint on its own (the
+ * public writes by narrowing to the caller's own rows, the moderation ones by permission), so a
+ * menu that offers too much produces a 403 or a 404 rather than a write nobody was entitled to.
+ *
+ * **A guest never gets these controls, including on their own comment.** The backend matches a
+ * guest's edit by the hash of their origin address, which this app cannot compute and would not be
+ * allowed to see — there is nothing on a rendered comment that identifies its guest author to the
+ * browser. Their route back to it is the same one the backend offers: the public endpoints, from a
+ * client that knows the id.
+ */
+export type CommentAbilitiesType = {
+	/** The signed-in reader wrote this one. */
+	isOwn: boolean;
+	canEdit: boolean;
+	canDelete: boolean;
+	/** Pin and hide — staff only, never something an author does to their own comment. */
+	canModerate: boolean;
+};
+
+export function resolveCommentAbilities(
+	auth: AuthModel | null,
+	entry: Pick<CommentModel, 'user_id'>,
+): CommentAbilitiesType {
+	const isOwn = Boolean(
+		auth?.id && entry.user_id !== null && entry.user_id === auth.id,
+	);
+
+	const canModerate = hasPermission(auth, 'comment', 'update');
+
+	return {
+		isOwn: isOwn,
+		canEdit: isOwn || canModerate,
+		canDelete: isOwn || hasPermission(auth, 'comment', 'delete'),
+		canModerate: canModerate,
+	};
+}
+
+/**
+ * The two ways a moderator takes a comment off the page from the thread itself. Both are reachable
+ * from `approved`, which is the only status a public read returns — so this list needs no lookup
+ * against `COMMENT_STATUS_TRANSITIONS`.
+ *
+ * `flagged` is deliberately absent: it is what the automatic reporting threshold sets, not a
+ * decision somebody takes.
+ */
+export const COMMENT_HIDE_STATUSES = [
+	CommentStatusEnum.REJECTED,
+	CommentStatusEnum.SPAM,
+] as const;
+
+export const commentHideLabelKey = (
+	status: (typeof COMMENT_HIDE_STATUSES)[number],
+): 'thread.hide_rejected' | 'thread.hide_spam' =>
+	status === CommentStatusEnum.REJECTED
+		? 'thread.hide_rejected'
+		: 'thread.hide_spam';
 
 /** The same bounds the backend holds; looser here would turn a 422 into a field nobody can fix. */
 export const COMMENT_CONTENT_MIN = 2;

@@ -151,6 +151,14 @@ export type CommentModel<D = Date | string> = {
 
 	created_at: D;
 	updated_at: D | null;
+	/**
+	 * When the text was last rewritten, and null for a comment nobody has touched since posting —
+	 * which is what the thread renders its "edited" marker from.
+	 *
+	 * Not `updated_at`: that one moves for every save on the row, a moderation decision and a pin
+	 * included, so it would mark comments whose text never changed.
+	 */
+	edited_at?: D | null;
 };
 
 /** Who signed the comment: the account behind it, or the name a guest gave. */
