@@ -354,7 +354,7 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['create.title'],
 				windowComponent: FormManageClient,
 				windowConfigProps: {
-					size: 'x2l',
+					size: 'xl2',
 				},
 				permission: ['client', 'create'],
 				entriesSelection: 'free',
@@ -376,7 +376,7 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['update.title'],
 				windowComponent: FormManageClient,
 				windowConfigProps: {
-					size: 'x2l',
+					size: 'xl2',
 				},
 				permission: ['client', 'update'],
 				entriesSelection: 'single',
@@ -467,7 +467,7 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['view.title'],
 				windowComponent: ViewClient,
 				windowConfigProps: {
-					size: 'x4l',
+					size: 'xl4',
 					closeOnBackdrop: true,
 					closeOnEscape: true,
 				},

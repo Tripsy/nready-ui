@@ -36,7 +36,22 @@ export const DisplayButton = <Entry,>({
 		<button
 			type="button"
 			className="cursor-pointer hover:underline"
-			onClick={async () => {
+			/*
+			 * The press stops here instead of reaching the row.
+			 *
+			 * The row selects on `pointerdown`, and on a table whose action bar only exists while
+			 * something is selected — any data source without a `create` action — that selection
+			 * renders the bar above the table and pushes every row down by its height. The button
+			 * moves out from under the cursor before `mouseup`, the two land on different
+			 * elements, and no `click` is ever produced: the first press appears to do nothing and
+			 * only the second one works. Selection is not needed either way, since the dispatched
+			 * event carries the entry.
+			 */
+			onPointerDown={(event) => event.stopPropagation()}
+			onMouseDown={(event) => event.stopPropagation()}
+			onClick={async (event) => {
+				event.stopPropagation();
+
 				try {
 					const entry =
 						typeof entryOrId === 'number'
@@ -100,11 +115,16 @@ export const DataTableValue = <Entry extends Record<string, unknown>>(
 		outputValue = formatDate(outputValue, 'date-time') || '-';
 	}
 
-	if (options.isStatus && field === 'status' && 'status' in entry) {
+	/*
+	 * Reads whatever the value resolved to rather than `entry.status`, so a table whose state is
+	 * not a `status` column — `complaint` keeps its own in the `is_resolved` flag — supplies the
+	 * key through `customValue` instead of needing an option of its own.
+	 */
+	if (options.isStatus && typeof outputValue === 'string') {
 		const status =
 			options.markDeleted && 'deleted_at' in entry && entry?.deleted_at
 				? 'deleted'
-				: (entry.status as keyof typeof statusList);
+				: (outputValue as keyof typeof statusList);
 
 		if (!options.dataSource) {
 			throw new Error('dataSource is required for `DisplayStatus`');

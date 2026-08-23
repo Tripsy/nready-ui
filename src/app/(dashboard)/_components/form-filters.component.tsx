@@ -40,6 +40,7 @@ export function FormFiltersAutoComplete<
 	setFilterValues,
 	setSearch,
 	dataSourceKey,
+	filter,
 	getOptionLabel,
 	getOptionKey,
 }: {
@@ -54,6 +55,8 @@ export function FormFiltersAutoComplete<
 	) => void;
 	setSearch: (value: string) => void;
 	dataSourceKey: DataSourceKey;
+	/** Extra filter params the data source needs beyond `term` (e.g. `{ type: 'tag' }`). */
+	filter?: Record<string, string>;
 	getOptionLabel: (m: Model) => string;
 	getOptionKey: (m: Model) => number;
 }) {
@@ -66,7 +69,7 @@ export function FormFiltersAutoComplete<
 		queryFn: async (q) => {
 			const res: FindFunctionResponseType<Model> | undefined =
 				await requestFind(dataSourceKey, {
-					filter: { term: q },
+					filter: { term: q, ...filter },
 					limit: 10,
 				});
 

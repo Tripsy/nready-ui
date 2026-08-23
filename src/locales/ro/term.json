@@ -1,0 +1,39 @@
+{
+	"meta": {
+		"title": "Termeni - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_type": "Selectează un tip valid",
+		"invalid_language": "Selectează o limbă validă",
+		"invalid_value": "Setează valoarea pentru această limbă",
+		"invalid_value_max": "Valoarea poate avea cel mult {{max}} caractere"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă termen nou",
+			"label": "Adaugă",
+			"success": "Termenul nou a fost adăugat cu succes"
+		},
+		"update": {
+			"title": "Editează termenul - {{entry}}",
+			"label": "Actualizează",
+			"success": "Termenul a fost actualizat cu succes"
+		},
+		"delete": {
+			"title": "Șterge termenul - {{entry}}",
+			"label": "Șterge",
+			"success": "Termenul a fost șters cu succes",
+			"confirm": "Sigur vrei să ștergi acest termen?"
+		},
+		"restore": {
+			"title": "Restaurează termenul - {{entry}}",
+			"label": "Restaurează",
+			"success": "Termenul a fost restaurat cu succes",
+			"confirm": "Sigur vrei să restaurezi acest termen?"
+		},
+		"view": {
+			"title": "Termen - {{entry}}",
+			"label": "Vezi detalii"
+		}
+	}
+}

@@ -1,0 +1,111 @@
+{
+	"meta": {
+		"title": "Articles - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_date": "Select a valid date",
+		"invalid_language": "Select a valid language",
+		"invalid_title": "Enter the article title",
+		"invalid_slug": "Enter a valid slug",
+		"invalid_brief": "Invalid brief",
+		"invalid_content": "Write the article content",
+		"invalid_categories": "Invalid categories",
+		"categories_required": "At least one category is required",
+		"invalid_tags": "Invalid tags",
+		"invalid_meta_title": "Invalid meta title",
+		"invalid_meta_description": "Invalid meta description",
+		"invalid_meta_keywords": "Invalid meta keywords",
+		"archive_before_publish": "The archive date must be after the publish date",
+		"invalid_layout": "Select a valid layout",
+		"invalid_featured_status": "Select a valid featured slot",
+		"featured_expire_without_status": "Pick a featured slot before setting the expiry date",
+		"invalid_visibility": "Select a valid visibility",
+		"invalid_visibility_rule": "Invalid visibility rule",
+		"invalid_country_code": "Use two-letter country codes, separated by commas",
+		"invalid_source": "Invalid source details",
+		"invalid_boolean": "Invalid value",
+		"invalid_author": "Enter the author name"
+	},
+	"status": {
+		"draft": "Draft",
+		"pending": "Pending",
+		"rejected": "Rejected",
+		"scheduled": "Scheduled",
+		"published": "Published",
+		"archived": "Archived",
+		"deleted": "Deleted"
+	},
+	"action": {
+		"create": {
+			"title": "Add new article",
+			"label": "Add",
+			"success": "New article added successfully"
+		},
+		"update": {
+			"title": "Update article - {{entry}}",
+			"label": "Update",
+			"success": "Article updated successfully"
+		},
+		"delete": {
+			"title": "Delete article - {{entry}}",
+			"label": "Delete",
+			"success": "Article deleted successfully",
+			"confirm": "Are you sure you want to delete this article?"
+		},
+		"restore": {
+			"title": "Restore article - {{entry}}",
+			"label": "Restore",
+			"success": "Article restored successfully",
+			"confirm": "Are you sure you want to restore this article?"
+		},
+		"submit": {
+			"title": "Submit article for review - {{entry}}",
+			"label": "Submit for review",
+			"success": "Article sent for review",
+			"confirm": "Are you sure you want to send this article for review?"
+		},
+		"schedule": {
+			"title": "Schedule article - {{entry}}",
+			"label": "Schedule",
+			"success": "Article scheduled",
+			"confirm": "Are you sure you want to schedule this article? It goes live on its publish date."
+		},
+		"publish": {
+			"title": "Publish article - {{entry}}",
+			"label": "Publish",
+			"success": "Article published",
+			"confirm": "Are you sure you want to publish this article?"
+		},
+		"reject": {
+			"title": "Reject article - {{entry}}",
+			"label": "Reject",
+			"success": "Article rejected",
+			"confirm": "Are you sure you want to reject this article?"
+		},
+		"revert": {
+			"title": "Move article back to draft - {{entry}}",
+			"label": "Back to draft",
+			"success": "Article moved back to draft",
+			"confirm": "Are you sure you want to move this article back to draft?"
+		},
+		"archive": {
+			"title": "Archive article - {{entry}}",
+			"label": "Archive",
+			"success": "Article archived",
+			"confirm": "Are you sure you want to archive this article? It stops being displayed."
+		},
+		"managerImages": {
+			"title": "Article images - {{entry}}",
+			"label": "Images"
+		},
+		"view": {
+			"title": "Article details - {{entry}}",
+			"label": "View details"
+		},
+		"order": {
+			"title": "Sort featured articles",
+			"label": "Sort",
+			"success": "Order updated successfully"
+		}
+	}
+}

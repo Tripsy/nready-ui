@@ -367,7 +367,7 @@ export default async function dataSourceConfig(): Promise<
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							customValue: DisplayAmount({
-								amount: entry.netAmount,
+								amount: entry.net_amount,
 								currencyCode: entry.currency,
 							}),
 						}),
@@ -411,7 +411,7 @@ export default async function dataSourceConfig(): Promise<
 				requestFind<CashFlowModel>('cash-flow', params),
 		},
 		displayEntryLabel: (entry: CashFlowModel) => {
-			const formatted = formatAmount(entry.netAmount, entry.currency);
+			const formatted = formatAmount(entry.net_amount, entry.currency);
 
 			return `${formatEnumLabel(entry.category)} ${formatted.value} ${formatted.currency}`;
 		},

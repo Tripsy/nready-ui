@@ -120,7 +120,7 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['view.title'],
 				windowComponent: ViewCronHistory,
 				windowConfigProps: {
-					size: 'x2l',
+					size: 'xl2',
 					closeOnBackdrop: true,
 					closeOnEscape: true,
 				},

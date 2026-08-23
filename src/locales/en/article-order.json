@@ -1,0 +1,11 @@
+{
+	"meta": {
+		"title": "Articles / Order - Dashboard | {{app_name}}"
+	},
+	"success": {
+		"order_updated": "Featured article order was saved successfully."
+	},
+	"error": {
+		"order_failed": "Could not save the new article order. Please try again."
+	}
+}

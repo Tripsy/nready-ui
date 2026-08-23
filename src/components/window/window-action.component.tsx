@@ -1,5 +1,6 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { dispatchFilterReset } from '@/app/(dashboard)/_events/data-table-filter-reset.event';
 import { ActionButton } from '@/components/action-button.component';
@@ -7,6 +8,7 @@ import { LoadingComponent } from '@/components/status.component';
 import { ApiError } from '@/exceptions/api.error';
 import ValueError from '@/exceptions/value.error';
 import { replaceVars } from '@/helpers/string.helper';
+import { invalidateWindowEntries } from '@/helpers/window.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import { useToast } from '@/providers/toast.provider';
 import { useModalStore } from '@/stores/window.store';
@@ -28,6 +30,7 @@ export function WindowAction<WindowEntry extends WindowEntryType>({
 }) {
 	const [loading, setLoading] = useState(false);
 	const { showToast } = useToast();
+	const queryClient = useQueryClient();
 
 	const { getWindow, close } = useModalStore();
 
@@ -118,6 +121,16 @@ export function WindowAction<WindowEntry extends WindowEntryType>({
 						windowConfig.dataSource as DataSourceKey,
 					);
 				}
+
+				// An action rewrites the row as much as a form does — a status transition,
+				// a delete, a restore — so any other window open on it is now stale.
+				await invalidateWindowEntries(
+					queryClient,
+					windowConfig.dataSource,
+					entries
+						.map((entry) => entry.id)
+						.filter((id): id is number => typeof id === 'number'),
+				);
 
 				windowEvents?.success?.();
 

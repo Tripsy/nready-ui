@@ -49,7 +49,7 @@ function ViewCashFlowRefunds({ refunds }: { refunds: CashFlowModel[] }) {
 							<td className="py-2 px-3">#{r.id}</td>
 							<td className="py-2 px-3">
 								<DisplayAmount
-									amount={r.netAmount}
+									amount={r.net_amount}
 									currencyCode={r.currency}
 								/>
 							</td>
@@ -127,20 +127,24 @@ function ViewCashFlowOperationalRecords({
 export function ViewCashFlow({ entry }: { entry: CashFlowModel }) {
 	const { data: refunds, isLoading: isRefundsLoading } = useQuery({
 		queryKey: ['cash-flow', 'refunds', entry.id],
-		queryFn: () => {
-			if (
-				entry.status !== CashFlowStatusEnum.COMPLETED ||
-				entry.category === CashFlowCategoryEnum.REFUND
-			) {
-				return Promise.resolve(undefined);
-			}
-
-			return requestFind<CashFlowModel>('cash-flow', {
+		queryFn: async () => {
+			const response = await requestFind<CashFlowModel>('cash-flow', {
 				filter: {
 					parent_id: entry.id,
 				},
 			});
+
+			// `requestFind` resolves to `undefined` when the response carries no payload, and
+			// TanStack Query rejects that as query data — the same failure the guard below
+			// exists to avoid. Throwing puts it in `isError`, where a caller can see it.
+			if (!response) {
+				throw new Error('Could not retrieve refunds');
+			}
+
+			return response;
 		},
+		// The queryFn does not repeat this test: `enabled` already keeps it from running, and
+		// a branch returning `undefined` to satisfy the type is exactly what breaks the query.
 		enabled:
 			entry.status === CashFlowStatusEnum.COMPLETED &&
 			entry.category !== CashFlowCategoryEnum.REFUND,
@@ -183,7 +187,7 @@ export function ViewCashFlow({ entry }: { entry: CashFlowModel }) {
 					label="Net Amount"
 					value={
 						<DisplayAmount
-							amount={entry.netAmount}
+							amount={entry.net_amount}
 							currencyCode={entry.currency}
 						/>
 					}
@@ -192,7 +196,7 @@ export function ViewCashFlow({ entry }: { entry: CashFlowModel }) {
 					label="Gross Amount"
 					value={
 						<DisplayAmount
-							amount={entry.grossAmount}
+							amount={entry.gross_amount}
 							currencyCode={entry.currency}
 						/>
 					}

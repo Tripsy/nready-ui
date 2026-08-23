@@ -1,0 +1,34 @@
+{
+	"meta": {
+		"title": "Articles | {{app_name}}",
+		"description": "Notes, guides and release stories from the team building the platform."
+	},
+	"text": {
+		"heading": "Articles",
+		"subheading": "Notes, guides and release stories from the team building the platform.",
+		"no_entries": "There are no published articles yet. Check back soon.",
+		"unavailable": "The article list is temporarily unavailable. Please try again later.",
+		"featured": "Featured",
+		"back_to_list": "All articles",
+		"restricted": "This article is not available to read here.",
+		"source": "Source",
+		"not_found_heading": "Article not found",
+		"not_found_message": "The article you are looking for does not exist, or is no longer published.",
+		"category_subheading": "Everything we have published under this topic.",
+		"loading_more": "Loading more articles…",
+		"spotlight": "Spotlight",
+		"latest": "Latest",
+		"about_the_author": "About the author",
+		"about_the_source": "About the source",
+		"share": "Share this article",
+		"share_facebook": "Share on Facebook",
+		"share_x": "Share on X",
+		"share_whatsapp": "Share on WhatsApp",
+		"rating": "Was this article useful?",
+		"rating_up": "Yes, this was useful",
+		"rating_down": "No, this was not useful",
+		"rating_failed": "Your rating could not be saved",
+		"similar_articles": "Similar articles",
+		"latest_articles": "Latest articles"
+	}
+}

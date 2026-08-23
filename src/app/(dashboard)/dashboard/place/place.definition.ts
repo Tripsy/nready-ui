@@ -47,6 +47,7 @@ const validatorMessages = [
 	'invalid_code',
 	'invalid_parent',
 	'invalid_parent_id',
+	'required_parent_id',
 	'invalid_language',
 	'invalid_name',
 	'invalid_type_label',
@@ -91,6 +92,29 @@ class PlaceValidator extends BaseValidator<typeof validatorMessages> {
 					ctx.addIssue({
 						path: ['parent'],
 						message: this.getMessage('invalid_parent_id'),
+						code: 'custom',
+					});
+				}
+			})
+			/*
+			 * Mirrors the backend's rule: only a country stands on its own. Without it a missing
+			 * parent came back as a generic request failure with nothing marking the field.
+			 *
+			 * Deliberately not gated on `isSubmit`, unlike the rule above: the live pass runs
+			 * with `isSubmit` false, so a gated rule blocks the `submit` without ever rendering a
+			 * message on the field. It fires only when the input is empty, leaving the
+			 * typed-but-unselected case to that rule rather than stacking two messages on one
+			 * field.
+			 */
+			.superRefine((data, ctx) => {
+				const needsParent =
+					data.place_type === PlaceTypeEnum.REGION ||
+					data.place_type === PlaceTypeEnum.CITY;
+
+				if (needsParent && !data.parent_id && !data.parent) {
+					ctx.addIssue({
+						path: ['parent'],
+						message: this.getMessage('required_parent_id'),
 						code: 'custom',
 					});
 				}
@@ -159,9 +183,15 @@ function getFormState(data?: PlaceModel): FormStateType<PlaceFormValuesType> {
 		values: {
 			place_type: data?.place_type ?? PlaceTypeEnum.CITY,
 			code: data?.code ?? null,
-			parent_id: data?.parent?.id ?? null,
+			/*
+			 * `parent_id` is read from the column rather than the relation: it is always on the
+			 * entry, while `parent` is only there when the caller joined it. Losing it silently
+			 * dropped the parent from the payload, and the backend rejects a region or city
+			 * submitted without one.
+			 */
+			parent_id: data?.parent_id ?? null,
 			parent: data?.parent
-				? getPlaceContentProp(data?.parent, getLanguageClient(), 'name')
+				? getPlaceContentProp(data.parent, getLanguageClient(), 'name')
 				: null,
 			contents: data?.contents ?? [],
 		},

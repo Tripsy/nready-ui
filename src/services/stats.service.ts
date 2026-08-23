@@ -2,12 +2,6 @@ import { ApiRequest } from '@/helpers/api.helper';
 import type { LogHistoryModel } from '@/models/log-history.model';
 import type { ApiResponseFetch } from '@/types/api.type';
 
-/**
- * Dashboard widgets read from a `stats` feature on the backend. `nready-api` does not ship
- * one yet, so these endpoints answer 404 and the widgets render their error state — the
- * wiring is here so a backend `stats` feature drops straight in.
- */
-
 export async function requestStatsRecentActivity(): Promise<
 	LogHistoryModel[] | null
 > {
@@ -53,6 +47,71 @@ export async function requestStatsSumRevenues(): Promise<ResponseStatsTrending |
 	if (!response?.success) {
 		throw new Error(
 			response?.message ?? 'Failed to retrieve revenues trending data',
+		);
+	}
+
+	return response.data ?? null;
+}
+
+export type ResponseStatsRecentCounts = {
+	user: number;
+	client: number;
+	article: number;
+	comment: number;
+	complaint: number;
+};
+
+export async function requestStatsRecentCounts(): Promise<ResponseStatsRecentCounts | null> {
+	const response: ApiResponseFetch<ResponseStatsRecentCounts> =
+		await new ApiRequest().doFetch('/stats/recent-counts', {
+			method: 'GET',
+		});
+
+	if (!response?.success) {
+		throw new Error(
+			response?.message ?? 'Failed to retrieve recent counts',
+		);
+	}
+
+	return response.data ?? null;
+}
+
+export const PENDING_REVIEW_ENTITIES = [
+	'user',
+	'client',
+	'article',
+	'comment',
+	'complaint',
+] as const;
+
+export type PendingReviewEntity = (typeof PENDING_REVIEW_ENTITIES)[number];
+
+export type PendingReviewEntry = {
+	id: number;
+	label: string | null;
+	created_at: string;
+};
+
+/** `total` is the real backlog; `entries` is capped by the backend. */
+export type PendingReviewGroup = {
+	entries: PendingReviewEntry[];
+	total: number;
+};
+
+export type ResponseStatsPendingReview = Record<
+	PendingReviewEntity,
+	PendingReviewGroup
+>;
+
+export async function requestStatsPendingReview(): Promise<ResponseStatsPendingReview | null> {
+	const response: ApiResponseFetch<ResponseStatsPendingReview> =
+		await new ApiRequest().doFetch('/stats/pending-review', {
+			method: 'GET',
+		});
+
+	if (!response?.success) {
+		throw new Error(
+			response?.message ?? 'Failed to retrieve items awaiting review',
 		);
 	}
 

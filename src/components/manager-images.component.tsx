@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Icons } from '@/components/icon.component';
+import { ManagerLanguageSwitcher } from '@/components/manager-language-switcher.component';
 import { SortableList } from '@/components/sortable-list.component';
 import {
 	ErrorComponent,
@@ -328,13 +329,22 @@ function ImageCard({
 
 	const configuredFields = getConfiguredFields(attributeFields);
 
+	/*
+	 * A staged entry's `path` is the object URL of the local file, which the browser renders
+	 * directly. `showImage` is only for stored images — it would hand the blob URL to the view
+	 * route, which resolves paths inside the storage backend and cannot see a browser blob.
+	 */
+	const previewSrc = entry.file
+		? entry.path
+		: showImage(entry.path, entry.storage);
+
 	return (
 		<div className="group rounded-lg border border-border bg-surface overflow-hidden shadow-sm">
 			{/* Preview row */}
 			<div className="flex items-start gap-3 p-3">
 				<div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border border-border bg-surface-secondary/30">
 					{displayImage({
-						src: showImage(entry.path, entry.storage),
+						src: previewSrc,
 						alt: fileName,
 					})}
 				</div>
@@ -1217,29 +1227,13 @@ export function ManagerImages({
 			<div className="flex justify-between items-center">
 				{/* Language section */}
 				{Object.keys(attributeFields).length > 0 && (
-					<section
-						aria-labelledby="language-zone"
-						className="flex gap-2"
-					>
-						{languages.map((lang) => (
-							<Button
-								key={lang}
-								variant="outline"
-								size="xs"
-								disabled={saving}
-								onClick={() => setActiveLanguage(lang)}
-								className={cn(
-									'relative font-semibold uppercase transition-all duration-200 rounded-md',
-									activeLanguage === lang
-										? 'bg-warning/80 text-warning-foreground hover:text-warning-foreground hover:bg-warning/70'
-										: 'hover:text-warning-foreground hover:bg-warning/50 hover:shadow-sm',
-								)}
-								aria-label={lang.toUpperCase()}
-							>
-								{lang}
-							</Button>
-						))}
-					</section>
+					<ManagerLanguageSwitcher
+						languages={languages}
+						selected={activeLanguage}
+						onSelect={setActiveLanguage}
+						disabled={saving}
+						className="mb-0"
+					/>
 				)}
 
 				{/* Save button */}

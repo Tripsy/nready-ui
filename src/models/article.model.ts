@@ -1,0 +1,359 @@
+import Routes from '@/config/routes.setup';
+import { Configuration } from '@/config/settings.config';
+import {
+	type CategoryModel,
+	getCategoryContentProp,
+} from '@/models/category.model';
+import type { ImageStorage } from '@/models/image.model';
+import { displayTermValue, type TermModel } from '@/models/term.model';
+import type { Language } from '@/types/common.type';
+import type { ImagePropertiesType } from '@/types/image.type';
+import type { PageMeta } from '@/types/page-meta.type';
+
+export const ArticleStatusEnum = {
+	DRAFT: 'draft',
+	PENDING: 'pending',
+	REJECTED: 'rejected',
+	SCHEDULED: 'scheduled',
+	PUBLISHED: 'published',
+	ARCHIVED: 'archived',
+} as const;
+
+export type ArticleStatus =
+	(typeof ArticleStatusEnum)[keyof typeof ArticleStatusEnum];
+
+export const ArticleLayoutEnum = {
+	DEFAULT: 'default',
+} as const;
+
+export type ArticleLayout =
+	(typeof ArticleLayoutEnum)[keyof typeof ArticleLayoutEnum];
+
+export const ArticleFeaturedStatusEnum = {
+	SECTION: 'section',
+	CATEGORY: 'category',
+} as const;
+
+export type ArticleFeaturedStatus =
+	(typeof ArticleFeaturedStatusEnum)[keyof typeof ArticleFeaturedStatusEnum];
+
+export const ArticleVisibilityEnum = {
+	PUBLIC: 'public',
+	RESTRICTED: 'restricted',
+} as const;
+
+export type ArticleVisibility =
+	(typeof ArticleVisibilityEnum)[keyof typeof ArticleVisibilityEnum];
+
+export const ArticleSourceModeEnum = {
+	INPUT: 'input',
+	PARSED: 'parsed',
+} as const;
+
+export type ArticleSourceMode =
+	(typeof ArticleSourceModeEnum)[keyof typeof ArticleSourceModeEnum];
+
+export type ArticleAuthorType = {
+	name: string;
+	email?: string;
+	avatar?: string;
+	description?: string;
+};
+
+export type ArticleSourceType = {
+	label?: string;
+	url?: string;
+	disclaimer?: string;
+	about?: string;
+};
+
+/**
+ * `content` carries **markdown**, which is what the form edits and what the backend stores; the
+ * dashboard renders it to HTML for display only (`renderMarkdown`).
+ *
+ * `find` does not select `content`, so a list row arrives without it — anything reading the body
+ * has to come from `read`.
+ */
+export type ArticleContentType = {
+	language: Language;
+	slug: string;
+	title: string;
+	brief: string | null;
+	content?: string;
+	author?: ArticleAuthorType | null;
+	meta: PageMeta;
+};
+
+/**
+ * Only present while `visibility` is `restricted`; the stored password hash is never sent, so
+ * `password` exists on the form values but never on a value read back from the API.
+ */
+export type ArticleVisibilityRuleType = {
+	requires_auth: boolean;
+	/*
+	 * A flag, not a plan list: the backend's access policy only ever proved the reader held
+	 * *an* active subscription, so plan identifiers promised a gate nothing enforced.
+	 */
+	requires_subscription: boolean;
+	allowed_countries: string[] | null;
+	/*
+	 * Defaults to true and is not editable from the dashboard — every article is listed unless
+	 * something outside this form says otherwise. Kept on the type because the API still
+	 * returns it.
+	 */
+	is_listed: boolean;
+};
+
+/**
+ * The reader-contributed features an article opts into. Stored on the API inside `details`, and
+ * mirrored here as the resolved shape the read endpoints return: an article that overrides
+ * nothing still comes back with all three, filled from the API's own defaults (all true unless
+ * `ARTICLE_ALLOW_*` says otherwise). A payload may send any subset — an omitted key is left alone.
+ */
+export const ArticleSettingEnum = {
+	ALLOW_RATING: 'allow_rating',
+	ALLOW_COMMENTS: 'allow_comments',
+	ALLOW_COMPLAINTS: 'allow_complaints',
+} as const;
+
+export type ArticleSetting =
+	(typeof ArticleSettingEnum)[keyof typeof ArticleSettingEnum];
+
+export type ArticleSettingsType = Record<ArticleSetting, boolean>;
+
+/**
+ * What the dashboard seeds a new article's switches with. It mirrors the API's shipped defaults
+ * rather than reading them — they are backend env (`ARTICLE_ALLOW_*`) and the browser cannot see
+ * them. Harmless where the two agree, which is every deployment that has not turned one off: the
+ * API drops any value equal to its own default instead of storing it as an override.
+ */
+export const ARTICLE_DEFAULT_SETTINGS: ArticleSettingsType = {
+	allow_rating: true,
+	allow_comments: true,
+	allow_complaints: true,
+};
+
+export const ARTICLE_DEFAULT_LAYOUT = ArticleLayoutEnum.DEFAULT;
+export const ARTICLE_DEFAULT_VISIBILITY = ArticleVisibilityEnum.PUBLIC;
+
+/**
+ * The one image a public surface shows for an article: the first of its gallery, by
+ * `sort_order`. Present only on the public endpoints, which attach it — the dashboard
+ * manages images through the `image` feature instead.
+ */
+export type ArticleCoverImageType = {
+	id: number;
+	path: string;
+	storage: ImageStorage;
+	properties: ImagePropertiesType | null;
+};
+
+export type ArticleModel<D = Date | string> = {
+	id: number;
+	status: ArticleStatus;
+	layout?: ArticleLayout;
+	publish_at: D | null;
+	archive_at: D | null;
+	featured_status: ArticleFeaturedStatus | null;
+	featured_order: number;
+	/** Only meaningful alongside a `featured_status`; the backend rejects one without the other. */
+	featured_expire_at: D | null;
+	visibility: ArticleVisibility;
+	public_at?: D | null;
+	source_mode: ArticleSourceMode;
+	source?: ArticleSourceType | null;
+	details?: Record<string, string | number | boolean> | null;
+	/** Resolved by the API from `details`; a create or update posts back any subset of it. */
+	settings?: ArticleSettingsType;
+
+	// Relations
+	author_id: number | null;
+	author?: { id: number; name: string; email?: string } | null;
+	contents?: ArticleContentType[];
+	/**
+	 * Link rows. `read` selects only the foreign key; `find` also joins the category and its
+	 * translation in the requested language, so a list row can name them.
+	 */
+	categories?: { category_id: number; category?: CategoryModel<D> | null }[];
+	tags?: { tag_id: number; tag?: TermModel<D> | null }[];
+	visibility_rule?: ArticleVisibilityRuleType | null;
+	/** Public endpoints only; `null` when the article has no gallery image. */
+	cover_image?: ArticleCoverImageType | null;
+
+	// Timestamps
+	created_at: D;
+	updated_at: D;
+	deleted_at: D;
+};
+
+// Helpers
+/**
+ * The wording carried by a row, falling back through the default language and then whatever
+ * translation exists — `find` returns only the filtered language, so an article with no content
+ * there arrives with none at all.
+ */
+export function getArticleContentProp(
+	entry: ArticleModel,
+	language: Language,
+	prop: keyof Pick<ArticleContentType, 'title' | 'slug' | 'brief'> = 'title',
+	fallback: string = '[no content]',
+): string {
+	if (!entry.contents?.length) {
+		return fallback;
+	}
+
+	const contentSelected = entry.contents.find(
+		(content) => content.language === language,
+	);
+
+	if (contentSelected?.[prop]) {
+		return contentSelected[prop];
+	}
+
+	const contentDefault = entry.contents.find(
+		(content) => content.language === Configuration.defaultLanguage(),
+	);
+
+	if (contentDefault?.[prop]) {
+		return contentDefault[prop];
+	}
+
+	return entry.contents[0][prop] ?? fallback;
+}
+
+/** Window titles and confirmation lists. */
+export const displayArticleLabel = (
+	entry: ArticleModel,
+	language: Language,
+): string => {
+	return `#${entry.id} ${getArticleContentProp(entry, language)}`;
+};
+
+/**
+ * The category labels a list row carries, in the requested language.
+ *
+ * Empty when the article has none, and also on a row that came from `read` — that route
+ * returns the link rows without the category, so there is nothing to name.
+ */
+export function displayArticleCategories(
+	entry: ArticleModel,
+	language: Language,
+): string[] {
+	return (entry.categories ?? [])
+		.map((link) =>
+			link.category
+				? getCategoryContentProp(link.category, language, 'label', '')
+				: '',
+		)
+		.filter((label) => label.length > 0);
+}
+
+/**
+ * The category an article is *shown* under: the first of its links that carries a
+ * translation. An article can be filed under several, but a page needs one — it is the
+ * category segment of the article's public URL and the chip above its title.
+ *
+ * `null` on an article with no category, and on a row that came from the dashboard `read`
+ * route, which returns the link ids without the category.
+ */
+export function getArticlePrimaryCategory(
+	entry: ArticleModel,
+	language: Language,
+): { id: number; label: string; slug: string } | null {
+	for (const link of entry.categories ?? []) {
+		if (!link.category) {
+			continue;
+		}
+
+		const label = getCategoryContentProp(
+			link.category,
+			language,
+			'label',
+			'',
+		);
+		const slug = getCategoryContentProp(
+			link.category,
+			language,
+			'slug',
+			'',
+		);
+
+		if (label && slug) {
+			return { id: link.category_id, label, slug };
+		}
+	}
+
+	return null;
+}
+
+/**
+ * Segment standing in for the category of an article that has none, so every article still
+ * has one address. Matched by the article page against the article's real category, which
+ * is absent here — so the URL stays canonical rather than redirecting to itself.
+ */
+export const ARTICLE_CATEGORY_FALLBACK_SLUG = 'other';
+
+/**
+ * The public URL of an article: `/articles/<category-slug>/<article-slug>`.
+ *
+ * Returns `null` when the article carries no slug in this language — there is no address to
+ * build, and a caller has to render it unlinked rather than point at a URL that 404s.
+ */
+export function buildArticlePath(
+	entry: ArticleModel,
+	language: Language,
+): string | null {
+	const slug = getArticleContentProp(entry, language, 'slug', '');
+
+	if (!slug) {
+		return null;
+	}
+
+	const category = getArticlePrimaryCategory(entry, language);
+
+	return Routes.get('article-view', {
+		category: category?.slug ?? ARTICLE_CATEGORY_FALLBACK_SLUG,
+		slug,
+	});
+}
+
+/**
+ * Label per linked category or tag, keyed by the id the form holds, for the given language.
+ *
+ * Both wordings fall back through the default language and then whatever translation exists,
+ * so a link stays readable under a language it was never translated into. An id is dropped
+ * only when its row carries no wording at all — which is every tag on a list row, since `find`
+ * joins none — rather than mapped to a placeholder; the caller decides how a nameless id reads.
+ */
+export function getArticleLinkLabels(
+	entry: ArticleModel | undefined,
+	language: Language,
+): { categories: Record<number, string>; tags: Record<number, string> } {
+	const categories: Record<number, string> = {};
+	const tags: Record<number, string> = {};
+
+	for (const link of entry?.categories ?? []) {
+		if (link.category) {
+			const label = getCategoryContentProp(
+				link.category,
+				language,
+				'label',
+				'',
+			);
+
+			if (label) {
+				categories[link.category_id] = label;
+			}
+		}
+	}
+
+	for (const link of entry?.tags ?? []) {
+		const value = link.tag ? displayTermValue(link.tag, language) : '';
+
+		if (value && value !== '-') {
+			tags[link.tag_id] = value;
+		}
+	}
+
+	return { categories, tags };
+}

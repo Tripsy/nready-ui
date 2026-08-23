@@ -40,12 +40,23 @@ export function SetupUserPermissions({ entries }: { entries: UserModel[] }) {
 			'permissions',
 			{ order_by: 'id', direction: 'ASC', limit: 999 },
 		],
-		queryFn: () =>
-			requestFind<PermissionModel>('permission', {
+		// Both queries here throw on an empty payload rather than returning it: `requestFind`
+		// and `getUserPermissions` resolve to `undefined` when the response carries no data,
+		// which TanStack Query rejects as query data. The component already renders the
+		// `error` each query exposes, so a failure lands somewhere visible.
+		queryFn: async () => {
+			const response = await requestFind<PermissionModel>('permission', {
 				order_by: 'id',
 				direction: 'ASC',
 				limit: 999,
-			}),
+			});
+
+			if (!response) {
+				throw new Error('Could not retrieve permissions');
+			}
+
+			return response;
+		},
 	});
 
 	const {
@@ -54,12 +65,19 @@ export function SetupUserPermissions({ entries }: { entries: UserModel[] }) {
 		error: userPermissionsError,
 	} = useQuery({
 		queryKey: ['s-user-permission', entry.id],
-		queryFn: () =>
-			getUserPermissions(entry.id, {
+		queryFn: async () => {
+			const response = await getUserPermissions(entry.id, {
 				order_by: 'permission_id',
 				direction: 'ASC',
 				limit: 999,
-			}),
+			});
+
+			if (!response) {
+				throw new Error('Could not retrieve the user permissions');
+			}
+
+			return response;
+		},
 		enabled: !!entry.id,
 	});
 

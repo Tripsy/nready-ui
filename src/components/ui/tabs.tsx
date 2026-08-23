@@ -1,6 +1,7 @@
 import { Tabs as HeroTabs } from '@heroui/react';
 import type * as React from 'react';
 import type { ReactNode } from 'react';
+import { cn } from '@/helpers/css.helper';
 
 /**
  * Root — react-aria `Tabs`, keyed rather than valued: `defaultSelectedKey` /
@@ -58,6 +59,33 @@ const TabsTrigger = ({ children, ...props }: TabsTriggerProps) => (
 	</HeroTabs.Tab>
 );
 
-const TabsContent = HeroTabs.Panel;
+type TabsContentProps = React.ComponentProps<typeof HeroTabs.Panel>;
+
+/**
+ * Every panel stays in the DOM; an inactive one is hidden rather than removed.
+ *
+ * A submit reads the **DOM**: `processForm` rebuilds its values from the `FormData` the form
+ * element yields, and a field that is not mounted is not in it. react-aria drops unselected
+ * panels by default, so a tabbed form saved from one tab silently posts nothing for the fields
+ * living on the others — the article form loses its categories, its reader-participation
+ * switches and its dates that way, and the values it does not carry are then written over the
+ * stored ones.
+ *
+ * Every `Tabs` in this app is inside a form, so force-mounting is the default here rather than a
+ * per-call-site opt-in a new form has to know to ask for. The cost is the whole form rendering at
+ * once, which these forms are small enough for. react-aria marks a force-mounted inactive panel
+ * `inert` but leaves it visible, so the hiding is ours — the fields still submit, since only a
+ * `disabled` control is left out of `FormData`.
+ *
+ * Anything that must survive a submit regardless can also ride in a hidden input outside the
+ * tabs, which is what the per-language `contents` payload does.
+ */
+const TabsContent = ({ className, ...props }: TabsContentProps) => (
+	<HeroTabs.Panel
+		shouldForceMount
+		className={cn('data-[inert]:hidden', className)}
+		{...props}
+	/>
+);
 
 export { Tabs, TabsContent, TabsList, TabsTrigger };

@@ -1,0 +1,29 @@
+{
+	"meta": {
+		"title": "Evaluări - Dashboard | {{app_name}}"
+	},
+	"action": {
+		"delete": {
+			"title": "Șterge evaluarea",
+			"label": "Șterge",
+			"success": "Evaluarea a fost ștearsă",
+			"confirm": "Sigur vrei să ștergi evaluarea selectată?"
+		},
+		"view": {
+			"title": "Detalii evaluare - {{entry}}",
+			"label": "Vezi"
+		},
+		"viewUser": {
+			"title": "Vezi utilizatorul"
+		}
+	},
+	"reaction": {
+		"action": "Reacționează la acest comentariu",
+		"failed": "Reacția ta nu a putut fi salvată",
+		"like": "Îmi place",
+		"dislike": "Nu îmi place",
+		"love": "Ador",
+		"insightful": "Interesant",
+		"funny": "Amuzant"
+	}
+}

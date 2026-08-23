@@ -155,7 +155,7 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['view.title'],
 				windowComponent: ViewLogHistory,
 				windowConfigProps: {
-					size: 'x2l',
+					size: 'xl2',
 					closeOnBackdrop: true,
 					closeOnEscape: true,
 				},

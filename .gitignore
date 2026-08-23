@@ -42,3 +42,6 @@ public/uploads/
 # Agents
 .claude/settings.local.json
 .claude/projects/
+
+# Dev server logs (dev-stack.sh)
+/logs/

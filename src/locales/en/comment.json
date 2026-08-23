@@ -1,0 +1,121 @@
+{
+	"meta": {
+		"title": "Comments - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_content": "The comment must be between 2 and 5000 characters",
+		"invalid_type": "Select a comment type",
+		"invalid_is_pinned": "Invalid pinned value",
+		"invalid_guest_name": "Your name must be between 2 and 100 characters",
+		"invalid_guest_email": "Enter a valid email address",
+		"invalid_guest_website": "The website must be at most 255 characters"
+	},
+	"action": {
+		"update": {
+			"title": "Edit comment - {{entry}}",
+			"label": "Edit",
+			"success": "Comment updated"
+		},
+		"delete": {
+			"title": "Delete comment",
+			"label": "Delete",
+			"success": "Comment deleted",
+			"confirm": "Are you sure you want to delete the selected comment? Its replies will be deleted with it."
+		},
+		"statusTransition": {
+			"title": "Update status - {{entry}}",
+			"label": "Status",
+			"success": "Comment status updated successfully"
+		},
+		"view": {
+			"title": "Comment details - {{entry}}",
+			"label": "View"
+		},
+		"viewUser": {
+			"title": "View user"
+		}
+	},
+	"status": {
+		"pending": "Pending",
+		"approved": "Approved",
+		"rejected": "Rejected",
+		"spam": "Spam",
+		"flagged": "Flagged"
+	},
+	"thread": {
+		"heading": "Comments",
+		"empty": "No comments yet. Be the first to leave one.",
+		"unavailable": "Comments are temporarily unavailable. Please try again later.",
+		"load_more": "Load more comments",
+		"loading": "Loading…",
+		"guest": "Guest",
+		"staff": "Staff",
+		"pinned": "Pinned",
+		"reply": "Reply",
+		"replies": "Replies",
+		"see_replies": "See replies",
+		"collapse_replies": "Collapse replies",
+		"reply_to": "Replying to",
+		"cancel": "Cancel",
+		"show_more": "more",
+		"menu": "Comment options",
+		"copy_link": "Copy comment link",
+		"copy_link_success": "Link copied",
+		"copy_link_failed": "The link could not be copied",
+		"report": "Report comment",
+		"edit": "Edit comment",
+		"edit_save": "Save changes",
+		"edit_success": "Comment updated",
+		"edit_failed": "Your comment could not be updated",
+		"edited": "(edited)",
+		"delete": "Delete comment",
+		"delete_title": "Delete comment",
+		"delete_confirm": "This removes the comment for good, along with every reply written under it. This cannot be undone.",
+		"delete_success": "Comment deleted",
+		"delete_failed": "The comment could not be deleted",
+		"pin": "Pin to the top",
+		"unpin": "Unpin",
+		"pin_success": "Comment updated",
+		"pin_failed": "The comment could not be updated",
+		"hide": "Hide comment",
+		"hide_title": "Hide comment",
+		"hide_intro": "The comment leaves the thread but is kept, and can be put back from the dashboard.",
+		"hide_rejected": "Reject",
+		"hide_spam": "Mark as spam",
+		"hide_reason": "Reason (optional)",
+		"hide_reason_note": "Describes why the comment is in this state now; the next decision replaces it.",
+		"hide_reason_long": "The reason must be at most 255 characters",
+		"hide_submit": "Hide comment",
+		"hide_success": "Comment hidden",
+		"hide_failed": "The comment could not be hidden"
+	},
+	"form": {
+		"heading": "Leave a comment",
+		"content_placeholder": "Share your thoughts…",
+		"guest_name": "Your name",
+		"guest_email": "Your email",
+		"guest_email_note": "Your email is never published.",
+		"guest_website": "Your website (optional)",
+		"submit": "Post comment",
+		"success": "Thank you, your comment has been submitted.",
+		"failed": "Your comment could not be submitted",
+		"write_another": "Write another comment"
+	},
+	"error": {
+		"cannot_update_status": "This comment cannot change status from its current state"
+	},
+	"unsubscribe": {
+		"meta_title": "Comment notifications | {{app_name}}",
+		"heading": "Comment notifications",
+		"intro": "You are receiving comment notifications at",
+		"all": "All new comments on the discussions I take part in",
+		"replies_to_me": "Only replies to my own comments",
+		"unsubscribed": "Nothing — stop these emails",
+		"save": "Save preference",
+		"saving": "Saving…",
+		"saved": "Preference saved",
+		"failed": "Your preference could not be saved",
+		"invalid": "This unsubscribe link is no longer valid. It may have already been used to remove the subscription.",
+		"back": "Back to the site"
+	}
+}

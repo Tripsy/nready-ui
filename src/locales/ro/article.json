@@ -1,0 +1,111 @@
+{
+	"meta": {
+		"title": "Articole - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_date": "Selectează o dată validă",
+		"invalid_language": "Selectează o limbă validă",
+		"invalid_title": "Introdu titlul articolului",
+		"invalid_slug": "Introdu un slug valid",
+		"invalid_brief": "Rezumat invalid",
+		"invalid_content": "Scrie conținutul articolului",
+		"invalid_categories": "Categorii invalide",
+		"categories_required": "Este necesară cel puțin o categorie",
+		"invalid_tags": "Etichete invalide",
+		"invalid_meta_title": "Meta titlu invalid",
+		"invalid_meta_description": "Meta descriere invalidă",
+		"invalid_meta_keywords": "Meta cuvinte cheie invalide",
+		"archive_before_publish": "Data de arhivare trebuie să fie după data publicării",
+		"invalid_layout": "Selectează un layout valid",
+		"invalid_featured_status": "Selectează o poziție promovată validă",
+		"featured_expire_without_status": "Alege o poziție promovată înainte de a seta data de expirare",
+		"invalid_visibility": "Selectează o vizibilitate validă",
+		"invalid_visibility_rule": "Regulă de vizibilitate invalidă",
+		"invalid_country_code": "Folosește coduri de țară din două litere, separate prin virgulă",
+		"invalid_source": "Detalii sursă invalide",
+		"invalid_boolean": "Valoare invalidă",
+		"invalid_author": "Introdu numele autorului"
+	},
+	"status": {
+		"draft": "Ciornă",
+		"pending": "În așteptare",
+		"rejected": "Respins",
+		"scheduled": "Programat",
+		"published": "Publicat",
+		"archived": "Arhivat",
+		"deleted": "Șters"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă articol nou",
+			"label": "Adaugă",
+			"success": "Articolul nou a fost adăugat cu succes"
+		},
+		"update": {
+			"title": "Actualizează articolul - {{entry}}",
+			"label": "Actualizează",
+			"success": "Articolul a fost actualizat cu succes"
+		},
+		"delete": {
+			"title": "Șterge articolul - {{entry}}",
+			"label": "Șterge",
+			"success": "Articolul a fost șters cu succes",
+			"confirm": "Sigur vrei să ștergi acest articol?"
+		},
+		"restore": {
+			"title": "Restaurează articolul - {{entry}}",
+			"label": "Restaurează",
+			"success": "Articolul a fost restaurat cu succes",
+			"confirm": "Sigur vrei să restaurezi acest articol?"
+		},
+		"submit": {
+			"title": "Trimite articolul spre verificare - {{entry}}",
+			"label": "Trimite spre verificare",
+			"success": "Articolul a fost trimis spre verificare",
+			"confirm": "Sigur vrei să trimiți acest articol spre verificare?"
+		},
+		"schedule": {
+			"title": "Programează articolul - {{entry}}",
+			"label": "Programează",
+			"success": "Articolul a fost programat",
+			"confirm": "Sigur vrei să programezi acest articol? Va fi publicat la data stabilită."
+		},
+		"publish": {
+			"title": "Publică articolul - {{entry}}",
+			"label": "Publică",
+			"success": "Articolul a fost publicat",
+			"confirm": "Sigur vrei să publici acest articol?"
+		},
+		"reject": {
+			"title": "Respinge articolul - {{entry}}",
+			"label": "Respinge",
+			"success": "Articolul a fost respins",
+			"confirm": "Sigur vrei să respingi acest articol?"
+		},
+		"revert": {
+			"title": "Mută articolul înapoi în ciornă - {{entry}}",
+			"label": "Înapoi în ciornă",
+			"success": "Articolul a fost mutat înapoi în ciornă",
+			"confirm": "Sigur vrei să muți acest articol înapoi în ciornă?"
+		},
+		"archive": {
+			"title": "Arhivează articolul - {{entry}}",
+			"label": "Arhivează",
+			"success": "Articolul a fost arhivat",
+			"confirm": "Sigur vrei să arhivezi acest articol? Nu va mai fi afișat."
+		},
+		"managerImages": {
+			"title": "Imagini articol - {{entry}}",
+			"label": "Imagini"
+		},
+		"view": {
+			"title": "Detalii articol - {{entry}}",
+			"label": "Vezi detalii"
+		},
+		"order": {
+			"title": "Sortează articolele promovate",
+			"label": "Sortează",
+			"success": "Ordinea a fost actualizată cu succes"
+		}
+	}
+}

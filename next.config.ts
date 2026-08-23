@@ -13,12 +13,17 @@ const nextConfig: NextConfig = {
 		 * Keep Turbopack under the container's 4g `mem_limit` (docker-compose.yml).
 		 * Without a target it grows until the cgroup OOM killer SIGKILLs next-server —
 		 * which looks like the dev server silently exiting, with nothing in the log.
-		 * 3 GiB leaves headroom for the Node process itself around Turbopack's arena.
+		 *
+		 * 2 GiB, not 3: at 3 the container idled at ~85% of its limit with the dev server
+		 * doing nothing, leaving under a gigabyte for the Node process around Turbopack's
+		 * arena — close enough to the ceiling that an ordinary recompile spike was landing
+		 * as exit 137. The cost is recompile speed on a cold page graph.
 		 *
 		 * Note this bounds memory, not the on-disk `.next/dev/cache`, which still grows
-		 * across sessions — `pnpm run clean` drops it when startup RSS creeps back up.
+		 * across sessions — `pnpm run clean` drops it, but it does not move the numbers
+		 * above: measured 87% before a clean and 85% after, idle.
 		 */
-		turbopackMemoryLimit: 3 * 1024 * 1024 * 1024,
+		turbopackMemoryLimit: 2 * 1024 * 1024 * 1024,
 	},
 };
 

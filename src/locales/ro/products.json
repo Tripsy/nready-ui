@@ -1,0 +1,12 @@
+{
+	"meta": {
+		"title": "Produse | {{app_name}}",
+		"description": "Catalogul de produse pe care îl pregătim."
+	},
+	"text": {
+		"heading": "Produse",
+		"subheading": "Catalogul este pe drum.",
+		"placeholder": "Momentan nu avem nimic de afișat aici. Lista de produse este încă în lucru.",
+		"browse_categories": "Vezi categoriile"
+	}
+}

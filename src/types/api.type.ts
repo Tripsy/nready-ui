@@ -21,7 +21,15 @@ export type QueryValueType =
 	| Array<string | number | boolean>;
 
 export type NestedValueType = {
-	[key: string]: string | number | boolean | null | undefined;
+	// The array member is the `filter[key][]` list shape `buildQueryString` repeats the key
+	// for — the backend's `qs` parser reads it back as an array.
+	[key: string]:
+		| string
+		| number
+		| boolean
+		| null
+		| undefined
+		| Array<string | number>;
 };
 
 export type QueryFiltersType = Record<string, QueryValueType | NestedValueType>;

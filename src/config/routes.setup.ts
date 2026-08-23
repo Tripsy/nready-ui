@@ -160,19 +160,36 @@ const Routes = new RoutesCollection();
 Routes.add('home', '/');
 Routes.add('docs', '/docs');
 Routes.add('page', '/page/:label');
+Routes.add('products', '/products');
+Routes.add('products-categories', '/products/categories');
+Routes.add('articles', '/articles');
+Routes.add('articles-categories', '/articles/categories');
+// Added after `articles-categories` on purpose: `match` returns the first pattern that fits,
+// and `/articles/:category` fits that path too. Next resolves the file-system routes by the
+// same precedence, static segment before dynamic.
+Routes.add('articles-category', '/articles/:category');
+Routes.add('article-view', '/articles/:category/:slug');
+// The permalink a notification email links a comment by. It resolves the comment's target and
+// redirects, so a link in an old inbox survives the article being re-slugged or re-filed.
+Routes.add('comment-link', '/comments/:id');
+// The unsubscribe landing an emailed notification links to. Public and tokenized: a guest
+// subscriber has no account, and requiring one to stop unsolicited email would be requiring an
+// account to withdraw consent.
+Routes.add('comment-unsubscribe', '/comments/unsubscribe/:token');
 Routes.add('status', '/status/:type');
 
 // API
 Routes.group('api')
 	.add('proxy', '/api/proxy/:path*')
 	.add('csrf', '/api/csrf')
+	.add('auth-session', '/api/auth/session')
+	// The OAuth equivalent: verifies `state`, redeems the code, writes the session.
+	.add('auth-oauth-session', '/api/auth/oauth/:provider')
+	.add('oauth-start', '/api/oauth/:provider')
 	.add('language', '/api/language')
 	.add('api-image', '/api/image', {
 		auth: RouteAuthEnum.PUBLIC,
-	})
-	// Mints the `state` cookie and bounces the browser to the provider. A route handler
-	// rather than a server action so the button is a plain link the browser can follow.
-	.add('oauth-start', '/api/oauth/:provider');
+	});
 
 // Account
 Routes.group('account')
@@ -188,9 +205,6 @@ Routes.group('account')
 	.add('email-confirm-send', '/account/email-confirm-send')
 	// Where the provider returns the browser; must match `getOAuthRedirectUri`.
 	.add('oauth-callback', '/account/oauth/:provider')
-	// account edit / email-update / password-update / delete are no longer
-	// standalone routes — they open as windows from /account/me (see
-	// _components/account/account.definition.ts).
 	.add('account-me', '/account/me', { auth: RouteAuthEnum.AUTHENTICATED });
 
 // Dashboard
@@ -218,8 +232,21 @@ Routes.group('dashboard')
 		permissionEntity: 'brand',
 		permissionOperation: 'update',
 	})
+	.add('category', '/dashboard/category', {
+		permissionEntity: 'category',
+	})
+	.add('category-order', '/dashboard/category/order', {
+		permissionEntity: 'category',
+		permissionOperation: 'update',
+	})
+	.add('category-tree', '/dashboard/category/tree', {
+		permissionEntity: 'category',
+	})
 	.add('cash-flow', '/dashboard/cash-flow', {
 		permissionEntity: 'cash-flow',
+	})
+	.add('discount', '/dashboard/discount', {
+		permissionEntity: 'discount',
 	})
 	.add('log-data', '/dashboard/log-data', {
 		permissionEntity: 'log-data',
@@ -251,6 +278,28 @@ Routes.group('dashboard')
 	})
 	.add('vendor', '/dashboard/vendor', {
 		permissionEntity: 'vendor',
+	})
+	.add('carrier', '/dashboard/carrier', {
+		permissionEntity: 'carrier',
+	})
+	.add('term', '/dashboard/term', {
+		permissionEntity: 'term',
+	})
+	.add('article', '/dashboard/article', {
+		permissionEntity: 'article',
+	})
+	.add('article-order', '/dashboard/article/order', {
+		permissionEntity: 'article',
+		permissionOperation: 'update',
+	})
+	.add('rating', '/dashboard/rating', {
+		permissionEntity: 'rating',
+	})
+	.add('comment', '/dashboard/comment', {
+		permissionEntity: 'comment',
+	})
+	.add('complaint', '/dashboard/complaint', {
+		permissionEntity: 'complaint',
 	});
 
 /**

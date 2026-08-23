@@ -6,11 +6,14 @@ import type {
 	LoginApiResponseType,
 	LoginFormValuesType,
 } from '@/app/(public)/account/login/login.definition';
+import type { OAuthCallbackStateType } from '@/app/(public)/account/oauth/[provider]/oauth-callback.definition';
 import type { PasswordRecoverFormValuesType } from '@/app/(public)/account/password-recover/password-recover.definition';
 import type { PasswordRecoverChangeFormValuesType } from '@/app/(public)/account/password-recover-change/[token]/password-recover-change.definition';
 import type { PasswordUpdateFormValuesType } from '@/app/(public)/account/password-update/password-update.definition';
 import type { RegisterFormValuesType } from '@/app/(public)/account/register/register.definition';
+import Routes from '@/config/routes.setup';
 import { ApiRequest } from '@/helpers/api.helper';
+import { CSRF_HEADER, getCsrfToken } from '@/helpers/csrf.helper';
 import { logger } from '@/helpers/logger.helper';
 import type { UserModel } from '@/models/user.model';
 import type { ApiResponseFetch } from '@/types/api.type';
@@ -24,6 +27,52 @@ export async function requestRegister(
 		method: 'POST',
 		body: JSON.stringify(params),
 	});
+}
+
+/**
+ * Turns a token the backend just issued into this origin's session cookie.
+ */
+export async function requestCreateSession(
+	token: string,
+): Promise<ApiResponseFetch<null>> {
+	const response = await fetch(Routes.get('auth-session'), {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			// Raw fetch rather than ApiRequest, so the CSRF header the middleware requires
+			// on mutating /api/* requests has to be set by hand.
+			[CSRF_HEADER]: await getCsrfToken(),
+		},
+		body: JSON.stringify({ token }),
+	});
+
+	return await response.json();
+}
+
+/**
+ * Redeems a provider authorization code and, on success, writes the session cookie.
+ */
+export async function requestOAuthCallback(
+	provider: string,
+	code: string | null,
+	state: string | null,
+	providerError: string | null,
+): Promise<OAuthCallbackStateType> {
+	const response = await fetch(
+		Routes.get('auth-oauth-session', { provider }),
+		{
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				// Raw fetch rather than ApiRequest, so the CSRF header the middleware requires
+				// on mutating /api/* requests has to be set by hand.
+				[CSRF_HEADER]: await getCsrfToken(),
+			},
+			body: JSON.stringify({ code, state, providerError }),
+		},
+	);
+
+	return await response.json();
 }
 
 export async function requestLogin(

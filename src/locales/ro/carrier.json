@@ -1,0 +1,40 @@
+{
+	"meta": {
+		"title": "Curieri - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_name": "Nume invalid",
+		"invalid_website": "Site web invalid",
+		"invalid_phone": "Telefon invalid",
+		"invalid_email": "Email invalid",
+		"invalid_notes": "Notițe invalide"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă curier nou",
+			"label": "Adaugă",
+			"success": "Curierul nou a fost adăugat cu succes"
+		},
+		"update": {
+			"title": "Actualizează curierul - {{entry}}",
+			"label": "Actualizează",
+			"success": "Curierul a fost actualizat cu succes"
+		},
+		"delete": {
+			"title": "Șterge curierul - {{entry}}",
+			"label": "Șterge",
+			"success": "Curierul a fost șters cu succes",
+			"confirm": "Sigur vrei să ștergi acest curier?"
+		},
+		"restore": {
+			"title": "Restaurează curierul - {{entry}}",
+			"label": "Restaurează",
+			"success": "Curierul a fost restaurat cu succes",
+			"confirm": "Sigur vrei să restaurezi acest curier?"
+		},
+		"view": {
+			"title": "Detalii curier - {{entry}}",
+			"label": "Vezi detalii"
+		}
+	}
+}

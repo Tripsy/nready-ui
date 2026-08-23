@@ -1,13 +1,25 @@
 import account from '@/locales/ro/account.json';
 import address from '@/locales/ro/address.json';
 import app from '@/locales/ro/app.json';
+import article from '@/locales/ro/article.json';
+import article_order from '@/locales/ro/article-order.json';
+import articles from '@/locales/ro/articles.json';
+import articles_categories from '@/locales/ro/articles-categories.json';
 import auth from '@/locales/ro/auth.json';
 import brand from '@/locales/ro/brand.json';
 import brand_order from '@/locales/ro/brand-order.json';
+import carrier from '@/locales/ro/carrier.json';
 import cash_flow from '@/locales/ro/cash-flow.json';
+import categories from '@/locales/ro/categories.json';
+import category from '@/locales/ro/category.json';
+import category_order from '@/locales/ro/category-order.json';
+import category_tree from '@/locales/ro/category-tree.json';
 import client from '@/locales/ro/client.json';
+import comment from '@/locales/ro/comment.json';
+import complaint from '@/locales/ro/complaint.json';
 import cron_history from '@/locales/ro/cron-history.json';
 import dashboard from '@/locales/ro/dashboard.json';
+import discount from '@/locales/ro/discount.json';
 import document_series from '@/locales/ro/document-series.json';
 import email_confirm from '@/locales/ro/email-confirm.json';
 import email_confirm_send from '@/locales/ro/email-confirm-send.json';
@@ -24,10 +36,13 @@ import password_recover from '@/locales/ro/password-recover.json';
 import password_recover_change from '@/locales/ro/password-recover-change.json';
 import permission from '@/locales/ro/permission.json';
 import place from '@/locales/ro/place.json';
+import products from '@/locales/ro/products.json';
+import rating from '@/locales/ro/rating.json';
 import register from '@/locales/ro/register.json';
 import shared from '@/locales/ro/shared.json';
 import status from '@/locales/ro/status.json';
 import template from '@/locales/ro/template.json';
+import term from '@/locales/ro/term.json';
 import user from '@/locales/ro/user.json';
 import vendor from '@/locales/ro/vendor.json';
 
@@ -36,13 +51,25 @@ const ro = {
 	account,
 	address: address,
 	app,
+	article,
+	'article-order': article_order,
+	articles,
+	'articles-categories': articles_categories,
 	auth,
 	brand,
 	'brand-order': brand_order,
+	carrier,
 	'cash-flow': cash_flow,
+	categories,
+	category,
+	'category-order': category_order,
+	'category-tree': category_tree,
 	client,
+	comment,
+	complaint,
 	'cron-history': cron_history,
 	dashboard,
+	discount,
 	'document-series': document_series,
 	'email-confirm': email_confirm,
 	'email-confirm-send': email_confirm_send,
@@ -58,9 +85,12 @@ const ro = {
 	'password-recover-change': password_recover_change,
 	permission,
 	place,
+	products,
+	rating,
 	register,
 	shared,
 	template,
+	term,
 	user,
 	status,
 	vendor,

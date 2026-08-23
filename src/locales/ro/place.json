@@ -7,6 +7,7 @@
 		"invalid_code": "Cod invalid",
 		"invalid_parent_id": "Localitate părinte invalidă; Alege o înregistrare din listă",
 		"invalid_parent": "Localitate părinte invalidă",
+		"required_parent_id": "O regiune sau un oraș are nevoie de o localitate părinte",
 		"invalid_language": "Limbă invalidă",
 		"invalid_name": "Nume invalid",
 		"invalid_type_label": "Etichetă de tip invalidă"

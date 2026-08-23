@@ -12,6 +12,7 @@ import { Popover, PopoverContent } from '@/components/ui/popover';
 import { getLanguageClient } from '@/config/translate.setup';
 import { cn } from '@/helpers/css.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
+import { isOptimizableImageSrc } from '@/models/image.model';
 import type { DataSourceKey } from '@/types/data-source.key';
 
 export const statusList: Record<
@@ -33,6 +34,14 @@ export const statusList: Record<
 	deleted: {
 		variant: 'default',
 		icon: Icons.Status.Deleted,
+	},
+	open: {
+		variant: 'warning',
+		icon: Icons.Status.Pending,
+	},
+	resolved: {
+		variant: 'success',
+		icon: Icons.Status.Success,
 	},
 	ok: {
 		variant: 'success',
@@ -81,6 +90,22 @@ export const statusList: Record<
 	draft: {
 		variant: 'warning',
 		icon: Icons.Status.Draft,
+	},
+	rejected: {
+		variant: 'error',
+		icon: Icons.Status.Rejected,
+	},
+	scheduled: {
+		variant: 'default',
+		icon: Icons.Status.Scheduled,
+	},
+	published: {
+		variant: 'success',
+		icon: Icons.Status.Published,
+	},
+	archived: {
+		variant: 'default',
+		icon: Icons.Status.Archived,
 	},
 	in_use: {
 		variant: 'success',
@@ -164,6 +189,39 @@ export const DisplayStatus = ({
 			{ComputedIcon && <ComputedIcon className="w-4 h-4" />}
 			{translations[`${dataSource}.status.${status}`] || status}
 		</Badge>
+	);
+};
+
+/**
+ * A value preceded by a marker icon while the flag is on, for a column where the flag is a
+ * property of the value rather than a column of its own (a featured article's title).
+ *
+ * The icon is `aria-hidden`, so the meaning has to reach a screen reader some other way — the
+ * `title` is a pointer tooltip only.
+ */
+export const DisplayFlagged = ({
+	value,
+	isFlagged,
+	icon: Icon,
+	title,
+	className,
+}: {
+	value: string | JSX.Element;
+	isFlagged: boolean;
+	icon: ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
+	title?: string;
+	className?: string;
+}) => {
+	return (
+		<span className="inline-flex items-center gap-1.5" title={title}>
+			{isFlagged && (
+				<Icon
+					className={cn('w-4 h-4 shrink-0', className)}
+					aria-hidden={true}
+				/>
+			)}
+			{value}
+		</span>
 	);
 };
 
@@ -275,6 +333,8 @@ function ImagePreview({
 }: ImagePreviewProps) {
 	const [isOpen, setIsOpen] = useState(false);
 
+	const unoptimized = !isOptimizableImageSrc(src);
+
 	return (
 		<Popover isOpen={isOpen} onOpenChange={setIsOpen}>
 			<Popover.Trigger
@@ -287,6 +347,7 @@ function ImagePreview({
 					className={cn('h-full w-full object-contain', className)}
 					width={width}
 					height={height}
+					unoptimized={unoptimized}
 				/>
 			</Popover.Trigger>
 			<PopoverContent
@@ -307,6 +368,7 @@ function ImagePreview({
 						height={800}
 						sizes="80vw"
 						priority
+						unoptimized={unoptimized}
 						style={{
 							maxWidth: '80vw',
 							maxHeight: '80vh',

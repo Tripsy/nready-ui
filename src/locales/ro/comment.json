@@ -1,0 +1,121 @@
+{
+	"meta": {
+		"title": "Comentarii - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_content": "Comentariul trebuie să aibă între 2 și 5000 de caractere",
+		"invalid_type": "Alege tipul comentariului",
+		"invalid_is_pinned": "Valoare invalidă pentru fixare",
+		"invalid_guest_name": "Numele trebuie să aibă între 2 și 100 de caractere",
+		"invalid_guest_email": "Introdu o adresă de email validă",
+		"invalid_guest_website": "Site-ul poate avea cel mult 255 de caractere"
+	},
+	"action": {
+		"update": {
+			"title": "Editează comentariul - {{entry}}",
+			"label": "Editează",
+			"success": "Comentariul a fost actualizat"
+		},
+		"delete": {
+			"title": "Șterge comentariul",
+			"label": "Șterge",
+			"success": "Comentariul a fost șters",
+			"confirm": "Sigur vrei să ștergi comentariul selectat? Răspunsurile la el vor fi șterse odată cu el."
+		},
+		"statusTransition": {
+			"title": "Actualizează statusul - {{entry}}",
+			"label": "Status",
+			"success": "Statusul comentariului a fost actualizat"
+		},
+		"view": {
+			"title": "Detalii comentariu - {{entry}}",
+			"label": "Vezi"
+		},
+		"viewUser": {
+			"title": "Vezi utilizatorul"
+		}
+	},
+	"status": {
+		"pending": "În așteptare",
+		"approved": "Aprobat",
+		"rejected": "Respins",
+		"spam": "Spam",
+		"flagged": "Semnalat"
+	},
+	"thread": {
+		"heading": "Comentarii",
+		"empty": "Niciun comentariu încă. Fii primul care lasă unul.",
+		"unavailable": "Comentariile sunt temporar indisponibile. Încearcă din nou mai târziu.",
+		"load_more": "Încarcă mai multe comentarii",
+		"loading": "Se încarcă…",
+		"guest": "Vizitator",
+		"staff": "Echipa",
+		"pinned": "Fixat",
+		"reply": "Răspunde",
+		"replies": "Răspunsuri",
+		"see_replies": "Vezi răspunsurile",
+		"collapse_replies": "Ascunde răspunsurile",
+		"reply_to": "Răspunzi lui",
+		"cancel": "Anulează",
+		"show_more": "mai mult",
+		"menu": "Opțiuni comentariu",
+		"copy_link": "Copiază linkul comentariului",
+		"copy_link_success": "Link copiat",
+		"copy_link_failed": "Linkul nu a putut fi copiat",
+		"report": "Raportează comentariul",
+		"edit": "Editează comentariul",
+		"edit_save": "Salvează modificările",
+		"edit_success": "Comentariu actualizat",
+		"edit_failed": "Comentariul nu a putut fi actualizat",
+		"edited": "(editat)",
+		"delete": "Șterge comentariul",
+		"delete_title": "Ștergere comentariu",
+		"delete_confirm": "Comentariul este șters definitiv, împreună cu toate răspunsurile scrise sub el. Acțiunea nu poate fi anulată.",
+		"delete_success": "Comentariu șters",
+		"delete_failed": "Comentariul nu a putut fi șters",
+		"pin": "Fixează în capul listei",
+		"unpin": "Anulează fixarea",
+		"pin_success": "Comentariu actualizat",
+		"pin_failed": "Comentariul nu a putut fi actualizat",
+		"hide": "Ascunde comentariul",
+		"hide_title": "Ascundere comentariu",
+		"hide_intro": "Comentariul iese din discuție, dar este păstrat și poate fi readus din panoul de administrare.",
+		"hide_rejected": "Respinge",
+		"hide_spam": "Marchează ca spam",
+		"hide_reason": "Motiv (opțional)",
+		"hide_reason_note": "Descrie de ce comentariul se află acum în această stare; următoarea decizie îl înlocuiește.",
+		"hide_reason_long": "Motivul poate avea cel mult 255 de caractere",
+		"hide_submit": "Ascunde comentariul",
+		"hide_success": "Comentariu ascuns",
+		"hide_failed": "Comentariul nu a putut fi ascuns"
+	},
+	"form": {
+		"heading": "Lasă un comentariu",
+		"content_placeholder": "Spune-ne ce crezi…",
+		"guest_name": "Numele tău",
+		"guest_email": "Emailul tău",
+		"guest_email_note": "Emailul tău nu este publicat niciodată.",
+		"guest_website": "Site-ul tău (opțional)",
+		"submit": "Trimite comentariul",
+		"success": "Îți mulțumim, comentariul tău a fost trimis.",
+		"failed": "Comentariul nu a putut fi trimis",
+		"write_another": "Scrie alt comentariu"
+	},
+	"error": {
+		"cannot_update_status": "Acest comentariu nu poate trece în alt status din starea curentă"
+	},
+	"unsubscribe": {
+		"meta_title": "Notificări comentarii | {{app_name}}",
+		"heading": "Notificări comentarii",
+		"intro": "Primești notificări despre comentarii la",
+		"all": "Toate comentariile noi din discuțiile în care particip",
+		"replies_to_me": "Doar răspunsurile la comentariile mele",
+		"unsubscribed": "Nimic — oprește aceste emailuri",
+		"save": "Salvează preferința",
+		"saving": "Se salvează…",
+		"saved": "Preferința a fost salvată",
+		"failed": "Preferința nu a putut fi salvată",
+		"invalid": "Acest link nu mai este valid. Este posibil să fi fost deja folosit pentru a elimina abonarea.",
+		"back": "Înapoi la site"
+	}
+}

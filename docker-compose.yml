@@ -11,7 +11,14 @@ services:
         # Without a limit the dev server can consume the entire Docker VM (8 GB) and
         # trip the host OOM killer, taking other containers down with it. Capping it
         # contains the blast radius and makes a runaway attributable to this container.
-        mem_limit: 4g
+        #
+        # 6g rather than 4g because a cold Turbopack compile of the dashboard peaks right
+        # at 4g and gets the dev server OOM-killed there — which leaves zombie processes
+        # behind that `dev-stack.sh` then mistakes for a running server. The cap is a
+        # ceiling, not a reservation: steady state is ~3.8g, so this only buys the peak
+        # room. It does overcommit the 8 GB VM against the API's own 4g, which is safe
+        # only because that container idles near 500 MB.
+        mem_limit: 6g
         tty: true
         networks:
             - development

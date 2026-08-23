@@ -1,0 +1,76 @@
+{
+	"meta": {
+		"title": "Complaints - Dashboard | {{app_name}}"
+	},
+	"status": {
+		"open": "Open",
+		"resolved": "Resolved",
+		"deleted": "Deleted"
+	},
+	"action": {
+		"resolve": {
+			"title": "Resolve complaint",
+			"label": "Resolve",
+			"success": "Complaint resolved",
+			"confirm": "Are you sure you want to mark the selected complaint as resolved?"
+		},
+		"reopen": {
+			"title": "Reopen complaint",
+			"label": "Reopen",
+			"success": "Complaint reopened",
+			"confirm": "Are you sure you want to reopen the selected complaint? The moderator and the date of the earlier decision are cleared."
+		},
+		"delete": {
+			"title": "Delete complaint",
+			"label": "Delete",
+			"success": "Complaint deleted",
+			"confirm": "Are you sure you want to delete the selected complaint? It can be restored afterwards."
+		},
+		"restore": {
+			"title": "Restore complaint",
+			"label": "Restore",
+			"success": "Complaint restored",
+			"confirm": "Are you sure you want to restore the selected complaint?"
+		},
+		"view": {
+			"title": "Complaint details - {{entry}}",
+			"label": "View"
+		},
+		"viewUser": {
+			"title": "View user"
+		}
+	},
+	"report": {
+		"action": "Report",
+		"reported": "Reported",
+		"title": "Report this content",
+		"intro": "Tell us what is wrong with it. Our team reviews every report.",
+		"reason": "Reason",
+		"details": "Details",
+		"details_placeholder": "Anything that helps us check this (optional)",
+		"submit": "Send report",
+		"update": "Update report",
+		"success": "Thank you, your report has been sent",
+		"failed": "Your report could not be sent",
+		"resolved": "Your report has been reviewed, so it can no longer be changed or withdrawn.",
+		"withdraw": "Withdraw report",
+		"withdraw_success": "Your report has been withdrawn",
+		"withdraw_failed": "Your report could not be withdrawn",
+		"guest": "You need an account to report content.",
+		"sign_in": "Sign in",
+		"close": "Close"
+	},
+	"reason": {
+		"spam": "Spam",
+		"offensive": "Offensive",
+		"harassment": "Harassment",
+		"hate_speech": "Hate speech",
+		"misinformation": "Misinformation",
+		"ai_slop": "AI generated filler",
+		"copyright": "Copyright infringement"
+	},
+	"validation": {
+		"invalid_reason": "Choose a reason",
+		"invalid_description": "The details must be between 2 and 2000 characters"
+	}
+}

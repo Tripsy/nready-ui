@@ -16,6 +16,8 @@
 		"operation_not_allowed": "Operation not allowed",
 		"entry_required": "Entry is required",
 		"service_unavailable": "Service unavailable",
+		"rate_limited": "Too many attempts. Please wait a few minutes and try again.",
+		"fields_need_attention": "{{count}} field(s) need attention",
 		"generic": "Something went wrong. Please try again."
 	},
 	"success": {

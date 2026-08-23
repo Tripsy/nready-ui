@@ -1,0 +1,52 @@
+{
+	"meta": {
+		"title": "Discounts - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_label": "Invalid label",
+		"invalid_scope": "Invalid scope",
+		"invalid_reason": "Invalid reason",
+		"invalid_reference": "Invalid reference",
+		"invalid_type": "Invalid type",
+		"invalid_value": "Invalid value",
+		"invalid_start_at": "Invalid start date",
+		"invalid_end_at": "Invalid end date",
+		"end_at_must_be_after_start_at": "End date must be after start date",
+		"percent_must_be_between_0_and_100": "Percent discount must be between 0 and 100",
+		"invalid_notes": "Invalid notes",
+		"invalid_min_order_value": "Minimum order value is invalid",
+		"invalid_countries": "Country codes must be two letters",
+		"invalid_hour": "Hour must be a whole number between 0 and 23",
+		"invalid_day": "Day must be between Monday and Sunday",
+		"range_needs_both_ends": "Set both ends of the range, or neither",
+		"targets_required": "Pick at least one target — a discount with this scope applies to nothing without one"
+	},
+	"action": {
+		"create": {
+			"title": "Add new discount",
+			"label": "Add",
+			"success": "New discount added successfully"
+		},
+		"update": {
+			"title": "Update discount - {{entry}}",
+			"label": "Update",
+			"success": "Discount updated successfully"
+		},
+		"delete": {
+			"title": "Delete discount - {{entry}}",
+			"label": "Delete",
+			"success": "Discount deleted successfully",
+			"confirm": "Are you sure you want to delete this discount?"
+		},
+		"restore": {
+			"title": "Restore discount - {{entry}}",
+			"label": "Restore",
+			"success": "Discount restored successfully",
+			"confirm": "Are you sure you want to restore this discount?"
+		},
+		"view": {
+			"title": "Discount details - {{entry}}",
+			"label": "View details"
+		}
+	}
+}

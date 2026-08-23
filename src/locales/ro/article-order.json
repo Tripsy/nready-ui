@@ -1,0 +1,11 @@
+{
+	"meta": {
+		"title": "Articole / Ordine - Dashboard | {{app_name}}"
+	},
+	"success": {
+		"order_updated": "Ordinea articolelor promovate a fost salvată cu succes."
+	},
+	"error": {
+		"order_failed": "Nu s-a putut salva noua ordine a articolelor. Încearcă din nou."
+	}
+}

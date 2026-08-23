@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect } from 'react';
 import { dispatchFilterReset } from '@/app/(dashboard)/_events/data-table-filter-reset.event';
 import { logRejection } from '@/helpers/logger.helper';
-import { WINDOW_CACHE_LABEL } from '@/helpers/window.helper';
+import { invalidateWindowEntries } from '@/helpers/window.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import { useToast } from '@/providers/toast.provider';
 import { useModalStore } from '@/stores/window.store';
@@ -58,19 +58,14 @@ export function useWindowFormProcessed<
 					);
 				}
 
-				// Invalidate reloaded entry cache on update
-				if (windowConfig.action === 'update' && entryId) {
-					const windowDefinition = windowConfig?.definition;
-
-					if (windowDefinition?.reloadEntry) {
-						await queryClient.invalidateQueries({
-							queryKey: [
-								WINDOW_CACHE_LABEL,
-								windowConfig.uid,
-								entryId,
-							],
-						});
-					}
+				// Keyed on the entry rather than on the action: a form window on an existing
+				// row has written to it whatever the action is called.
+				if (entryId) {
+					await invalidateWindowEntries(
+						queryClient,
+						windowConfig.dataSource,
+						[entryId],
+					);
 				}
 
 				close(windowConfig.uid);

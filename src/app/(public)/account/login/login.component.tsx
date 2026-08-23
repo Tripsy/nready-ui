@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
 import { AuthTokenList } from '@/app/(public)/_components/auth-token-list.component';
 import { OAuthProviders } from '@/app/(public)/_components/oauth-providers.component';
@@ -28,7 +28,6 @@ import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useFormSituation } from '@/hooks/use-form-situation.hook';
 import { useFormValidation } from '@/hooks/use-form-validation.hook';
 import { useFormValues } from '@/hooks/use-form-values.hook';
-import { useAuth } from '@/providers/auth.provider';
 import { useToast } from '@/providers/toast.provider';
 
 type LoginProps = {
@@ -39,8 +38,6 @@ export default function Login({ translations }: LoginProps) {
 	const [showPassword, setShowPassword] = useState(false);
 	const { showToast } = useToast();
 
-	const { refreshAuth } = useAuth();
-	const router = useRouter();
 	const searchParams = useSearchParams();
 
 	const [state, action, pending] = useActionState(loginAction, LoginState);
@@ -66,36 +63,25 @@ export default function Login({ translations }: LoginProps) {
 
 	useEffect(() => {
 		if (formSituation === 'success') {
-			/*
-			 * Sequenced, not parallel: `refreshAuth` calls the `getAuth` server action, which
-			 * Next posts to the *current* URL and answers with a re-rendered tree for it. Started
-			 * alongside the navigation, that response lands after it and puts the login page back
-			 * on screen — the session is already valid, so only a reload shows it. Awaiting the
-			 * action leaves nothing in flight to overwrite the redirect.
-			 */
-			(async () => {
-				await refreshAuth();
+			// Get the original destination from query params
+			const fromParam = searchParams.get('from');
 
-				// Get the original destination from query params
-				const fromParam = searchParams.get('from');
+			let redirectUrl = Routes.get('home');
 
-				let redirectUrl = Routes.get('home');
+			if (fromParam) {
+				// `get` already percent-decodes, so `fromParam` is the plain path.
+				const url = new URL(fromParam, window.location.origin);
+				const pathname = url.pathname;
 
-				if (fromParam) {
-					// `get` already percent-decodes, so `fromParam` is the plain path.
-					const url = new URL(fromParam, window.location.origin);
-					const pathname = url.pathname;
-
-					// Check only the pathname against excluded routes
-					if (!isExcludedRoute(pathname)) {
-						redirectUrl = url.toString();
-					}
+				// Check only the pathname against excluded routes
+				if (!isExcludedRoute(pathname)) {
+					redirectUrl = url.toString();
 				}
+			}
 
-				router.replace(redirectUrl);
-			})();
+			window.location.replace(redirectUrl);
 		}
-	}, [formSituation, router, refreshAuth, searchParams]);
+	}, [formSituation, searchParams]);
 
 	const elementIds = useElementIds(['email', 'password'] as const);
 
@@ -181,32 +167,35 @@ export default function Login({ translations }: LoginProps) {
 					formMessage={formMessage}
 				/>
 
-				{formSituation === 'maxActiveSession' && authTokens && (
+				{formSituation === 'maxActiveSession' && (
 					<div className="space-y-4">
 						<div className="form-error">
 							<ErrorIcon />
 							<div>{formMessage}</div>
 						</div>
 
-						<AuthTokenList
-							tokens={authTokens}
-							onResult={(success, message) => {
-								showToast({
-									severity: success ? 'success' : 'error',
-									summary: success
-										? translations['app.success.title']
-										: translations['app.error.title'],
-									detail:
-										message === 'session_destroy_success'
-											? translations[
-													'login.message.session_destroy_success'
-												]
-											: translations[
-													`login.message.session_destroy_error`
-												],
-								});
-							}}
-						/>
+						{authTokens && (
+							<AuthTokenList
+								tokens={authTokens}
+								onResult={(success, message) => {
+									showToast({
+										severity: success ? 'success' : 'error',
+										summary: success
+											? translations['app.success.title']
+											: translations['app.error.title'],
+										detail:
+											message ===
+											'session_destroy_success'
+												? translations[
+														'login.message.session_destroy_success'
+													]
+												: translations[
+														`login.message.session_destroy_error`
+													],
+									});
+								}}
+							/>
+						)}
 					</div>
 				)}
 

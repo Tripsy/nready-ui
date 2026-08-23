@@ -1,10 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import {
 	ViewField,
 	ViewSection,
 } from '@/app/(dashboard)/_components/view-detail';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ManagerLanguageSwitcher } from '@/components/manager-language-switcher.component';
 import { formatDate } from '@/helpers/date.helper';
 import {
 	capitalizeFirstLetter,
@@ -14,7 +15,12 @@ import type { PlaceModel } from '@/models/place.model';
 
 export function ViewPlace({ entry }: { entry: PlaceModel }) {
 	const languageContents = Object.values(entry.contents ?? []);
-	const contentTabDefault = languageContents[0]?.language;
+	const languages = languageContents.map((value) => value.language);
+	const [language, setLanguage] = useState(languages[0]);
+
+	const content =
+		languageContents.find((value) => value.language === language) ??
+		languageContents[0];
 
 	return (
 		<div className="space-y-6">
@@ -51,47 +57,22 @@ export function ViewPlace({ entry }: { entry: PlaceModel }) {
 				)}
 			</ViewSection>
 
-			{languageContents.length > 0 && (
+			{content && (
 				<div>
-					<Tabs
-						defaultSelectedKey={contentTabDefault}
-						className="w-full"
-					>
-						<div className="flex items-center border-b border-line pb-2 gap-2">
-							<h3 className="font-bold whitespace-nowrap">
-								Language specific
-							</h3>
-							<TabsList>
-								{languageContents.map((value) => (
-									<TabsTrigger
-										key={value.language}
-										id={value.language}
-									>
-										{value.language.toUpperCase()}
-									</TabsTrigger>
-								))}
-							</TabsList>
-						</div>
-						{languageContents.map((value) => (
-							<TabsContent
-								key={`content-${value.language}`}
-								id={value.language}
-							>
-								<div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
-									<ViewField
-										label="Type - Label"
-										value={capitalizeFirstLetter(
-											value.type_label,
-										)}
-									/>
-									<ViewField
-										label="Name"
-										value={value.name}
-									/>
-								</div>
-							</TabsContent>
-						))}
-					</Tabs>
+					<ManagerLanguageSwitcher
+						label="Language specific"
+						languages={languages}
+						selected={content.language}
+						onSelect={setLanguage}
+					/>
+
+					<ViewSection>
+						<ViewField
+							label="Type - Label"
+							value={capitalizeFirstLetter(content.type_label)}
+						/>
+						<ViewField label="Name" value={content.name} />
+					</ViewSection>
 				</div>
 			)}
 		</div>

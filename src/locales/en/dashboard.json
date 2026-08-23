@@ -4,34 +4,41 @@
 	},
 	"labels": {
 		"dashboard": "Dashboard",
-
 		"financial": "Financial",
 		"cash-flow": "Cash Flow",
 		"client": "Clients",
-
+		"discount": "Discounts",
 		"content": "Content",
 		"brand": "Brands",
 		"brand-order": "Order",
+		"category": "Categories",
+		"category-order": "Order",
+		"category-tree": "Tree",
 		"image": "Images",
 		"image-order": "Order",
 		"address": "Addresses",
 		"place": "Places",
-
+		"term": "Terms",
 		"settings": "Settings",
 		"template": "Templates",
 		"document-series": "Document Series",
-
 		"logs": "System Logs",
-
 		"cron-history": "Cron History",
 		"log-data": "Log Data",
 		"log-history": "Log History",
 		"mail-queue": "Mail Queue",
-
+		"user-management": "User Management",
 		"user": "Users",
 		"permission": "Permissions",
-
-		"vendor": "Vendors"
+		"logistics": "Logistics",
+		"vendor": "Vendors",
+		"carrier": "Carriers",
+		"publishing": "Publishing",
+		"article": "Articles",
+		"article-order": "Order",
+		"rating": "Ratings",
+		"comment": "Comments",
+		"complaint": "Complaints"
 	},
 	"text": {
 		"showing_entries": "Showing {{first}} to {{last}} of {{total}} entries",
@@ -43,7 +50,6 @@
 		"placeholder_end_date": "End Date",
 		"label_checkbox_show_deleted": "Show deleted",
 		"label_reset": "Reset",
-
 		"rows_per_page": "Rows per page",
 		"label_data_table": "Data table",
 		"label_pagination": "Table pagination",

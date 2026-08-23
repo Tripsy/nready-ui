@@ -407,8 +407,14 @@ export async function proxy(req: NextRequest) {
 		return ctx.success();
 	}
 
-	// Skip auth check for proxy routes - they will fail at remote API if is the case
-	if (!['proxy'].includes(routeMatch.name)) {
+	// Skip auth check for proxy routes - they will fail at remote API if is the case.
+	// `auth-session` is skipped too: it runs while the session it is about to write does not
+	// exist yet, so resolving auth for it would only cost a backend round trip.
+	if (
+		!['proxy', 'auth-session', 'auth-oauth-session'].includes(
+			routeMatch.name,
+		)
+	) {
 		return await ctx.handleAuth(routeMatch);
 	}
 

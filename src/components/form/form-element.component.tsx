@@ -442,7 +442,17 @@ export const FormComponentTextarea = <Fields,>({
 
 	return (
 		<FormElement
-			label={{ for: id, text: labelText, required: isRequired }}
+			/*
+			 * No `labelText`, no label element — an empty one still renders its required
+			 * asterisk, which reads as a field whose name failed to load. The name then has to
+			 * come from somewhere a screen reader can use, so it falls back to the placeholder;
+			 * a control with neither is unlabelled, which is why one of the two is required.
+			 */
+			label={
+				labelText
+					? { for: id, text: labelText, required: isRequired }
+					: undefined
+			}
 			error={error}
 		>
 			<FormElementWrapper>
@@ -452,6 +462,7 @@ export const FormComponentTextarea = <Fields,>({
 					value={fieldValue ?? ''}
 					className={cn(borderClass, className)}
 					placeholder={placeholderText}
+					aria-label={labelText ? undefined : placeholderText}
 					disabled={disabled}
 					aria-invalid={!!error}
 					onChange={onChange}
@@ -493,7 +504,7 @@ export const FormComponentSelect = <Fields,>({
 		? (options as GroupedOptionsType).map((group) => (
 				<ListBox.Section
 					key={group.label}
-					className="[&:not(:first-child)]:mt-1 [&:not(:first-child)]:border-t [&:not(:first-child)]:border-border [&:not(:first-child)]:pt-1"
+					className="not-first:mt-1 not-first:border-t not-first:border-border not-first:pt-1"
 				>
 					<Header className="px-2 pt-1.5 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
 						{group.label}
@@ -504,7 +515,11 @@ export const FormComponentSelect = <Fields,>({
 							key={value}
 							id={value}
 							textValue={label}
-							className="rounded-md"
+							// `pr-8` reserves the strip the selected-state indicator occupies.
+							// It is absolutely positioned (`right: 8px`, 16px wide), so it is
+							// outside the item's intrinsic width — without the padding the
+							// label runs underneath it and the popover never widens to fit.
+							className="whitespace-nowrap rounded-md pr-8"
 						>
 							{label}
 							<ListBox.Item.Indicator />
@@ -517,7 +532,11 @@ export const FormComponentSelect = <Fields,>({
 					key={value}
 					id={value}
 					textValue={label}
-					className="rounded-md"
+					// `pr-8` reserves the strip the selected-state indicator occupies. It is
+					// absolutely positioned (`right: 8px`, 16px wide), so it is outside the
+					// item's intrinsic width — without the padding the label runs underneath
+					// it and the popover never widens to fit.
+					className="whitespace-nowrap rounded-md pr-8"
 				>
 					{label}
 					<ListBox.Item.Indicator />
@@ -559,7 +578,7 @@ export const FormComponentSelect = <Fields,>({
 							/>
 							<ComboBox.Trigger />
 						</ComboBox.InputGroup>
-						<ComboBox.Popover className="rounded-md">
+						<ComboBox.Popover className="min-w-fit rounded-md">
 							<ListBox>{listBoxItems}</ListBox>
 						</ComboBox.Popover>
 					</ComboBox>
@@ -585,7 +604,7 @@ export const FormComponentSelect = <Fields,>({
 							<Select.Value />
 							<Select.Indicator />
 						</Select.Trigger>
-						<Select.Popover className="rounded-md">
+						<Select.Popover className="min-w-fit rounded-md">
 							<ListBox>{listBoxItems}</ListBox>
 						</Select.Popover>
 					</Select>
@@ -735,6 +754,16 @@ export const FormComponentCalendarWithoutFormElement = <Fields,>({
 	// local calendar parts, matching what the calendar displays.
 	const value = fieldValue ? parseDate(fieldValue) : null;
 
+	/*
+	 * The popover has to be told what to anchor to. HeroUI's `DatePicker.Popover` renders
+	 * react-aria's `Popover` without passing a `triggerRef`, and its own trigger context is
+	 * private to the trigger — so with nothing to measure, react-aria positions the calendar at
+	 * the viewport's top-left corner instead of under the field. The trigger merges an outer
+	 * ref with its internal one, and the popover spreads unknown props straight through, so
+	 * handing the same ref to both is what connects them.
+	 */
+	const triggerRef = useRef<HTMLButtonElement | null>(null);
+
 	const toCalendarDate = (date: Date) =>
 		new CalendarDate(
 			date.getFullYear(),
@@ -755,6 +784,7 @@ export const FormComponentCalendarWithoutFormElement = <Fields,>({
 				aria-label={ariaLabel ?? placeholderText}
 			>
 				<DatePicker.Trigger
+					ref={triggerRef}
 					id={id}
 					// Also on the trigger, not just the root: react-aria defaults this
 					// button's name to "Calendar", so without it every picker in a form
@@ -771,7 +801,10 @@ export const FormComponentCalendarWithoutFormElement = <Fields,>({
 					</DatePicker.TriggerIndicator>
 					{fieldValue || placeholderText}
 				</DatePicker.Trigger>
-				<DatePicker.Popover className="rounded-md">
+				<DatePicker.Popover
+					triggerRef={triggerRef}
+					className="rounded-md"
+				>
 					<Calendar />
 				</DatePicker.Popover>
 			</DatePicker>

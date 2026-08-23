@@ -5,6 +5,7 @@ import {
 } from '@/helpers/form.helper';
 import { getObjectValue, setNestedValue } from '@/helpers/objects.helper';
 import { useDebouncedEffect } from '@/hooks/use-debounced-effect.hook';
+import { useDocumentLanguage } from '@/hooks/use-document-language.hook';
 import type {
 	FormErrorsType,
 	FormValuesType,
@@ -30,6 +31,14 @@ export function useFormValidation<FormValues extends FormValuesType>({
 		TouchedFieldsType<FormValues>
 	>({});
 	const [submitted, setSubmitted] = useState(false);
+
+	/*
+	 * A dependency, not a value this hook reads: `validateForm` resolves its messages through
+	 * `translateBatch` each time it runs, so re-running it after a language change is what
+	 * turns the errors already on screen into the new language. Without this they stay in the
+	 * language they were validated in until the user next edits a field.
+	 */
+	const language = useDocumentLanguage();
 
 	const markFieldAsTouched = useCallback((path: string) => {
 		setTouchedFields((prev) => {
@@ -77,7 +86,7 @@ export function useFormValidation<FormValues extends FormValuesType>({
 			setErrors(filteredErrors);
 			onValidation(filteredErrors);
 		},
-		[formValues, touchedFields, submitted, validateForm],
+		[formValues, touchedFields, submitted, validateForm, language],
 		debounceDelay,
 	);
 

@@ -50,6 +50,22 @@ export const buildQueryString = (params: QueryFiltersType): string => {
 						return;
 					}
 
+					/*
+					 * A list filter repeats the key with the PHP-style `[]` suffix, which
+					 * is the shape the backend's `qs` query parser reads back as an array.
+					 * `String()` on the array itself would send one comma-joined value.
+					 */
+					if (Array.isArray(filterValue)) {
+						filterValue.forEach((entry) => {
+							query.append(
+								`filter[${filterKey}][]`,
+								String(entry),
+							);
+						});
+
+						return;
+					}
+
 					query.append(`filter[${filterKey}]`, String(filterValue));
 				});
 			} else {
@@ -308,19 +324,40 @@ export class ApiRequest {
 	}
 }
 
+/**
+ * Data sources whose backend endpoint is not the naive `${key}s` plural.
+ * Checked before `PLURAL_ENDPOINT_KEYS`, which cannot express `category -> categories`.
+ */
+const IRREGULAR_ENDPOINT_KEYS: Partial<Record<DataSourceKey, string>> = {
+	category: 'categories',
+};
+
 /** Data sources whose backend endpoint is the plural of the key. */
 const PLURAL_ENDPOINT_KEYS: ReadonlySet<DataSourceKey> = new Set([
+	'article',
 	'brand',
+	'carrier',
 	'client',
+	'comment',
+	'complaint',
+	'discount',
 	'image',
 	'permission',
 	'place',
+	'rating',
 	'template',
+	'term',
 	'user',
 	'vendor',
 ]);
 
 export function resolveRequestPath(key: DataSourceKey) {
+	const irregular = IRREGULAR_ENDPOINT_KEYS[key];
+
+	if (irregular) {
+		return irregular;
+	}
+
 	if (PLURAL_ENDPOINT_KEYS.has(key)) {
 		return `${key}s`;
 	}

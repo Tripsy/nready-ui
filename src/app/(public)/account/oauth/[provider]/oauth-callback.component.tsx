@@ -1,10 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { AuthTokenList } from '@/app/(public)/_components/auth-token-list.component';
-import { oauthCallbackAction } from '@/app/(public)/account/oauth/[provider]/oauth-callback.action';
 import {
 	OAuthCallbackState,
 	type OAuthCallbackStateType,
@@ -16,8 +14,8 @@ import {
 } from '@/components/status.component';
 import Routes, { isExcludedRoute } from '@/config/routes.setup';
 import { replaceVars } from '@/helpers/string.helper';
-import { useAuth } from '@/providers/auth.provider';
 import { useToast } from '@/providers/toast.provider';
+import { requestOAuthCallback } from '@/services/account.service';
 import { OAUTH_PROVIDER_LABEL, type OAuthProvider } from '@/types/oauth.type';
 
 type OAuthCallbackProps = {
@@ -35,8 +33,6 @@ export default function OAuthCallback({
 	providerError,
 	translations,
 }: OAuthCallbackProps) {
-	const router = useRouter();
-	const { refreshAuth } = useAuth();
 	const { showToast } = useToast();
 
 	const [result, setResult] =
@@ -58,7 +54,12 @@ export default function OAuthCallback({
 
 		(async () => {
 			setResult(
-				await oauthCallbackAction(provider, code, state, providerError),
+				await requestOAuthCallback(
+					provider,
+					code,
+					state,
+					providerError,
+				),
 			);
 		})();
 	}, [provider, code, state, providerError]);
@@ -68,22 +69,26 @@ export default function OAuthCallback({
 			return;
 		}
 
-		(async () => {
-			await refreshAuth();
+		let redirectUrl = Routes.get('home');
 
-			let redirectUrl = Routes.get('home');
+		if (result.redirectTo) {
+			const url = new URL(result.redirectTo, window.location.origin);
 
-			if (result.redirectTo) {
-				const url = new URL(result.redirectTo, window.location.origin);
-
-				if (!isExcludedRoute(url.pathname)) {
-					redirectUrl = url.toString();
-				}
+			if (!isExcludedRoute(url.pathname)) {
+				redirectUrl = url.toString();
 			}
+		}
 
-			router.replace(redirectUrl);
-		})();
-	}, [result, router, refreshAuth]);
+		/*
+		 * A document load, for the same reason as the password login (see
+		 * `account/login/login.component.tsx`): this flow has just run `oauthCallbackAction`,
+		 * and a server action's response re-renders the URL it was posted to and makes that URL
+		 * canonical again — which can undo a client-side navigation started around it. Leaving
+		 * the page outright cannot be reverted, and the destination is server-rendered with the
+		 * session cookie, so `AuthProvider` is seeded from `x-auth-data` without a refresh.
+		 */
+		window.location.replace(redirectUrl);
+	}, [result]);
 
 	const providerLabel =
 		OAUTH_PROVIDER_LABEL[provider as OAuthProvider] ??

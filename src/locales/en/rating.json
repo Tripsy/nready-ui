@@ -1,0 +1,29 @@
+{
+	"meta": {
+		"title": "Ratings - Dashboard | {{app_name}}"
+	},
+	"action": {
+		"delete": {
+			"title": "Delete rating",
+			"label": "Delete",
+			"success": "Rating deleted",
+			"confirm": "Are you sure you want to delete the selected rating?"
+		},
+		"view": {
+			"title": "Rating details - {{entry}}",
+			"label": "View"
+		},
+		"viewUser": {
+			"title": "View user"
+		}
+	},
+	"reaction": {
+		"action": "React to this comment",
+		"failed": "Your reaction could not be saved",
+		"like": "Like",
+		"dislike": "Dislike",
+		"love": "Love",
+		"insightful": "Insightful",
+		"funny": "Funny"
+	}
+}

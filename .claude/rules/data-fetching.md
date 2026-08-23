@@ -37,7 +37,7 @@ paths:
   wrapper next to its siblings in the matching file.
 - Unwrap responses with `getResponseData(response)` (`api.helper.ts`) rather than reaching into
   `response.data` inline.
-- Before wrapping a new backend endpoint, check `../nready.dev/src/features/<entity>/<entity>.routes.ts`
+- Before wrapping a new backend endpoint, check `../nready-api/src/features/<entity>/<entity>.routes.ts`
   and `<entity>.controller.ts` for the exact path, method, and response envelope — don't guess the shape from
   the frontend side.
 

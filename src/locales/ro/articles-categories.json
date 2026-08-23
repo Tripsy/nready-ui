@@ -1,0 +1,13 @@
+{
+	"meta": {
+		"title": "Categorii de articole | {{app_name}}",
+		"description": "Vezi subiectele sub care sunt grupate articolele noastre."
+	},
+	"text": {
+		"heading": "Categorii de articole",
+		"subheading": "Toate subiectele despre care scriem, grupate așa cum le organizăm.",
+		"no_entries": "Momentan nu există categorii de articole de afișat.",
+		"unavailable": "Lista de categorii este temporar indisponibilă. Încearcă din nou mai târziu.",
+		"subcategories": "Subcategorii"
+	}
+}

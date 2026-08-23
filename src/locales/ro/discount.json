@@ -1,0 +1,52 @@
+{
+	"meta": {
+		"title": "Reduceri - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_label": "Etichetă invalidă",
+		"invalid_scope": "Domeniu invalid",
+		"invalid_reason": "Motiv invalid",
+		"invalid_reference": "Referință invalidă",
+		"invalid_type": "Tip invalid",
+		"invalid_value": "Valoare invalidă",
+		"invalid_start_at": "Dată de început invalidă",
+		"invalid_end_at": "Dată de sfârșit invalidă",
+		"end_at_must_be_after_start_at": "Data de sfârșit trebuie să fie după data de început",
+		"percent_must_be_between_0_and_100": "Reducerea procentuală trebuie să fie între 0 și 100",
+		"invalid_notes": "Notițe invalide",
+		"invalid_min_order_value": "Valoarea minimă a comenzii este invalidă",
+		"invalid_countries": "Codurile de țară trebuie să aibă două litere",
+		"invalid_hour": "Ora trebuie să fie un număr întreg între 0 și 23",
+		"invalid_day": "Ziua trebuie să fie între luni și duminică",
+		"range_needs_both_ends": "Setează ambele capete ale intervalului sau niciunul",
+		"targets_required": "Alege cel puțin o țintă — o reducere cu acest domeniu nu se aplică nicăieri fără una"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă reducere nouă",
+			"label": "Adaugă",
+			"success": "Reducerea nouă a fost adăugată cu succes"
+		},
+		"update": {
+			"title": "Actualizează reducerea - {{entry}}",
+			"label": "Actualizează",
+			"success": "Reducerea a fost actualizată cu succes"
+		},
+		"delete": {
+			"title": "Șterge reducerea - {{entry}}",
+			"label": "Șterge",
+			"success": "Reducerea a fost ștearsă cu succes",
+			"confirm": "Sigur vrei să ștergi această reducere?"
+		},
+		"restore": {
+			"title": "Restaurează reducerea - {{entry}}",
+			"label": "Restaurează",
+			"success": "Reducerea a fost restaurată cu succes",
+			"confirm": "Sigur vrei să restaurezi această reducere?"
+		},
+		"view": {
+			"title": "Detalii reducere - {{entry}}",
+			"label": "Vezi detalii"
+		}
+	}
+}

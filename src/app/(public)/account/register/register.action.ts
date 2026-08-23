@@ -24,6 +24,12 @@ export async function registerAction(
 						),
 						situation: 'pendingAccount' as const,
 					};
+				// Shared 10-per-15-minutes budget with password-recover and
+				// email-confirm-send on the backend, so this fires sooner than expected.
+				case 429:
+					return {
+						message: await translate('app.error.rate_limited'),
+					};
 				default:
 					return {};
 			}

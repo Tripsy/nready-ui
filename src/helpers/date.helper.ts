@@ -248,6 +248,52 @@ export function timeAgo(date: string | Date): string {
 }
 
 /**
+ * How a publication date reads on a public page: relative while the event is still recent
+ * ("3 days ago"), an absolute long date once it is not ("13 February 2026").
+ *
+ * The switch exists because the two forms answer different questions. "5 hours ago" places
+ * a fresh article against now, which is what a reader wants from a feed; past a couple of
+ * weeks that framing stops carrying information ("4 months ago") and the date itself is the
+ * more useful fact.
+ *
+ * **The absolute half resolves in `app.timezone`, not the viewer's zone** — the one display
+ * that departs from the convention in CLAUDE.md, and it has to. The article feed is a client
+ * component rendered on the server first, so the same date is formatted twice: in the
+ * container (UTC) for the HTML, then in the browser. An instant late in the UTC day lands on
+ * the next date in a positive-offset browser, and React fails hydration on the mismatch —
+ * seen as "8 July 2026" against "7 July 2026". A publication date is an editorial fact
+ * rather than a per-viewer instant, so pinning it to company time is both stable and true.
+ *
+ * The relative half cannot be pinned the same way: it is measured against *now*, which
+ * differs between the server render and hydration (the page is cached for minutes), so a
+ * value near a boundary still disagrees. Callers render it inside a `<time>` carrying
+ * `suppressHydrationWarning` for that reason.
+ *
+ * @param value - the instant to describe
+ * @param relativeWithinDays - how recent still reads as relative
+ */
+export function formatRelativeDate(
+	value: string | number | Date | null | undefined,
+	relativeWithinDays: number = 14,
+): string | null {
+	if (value === null || value === undefined || value === '') {
+		return null;
+	}
+
+	const date = dayjs(value);
+
+	if (!date.isValid()) {
+		return null;
+	}
+
+	if (dayjs().diff(date, 'day') < relativeWithinDays) {
+		return date.fromNow();
+	}
+
+	return date.tz(Configuration.get('app.timezone')).format('D MMMM YYYY');
+}
+
+/**
  * Convert a datetime string to a UTC ISO string for sending to the backend, reading it as
  * **company time** (`app.timezone`) rather than the viewer's.
  *

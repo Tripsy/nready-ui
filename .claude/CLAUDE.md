@@ -1,5 +1,5 @@
 ## Overview
-Next.js app with codename `nready-ui` consuming the `nready.dev` API. Public site (marketing, auth, account self-service) + admin CRUD dashboard for the backend entities.
+Next.js app with codename `nready-ui` consuming the `nready-api` API. Public site (marketing, auth, account self-service) + admin CRUD dashboard for the backend entities.
 
 Started as a copy of `../star-ui` (the frontend for `star-api`) with the fleet/CMR/driver features stripped out. `star-ui` is still the closest reference for anything not covered here.
 
@@ -38,9 +38,10 @@ context yet. Read the relevant one *before* proposing an approach in that area, 
 | `forms.md` | Validators, `<entity>.definition.ts`, the `processForm` pipeline, both form hosts | form/definition/action files, form helpers |
 | `data-fetching.md` | TanStack Query, service layer, query keys, cache invalidation | `src/services/**`, api helpers, data-table components |
 | `state.md` | Zustand stores, what belongs in a store vs. local state vs. server cache | `src/stores/**`, `src/components/window/**` |
+| `comment.md` | The public comment/rating/report widgets: translations across the server boundary, per-visitor reads, comment anchors | `src/components/{comment,complaint,rating}/**` |
 | `typescript.md` | TS/React conventions, linting rules, type-checking | every `.ts`/`.tsx` |
 
-Backend behaviour has its own set in `../nready.dev/.claude/rules/` (`api.md`, `auth.md`,
+Backend behaviour has its own set in `../nready-api/.claude/rules/` (`api.md`, `auth.md`,
 `database.md`, `error-handling.md`, `validation.md`, ...) — consult those rather than inferring
 backend rules from this project.
 
@@ -69,14 +70,18 @@ backend rules from this project.
 - Follow existing code conventions used in the project. When creating or editing a file, check sibling files for the correct structure, approach, and naming.
 - The code should follow **best practices** and **design principles** like SOLID, KISS, DRY, and strong security standards.
 
-## Decision Documentation
+## Code Comments
 
-- Explain your reasoning for non-obvious decisions in comments
-- **Write comments about the code as it is, never as a diff against what it was.** No "this
-  used to run unconditionally", no "the previous order broke X". State the constraint that
-  still applies ("split before the lowercase, which destroys the case boundary the split
+Comments are wanted — they carry what the code cannot say for itself, and they are the
+reference both a future reader and a future session work from.
+
+- **Describe the code as it is, never as a diff against what it was.** No "this used to run
+  unconditionally", no "the previous order broke X", no "chose X over Y". State the constraint
+  that still applies ("split before the lowercase, which destroys the case boundary the split
   reads") and leave the before/after for the commit message
-- If there are two valid approaches, document why you chose one over the other
+- Not absolute: name a past state when it still constrains the present — a workaround an
+  upstream bug requires, a shape kept for data already written — because a reader has to know
+  it to change the code safely
 - Note any performance implications or trade-offs
 
 ## Commands
@@ -90,6 +95,12 @@ pnpm run start    # Start production server (port 80)
 pnpm run biome    # Biome check --write (lint + format + circular dependencies)
 pnpm run clean    # Delete .next — Turbopack's dev cache grows until the container OOMs
 ```
+
+**Start the dev server through `/dev-stack`**, not `docker exec -it … pnpm run dev` — it drives
+this container and `nready-api.test` together, launches both detached, waits on their health
+endpoints and writes `logs/dev.log` (gitignored). The driver is
+`../nready-api/.claude/scripts/dev-stack.sh`; `/dev-stack doctor ui` reports the OOM flag and
+memory headroom behind the cache growth noted above.
 
 **pnpm 11 no longer reads the `pnpm` field in `package.json`** — settings live in
 `pnpm-workspace.yaml`. A dependency whose install scripts are blocked reports
@@ -119,22 +130,37 @@ and run `node --import ./register.mjs probe.ts`. Delete all three afterwards —
 the scratchpad, not the repo. Prefer asserting through the module's public surface (call the
 exported factory and exercise what it returns) over reaching for internals.
 
-The container is capped at 4g (`mem_limit` in `docker-compose.yml`) and Turbopack fills it.
+**After running `tsc` with the dev server stopped, `pnpm run clean` before restarting it.**
+Otherwise the restarted dev server answers **404 for every route** — `/`, `/articles`,
+`/dashboard/article` alike — with no compile step and nothing in the log, because it reads a
+`.next` the type-check left inconsistent. It looks exactly like a routing bug in whatever you
+just edited, which is what makes it expensive; observed twice.
+
+This container is capped at **6g** (`mem_limit` in `docker-compose.yml`; the API's is 4g) and
+Turbopack fills a large part of it — around 3.2g is its *resting* level with the dev server up,
+not a leak. The Turbopack arena is capped separately at 2g (`turbopackMemoryLimit` in
+`next.config.ts`); those two numbers are the lever, not the cache.
+
 If the dev server exits with nothing in the log it was SIGKILLed, not crashed — check
 `docker inspect nready-ui.test --format '{{.State.OOMKilled}}'`, then `pnpm run clean` and
-restart. There is not enough headroom for the dev server and a `build`/`tsc` at the same
-time: stop the dev server before running either, or it is the one that gets killed.
+restart. **`OOMKilled` can read `false` on an exit 137**: the process is killed from outside the
+container (host memory pressure, Docker Desktop reclaiming) rather than by the cgroup limit, and
+the symptom is the same — an API or UI that answers 404/500 to everything until it is restarted.
+`/dev-stack status` reports both the exit code and that flag.
+
+There is not enough headroom for the dev server and a `build`/`tsc` at the same time: stop the dev
+server before running either, or it is the one that gets killed.
 
 ## Context
 
 - This FE project has **no database and holds no business logic of its own**
 - It **sends no email** — the backend owns mail entirely. There is no nunjucks/templates stack here; don't reintroduce one.
-- Nearly everything under `src/services/*.service.ts` is a typed wrapper around an `nready.dev` REST endpoint.
-- The backend project is located in `../nready.dev` on which you have access through permission / additionalDirectories
+- Nearly everything under `src/services/*.service.ts` is a typed wrapper around an `nready-api` REST endpoint.
+- The backend project is located in `../nready-api` on which you have access through permission / additionalDirectories
 - The two projects connect purely over HTTP
 - `REMOTE_API_URL` in `.env` is the backend base URL.
 - When a task requires understanding backend behavior — request/response shape, validation rules, permission
-entities/operations, DB schema, business rules read the code in `../nready.dev`
+entities/operations, DB schema, business rules read the code in `../nready-api`
 - `src/app/api/proxy/[...path]/route.ts` forwards dashboard requests to the backend, attaching the session
   cookie as a `Bearer` token.
 - `src/proxy.ts` (the Next.js middleware) resolves auth/permission on every route by
@@ -170,7 +196,7 @@ entities/operations, DB schema, business rules read the code in `../nready.dev`
 │   │   │   ├── image/
 │   │   │   ├── language/
 │   │   │   ├── oauth/         # oauth/[provider] — social login redirect/callback
-│   │   │   ├── proxy/         # [...path] — forwards dashboard requests to nready.dev
+│   │   │   ├── proxy/         # [...path] — forwards dashboard requests to nready-api
 │   │   ├── error.tsx          # Route error boundary
 │   │   ├── favicon.ico
 │   │   ├── global-error.tsx   # Root-layout error boundary (inline-styled, no globals.css)
@@ -196,7 +222,7 @@ entities/operations, DB schema, business rules read the code in `../nready.dev`
 │   ├── locales/               # Language files (en, ro)
 │   ├── models/                # Models (entities)
 │   ├── providers/             # auth, query-client, theme, toast, window-form, ...
-│   ├── services/              # nready.dev service wrappers (account, auth, image, ...)
+│   ├── services/              # nready-api service wrappers (account, auth, image, ...)
 │   ├── stores/
 │   │   ├── data-table.store.ts
 │   │   ├── window.store.ts
@@ -218,7 +244,7 @@ entities/operations, DB schema, business rules read the code in `../nready.dev`
 - **Never commit onto `main`.** GitHub refuses a direct push to it, so a commit made there has to be
   moved off before it can go anywhere. If the current branch is `main` when a commit is requested,
   create the branch first (`git switch -c <type>/<short-name>`) and commit on that. The same applies
-  in `../nready.dev`.
+  in `../nready-api`.
 - When subagents are available and appropriate for the task, prefer delegating noisy operations
   (broad searches, log trawls, build output) to one — this is a preference for keeping the main
   context clean, not an instruction to spawn agents unprompted.
@@ -254,15 +280,19 @@ entities/operations, DB schema, business rules read the code in `../nready.dev`
      `<a>` links for that reason. It mints a `state` uuid, stores `{ state, from }` in the httpOnly
      `oauth-state` cookie (`sameSite: 'lax'` — a strict cookie would not survive the cross-site
      return), and redirects to the provider.
-  2. *Callback* — `(public)/account/oauth/[provider]/` (route `oauth-callback`,
-     `/account/oauth/:provider`, must match `getOAuthRedirectUri`). `oauth-callback.action.ts`
-     consumes the cookie (single-use — deleted whether or not the check passes), compares `state`,
-     then `requestOAuthLogin` → `createAuth`. The component redeems once behind a `useRef` guard,
-     since Strict Mode would otherwise spend the single-use `code` twice.
-  - **`state` is the entire CSRF defence for this flow** and only this app can enforce it — the
-     backend never sees the browser leave. The middleware's `x-csrf-token` gate does not apply:
-     the start leg is a GET, and the callback is a server action. Don't "simplify" either leg into
-     the other's shape.
+  2. *Callback* — the page is `(public)/account/oauth/[provider]/` (route `oauth-callback`,
+     `/account/oauth/:provider`, must match `getOAuthRedirectUri`), but the work happens in the
+     `POST /api/auth/oauth/:provider` route handler it calls through `requestOAuthCallback`. That
+     handler consumes the cookie (single-use — deleted whether or not the check passes), compares
+     `state`, then `requestOAuthLogin` → `writeSessionCookie`. The component redeems once behind a
+     `useRef` guard, since Strict Mode would otherwise spend the single-use `code` twice.
+     A route handler, not a server action: an action's response would re-render the callback page
+     and reset both that guard and the `useState` holding the result.
+  - **`state` is the entire CSRF defence for the provider round trip** and only this app can
+     enforce it — the backend never sees the browser leave. The middleware's `x-csrf-token` gate
+     cannot stand in for it: the start leg is a GET, so it is exempt. (The callback leg does pass
+     that gate, being a mutating `/api/` request, but it protects this origin's endpoint, not the
+     trip through the provider.) Don't "simplify" either leg into the other's shape.
   - The `from` return target rides in the cookie, never through the provider's `state`, and is
      validated against `isSafeReturnPath` / `isExcludedRoute` — a target that round-trips through a
      third party is one an attacker can rewrite.
@@ -281,12 +311,10 @@ entities/operations, DB schema, business rules read the code in `../nready.dev`
 - **Per-entity dashboard CRUD pattern**: every entity under `src/app/(dashboard)/dashboard/<entity>/` follows
   the same file set — `page.tsx`, `<entity>.definition.ts` (field/column defs), `data-table-<entity>.component.tsx`,
   `data-table-filters-<entity>.component.tsx`, `form-manage-<entity>.component.tsx`, `view-<entity>.component.tsx`.
-  To add a new dashboard entity (see also README "How to" section), duplicate an existing entity folder (e.g.
-  `user`) and then update, in order: `src/models/<entity>.model.ts`, `src/types/data-source.key.ts`,
-  locale file `src/locales/[language]/<entity>s.json` (+ register in `src/locales/en/index.ts`),
-  `src/models/permission.model.ts`, `src/models/log-history.model.ts`,
-  `src/app/(dashboard)/_components/side-menu.component.tsx`, and the route entry in
-  `Routes.group('dashboard')` (`src/config/routes.setup.ts`).
+  `data-source.config.ts` imports the definition **by path convention**, so the folder and the
+  `<entity>.definition.ts` filename must both equal the `DataSourceKey` exactly.
+  Adding a whole entity is a checklist of its own — run `/add-dashboard-feature <entity>`, which
+  carries the backend-reading order and the full registration list.
 - **Data tables**: list views use a shared `data-table` abstraction backed by `src/stores/data-table.store.ts`
   (Zustand); windows/dialogs are backed by `src/stores/window.store.ts` and `src/components/window`. The two
   stores differ in middleware and write style — read `.claude/rules/state.md` before editing either.
@@ -314,7 +342,7 @@ entities/operations, DB schema, business rules read the code in `../nready.dev`
   80.6452 is row value 806452. Forms accept 2 decimals; anything past the 4th is discarded by that
   round-trip. The VAT helpers in `src/helpers/string.helper.ts` round to the same precision — keep any
   new amount maths on `roundAmount()` rather than returning raw float.
-- **Redis is shared with nready.dev** (one instance, one database), so every key is namespaced by
+- **Redis is shared with nready-api** (one instance, one database), so every key is namespaced by
   `redis.keyPrefix` (`nready-ui` here, `nready-api` there) inside `CacheProvider.buildKey`. Not via
   ioredis's own `keyPrefix` option: that one does not reach the MATCH argument of SCAN, so
   `deleteByPattern` would scan the other app's keys. Build every key through `buildKey`.
@@ -345,22 +373,42 @@ entities/operations, DB schema, business rules read the code in `../nready.dev`
   `sendDefaultPii` is off, and `beforeSend`/`beforeBreadcrumb` in `sentry.setup.ts` redact keys
   matching `/password|token|secret|authorization|cookie|credential/i`, but that is a backstop for
   the call site that slips through, not permission to rely on it.
-- **Server actions vs. navigation**: a server action is POSTed to the *current* URL and its
-  response carries a re-rendered tree for that page. Started alongside a `router.push`/`replace`,
-  it lands after the navigation and restores the page you just left — the state change succeeded,
-  so only a reload reveals it. Always `await` the action, then navigate (see
-  `login.component.tsx` and `oauth-callback.component.tsx`).
+- **Never call a server action from inside a form pipeline.** A server action is POSTed to the
+  *current* URL and its response carries a re-rendered tree for that page. Applying that tree
+  **resets the submitting form's state**: `useActionState` reverts to its initial value, so the
+  result the action just returned is discarded, and the field values derived from it go with it.
+  The scope is narrow, and worth knowing before ripping out unrelated actions: a server action
+  called *outside* a form pipeline is fine. Measured on production — the `refreshAuth` interval
+  in `auth.provider.tsx` fires `getAuth` every 10 minutes app-wide, and after one such call the
+  React-rendered nodes were still attached and untouched, so the tree reconciles rather than
+  remounts and ordinary `useState` survives. It is the nesting inside `useActionState` that
+  destroys the result. A form that calls an action from its `operationFunction` therefore
+  completes its work server-side and then comes back pristine — no message, no result, nothing
+  to act on, and only a reload reveals that anything happened. Whatever the pipeline needs
+  server-side goes in a **route handler under `/api/`** instead, which answers with plain JSON
+  and no tree; `POST /api/auth/session` (`requestCreateSession`) exists for exactly this, and
+  being a mutating `/api/` request it also passes the CSRF gate an action bypasses.
+  The weaker form of the same problem hits navigation: applying that tree makes the action's URL
+  canonical again, so a `router.push`/`replace` racing it is undone. `await`ing the action does
+  not fix it — the promise resolves on the return value while the tree patch is a separate
+  commit. Post-sign-in redirects therefore leave the page with `window.location.replace(...)`,
+  which cannot be reverted, and the destination is server-rendered with the session cookie so
+  `providers.tsx` seeds `AuthProvider` from `x-auth-data` with no `refreshAuth` needed
+  (`login.component.tsx`, `oauth-callback.component.tsx`).
+- **The dev server cannot validate auth changes.** Every bug in this area has been invisible
+  locally: the tree-reset above only happens in the production React build, the redirect race
+  resolves the *opposite* way when `/` is compiled on demand, and both `destroySession()` in
+  `src/proxy.ts` and the backend's user-agent check on tokens are wrapped in
+  `isEnvironment('production')`. A green local run is not evidence here — verify against a
+  deployed build, and read state from the running page rather than inferring it.
 - **Error boundaries**: `src/app/error.tsx` catches route errors, `src/app/global-error.tsx`
   catches failures in the root layout itself. The latter replaces that layout, so it gets no
   `globals.css` — it is inline-styled and dependency-free by design and must stay that way.
-
-## Adding new feature for `dashboard` (ex: `cars`)
-
-1. Model in `models/`
-2. Copy `dashboard/user` → `dashboard/[entity]`
-3. Add to `types/data-source.key.ts`
-4. Locale JSON + register
-5. Update `permission.model.ts`
-6. Update `log-history.model.ts`
-7. Add to `side-menu.component.tsx`
-8. Add route to `Routes.group('dashboard')`s`
+- **No `loading.tsx` above a route that can `notFound()`.** A `loading.tsx` is a Suspense
+  boundary, and Next flushes the shell — status line included — the moment it reaches one. A
+  `notFound()` that resolves after that still renders `not-found.tsx`, but the response is
+  already committed as **200**, so a crawler is told the missing slug is a real page. This is
+  why `(public)` has no `loading.tsx`: `/articles/:slug` and `/page/:label` both 404. Soft
+  navigation still shows movement through `NavigationProgress`, mounted in the root layout.
+  `(dashboard)/dashboard/loading.tsx` is fine — nothing under it calls `notFound()`. Verified
+  by measuring the status both ways.
