@@ -1,6 +1,11 @@
-'use client';
-
+/*
+ * No `'use client'`: `comment-thread.component.tsx` is the boundary that mounts this, and
+ * everything a client module imports is already in the client graph. Next's TS plugin treats
+ * any file carrying the directive as a client *entry* and then rejects the non-serializable
+ * props below (TS71007) — `onSaved` and `onCancel` are plain callbacks, not server actions.
+ */
 import { useMutation } from '@tanstack/react-query';
+import type React from 'react';
 import { useCallback, useState } from 'react';
 import {
 	COMMENT_CONTENT_MAX,
@@ -90,7 +95,7 @@ export function CommentEdit({
 	});
 
 	const onSubmit = useCallback(
-		(event: React.FormEvent) => {
+		(event: React.SubmitEvent) => {
 			event.preventDefault();
 
 			setTouched(true);

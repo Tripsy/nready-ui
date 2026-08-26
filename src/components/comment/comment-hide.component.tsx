@@ -1,5 +1,9 @@
-'use client';
-
+/*
+ * No `'use client'`: `comment-menu.component.tsx` — itself below the `comment-thread` boundary
+ * and directive-free for the same reason — is what mounts this. Carrying the directive would
+ * make Next's TS plugin treat the file as a client *entry* and reject the non-serializable
+ * props below (TS71007); `onClose` and `onHidden` are plain callbacks, not server actions.
+ */
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
