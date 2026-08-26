@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Breadcrumb } from '@/app/(dashboard)/_components/breadcrumb.component';
 import DashboardMain from '@/app/(dashboard)/_components/dashboard-main.component';
+import { DashboardSearchBar } from '@/app/(dashboard)/_components/dashboard-search-bar.component';
 import { SideMenu } from '@/app/(dashboard)/_components/side-menu.component';
 import { SideMenuToggle } from '@/app/(dashboard)/_components/side-menu-toggle.component';
 import { DashboardProvider } from '@/app/(dashboard)/_providers/dashboard.provider';
@@ -51,6 +52,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
 		<DashboardProvider>
 			<div className="dashboard-layout min-h-screen bg-background">
 				<Header translations={translations} />
+				<DashboardSearchBar />
 				<ProtectedRoute routeAuth={RouteAuthEnum.PROTECTED}>
 					<DashboardMain>
 						<SideMenu />

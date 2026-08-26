@@ -57,6 +57,10 @@
 		"label_page_previous": "Previous page",
 		"label_page_next": "Next page",
 		"label_select_row": "Select row",
+		"label_menu_search": "Search menu",
+		"placeholder_menu_search": "Search menu...",
+		"label_menu_search_clear": "Clear menu search",
+		"no_menu_entries": "No menu entries found",
 		"label_select_all_rows": "Select all rows"
 	}
 }

@@ -57,6 +57,10 @@
 		"label_page_previous": "Pagina anterioară",
 		"label_page_next": "Pagina următoare",
 		"label_select_row": "Selectează rândul",
+		"label_menu_search": "Caută în meniu",
+		"placeholder_menu_search": "Caută în meniu...",
+		"label_menu_search_clear": "Șterge căutarea din meniu",
+		"no_menu_entries": "Nu s-au găsit intrări în meniu",
 		"label_select_all_rows": "Selectează toate rândurile"
 	}
 }

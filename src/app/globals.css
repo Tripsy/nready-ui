@@ -244,13 +244,19 @@
 		@apply md:ml-16;
 	}
 
+	/*
+	 * The drawer hangs off the bottom of the sticky band above it, so its offset is that
+	 * band's height. Below `md` the band is two rows — the header plus the menu search bar,
+	 * each `h-16` — which is why the two breakpoints disagree. A change to the search row's
+	 * height has to be mirrored here.
+	 */
 	.dashboard-layout .main-section .side-menu-container {
-		@apply fixed left-0 top-16 z-40 border-r border-b border-sidebar-border bg-sidebar-background/93 shadow-xl transition-all duration-500 ease-in-out flex flex-col h-[calc(100vh-4rem)];
+		@apply fixed left-0 top-32 z-40 border-r border-b border-sidebar-border bg-sidebar-background/93 shadow-xl transition-all duration-500 ease-in-out flex flex-col h-[calc(100vh-8rem)];
 	}
 
 	@media (min-width: 768px) {
 		.dashboard-layout .main-section .side-menu-container {
-			@apply border-b-0 bg-sidebar-background shadow-none;
+			@apply top-16 h-[calc(100vh-4rem)] border-b-0 bg-sidebar-background shadow-none;
 		}
 	}
 
@@ -258,8 +264,9 @@
 		@apply -translate-x-full opacity-0 md:opacity-100 md:translate-x-0 w-16;
 	}
 
+	/* `pt-2` rather than `py-4`: the search row above already supplies the top spacing. */
 	.dashboard-layout .main-section .side-menu-container .side-menu-content {
-		@apply px-2 py-4 space-y-1 overflow-y-auto flex-1;
+		@apply px-2 pt-2 pb-4 space-y-1 overflow-y-auto flex-1;
 	}
 
 	.dashboard-layout .table-container {
