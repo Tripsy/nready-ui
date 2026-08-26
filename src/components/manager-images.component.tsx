@@ -501,7 +501,7 @@ function SortableImageCard(
 							title="Change order"
 							{...attributes}
 							{...listeners}
-							className="cursor-grab text-muted/40 active:cursor-grabbing hover:scale-125 hover:text-warning"
+							className="cursor-grab text-muted/40 hover:scale-125 hover:text-warning"
 							aria-label="Drag to reorder"
 						>
 							<Icons.Action.Move />

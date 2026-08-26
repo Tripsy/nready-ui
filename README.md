@@ -227,7 +227,7 @@ room in the container for both, and it is usually the dev server that gets kille
 1. Dashboard docs should be specific per feature and provide flow info           
 2. nready-native 
 3. Hero UI -> theme
-4. Add demo instructions
+4. Add demo /
 5. Setup Sentry on UI
 
 # 🔗 Dependencies
