@@ -68,6 +68,10 @@
 		"view": {
 			"title": "Cash flow details - {{entry}}",
 			"label": "View details"
+		},
+		"guide": {
+			"title": "How cash flow works",
+			"label": "Usage guide"
 		}
 	},
 	"field": {
@@ -78,5 +82,23 @@
 		"external_reference": "External Reference",
 		"vendor": "Vendor",
 		"notes": "Notes"
+	},
+	"help": {
+		"intro": "A cash flow entry is one movement of money, in or out, recorded with the VAT rate and currency it happened in. Most of what describes it — its direction and its type — follows from the category rather than being chosen separately.",
+		"step_1_title": "Pick the category",
+		"step_1_body": "Category decides the rest: customer is revenue coming in, while vendor, insurance and taxes are expenses going out. Refund is missing from the list on purpose — it is only reachable through the Refund action on an existing entry.",
+		"step_2_title": "Enter the net amount and VAT rate",
+		"step_2_body": "The amount is net; gross is derived from it and the VAT rate, and the list shows both. Two decimals are accepted and the stored value is always positive — the sign only decides which way a refund goes, since every other category takes its direction from the category itself.",
+		"step_3_title": "Choose the currency",
+		"step_3_body": "Currency defaults to the one this deployment runs on, and the row keeps its exchange rate to that currency so totals over mixed rows still mean something. Rates are not fetched from anywhere yet, so a row in another currency carries a placeholder.",
+		"step_4_title": "Link the client or the vendor",
+		"step_4_body": "A customer entry requires a client; vendor, insurance and taxes require a vendor. The link is a record of its own, fetched separately when the entry is opened, and a party the category does not allow is dropped silently rather than refused.",
+		"step_5_title": "Add the reference and the notes",
+		"step_5_body": "External reference and notes are the only two fields search reads, so the invoice number or the gateway id belongs in one of them. Search matches from three characters, except for an all-digit term, which is treated as an id and matched exactly.",
+		"step_6_title": "Move it through the statuses",
+		"step_6_body": "A new entry starts as pending. Complete and Cancel show up only when the current status allows that hop, and completed is final — nothing moves out of it. Only pending, authorized and requires action entries can still be edited.",
+		"note": "Refund applies to a completed entry only, creates a child entry in the parent's currency, and cannot take more than the parent has left unrefunded. Deleting is a soft delete and this entity has no restore, so a deleted entry stays visible under Show deleted and nothing more; an entry that already has refunds is refused until those are gone.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
 	}
 }

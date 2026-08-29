@@ -1,5 +1,7 @@
 import { DataTableValue } from '@/app/(dashboard)/_components/data-table-value';
+import { UsageGuideComplaint } from '@/app/(dashboard)/dashboard/complaint/usage-guide-complaint.component';
 import { ViewComplaint } from '@/app/(dashboard)/dashboard/complaint/view-complaint.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import {
 	requestDelete,
@@ -55,6 +57,7 @@ export default async function dataSourceConfig(): Promise<
 			'delete.title',
 			'restore.title',
 			'viewUser.title',
+			'guide.title',
 		] as const,
 		'complaint.action',
 	);
@@ -295,6 +298,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['complaint', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideComplaint,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['complaint', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

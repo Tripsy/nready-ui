@@ -227,7 +227,7 @@ room in the container for both, and it is usually the dev server that gets kille
 1. Implement `usage-guide' for all the features        
 2. nready-native 
 3. Hero UI -> theme
-4. Add demo /
+4. Add demo     
 5. Setup Sentry on UI
 
 # 🔗 Dependencies

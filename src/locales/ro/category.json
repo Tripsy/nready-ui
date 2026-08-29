@@ -67,6 +67,29 @@
 		"view": {
 			"title": "Detalii categorie - {{entry}}",
 			"label": "Vezi detalii"
+		},
+		"guide": {
+			"title": "Cum funcționează categoriile",
+			"label": "Ghid de utilizare"
 		}
+	},
+	"help": {
+		"intro": "O categorie este un nod dintr-un arbore, cu câte o intrare de conținut pentru fiecare limbă, care ține eticheta, slug-ul și descrierea. Aici trăiesc doi arbori separați — unul pentru produse, altul pentru articole — iar o categorie nu trece niciodată dintr-unul în celălalt.",
+		"step_1_title": "Alege tipul",
+		"step_1_body": "Produs sau articol, ales o singură dată: câmpul se blochează după creare, pentru că tipul decide cărui arbore îi aparține categoria și cât de adânc poate merge acel arbore — trei niveluri la produse, două la articole, rădăcina numărând ca unu.",
+		"step_2_title": "Alege un părinte sau lasă-l gol",
+		"step_2_body": "Un părinte gol o face rădăcină. Lista oferă doar categorii de același tip care mai au loc sub limita de adâncime, deci o opțiune afișată este una pe care salvarea o acceptă.",
+		"step_3_title": "Scrie conținutul, câte o limbă pe rând",
+		"step_3_body": "Eticheta, slug-ul și descrierea sunt obligatorii pentru fiecare limbă. Dacă lași slug-ul gol, el este derivat din etichetă, este trecut în minuscule și trebuie să fie unic pe tip și limbă între toate categoriile — o etichetă non-latină nu derivă nimic, așa că acolo scrie slug-ul manual.",
+		"step_4_title": "Activeaz-o sau dezactiveaz-o",
+		"step_4_body": "O categorie nouă pornește „în așteptare” și nu este publică până nu este activată. Dezactivarea uneia care are încă descendenți activi este refuzată — dezactivează ramura dinspre frunze, pentru că dashboard-ul nu forțează cascada.",
+		"step_5_title": "Ordonează frații",
+		"step_5_body": "Ordonarea deschide un singur grup de frați odată — categoriile active de sub un părinte sau rădăcinile unui tip — și așteaptă tot grupul, în ordinea dorită. Mutarea unei categorii sau schimbarea stării îi resetează poziția la finalul grupului în care ajunge.",
+		"step_6_title": "Vezi forma în Arbore",
+		"step_6_body": "Arborele este vizualizarea, doar pentru citire, a ierarhiei pe care lista plată nu o poate arăta. Folosește-l înainte de o mutare: sub noul părinte trebuie să încapă tot subarborele, nu doar categoria mutată.",
+		"note": "Ștergerea este una logică și este refuzată cât timp un descendent este încă activ, deci o ramură se demontează dinspre frunze. Restaurarea merge invers — o categorie nu poate reveni cât timp părintele ei este șters sau inactiv.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API",
+		"tab_public": "API public"
 	}
 }

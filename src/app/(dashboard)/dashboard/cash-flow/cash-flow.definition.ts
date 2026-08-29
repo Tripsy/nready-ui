@@ -4,7 +4,9 @@ import {
 	type CashFlowFormValuesType,
 	FormManageCashFlow,
 } from '@/app/(dashboard)/dashboard/cash-flow/form-manage-cash-flow.component';
+import { UsageGuideCashFlow } from '@/app/(dashboard)/dashboard/cash-flow/usage-guide-cash-flow.component';
 import { ViewCashFlow } from '@/app/(dashboard)/dashboard/cash-flow/view-cash-flow.component';
+import { Icons } from '@/components/icon.component';
 import { Configuration } from '@/config/settings.config';
 import { translateBatch } from '@/config/translate.setup';
 import { DisplayAmount, formatAmount } from '@/helpers/display.helper';
@@ -264,6 +266,7 @@ export default async function dataSourceConfig(): Promise<
 			'delete.title',
 			'complete.title',
 			'cancel.title',
+			'guide.title',
 		] as const,
 		'cash-flow.action',
 	);
@@ -585,6 +588,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['cash-flow', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideCashFlow,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['cash-flow', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

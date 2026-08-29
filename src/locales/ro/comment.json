@@ -33,6 +33,10 @@
 		},
 		"viewUser": {
 			"title": "Vezi utilizatorul"
+		},
+		"guide": {
+			"title": "Cum funcționează comentariile",
+			"label": "Ghid de utilizare"
 		}
 	},
 	"status": {
@@ -117,5 +121,25 @@
 		"failed": "Preferința nu a putut fi salvată",
 		"invalid": "Acest link nu mai este valid. Este posibil să fi fost deja folosit pentru a elimina abonarea.",
 		"back": "Înapoi la site"
+	},
+	"help": {
+		"intro": "Comentariile sunt scrise de cititori pe site-ul public — nimic de aici nu creează unul. Ecranul acesta este coada de moderare: ce se publică, ce se retrage și ce se face cu o discuție care a luat-o razna.",
+		"step_1_title": "Vezi de unde vine comentariul",
+		"step_1_body": "Comentariul unui membru este publicat din momentul scrierii, dacă instalarea nu dezactivează asta; al unui vizitator fără cont așteaptă mereu aici. Linia este intenționată — un cont poate fi suspendat și are o adresă confirmată, pe când un vizitator este un nume tastat de el.",
+		"step_2_title": "Citește-l în context",
+		"step_2_body": "Un comentariu atârnă de un articol sau de o recenzie, iar un răspuns atârnă de alt comentariu. Fereastra de detalii arată emailul vizitatorului și urma de moderare, pe care discuția publică nu le arată niciodată; adresa IP este stocată doar ca hash și nu este afișată nicăieri.",
+		"step_3_title": "Ia o decizie",
+		"step_3_body": "Fereastra de stare oferă doar tranzițiile permise din starea curentă, iar nimic nu readuce comentariul în „în așteptare”. Oricărei decizii i se poate atașa un motiv — este păstrat pentru audit, suprascris de următoarea decizie și niciodată arătat autorului.",
+		"step_4_title": "Lasă raportările să lucreze",
+		"step_4_body": "Trei conturi diferite care raportează același comentariu îl marchează automat și îl scot din discuție până se uită cineva. O singură raportare nu: este la fel de des o divergență de opinie ca o problemă, iar reacția la ea ar da fiecărui cititor un buton de redus la tăcere.",
+		"step_5_title": "Editează sau fixează, cu măsură",
+		"step_5_body": "Actualizarea schimbă textul, tipul sau fixarea. Schimbarea textului marchează comentariul ca editat în discuție — marcajul spune că textul nu mai este cel publicat, nu cine l-a rescris — pe când o fixare sau o schimbare de tip îl lasă neatins. Și autorul își poate rescrie propriul comentariu, cât timp este în așteptare sau aprobat, dar nu după ce s-a luat o decizie împotriva lui.",
+		"step_6_title": "Orientează-te în coadă",
+		"step_6_body": "Filtrează după stare pentru coada propriu-zisă sau după țintă, autor, tip și fixare. Căutarea potrivește textul comentariului și numele vizitatorului, fără lungime minimă și fără scurtătura după id — spre deosebire de orice altă listă de aici.",
+		"note": "Ștergerea unui comentariu este definitivă: tabelul nu are stare de șters, deci nu există restaurare, iar tot subarborele de răspunsuri dispare odată cu el, împreună cu evaluările și raportările care îl vizează. Respinge-l în schimb, când discuția trebuie să-și păstreze forma.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API",
+		"tab_public": "API public",
+		"tab_subscription": "API abonări"
 	}
 }

@@ -1,5 +1,7 @@
 import { DataTableValue } from '@/app/(dashboard)/_components/data-table-value';
+import { UsageGuideCronHistory } from '@/app/(dashboard)/dashboard/cron-history/usage-guide-cron-history.component';
 import { ViewCronHistory } from '@/app/(dashboard)/dashboard/cron-history/view-cron-history.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import { requestDeleteMultiple, requestFind } from '@/helpers/services.helper';
 import { type AuthModel, hasPermission } from '@/models/auth.model';
@@ -24,7 +26,7 @@ export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<CronHistoryModel>
 > {
 	const translations = await translateBatch(
-		['view.title', 'delete.title'] as const,
+		['view.title', 'delete.title', 'guide.title'] as const,
 		'cron-history.action',
 	);
 
@@ -127,6 +129,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['cron-history', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideCronHistory,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['cron-history', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

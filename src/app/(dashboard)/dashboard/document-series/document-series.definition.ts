@@ -4,7 +4,9 @@ import {
 	type DocumentSeriesFormValuesType,
 	FormManageDocumentSeries,
 } from '@/app/(dashboard)/dashboard/document-series/form-manage-document-series.component';
+import { UsageGuideDocumentSeries } from '@/app/(dashboard)/dashboard/document-series/usage-guide-document-series.component';
 import { ViewDocumentSeries } from '@/app/(dashboard)/dashboard/document-series/view-document-series.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import {
 	getFormDataAsEnum,
@@ -156,7 +158,13 @@ export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<DocumentSeriesModel>
 > {
 	const translations = await translateBatch(
-		['create.title', 'update.title', 'view.title', 'delete.title'] as const,
+		[
+			'create.title',
+			'update.title',
+			'view.title',
+			'delete.title',
+			'guide.title',
+		] as const,
 		'document-series.action',
 	);
 
@@ -303,6 +311,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['document-series', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideDocumentSeries,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['document-series', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

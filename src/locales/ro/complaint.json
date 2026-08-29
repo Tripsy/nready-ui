@@ -38,6 +38,10 @@
 		},
 		"viewUser": {
 			"title": "Vezi utilizatorul"
+		},
+		"guide": {
+			"title": "Cum funcționează raportările",
+			"label": "Ghid de utilizare"
 		}
 	},
 	"report": {
@@ -72,5 +76,22 @@
 	"validation": {
 		"invalid_reason": "Alege un motiv",
 		"invalid_description": "Detaliile trebuie să aibă între 2 și 2000 de caractere"
+	},
+	"help": {
+		"intro": "O raportare este un cititor care acuză un articol sau un comentariu de ceva. Nimic de aici nu le depune — o fac cititorii, de pe site-ul public — și nimic de aici nu le rescrie: textul este acuzația lor, iar ecranul acesta este doar ce urmează.",
+		"step_1_title": "Vezi cine raportează",
+		"step_1_body": "Raportarea cere un cont, deci fiecare rând are un nume care poate fi întrebat despre ea. O singură raportare activă per persoană per țintă, ceea ce face ca numărul de raportori să însemne ceva, nu să măsoare de câte ori a apăsat cineva un buton.",
+		"step_2_title": "Citește motivul, apoi ținta",
+		"step_2_body": "Motivul este raportarea; descrierea este opțională și adesea goală, ceea ce e în regulă. Doar articolele și comentariile pot fi raportate — o recenzie se rezolvă marcând-o în moderare.",
+		"step_3_title": "Rezolv-o sau redeschide-o",
+		"step_3_body": "Rezolvarea marchează decizia cu numele tău și cu ora; redeschiderea le șterge pe amândouă, pentru că numele unui moderator pe o raportare nedecisă se citește ca o decizie. Odată rezolvată, raportorul nu o mai poate modifica sau retrage — rândul este dovada din care se explică decizia.",
+		"step_4_title": "Urmărește numărul, nu raportarea singulară",
+		"step_4_body": "Trei persoane diferite care raportează același comentariu îl marchează automat și îl scot din discuție până se uită cineva. Raportările pe articole ajung doar aici — nimic nu este ascuns automat pentru ele.",
+		"step_5_title": "Lucrează coada",
+		"step_5_body": "Raportările deschise sunt vizualizarea implicită. Filtrează după țintă, motiv, raportor sau moderatorul care a închis-o; căutarea potrivește doar descrierea, deci o raportare fără text se găsește numai prin filtre.",
+		"note": "Respingerea unei raportări este o ștergere logică și poate fi restaurată, dar eliberează și locul acelui cititor pe țintă — deci el poate depune una nouă, iar restaurarea celei vechi intră atunci în conflict cu ea. Raportările pe un comentariu dispar odată cu comentariul; cele pe un articol supraviețuiesc ștergerii lui, pentru că un articol poate reveni.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API",
+		"tab_public": "API public"
 	}
 }

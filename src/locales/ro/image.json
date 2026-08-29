@@ -59,6 +59,26 @@
 		"view": {
 			"title": "Detalii imagine - {{entry}}",
 			"label": "Vezi detalii"
+		},
+		"guide": {
+			"title": "Cum funcționează imaginile",
+			"label": "Ghid de utilizare"
 		}
+	},
+	"help": {
+		"intro": "Fiecare imagine aparține altcuiva — unui produs, unei categorii, unui brand sau unui articol — iar ecranul acesta este lista plată a tuturor. Imaginile se adaugă din entitatea căreia îi aparțin, prin fereastra ei de Imagini, nu de aici.",
+		"step_1_title": "Vezi ce este un rând",
+		"step_1_body": "Un rând consemnează unde se află deja un fișier: în ce spațiu de stocare a ajuns și pe ce cale în interiorul lui, plus lățime, înălțime, dimensiune și tip MIME. Fișierul în sine este scris la încărcare; rândul este ce citește site-ul ca să îl regăsească.",
+		"step_2_title": "Logo sau galerie",
+		"step_2_body": "O țintă are un singur logo — imaginea care o reprezintă într-o listă — și câte imagini de galerie îi trebuie. Doar galeria este ordonabilă, iar reprezentanta țintei este prima imagine activă după ordine.",
+		"step_3_title": "Scrie descrierea pe fiecare limbă",
+		"step_3_body": "Titlul și descrierea sunt pe limbă și amândouă opționale, dar trebuie să existe cel puțin o intrare de limbă. Aceasta este singura parte a unei imagini care mai poate fi editată: fișierul, ținta și tipul sunt ce consemnează rândul — înlocuirea unei poze înseamnă încărcarea celei noi și ștergerea acestui rând.",
+		"step_4_title": "Activează sau dezactivează",
+		"step_4_body": "O imagine dezactivată rămâne stocată, dar este ignorată când site-ul alege imaginea reprezentativă a țintei. Oricare dintre mișcări îi resetează poziția, deci ajunge la finalul ordinii în care revine.",
+		"step_5_title": "Găsește o imagine",
+		"step_5_body": "Aici nu există căutare după text — o imagine se găsește prin ținta ei. Filtrează după secțiune, id-ul entității, tip, stare sau limbă și ordonează după id sau poziție.",
+		"note": "Ștergerea din acest ecran șterge rândul și, odată cu el, fișierul stocat. Curățarea proprie a backend-ului nu face asta: când un articol sau un produs este șters, rândurile lui de imagini dispar, iar fișierele rămân, pentru că recuperarea spațiului este o operațiune pe care nimic nu o rulează în prezent.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API"
 	}
 }

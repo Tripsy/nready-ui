@@ -4,7 +4,9 @@ import {
 	type CategoryFormValuesType,
 	FormManageCategory,
 } from '@/app/(dashboard)/dashboard/category/form-manage-category.component';
+import { UsageGuideCategory } from '@/app/(dashboard)/dashboard/category/usage-guide-category.component';
 import { ViewCategory } from '@/app/(dashboard)/dashboard/category/view-category.component';
+import { Icons } from '@/components/icon.component';
 import Routes from '@/config/routes.setup';
 import { getLanguageClient, translateBatch } from '@/config/translate.setup';
 import {
@@ -244,6 +246,7 @@ export default async function dataSourceConfig(): Promise<
 			'disable.title',
 			'order.title',
 			'tree.title',
+			'guide.title',
 		] as const,
 		'category.action',
 	);
@@ -521,6 +524,24 @@ export default async function dataSourceConfig(): Promise<
 				buttonPosition: 'right',
 				button: {
 					variant: 'warning',
+				},
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideCategory,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['category', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
 				},
 			},
 		},

@@ -1,5 +1,7 @@
 import { DataTableValue } from '@/app/(dashboard)/_components/data-table-value';
+import { UsageGuideImage } from '@/app/(dashboard)/dashboard/image/usage-guide-image.component';
 import { ViewImage } from '@/app/(dashboard)/dashboard/image/view-image.component';
+import { Icons } from '@/components/icon.component';
 import { getLanguageClient, translateBatch } from '@/config/translate.setup';
 import { displayImage } from '@/helpers/display.helper';
 import {
@@ -45,6 +47,7 @@ export default async function dataSourceConfig(): Promise<
 			'delete.title',
 			'enable.title',
 			'disable.title',
+			'guide.title',
 		] as const,
 		'image.action',
 	);
@@ -259,6 +262,24 @@ export default async function dataSourceConfig(): Promise<
 				buttonPosition: 'hidden',
 				reloadEntry: (id: number) =>
 					requestView<ImageModel>('image', id),
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideImage,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['image', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

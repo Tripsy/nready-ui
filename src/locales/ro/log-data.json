@@ -12,6 +12,26 @@
 		"view": {
 			"title": "Jurnal - {{entry}}",
 			"label": "Vezi"
+		},
+		"guide": {
+			"title": "Cum funcționează jurnalul",
+			"label": "Ghid de utilizare"
 		}
+	},
+	"help": {
+		"intro": "Acesta este jurnalul propriu al backend-ului, ținut în baza de date ca o eroare să poată fi căutată de aici, nu dintr-o consolă. Nimic din acest ecran nu scrie în el — o face aplicația, în timp ce rulează.",
+		"step_1_title": "Așteaptă-te doar la nivelurile grave",
+		"step_1_body": "Filtrul oferă toate nivelurile pe care le cunoaște logger-ul, dar implicit doar „error” și „fatal” sunt stocate în baza de date. „Info” și „warn” reprezintă grosul volumului și merg în consolă, în fișierul de log și în CloudWatch, deci un rezultat gol la acele niveluri înseamnă că nu au fost păstrate, nu că nu s-a întâmplat nimic.",
+		"step_2_title": "Citește categoria",
+		"step_2_body": "„System” este aplicația care răspunde cererilor, „cron” este un job programat care eșuează în timpul lui, iar „history” este urma de audit — aceasta din urmă are ecranul ei și ajunge aici doar în configurația în care evenimentele de audit sunt trecute prin logger.",
+		"step_3_title": "Urmărește o eroare pe toate liniile ei",
+		"step_3_body": "Id-ul de cerere leagă tot ce s-a jurnalizat în timpul unei singure cereri, iar id-ul de proces tot ce a scris un proces. Căutarea oricăruia dintre ele se face exact, ceea ce le face cea mai rapidă cale de intrare — o căutare în mesaj sau în context se face în schimb pe fragment.",
+		"step_4_title": "Deschide intrarea",
+		"step_4_body": "Fereastra de detalii arată mesajul, contextul atașat de locul din cod și stiva, când a existat. Contextul este intenționat mic — identificatori și forme, niciodată înregistrări sau secrete — deci îți spune unde să te uiți, nu înlocuiește datele.",
+		"step_5_title": "Restrânge, apoi curăță",
+		"step_5_body": "Filtrează după nivel, categorie sau un interval al datei de creare; căutarea potrivește de la trei caractere, iar un termen numeric este tratat ca id. Ștergerea ia rândurile selectate, mai multe odată, și este definitivă — nu există stare de șters din care să restaurezi.",
+		"note": "Un job săptămânal șterge deja tot ce este mai vechi de 30 de zile, deci curățarea manuală este pentru zgomotul pe care vrei să îl scoți mai devreme, nu pentru a ține tabelul mic. Ce este mai vechi de atât trăiește în CloudWatch, sub propria politică de retenție.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API"
 	}
 }

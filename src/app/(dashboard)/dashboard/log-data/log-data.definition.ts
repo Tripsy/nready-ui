@@ -1,5 +1,7 @@
 import { DataTableValue } from '@/app/(dashboard)/_components/data-table-value';
+import { UsageGuideLogData } from '@/app/(dashboard)/dashboard/log-data/usage-guide-log-data.component';
 import { ViewLogData } from '@/app/(dashboard)/dashboard/log-data/view-log-data.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import { requestDeleteMultiple, requestFind } from '@/helpers/services.helper';
 import { type AuthModel, hasPermission } from '@/models/auth.model';
@@ -26,7 +28,7 @@ export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<LogDataModel>
 > {
 	const translations = await translateBatch(
-		['view.title', 'delete.title'] as const,
+		['view.title', 'delete.title', 'guide.title'] as const,
 		'log-data.action',
 	);
 
@@ -130,6 +132,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['log-data', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideLogData,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['log-data', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

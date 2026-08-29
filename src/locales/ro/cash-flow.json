@@ -68,6 +68,10 @@
 		"view": {
 			"title": "Detalii flux de numerar - {{entry}}",
 			"label": "Vezi detalii"
+		},
+		"guide": {
+			"title": "Cum funcționează fluxul de numerar",
+			"label": "Ghid de utilizare"
 		}
 	},
 	"field": {
@@ -78,5 +82,23 @@
 		"external_reference": "Referință externă",
 		"vendor": "Furnizor",
 		"notes": "Notițe"
+	},
+	"help": {
+		"intro": "O înregistrare de flux de numerar este o singură mișcare de bani, de intrare sau de ieșire, consemnată cu cota de TVA și moneda în care s-a petrecut. Cea mai mare parte din ce o descrie — direcția și tipul — decurge din categorie, nu se alege separat.",
+		"step_1_title": "Alege categoria",
+		"step_1_body": "Categoria decide restul: „client” este venit care intră, iar „furnizor”, „asigurări” și „taxe” sunt cheltuieli care ies. „Rambursare” lipsește intenționat din listă — se ajunge la ea doar prin acțiunea Rambursare pe o înregistrare existentă.",
+		"step_2_title": "Completează suma netă și cota de TVA",
+		"step_2_body": "Suma este netă; valoarea brută rezultă din ea și din cota de TVA, iar lista le arată pe ambele. Sunt acceptate două zecimale, iar valoarea stocată este întotdeauna pozitivă — semnul decide doar sensul unei rambursări, pentru că orice altă categorie își ia direcția din categoria însăși.",
+		"step_3_title": "Alege moneda",
+		"step_3_body": "Moneda este implicit cea pe care rulează această instalare, iar înregistrarea își păstrează cursul față de ea, ca totalurile peste rânduri în monede diferite să însemne ceva. Cursurile nu sunt încă preluate de nicăieri, deci un rând în altă monedă poartă o valoare provizorie.",
+		"step_4_title": "Leagă clientul sau furnizorul",
+		"step_4_body": "O înregistrare de tip „client” cere un client, iar „furnizor”, „asigurări” și „taxe” cer un furnizor. Legătura este o înregistrare separată, adusă pe cont propriu la deschiderea intrării, iar o parte pe care categoria nu o permite este ignorată tacit, nu respinsă.",
+		"step_5_title": "Adaugă referința și notițele",
+		"step_5_body": "Referința externă și notițele sunt singurele două câmpuri citite de căutare, deci numărul facturii sau id-ul de la procesatorul de plăți își are locul în unul dintre ele. Căutarea potrivește de la trei caractere, cu excepția unui termen numeric, tratat ca id și potrivit exact.",
+		"step_6_title": "Plimb-o prin stări",
+		"step_6_body": "O înregistrare nouă pornește în „în așteptare”. Finalizează și Anulează apar doar când starea curentă permite acel pas, iar „finalizat” este definitiv — nu se mai iese din el. Doar înregistrările în „în așteptare”, „autorizat” și „necesită acțiune” mai pot fi modificate.",
+		"note": "Rambursarea se aplică doar unei înregistrări finalizate, creează o intrare copil în moneda părintelui și nu poate depăși cât a rămas nerambursat din el. Ștergerea este una logică, iar această entitate nu are restaurare, deci o intrare ștearsă rămâne vizibilă doar prin „Arată șterse”; o intrare care are deja rambursări este refuzată până când acestea dispar.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API"
 	}
 }

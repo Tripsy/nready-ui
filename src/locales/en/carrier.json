@@ -35,6 +35,26 @@
 		"view": {
 			"title": "Carrier details - {{entry}}",
 			"label": "View details"
+		},
+		"guide": {
+			"title": "How carriers work",
+			"label": "Usage guide"
 		}
+	},
+	"help": {
+		"intro": "A carrier is the shipping company a shipment points at — a name plus optional contact details. It holds no rates, zones or tracking logic; it is only the record other features reference.",
+		"step_1_title": "Name it",
+		"step_1_body": "Name is the only required field and must be unique among carriers that are not deleted. A duplicate is refused with a conflict rather than being made unique for you.",
+		"step_2_title": "Add the website",
+		"step_2_body": "Optional, and stored as free text rather than checked as a URL — anything is accepted, so keeping the protocol and spelling consistent is yours to do. It is also the second field search reads, alongside the name.",
+		"step_3_title": "Add phone and email",
+		"step_3_body": "Both optional and checked for format only. The phone accepts 7 to 15 digits with an optional leading +, and spaces, dots, dashes and parentheses are ignored; neither field is verified to reach anyone.",
+		"step_4_title": "Write the notes",
+		"step_4_body": "Free text for the dashboard alone — account numbers, the contact person, the terms behind the contract. It is never searched, so anything you need to find a carrier by belongs in the name or the website.",
+		"step_5_title": "Find it again",
+		"step_5_body": "Search matches name and website from three characters, except for an all-digit term, which is treated as an id and matched exactly. The list can be ordered by id, name, created or updated date, and nothing else.",
+		"note": "Deleting a carrier is a soft delete, so shipments already pointing at it keep resolving — use Show deleted to find one and restore it. The uniqueness rule ignores deleted rows, so the name is free the moment it is deleted and a restore fails while another carrier holds it.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
 	}
 }

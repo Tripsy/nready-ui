@@ -5,7 +5,9 @@ import {
 	FormManageComment,
 } from '@/app/(dashboard)/dashboard/comment/form-manage-comment.component';
 import { StatusTransitionComment } from '@/app/(dashboard)/dashboard/comment/status-transition-comment.component';
+import { UsageGuideComment } from '@/app/(dashboard)/dashboard/comment/usage-guide-comment.component';
 import { ViewComment } from '@/app/(dashboard)/dashboard/comment/view-comment.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import {
 	getFormDataAsBoolean,
@@ -133,6 +135,7 @@ export default async function dataSourceConfig(): Promise<
 			'delete.title',
 			'statusTransition.title',
 			'viewUser.title',
+			'guide.title',
 		] as const,
 		'comment.action',
 	);
@@ -372,6 +375,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['comment', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideComment,
+				windowConfigProps: {
+					size: 'xl3',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['comment', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

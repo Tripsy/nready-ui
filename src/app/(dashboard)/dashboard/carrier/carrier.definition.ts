@@ -4,7 +4,9 @@ import {
 	type CarrierFormValuesType,
 	FormManageCarrier,
 } from '@/app/(dashboard)/dashboard/carrier/form-manage-carrier.component';
+import { UsageGuideCarrier } from '@/app/(dashboard)/dashboard/carrier/usage-guide-carrier.component';
 import { ViewCarrier } from '@/app/(dashboard)/dashboard/carrier/view-carrier.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import { getFormDataAsString } from '@/helpers/form.helper';
 import {
@@ -104,6 +106,7 @@ export default async function dataSourceConfig(): Promise<
 			'view.title',
 			'delete.title',
 			'restore.title',
+			'guide.title',
 		] as const,
 		'carrier.action',
 	);
@@ -262,6 +265,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['carrier', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideCarrier,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['carrier', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

@@ -60,6 +60,10 @@
 		"view": {
 			"title": "Client details - {{entry}}",
 			"label": "View details"
+		},
+		"guide": {
+			"title": "How clients work",
+			"label": "Usage guide"
 		}
 	},
 	"field": {
@@ -72,5 +76,23 @@
 		"contact_email": "Contact - Email",
 		"contact_phone": "Contact - Phone",
 		"notes": "Notes"
+	},
+	"help": {
+		"intro": "A client is either a company or a person, and that choice decides which identity fields exist on it. Everything else — banking, contact, notes — is the same for both and entirely optional.",
+		"step_1_title": "Pick the client type",
+		"step_1_body": "Company or person. The form shows only the matching half, and the other half's fields are refused rather than ignored, so switching type on an existing client means filling in the new half.",
+		"step_2_title": "Fill in the identity",
+		"step_2_body": "A company needs a name and a CUI; the registration number is optional. A person needs a name, and the CNP is optional but checked in full, control digit included. The CNP is never returned by a read — it is stored, not displayed.",
+		"step_3_title": "Keep the identity unique",
+		"step_3_body": "Two companies cannot share a name, a CUI or a registration number, and two persons cannot share a CNP. The check counts deleted rows as well, so deleting a client does not release its identity for a new one.",
+		"step_4_title": "Add banking and contact details",
+		"step_4_body": "All optional. The IBAN is checked for format, as are the contact email and phone — none of them is verified to be real or to reach anyone, and the bank name is free text.",
+		"step_5_title": "Enable or disable it",
+		"step_5_body": "A client is created active and moves freely between active and inactive. Pending exists in the data model but nothing sets it, so it is only ever seen on rows that predate this.",
+		"step_6_title": "Find it again",
+		"step_6_body": "Search reads the identity fields of the type selected in the filters, or of both when no type is picked, from three characters — an all-digit term is treated as an id instead. The list can be ordered by id or creation date only, and filtered by a creation date range.",
+		"note": "Deleting a client is a soft delete, so orders, invoices and cash flow entries pointing at it keep resolving. Use Show deleted to find one and restore it — but its identity was never free in the meantime.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
 	}
 }

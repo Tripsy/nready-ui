@@ -28,6 +28,26 @@
 		"view": {
 			"title": "Document series details - {{entry}}",
 			"label": "View details"
+		},
+		"guide": {
+			"title": "How numbering series work",
+			"label": "Usage guide"
 		}
+	},
+	"help": {
+		"intro": "A series is the counter behind the reference a person reads on an invoice, an order, a goods receipt or a subscription. It holds only two things worth allocating — a code and the next number — and how those are rendered into INV-000142 is left to whatever displays the document.",
+		"step_1_title": "One series per document type",
+		"step_1_body": "Invoice, order, GRN and subscription each take exactly one, and a second for the same type is refused. The type is what an allocation resolves on, which is why the field is locked after creation — moving it would hand numbers already issued to a different series.",
+		"step_2_title": "Set the code",
+		"step_2_body": "Up to ten characters, and it is the prefix references are built from. It can be changed later, but only documents numbered after the change carry the new one — the old references keep the code they were issued with.",
+		"step_3_title": "Choose where the numbering starts",
+		"step_3_body": "Start number is the first number handed out, which is how a series takes over from a legacy numbering rather than restarting at one. On a brand-new series the counter equals it.",
+		"step_4_title": "Let the counter move on its own",
+		"step_4_body": "The next number is never edited here. It advances only when a document takes a number, inside that document's own transaction — a failed save rolls the number back, which is what keeps the sequence gapless. Raising the start number on a series that has already issued documents records an intent and changes nothing about what comes next.",
+		"step_5_title": "Find one",
+		"step_5_body": "Filter by document type, or search the code from three characters — an all-digit term is treated as an id. The list orders by id or code, and there is rarely more than a handful of rows here.",
+		"note": "Deleting a series is permanent and unguarded: there is no deleted state, so nothing can be restored, and nothing stops the removal of a series that has issued numbers. Recreating it starts the counter again from its start number, and the next document collides with references that already exist under that code.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
 	}
 }

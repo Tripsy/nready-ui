@@ -4,7 +4,9 @@ import {
 	type ClientFormValuesType,
 	FormManageClient,
 } from '@/app/(dashboard)/dashboard/client/form-manage-client.component';
+import { UsageGuideClient } from '@/app/(dashboard)/dashboard/client/usage-guide-client.component';
 import { ViewClient } from '@/app/(dashboard)/dashboard/client/view-client.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import { getFormDataAsEnum, getFormDataAsString } from '@/helpers/form.helper';
 import { arrayHasValue } from '@/helpers/objects.helper';
@@ -238,6 +240,7 @@ export default async function dataSourceConfig(): Promise<
 			'restore.title',
 			'enable.title',
 			'disable.title',
+			'guide.title',
 		] as const,
 		'client.action',
 	);
@@ -474,6 +477,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['client', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideClient,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['client', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};
