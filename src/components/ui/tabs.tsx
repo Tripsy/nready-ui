@@ -32,7 +32,12 @@ const TabsList = ({
 	...props
 }: TabsListProps) => (
 	<HeroTabs.ListContainer className={containerClassName}>
-		<HeroTabs.List className={className} {...props}>
+		{/*
+		 * `p-2` widens HeroUI's own `p-1`, which leaves the selected tab's chip all but
+		 * touching the segmented background around it. Set here so every tab strip in the
+		 * app is spaced the same; a caller passing its own `p-*` still wins through `cn`.
+		 */}
+		<HeroTabs.List className={cn('p-2', className)} {...props}>
 			{children}
 		</HeroTabs.List>
 	</HeroTabs.ListContainer>
@@ -96,7 +101,7 @@ type TabsContentProps = React.ComponentProps<typeof HeroTabs.Panel>;
 const TabsContent = ({ className, ...props }: TabsContentProps) => (
 	<HeroTabs.Panel
 		shouldForceMount
-		className={cn('data-[inert]:hidden', className)}
+		className={cn('data-inert:hidden', className)}
 		{...props}
 	/>
 );

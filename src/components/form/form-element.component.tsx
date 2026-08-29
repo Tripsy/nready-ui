@@ -125,38 +125,25 @@ export const FormElementIcon = ({
 	</div>
 );
 
+/**
+ * A field is outlined only while it is in error.
+ *
+ * There is deliberately no filled/valid state: an outline on every field that merely holds a
+ * value marks the ordinary case rather than the one worth looking at, and on a form where most
+ * fields are populated — or a filter bar carrying defaults — it leaves the field that actually
+ * needs attention with nothing to set it apart.
+ */
 const stateConfig = {
 	default: {
 		borderClass: '',
 	},
-	success: {
-		borderClass: 'border border-success focus-visible:ring-success',
-	},
 	error: {
 		borderClass: 'border border-danger focus-visible:ring-danger',
 	},
-	warning: {
-		borderClass: 'border border-warning focus-visible:ring-warning',
-	},
 };
 
-const useFieldState = ({
-	value,
-	error,
-}: {
-	value?: string | number | boolean | null;
-	error?: string[];
-}) => {
-	if (error?.length) {
-		return stateConfig.error;
-	}
-
-	if (value !== null && value !== undefined && value !== '') {
-		return stateConfig.success;
-	}
-
-	return stateConfig.default;
-};
+const useFieldState = ({ error }: { error?: string[] }) =>
+	error?.length ? stateConfig.error : stateConfig.default;
 
 export type FormComponentProps<Fields, Value> = {
 	id: string;
@@ -196,7 +183,7 @@ export const FormComponentInput = <Fields,>({
 	error,
 	icons,
 }: FormComponentProps<Fields, InputValueType | number>) => {
-	const { borderClass } = useFieldState({ value: fieldValue, error });
+	const { borderClass } = useFieldState({ error });
 
 	return (
 		<FormElement
@@ -260,7 +247,7 @@ export const FormComponentTime = <Fields,>({
 	minuteInterval = 1,
 }: FormComponentTimeProps<Fields>) => {
 	const [open, setOpen] = useState(false);
-	const { borderClass } = useFieldState({ value: fieldValue, error });
+	const { borderClass } = useFieldState({ error });
 
 	const hours = Array.from({ length: 24 }, (_, i) =>
 		String(i).padStart(2, '0'),
@@ -438,7 +425,7 @@ export const FormComponentTextarea = <Fields,>({
 	onChange: React.ChangeEventHandler<HTMLTextAreaElement>;
 	rows: number;
 }) => {
-	const { borderClass } = useFieldState({ value: fieldValue, error });
+	const { borderClass } = useFieldState({ error });
 
 	return (
 		<FormElement
@@ -495,7 +482,7 @@ export const FormComponentSelect = <Fields,>({
 	/** Render a searchable combobox (type-to-filter) instead of a plain select. */
 	searchable?: boolean;
 }) => {
-	const { borderClass } = useFieldState({ value: fieldValue, error });
+	const { borderClass } = useFieldState({ error });
 
 	const isGrouped = 'options' in options[0];
 
@@ -638,7 +625,7 @@ export const FormComponentCheckbox = <Fields,>({
 	onCheckedChange: (checked: boolean) => void;
 	children: JSX.Element | string;
 }) => {
-	const { borderClass } = useFieldState({ value: checked, error });
+	const { borderClass } = useFieldState({ error });
 
 	return (
 		<FormElement error={error}>
@@ -998,7 +985,7 @@ export const FormComponentAutoComplete = <Fields, T>({
 		autoCompleteProps.maxSuggestions || 99,
 	);
 
-	const { borderClass } = useFieldState({ value: fieldValue, error });
+	const { borderClass } = useFieldState({ error });
 
 	const isLoading = autoCompleteProps.isLoading;
 	const isEmpty =
