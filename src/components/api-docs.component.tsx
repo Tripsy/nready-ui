@@ -112,8 +112,9 @@ function ParamGroup({
 
 /**
  * Fills the `:name` placeholders in a documented path, since a runnable example cannot carry
- * them literally. The stand-in follows the param's documented type — `1` for the numeric ids
- * every path here uses — so the result stays plausible against the real route.
+ * them literally. The stand-in follows the param's documented type — `1` for a numeric id, the
+ * first documented value for an enum — so the result is a request that would actually route.
+ * Anything else falls back to `<name>`, which reads as the placeholder it is.
  */
 function buildExampleUrl(baseUrl: string, action: ApiDocsAction): string {
 	const params = action.request.params;
@@ -123,11 +124,15 @@ function buildExampleUrl(baseUrl: string, action: ApiDocsAction): string {
 		(_match, name) => {
 			const param = params?.[name];
 
-			if (param && isApiDocsParam(param) && param.type === 'number') {
+			if (!param || !isApiDocsParam(param)) {
+				return `<${name}>`;
+			}
+
+			if (param.type === 'number') {
 				return '1';
 			}
 
-			return `<${name}>`;
+			return param.values?.[0] ?? `<${name}>`;
 		},
 	);
 

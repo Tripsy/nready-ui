@@ -63,6 +63,26 @@
 			"title": "Configurează permisiunile - {{entry}}",
 			"label": "Permisiuni",
 			"success": "Permisiunile au fost actualizate cu succes"
+		},
+		"guide": {
+			"title": "Cum funcționează utilizatorii",
+			"label": "Ghid de utilizare"
 		}
+	},
+	"help": {
+		"intro": "Adăugarea unui utilizator ține în mare parte de rol — el decide care dintre celelalte câmpuri se aplică și ce poate face contul după creare.",
+		"step_1_title": "Setează numele, emailul și parola",
+		"step_1_body": "Parola are nevoie de cel puțin 8 caractere, cu o literă mare, o cifră și un caracter special, și trebuie să coincidă cu confirmarea. La actualizare poți lăsa ambele câmpuri de parolă goale pentru a o păstra pe cea curentă.",
+		"step_2_title": "Alege rolul",
+		"step_2_body": "Membru este un cont obișnuit, operator este personal intern, iar administratorul trece peste orice verificare de permisiuni. Rolul este câmpul după care se ghidează restul formularului.",
+		"step_3_title": "Adaugă tipul de operator — doar pentru operatori",
+		"step_3_body": "Un operator trebuie să aibă un tip (vânzător, manager de produs sau editor de conținut), iar orice alt rol nu trebuie să aibă unul. Setarea unui tip pe un membru este respinsă, nu ignorată.",
+		"step_4_title": "Acordă permisiuni",
+		"step_4_body": "„Setează permisiuni” apare doar pentru un operator și necesită dreptul de actualizare pe entitatea permission. Membrii nu moștenesc nimic, iar administratorii nu au nevoie de nimic, deci niciunul nu oferă această acțiune.",
+		"step_5_title": "Mută contul între stări",
+		"step_5_body": "Conturile noi pornesc în așteptare. Activează mută din în așteptare sau inactiv în activ; Dezactivează mută din în așteptare sau activ în inactiv. Nu există drum înapoi către în așteptare.",
+		"note": "Ștergerea unui utilizator este una logică — rândul își păstrează emailul, așa că un cont nou cu aceeași adresă eșuează până când cel vechi este restaurat sau eliminat definitiv.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API"
 	}
 }

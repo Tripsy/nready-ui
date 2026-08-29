@@ -5,7 +5,9 @@ import {
 	type UserFormValuesType,
 } from '@/app/(dashboard)/dashboard/user/form-manage-user.component';
 import { SetupUserPermissions } from '@/app/(dashboard)/dashboard/user/setup-user-permissions.component';
+import { UsageGuideUser } from '@/app/(dashboard)/dashboard/user/usage-guide-user.component';
 import { ViewUser } from '@/app/(dashboard)/dashboard/user/view-user.component';
+import { Icons } from '@/components/icon.component';
 import { Configuration } from '@/config/settings.config';
 import { getLanguageClient, translateBatch } from '@/config/translate.setup';
 import { getFormDataAsEnum, getFormDataAsString } from '@/helpers/form.helper';
@@ -256,6 +258,7 @@ export default async function dataSourceConfig(): Promise<
 			'enable.title',
 			'disable.title',
 			'setupPermissions.title',
+			'guide.title',
 		] as const,
 		'user.action',
 	);
@@ -518,6 +521,24 @@ export default async function dataSourceConfig(): Promise<
 				button: {
 					variant: 'outline',
 					hover: 'success',
+				},
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideUser,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['user', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
 				},
 			},
 		},
