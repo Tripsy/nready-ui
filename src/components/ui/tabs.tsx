@@ -45,17 +45,30 @@ type TabsTriggerProps = Omit<
 	'children'
 > & {
 	children?: ReactNode;
+	/**
+	 * Set false for a tab strip styled as plain text, where the sliding chip has no
+	 * segmented background to travel along and just reads as a stray highlight.
+	 */
+	withIndicator?: boolean;
 };
 
 /**
- * The selection indicator is a react-aria `SelectionIndicator`: it renders inside
- * every tab and animates between them as a shared element, so it belongs here rather
- * than at the call sites (the parent toggles its visibility).
+ * The selection indicator is a react-aria `SelectionIndicator`: it renders inside every
+ * tab and animates between them as a shared element, so it belongs here rather than at
+ * the call sites.
+ *
+ * Dropped by not rendering it, rather than by hiding `.tabs__indicator` from a parent:
+ * Tailwind reads `_` in an arbitrary variant as a space, so the selector for a BEM class
+ * with a double underscore has to escape both to match — a silent no-op when it does not.
  */
-const TabsTrigger = ({ children, ...props }: TabsTriggerProps) => (
+const TabsTrigger = ({
+	children,
+	withIndicator = true,
+	...props
+}: TabsTriggerProps) => (
 	<HeroTabs.Tab {...props}>
 		{children}
-		<HeroTabs.Indicator />
+		{withIndicator && <HeroTabs.Indicator />}
 	</HeroTabs.Tab>
 );
 

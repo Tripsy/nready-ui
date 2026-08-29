@@ -27,6 +27,7 @@ type WindowRenderProps = {
 	action: string;
 	entry: WindowEntryType | undefined;
 	entries: WindowEntryType[];
+	entriesSelection: EntriesSelectionType;
 	WindowComponent: WindowComponent | undefined;
 };
 
@@ -64,7 +65,7 @@ const WINDOW_RENDERERS: Partial<
 			</WindowForm>
 		);
 	},
-	other: ({ uid, entry, entries, WindowComponent }) => {
+	other: ({ uid, entry, entries, entriesSelection, WindowComponent }) => {
 		if (!WindowComponent) {
 			throw new Error('Component not defined');
 		}
@@ -72,7 +73,9 @@ const WINDOW_RENDERERS: Partial<
 		const actionEntries: WindowEntryType[] =
 			entries.length > 0 ? entries : entry ? [entry] : [];
 
-		if (actionEntries.length === 0) {
+		// `free` selection covers windows with nothing to select against (e.g. a static
+		// help/guide window) — unlike `single`/`multiple`, an empty list there is expected.
+		if (actionEntries.length === 0 && entriesSelection !== 'free') {
 			throw new Error('No entries defined for action');
 		}
 
@@ -176,7 +179,15 @@ export function WindowInstance({
 			{isEntryLoading && definition.reloadEntry ? (
 				<LoadingComponent />
 			) : (
-				renderer({ uid, type, action, entry, entries, WindowComponent })
+				renderer({
+					uid,
+					type,
+					action,
+					entry,
+					entries,
+					entriesSelection: definition.entriesSelection,
+					WindowComponent,
+				})
 			)}
 		</Modal>
 	);

@@ -16,19 +16,21 @@ const buttonVariants = cva(
 					'bg-default text-default-foreground hover:bg-default-hover',
 				ghost: '',
 				success:
-					'bg-success text-accent-foreground hover:bg-success-hover',
+					'bg-success text-success-foreground hover:bg-success-hover',
 				error: 'bg-danger text-danger-foreground hover:bg-danger-hover',
 				warning:
-					'bg-warning text-accent-foreground hover:bg-warning-hover',
+					'bg-warning text-warning-foreground hover:bg-warning-hover',
+				info: 'bg-info text-info-foreground hover:bg-info-hover',
 			},
 			hover: {
 				success:
-					'hover:bg-success/90 hover:text-accent-foreground hover:border-transparent',
-				error: 'hover:bg-danger/80 hover:text-danger-foreground hover:border-transparent',
+					'hover:bg-success-hover hover:text-success-foreground hover:border-transparent',
+				error: 'hover:bg-danger-hover hover:text-danger-foreground hover:border-transparent',
 				warning:
-					'hover:bg-warning/70 hover:text-accent-foreground hover:border-transparent',
+					'hover:bg-warning-hover hover:text-warning-foreground hover:border-transparent',
+				info: 'hover:bg-info-hover hover:text-info-foreground hover:border-transparent',
 				default:
-					'hover:bg-accent hover:text-accent-foreground hover:border-transparent',
+					'hover:bg-accent-hover hover:text-accent-foreground hover:border-transparent',
 			},
 			size: {
 				xs: 'text-xs px-2 py-1.5',

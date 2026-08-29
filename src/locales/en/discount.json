@@ -47,6 +47,26 @@
 		"view": {
 			"title": "Discount details - {{entry}}",
 			"label": "View details"
+		},
+		"guide": {
+			"title": "How discounts work",
+			"label": "Usage guide"
 		}
+	},
+	"help": {
+		"intro": "A discount only applies once every piece below is set up correctly — use this as a checklist before you publish one.",
+		"step_1_title": "Define the basics",
+		"step_1_body": "Give it a label, pick a reason, and set the type (percent or fixed amount) and value.",
+		"step_2_title": "Choose a scope",
+		"step_2_body": "Scope decides what the discount can apply to: the whole order, or a specific set of products, categories or brands.",
+		"step_3_title": "Pick targets",
+		"step_3_body": "Every scope except \"order\" needs at least one target — use the target picker to link the products, categories or brands it should apply to. Without one, the discount is saved but matches nothing.",
+		"step_4_title": "Narrow it with conditions (optional)",
+		"step_4_body": "Add a minimum order value, restrict it to certain countries, or limit it to an hour and day range. Leave a condition empty to skip it.",
+		"step_5_title": "Set the active window",
+		"step_5_body": "Start and end dates control when the discount is live. Leave both empty for a discount that is active as soon as it is created.",
+		"note": "Changing a discount's scope replaces its targets for the new scope — the previous scope's targets are cleared, not kept in reserve.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
 	}
 }

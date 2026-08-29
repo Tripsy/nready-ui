@@ -4,7 +4,9 @@ import {
 	type DiscountFormValuesType,
 	FormManageDiscount,
 } from '@/app/(dashboard)/dashboard/discount/form-manage-discount.component';
+import { UsageGuideDiscount } from '@/app/(dashboard)/dashboard/discount/usage-guide-discount.component';
 import { ViewDiscount } from '@/app/(dashboard)/dashboard/discount/view-discount.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import {
 	getFormDataAsEnum,
@@ -478,6 +480,7 @@ export default async function dataSourceConfig(): Promise<
 			'view.title',
 			'delete.title',
 			'restore.title',
+			'guide.title',
 		] as const,
 		'discount.action',
 	);
@@ -685,6 +688,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['discount', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideDiscount,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['discount', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

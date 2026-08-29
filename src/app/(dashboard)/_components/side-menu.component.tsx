@@ -21,8 +21,6 @@ import {
 } from '@/app/(dashboard)/_providers/breadcrumb.provider';
 import { useSideMenu } from '@/app/(dashboard)/_providers/side-menu.provider';
 import { LinkPendingIcon } from '@/components/link-pending-icon.component';
-import { Link } from '@/components/ui/link';
-import Routes from '@/config/routes.setup';
 import { cn } from '@/helpers/css.helper';
 import { useDebouncedEffect } from '@/hooks/use-debounced-effect.hook';
 import { useTranslation } from '@/hooks/use-translation.hook';
@@ -135,28 +133,6 @@ export function SideMenu() {
 						menuContent
 					)}
 				</nav>
-
-				{menuState === 'open' && (
-					<div className="p-4 border-t border-sidebar-border">
-						<div className="rounded-lg bg-sidebar-accent p-4">
-							<p className="text-sm font-medium text-sidebar-accent-foreground mb-1">
-								Need help?
-							</p>
-							<p className="text-xs text-muted mb-3">
-								Check our documentation for guidance.
-							</p>
-							<Link
-								size="sm"
-								variant="secondary"
-								className="w-full"
-								href={Routes.get('docs')}
-								title="Check out the documentation"
-							>
-								View Docs
-							</Link>
-						</div>
-					</div>
-				)}
 			</div>
 		</div>
 	);

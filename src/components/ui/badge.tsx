@@ -7,12 +7,16 @@ const badgeVariants = cva(
 		'transition-colors focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2',
 	{
 		variants: {
+			// `bg-<name> text-<name>-foreground` throughout: a base is only legible against the
+			// foreground token it was tuned with in `globals.css`, so the two halves move
+			// together. Borrowing another variant's foreground is what breaks that.
 			variant: {
 				default: 'bg-accent text-accent-foreground',
 				secondary: 'bg-default text-default-foreground',
-				success: 'bg-success text-accent-foreground',
+				success: 'bg-success text-success-foreground',
 				error: 'bg-danger text-danger-foreground',
-				warning: 'bg-warning text-accent-foreground',
+				warning: 'bg-warning text-warning-foreground',
+				info: 'bg-info text-info-foreground',
 			},
 			size: {
 				md: 'px-4 py-2',

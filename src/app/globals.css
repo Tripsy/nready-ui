@@ -18,11 +18,26 @@
  * of HeroUI tokens so they track the palette in both themes.
  *   - sidebar-*      : dashboard sidebar surface (kept as-is; not part of the HeroUI rename).
  *   - glass/gradient : decorative surfaces used by the public site.
+ *   - semantic fills : info added, success/warning re-based onto a white foreground (see below).
  */
 :root {
 	--success-light: color-mix(in oklab, var(--success) 15%, transparent);
 	--warning-light: color-mix(in oklab, var(--warning) 15%, transparent);
 	--danger-light: color-mix(in oklab, var(--danger) 15%, transparent);
+
+	--success: oklch(0.52 0.1935 150.81);
+	--success-foreground: var(--snow);
+
+	--warning: oklch(0.56 0.1585 72.33);
+	--warning-foreground: var(--snow);
+
+	--info: oklch(0.54 0.12 205.41);
+	--info-foreground: var(--snow);
+	--info-hover: color-mix(
+		in oklab,
+		var(--info) 90%,
+		var(--info-foreground) 10%
+	);
 
 	--sidebar-background: var(--surface);
 	--sidebar-foreground: var(--surface-foreground);
@@ -68,6 +83,10 @@
 	--color-success-light: var(--success-light);
 	--color-warning-light: var(--warning-light);
 	--color-danger-light: var(--danger-light);
+
+	--color-info: var(--info);
+	--color-info-foreground: var(--info-foreground);
+	--color-info-hover: var(--info-hover);
 
 	--color-sidebar-background: var(--sidebar-background);
 	--color-sidebar-foreground: var(--sidebar-foreground);
