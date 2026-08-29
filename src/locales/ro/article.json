@@ -106,6 +106,27 @@
 			"title": "Sortează articolele promovate",
 			"label": "Sortează",
 			"success": "Ordinea a fost actualizată cu succes"
+		},
+		"guide": {
+			"title": "Cum funcționează articolele",
+			"label": "Ghid de utilizare"
 		}
+	},
+	"help": {
+		"intro": "Un articol este o structură plus câte o intrare de conținut pentru fiecare limbă. Starea decide dacă este public, iar vizibilitatea decide cine îl poate citi.",
+		"step_1_title": "Scrie conținutul, câte o limbă pe rând",
+		"step_1_body": "Fiecare limbă are propriul titlu, slug și corp — tab-urile de limbă sunt intrări separate, nu traduceri ale aceleiași înregistrări. Slug-ul trebuie să fie unic și este cel folosit în adresa publică.",
+		"step_2_title": "Încadrează-l în categorii și etichete",
+		"step_2_body": "Categoriile îl așază în arborele site-ului; etichetele alimentează caseta „articole similare”, care se potrivește pe fiecare etichetă a articolului.",
+		"step_3_title": "Alege vizibilitatea",
+		"step_3_body": "Public poate fi citit de oricine. Restricționat predă articolul unei reguli — o parolă, de exemplu — iar un vizitator fără ea primește 404, nu o solicitare, deci existența articolului rămâne ascunsă.",
+		"step_4_title": "Mută-l între stări",
+		"step_4_body": "Articolele pornesc ca ciornă și merg ciornă → în așteptare → publicat (sau respins, înapoi la ciornă). Programat este ce rezultă dintr-o dată de publicare viitoare; o sarcină zilnică îl trece la publicat în ziua respectivă.",
+		"step_5_title": "Promovează-l, dacă îi este locul într-un slot",
+		"step_5_body": "Starea de promovare pune articolul în slotul de secțiune sau categorie; Ordonarea aranjează tot grupul deodată. Promovat până la îl scoate din grup în ziua indicată, fără a-l depublica.",
+		"note": "Doar articolele publicate ajung în API-ul public, iar unul restricționat rămâne în afara oricărei listări. Lista din dashboard este singurul loc care poate accesa un articol indiferent de stare.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API",
+		"tab_public": "API public"
 	}
 }

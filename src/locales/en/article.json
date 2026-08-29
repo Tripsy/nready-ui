@@ -106,6 +106,27 @@
 			"title": "Sort featured articles",
 			"label": "Sort",
 			"success": "Order updated successfully"
+		},
+		"guide": {
+			"title": "How articles work",
+			"label": "Usage guide"
 		}
+	},
+	"help": {
+		"intro": "An article is a shell plus one content entry per language. Status controls whether it is live; visibility controls who may read it once it is.",
+		"step_1_title": "Write the content, one language at a time",
+		"step_1_body": "Each language needs its own title, slug and body — the language tabs are separate entries, not translations of one record. A slug must be unique, and it is what the public URL uses.",
+		"step_2_title": "File it under categories and tags",
+		"step_2_body": "Categories place the article in the site tree; tags drive the \"similar articles\" box, which matches on every tag the article carries.",
+		"step_3_title": "Choose visibility",
+		"step_3_body": "Public is readable by anyone. Restricted hands the article to a rule — a password, for instance — and a visitor without it gets a 404 rather than a prompt, so the article's existence stays hidden.",
+		"step_4_title": "Move it through its statuses",
+		"step_4_body": "Articles start as draft and go draft → pending → published (or rejected, back to draft). Scheduled is what a future Publish At produces; a daily job flips it to published on the day.",
+		"step_5_title": "Feature it, if it belongs in a slot",
+		"step_5_body": "Featured status puts the article in the section or category slot; Order arranges the whole group at once. Featured Until drops it out of that group on the day given, without unpublishing it.",
+		"note": "Only published articles reach the public API, and a restricted one stays out of every listing. The dashboard list is the only place that can address an article whatever its status.",
+		"tab_info": "Info",
+		"tab_api": "API docs",
+		"tab_public": "Public API"
 	}
 }

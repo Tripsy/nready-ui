@@ -141,8 +141,22 @@ function buildExampleUrl(baseUrl: string, action: ApiDocsAction): string {
 
 const BEARER_PLACEHOLDER = '<token>';
 
+/**
+ * The sample payload, but only where it is a request *body*.
+ *
+ * `request.sample` is whatever the backend documented for the action, and for a read it describes
+ * the path and query instead — the public article read samples `{ slug, language }`, both of which
+ * are already in the URL. Keying on a documented `body` is what stops those turning into a GET
+ * carrying `-d` and a JSON content type.
+ */
+function requestBodySample(
+	action: ApiDocsAction,
+): Record<string, unknown> | undefined {
+	return action.request.body ? action.request.sample : undefined;
+}
+
 function buildCurlExample(baseUrl: string, action: ApiDocsAction): string {
-	const body = action.request.sample;
+	const body = requestBodySample(action);
 
 	const lines = [
 		`curl -X ${action.method.toUpperCase()} '${buildExampleUrl(baseUrl, action)}'`,
@@ -162,7 +176,7 @@ function buildCurlExample(baseUrl: string, action: ApiDocsAction): string {
 }
 
 function buildNodeExample(baseUrl: string, action: ApiDocsAction): string {
-	const body = action.request.sample;
+	const body = requestBodySample(action);
 
 	const headers = [
 		action.authorization

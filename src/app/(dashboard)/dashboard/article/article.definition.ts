@@ -5,6 +5,7 @@ import {
 	FormManageArticle,
 } from '@/app/(dashboard)/dashboard/article/form-manage-article.component';
 import { ManagerArticleImages } from '@/app/(dashboard)/dashboard/article/manager-article-images.component';
+import { UsageGuideArticle } from '@/app/(dashboard)/dashboard/article/usage-guide-article.component';
 import { ViewArticle } from '@/app/(dashboard)/dashboard/article/view-article.component';
 import { Icons } from '@/components/icon.component';
 import Routes from '@/config/routes.setup';
@@ -636,6 +637,7 @@ export default async function dataSourceConfig(): Promise<
 			'archive.title',
 			'order.title',
 			'managerImages.title',
+			'guide.title',
 		] as const,
 		'article.action',
 	);
@@ -1062,6 +1064,24 @@ export default async function dataSourceConfig(): Promise<
 				// The list row has no markdown; the view needs it.
 				reloadEntry: (id: number) =>
 					requestView<ArticleModel>('article', id),
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideArticle,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['article', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};
