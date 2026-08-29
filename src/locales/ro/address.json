@@ -35,11 +35,29 @@
 		"view": {
 			"title": "Detalii adresă - {{entry}}",
 			"label": "Vezi detalii"
+		},
+		"guide": {
+			"title": "Cum funcționează adresele",
+			"label": "Ghid de utilizare"
 		}
 	},
 	"field": {
 		"city": "Oraș",
 		"details": "Detalii",
 		"postal_code": "Cod poștal"
+	},
+	"help": {
+		"intro": "O adresă este o linie de stradă plus un oraș și un cod poștal opționale. Este o componentă la care alte entități fac referire, nu ceva ce un vizitator vede de sine stătător.",
+		"step_1_title": "Scrie linia de stradă",
+		"step_1_body": "Detaliile sunt singurul câmp obligatoriu — restul pot fi completate ulterior. Tot ele sunt jumătate din ce caută căutarea, alături de codul poștal.",
+		"step_2_title": "Leagă un oraș sau lasă-l gol",
+		"step_2_body": "Orașul indică o înregistrare de tip loc, nu text liber, așa că numele rămâne consecvent și se traduce odată cu restul site-ului. O adresă fără oraș păstrează doar linia de stradă.",
+		"step_3_title": "Adaugă codul poștal",
+		"step_3_body": "Opțional și validat ca format, nu verificat față de oraș — un cod care nu aparține orașului selectat este acceptat.",
+		"step_4_title": "Regăsește-o",
+		"step_4_body": "Căutarea potrivește detaliile și codul poștal de la trei caractere, cu excepția unui termen numeric, tratat ca id și potrivit exact. Lista poate fi ordonată doar după id.",
+		"note": "Ștergerea unei adrese este una logică, deci orice face deja referire la ea continuă să funcționeze. Folosește „Arată șterse” pentru a o găsi și restaura.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API"
 	}
 }

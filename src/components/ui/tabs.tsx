@@ -37,7 +37,7 @@ const TabsList = ({
 		 * touching the segmented background around it. Set here so every tab strip in the
 		 * app is spaced the same; a caller passing its own `p-*` still wins through `cn`.
 		 */}
-		<HeroTabs.List className={cn('p-2', className)} {...props}>
+		<HeroTabs.List className={cn('p-2 rounded-none', className)} {...props}>
 			{children}
 		</HeroTabs.List>
 	</HeroTabs.ListContainer>

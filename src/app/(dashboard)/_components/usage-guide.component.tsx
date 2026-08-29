@@ -77,18 +77,16 @@ export function UsageGuide({
 			onSelectionChange={(key) => setSelectedTab(String(key))}
 			className="w-full"
 		>
-			<div className="border-b border-line pb-2">
-				<TabsList>
-					<TabsTrigger id={TAB_INFO}>
-						{translations[`${entity}.help.tab_info`]}
+			<TabsList>
+				<TabsTrigger id={TAB_INFO}>
+					{translations[`${entity}.help.tab_info`]}
+				</TabsTrigger>
+				{docsTabs.map((tab) => (
+					<TabsTrigger key={tab.id} id={tab.id}>
+						{translations[`${entity}.help.${tab.labelKey}`]}
 					</TabsTrigger>
-					{docsTabs.map((tab) => (
-						<TabsTrigger key={tab.id} id={tab.id}>
-							{translations[`${entity}.help.${tab.labelKey}`]}
-						</TabsTrigger>
-					))}
-				</TabsList>
-			</div>
+				))}
+			</TabsList>
 
 			<TabsContent id={TAB_INFO} className="pt-4">
 				<div className="space-y-6">

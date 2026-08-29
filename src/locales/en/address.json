@@ -35,11 +35,29 @@
 		"view": {
 			"title": "Address details - {{entry}}",
 			"label": "View details"
+		},
+		"guide": {
+			"title": "How addresses work",
+			"label": "Usage guide"
 		}
 	},
 	"field": {
 		"city": "City",
 		"details": "Details",
 		"postal_code": "Postal Code"
+	},
+	"help": {
+		"intro": "An address is a street line plus an optional city and postal code. It is a building block other entities point at, not something a visitor ever sees on its own.",
+		"step_1_title": "Write the street line",
+		"step_1_body": "Details is the only required field — everything else can be filled in later. It is also half of what the search matches, alongside the postal code.",
+		"step_2_title": "Link a city, or leave it out",
+		"step_2_body": "City points at a place record rather than free text, so the name stays consistent and translates with the rest of the site. An address with no city keeps its street line and nothing more.",
+		"step_3_title": "Add the postal code",
+		"step_3_body": "Optional, and validated for format rather than checked against the city — a code that does not belong to the city selected is accepted.",
+		"step_4_title": "Find it again",
+		"step_4_body": "Search matches details and postal code from three characters, except for an all-digit term, which is treated as an id and matched exactly. The list can only be ordered by id.",
+		"note": "Deleting an address is a soft delete, so anything already pointing at it keeps resolving. Use Show deleted to find one and restore it.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
 	}
 }

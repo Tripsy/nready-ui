@@ -5,7 +5,9 @@ import {
 	FormManageBrand,
 } from '@/app/(dashboard)/dashboard/brand/form-manage-brand.component';
 import { ManagerBrandImages } from '@/app/(dashboard)/dashboard/brand/manager-brand-images.component';
+import { UsageGuideBrand } from '@/app/(dashboard)/dashboard/brand/usage-guide-brand.component';
 import { ViewBrand } from '@/app/(dashboard)/dashboard/brand/view-brand.component';
+import { Icons } from '@/components/icon.component';
 import Routes from '@/config/routes.setup';
 import { translateBatch } from '@/config/translate.setup';
 import { getFormDataAsEnum, getFormDataAsString } from '@/helpers/form.helper';
@@ -174,6 +176,7 @@ export default async function dataSourceConfig(): Promise<
 			'disable.title',
 			'order.title',
 			'managerImages.title',
+			'guide.title',
 		] as const,
 		'brand.action',
 	);
@@ -415,6 +418,24 @@ export default async function dataSourceConfig(): Promise<
 				buttonPosition: 'right',
 				button: {
 					variant: 'default',
+				},
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideBrand,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['brand', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
 				},
 			},
 		},

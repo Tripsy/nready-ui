@@ -4,7 +4,9 @@ import {
 	type AddressFormValuesType,
 	FormManageAddress,
 } from '@/app/(dashboard)/dashboard/address/form-manage-address.component';
+import { UsageGuideAddress } from '@/app/(dashboard)/dashboard/address/usage-guide-address.component';
 import { ViewAddress } from '@/app/(dashboard)/dashboard/address/view-address.component';
+import { Icons } from '@/components/icon.component';
 import { getLanguageClient, translateBatch } from '@/config/translate.setup';
 import {
 	getFormDataAsNumber,
@@ -126,6 +128,7 @@ export default async function dataSourceConfig(): Promise<
 			'delete.title',
 			'restore.title',
 			'view.title',
+			'guide.title',
 		] as const,
 		'address.action',
 	);
@@ -273,6 +276,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['address', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideAddress,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['address', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

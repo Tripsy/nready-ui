@@ -64,6 +64,26 @@
 			"title": "Sort brands",
 			"label": "Sort",
 			"success": "Order updated successfully"
+		},
+		"guide": {
+			"title": "How brands work",
+			"label": "Usage guide"
 		}
+	},
+	"help": {
+		"intro": "A brand is a name and a slug, plus one content entry per language. The slug is what identifies it, and it is scoped to the brand type rather than global.",
+		"step_1_title": "Name it and set the slug",
+		"step_1_body": "The slug is trimmed and lower-cased on save, so casing and stray spaces are not yours to control. It must be unique for the brand type — saving a duplicate is refused outright rather than corrected.",
+		"step_2_title": "Pick the brand type",
+		"step_2_body": "Type is half of the uniqueness key, so the same slug can exist once per type. Only \"product\" exists today, which means slugs are effectively unique overall for now.",
+		"step_3_title": "Write the content, one language at a time",
+		"step_3_body": "At least one language entry is required, and each language may appear only once — a repeated language is rejected, not merged. Description and meta are optional within an entry.",
+		"step_4_title": "Enable or disable it",
+		"step_4_body": "Brands are active or inactive and move freely between the two. There is no draft or pending state.",
+		"step_5_title": "Add a logo and set the order",
+		"step_5_body": "Images opens the logo slot — a brand carries one logo, not a gallery. Order arranges every brand of one type at once, and is what sorting by order then reads.",
+		"note": "Deleting a brand is a soft delete, and the uniqueness rule ignores deleted rows — so the slug becomes free immediately and can be taken by a new brand. Restoring the old one then fails while that name is in use.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
 	}
 }
