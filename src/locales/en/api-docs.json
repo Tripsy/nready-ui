@@ -11,8 +11,6 @@
 		"base_url": "Base URL",
 		"group_none": "Open",
 		"group_none_hint": "Callable without a token.",
-		"group_partial": "Partly open",
-		"group_partial_hint": "Some endpoints are callable without a token; the rest need one.",
 		"group_required": "Requires a token",
 		"group_required_hint": "Every endpoint expects an Authorization: Bearer header and the matching permission.",
 		"entity": "Entity",

@@ -224,11 +224,12 @@ room in the container for both, and it is usually the dev server that gets kille
 
 # 📌 TODO
  
-1. Review image delete - local / s3       
-2. nready-native 
-3. Hero UI -> theme
-4. Add demo     
-5. Setup Sentry on UI
+1. Review image delete - local / s3
+2. Find a way to secure the proxy (`src/app/api/proxy/[...path]/route.ts`).
+3. nready-native 
+4. Hero UI -> theme
+5. Add demo     
+6. Setup Sentry on UI
 
 # 🔗 Dependencies
 

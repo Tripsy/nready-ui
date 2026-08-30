@@ -56,8 +56,13 @@ export type ApiDocsAction = {
 };
 
 /**
- * How much of a route module needs a bearer token. `partial` is real, not defensive — the
- * `template` module gates every action but `readPage`, which is what renders a public page.
+ * How much of a route module needs a bearer token.
+ *
+ * No module reports `partial` today: a feature that mixes open and gated endpoints is split into
+ * two route modules on the backend, the way `account` and `account-public` are. The state stays in
+ * the union because the API still computes it per action and would report it the moment a module
+ * gained an open endpoint beside a gated one — the catalog page names such an entry in the log
+ * rather than listing it, since it has no group to sit in.
  */
 export type ApiDocsAuthorization = 'none' | 'partial' | 'required';
 

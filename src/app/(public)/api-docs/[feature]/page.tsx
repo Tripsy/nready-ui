@@ -94,7 +94,7 @@ export default async function Page(props: Props) {
 
 	return (
 		<div className="container-default py-12 md:py-16">
-			<div className="mx-auto max-w-4xl">
+			<div>
 				<Breadcrumb
 					items={[
 						{
