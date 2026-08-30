@@ -1,12 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { Breadcrumb } from '@/app/(public)/_components/breadcrumb.component';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Configuration } from '@/config/settings.config';
 import { translate } from '@/config/translate.setup';
-import {
-	ApiRequest,
-	getResponseData,
-	resolveRequestPath,
-} from '@/helpers/api.helper';
+import { ApiRequest, getResponseData } from '@/helpers/api.helper';
 import { formatDate } from '@/helpers/date.helper';
 import type {
 	TemplateContentPageType,
@@ -31,7 +29,7 @@ async function getPageData(label: string): Promise<{
 		const fetchResponse: ApiResponseFetch<TemplateModel> | undefined =
 			await new ApiRequest()
 				.setRequestMode('remote-api')
-				.doFetch(`/${resolveRequestPath('template')}/${label}/page`, {
+				.doFetch(`/public/pages/${encodeURIComponent(label)}`, {
 					method: 'GET',
 					next: { revalidate: 3600 },
 				});
@@ -93,18 +91,26 @@ export default async function Page(props: Props) {
 
 	return (
 		<div className="container-default py-12 md:py-16">
-			<div className="mx-auto max-w-3xl rounded-2xl border border-border bg-surface p-6 md:p-10">
-				<h1 className="text-2xl md:text-3xl font-semibold">
+			<div className="space-y-6">
+				<Breadcrumb items={[{ label: pageData.title }]} />
+
+				<h1 className="text-3xl font-semibold md:text-4xl">
 					{pageData.title}
 				</h1>
-				<div
-					className="content-page mt-6"
-					/*biome-ignore lint/security/noDangerouslySetInnerHtml: It's fine*/
-					dangerouslySetInnerHTML={{ __html: pageData.html }}
-				/>
-				<div className="mt-8 text-sm italic text-right text-muted">
-					Last update: {formatDate(pageData.updated_at, 'date-time')}
-				</div>
+
+				<Card>
+					<CardContent>
+						<div
+							className="content-page mt-6"
+							/*biome-ignore lint/security/noDangerouslySetInnerHtml: It's fine*/
+							dangerouslySetInnerHTML={{ __html: pageData.html }}
+						/>
+					</CardContent>
+					<CardFooter className="text-sm text-muted italic">
+						Last update:{' '}
+						{formatDate(pageData.updated_at, 'date-time')}
+					</CardFooter>
+				</Card>
 			</div>
 		</div>
 	);

@@ -12,17 +12,27 @@ type FooterLinkSection = {
 
 const footerLinkSections: FooterLinkSection[] = [
 	{
-		name: 'Products',
+		name: 'Shopping',
 		links: [
 			{ label: 'Categories', href: Routes.get('products-categories') },
-			{ label: 'Latest', href: Routes.get('products') },
+			{ label: 'Products', href: Routes.get('products') },
 		],
 	},
 	{
 		name: 'Blog',
 		links: [
 			{ label: 'Categories', href: Routes.get('articles-categories') },
-			{ label: 'Latest', href: Routes.get('articles') },
+			{ label: 'Articles', href: Routes.get('articles') },
+		],
+	},
+	{
+		name: 'Developers',
+		links: [
+			{
+				label: 'API',
+				href: Routes.get('api-docs'),
+				title: 'API reference',
+			},
 		],
 	},
 	{

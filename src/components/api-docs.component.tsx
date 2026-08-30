@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { MethodBadge } from '@/components/api-docs-method-badge.component';
 import {
 	ErrorComponent,
 	LoadingComponent,
@@ -13,25 +14,9 @@ import {
 	type ApiDocsAction,
 	type ApiDocsParam,
 	type ApiDocsParamGroup,
+	apiDocsActionAnchor,
 	isApiDocsParam,
 } from '@/types/api-docs.type';
-
-/** `get` is the only method that reads; everything else changes state, so it is coloured. */
-function methodVariant(method: string) {
-	switch (method.toLowerCase()) {
-		case 'get':
-			return 'info' as const;
-		case 'post':
-			return 'success' as const;
-		case 'put':
-		case 'patch':
-			return 'warning' as const;
-		case 'delete':
-			return 'error' as const;
-		default:
-			return 'secondary' as const;
-	}
-}
 
 function ParamRow({ name, param }: { name: string; param: ApiDocsParam }) {
 	const extras = [
@@ -233,19 +218,29 @@ function JsonBlock({ title, value }: { title: string; value: unknown }) {
 function ActionDocs({
 	action,
 	baseUrl,
+	anchor,
+	name,
 }: {
 	action: ApiDocsAction;
 	baseUrl: string;
+	/** Set by the stacked layout so a full-page action is directly linkable. */
+	anchor?: string;
+	/** The controller action, shown only where the actions are not already labelled by tabs. */
+	name?: string;
 }) {
 	const { request, responses } = action;
 
 	return (
-		<section className="border border-line rounded-lg p-4 space-y-3">
+		<section
+			id={anchor}
+			className="border border-line rounded-lg p-4 space-y-3 scroll-mt-24"
+		>
 			<div className="flex flex-wrap items-center gap-2">
-				<Badge variant={methodVariant(action.method)} size="xs">
-					{action.method.toUpperCase()}
-				</Badge>
+				<MethodBadge method={action.method} />
 				<code className="font-semibold break-all">{action.path}</code>
+				{name && (
+					<span className="text-xs text-muted ml-auto">{name}</span>
+				)}
 			</div>
 
 			<p className="text-sm text-muted">{action.description}</p>
@@ -314,12 +309,99 @@ function ActionDocs({
 	);
 }
 
+// The status components size themselves for a full page, so inside a modal panel they
+// need their min-height cut back to the content.
+const STATUS_CLASS_NAME = 'min-h-0 py-8';
+
 /**
- * Renders the generated backend documentation for one feature.
+ * The documented actions of one route module.
+ *
+ * `tabs` is the modal layout — one action at a time, which is all a window has room for.
+ * `stacked` is the page layout: every action rendered in full, each behind its own anchor, so
+ * a reader can scroll the module end to end and link to a single endpoint. Both put the same
+ * markup in the DOM (the tab panels force-mount), so neither hides content from a crawler.
+ */
+export function ApiDocsView({
+	actions,
+	baseUrl,
+	layout = 'tabs',
+}: {
+	actions: Record<string, ApiDocsAction>;
+	baseUrl: string;
+	layout?: 'tabs' | 'stacked';
+}) {
+	const entries = Object.entries(actions);
+
+	if (entries.length === 0) {
+		return (
+			<ErrorComponent
+				className={STATUS_CLASS_NAME}
+				title="Nothing to show"
+				description="This feature has no API documentation."
+			/>
+		);
+	}
+
+	if (layout === 'stacked') {
+		return (
+			<div className="space-y-6">
+				{entries.map(([name, action]) => (
+					<ActionDocs
+						key={name}
+						name={name}
+						anchor={apiDocsActionAnchor(name)}
+						action={action}
+						baseUrl={baseUrl}
+					/>
+				))}
+			</div>
+		);
+	}
+
+	return (
+		<Tabs defaultSelectedKey={entries[0][0]} className="w-full">
+			{/*
+			 * Styled as a plain row of labels rather than a segmented control: the container
+			 * drops HeroUI's `bg-default` pill and each tab drops the sliding indicator that
+			 * would otherwise track across it.
+			 */}
+			<TabsList
+				containerClassName="bg-transparent rounded-none"
+				className="flex flex-wrap justify-start gap-x-4 gap-y-1"
+			>
+				{entries.map(([name]) => (
+					<TabsTrigger
+						key={name}
+						id={name}
+						withIndicator={false}
+						// Inverted against the HeroUI default, which mutes the *unselected*
+						// tabs: here the selected action is the muted one.
+						className="h-auto w-auto min-w-0 px-0 font-semibold text-foreground data-[selected=true]:text-muted"
+					>
+						{name}
+					</TabsTrigger>
+				))}
+			</TabsList>
+
+			{entries.map(([name, action]) => (
+				<TabsContent key={name} id={name} className="pt-3">
+					<ActionDocs action={action} baseUrl={baseUrl} />
+				</TabsContent>
+			))}
+		</Tabs>
+	);
+}
+
+/**
+ * Fetches and renders the documentation for one feature, for a caller that has only the
+ * feature name — the dashboard's usage guide.
  *
  * `enabled` is the caller's switch for deferring the request until the docs are actually on
  * screen — the tab hosting this stays mounted while hidden (see `ui/tabs`), so without it the
  * fetch would fire for everyone who opens the window.
+ *
+ * A page that can fetch server-side should render `ApiDocsView` with the data instead, so the
+ * docs are in the first HTML rather than behind a client round trip.
  */
 export function ApiDocs({
 	feature,
@@ -334,65 +416,23 @@ export function ApiDocs({
 		enabled,
 	});
 
-	// The status components size themselves for a full page, so inside a modal panel they
-	// need their min-height cut back to the content.
-	const statusClassName = 'min-h-0 py-8';
-
 	if (!enabled || isLoading) {
-		return <LoadingComponent className={statusClassName} />;
+		return <LoadingComponent className={STATUS_CLASS_NAME} />;
 	}
 
 	if (isError) {
 		return (
 			<ErrorComponent
-				className={statusClassName}
+				className={STATUS_CLASS_NAME}
 				description={getErrorMessage(error)}
 			/>
 		);
 	}
 
-	const actions = Object.entries(data?.actions ?? {});
-
-	if (actions.length === 0) {
-		return (
-			<ErrorComponent
-				className={statusClassName}
-				title="Nothing to show"
-				description="This feature has no API documentation."
-			/>
-		);
-	}
-
 	return (
-		<Tabs defaultSelectedKey={actions[0][0]} className="w-full">
-			{/*
-			 * Styled as a plain row of labels rather than a segmented control: the container
-			 * drops HeroUI's `bg-default` pill and each tab drops the sliding indicator that
-			 * would otherwise track across it.
-			 */}
-			<TabsList
-				containerClassName="bg-transparent rounded-none"
-				className="flex flex-wrap justify-start gap-x-4 gap-y-1"
-			>
-				{actions.map(([name]) => (
-					<TabsTrigger
-						key={name}
-						id={name}
-						withIndicator={false}
-						// Inverted against the HeroUI default, which mutes the *unselected*
-						// tabs: here the selected action is the muted one.
-						className="h-auto w-auto min-w-0 px-0 font-semibold text-foreground data-[selected=true]:text-muted"
-					>
-						{name}
-					</TabsTrigger>
-				))}
-			</TabsList>
-
-			{actions.map(([name, action]) => (
-				<TabsContent key={name} id={name} className="pt-3">
-					<ActionDocs action={action} baseUrl={data?.baseUrl ?? ''} />
-				</TabsContent>
-			))}
-		</Tabs>
+		<ApiDocsView
+			actions={data?.actions ?? {}}
+			baseUrl={data?.baseUrl ?? ''}
+		/>
 	);
 }

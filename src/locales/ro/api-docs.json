@@ -1,0 +1,32 @@
+{
+	"meta": {
+		"title": "Referință API | {{app_name}}",
+		"description": "Toate endpoint-urile expuse de API, cu parametri, răspunsuri și exemple de cereri gata de rulat.",
+		"feature_title": "API {{feature}} | {{app_name}}",
+		"feature_description": "Endpoint-uri, parametri și răspunsuri pentru modulul {{feature}}."
+	},
+	"text": {
+		"heading": "Referință API",
+		"subheading": "Toate modulele documentate, generate din API-ul însuși — ce citești aici este ce aplică serverul.",
+		"base_url": "URL de bază",
+		"group_none": "Deschise",
+		"group_none_hint": "Pot fi apelate fără token.",
+		"group_partial": "Parțial deschise",
+		"group_partial_hint": "Unele endpoint-uri pot fi apelate fără token; restul au nevoie de unul.",
+		"group_required": "Necesită token",
+		"group_required_hint": "Fiecare endpoint așteaptă un antet Authorization: Bearer și permisiunea corespunzătoare.",
+		"entity": "Entitate",
+		"module": "Modul",
+		"endpoints": "Endpoint-uri",
+		"auth_none": "Fără token",
+		"auth_partial": "Mixt",
+		"auth_required": "Token Bearer",
+		"auth_note": "Endpoint-urile verifică permisiunea apelantului pentru această entitate — a putea citi documentația nu înseamnă a le putea apela.",
+		"cors_heading": "Apeluri din browser",
+		"cors_note": "Apelurile din browser sunt limitate la originile permise. O cerere care poartă un Origin necunoscut API-ului este refuzată cu 403 înainte să ajungă la endpoint, cu sau fără token — deci un endpoint deschis nu poate fi apelat de orice pagină de pe web. Apelurile server-to-server nu trimit Origin și nu sunt afectate.",
+		"back_to_list": "Toate modulele",
+		"unavailable": "Referința API este temporar indisponibilă. Încearcă din nou mai târziu.",
+		"not_found_heading": "Modul inexistent",
+		"not_found_message": "Nu există niciun modul API documentat cu acest nume."
+	}
+}

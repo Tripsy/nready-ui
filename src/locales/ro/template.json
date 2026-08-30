@@ -61,6 +61,7 @@
 		"step_6_body": "Căutarea potrivește eticheta și conținutul stocat, de la trei caractere, deci o expresie din corp găsește șablonul care o conține; un termen numeric este tratat ca id. Filtrează după limbă și tip și ordonează după id, etichetă, data creării sau a actualizării.",
 		"note": "Ștergerea unui șablon este una logică, iar regula de unicitate ignoră rândurile șterse — eticheta devine liberă imediat după ștergere, iar restaurarea eșuează cât timp alt șablon are aceeași etichetă, limbă și tip. Pentru că randarea caută după etichetă, nu după id, redenumirea, ștergerea și restaurarea golesc și acea intrare din cache, nu doar pe cea a rândului.",
 		"tab_info": "Info",
-		"tab_api": "Documentație API"
+		"tab_api": "Documentație API",
+		"tab_public": "API public"
 	}
 }

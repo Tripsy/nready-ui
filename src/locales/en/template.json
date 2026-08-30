@@ -61,6 +61,7 @@
 		"step_6_body": "Search matches the label and the stored content itself from three characters, so a phrase from the body finds the template holding it; an all-digit term is treated as an id. Filter by language and type, and order by id, label, created or updated date.",
 		"note": "Deleting a template is a soft delete, and the uniqueness rule ignores deleted rows — the label is free the moment it is deleted, and a restore fails while another template holds the same label, language and type. Because the render-time lookup is by label rather than by id, renaming, deleting or restoring one all clear that cached lookup as well as the row's own.",
 		"tab_info": "Info",
-		"tab_api": "API docs"
+		"tab_api": "API docs",
+		"tab_public": "Public API"
 	}
 }

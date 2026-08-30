@@ -158,7 +158,8 @@ class RoutesCollection {
 const Routes = new RoutesCollection();
 
 Routes.add('home', '/');
-Routes.add('docs', '/docs');
+Routes.add('api-docs', '/api-docs');
+Routes.add('api-docs-feature', '/api-docs/:feature');
 Routes.add('page', '/page/:label');
 Routes.add('products', '/products');
 Routes.add('products-categories', '/products/categories');

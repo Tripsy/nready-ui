@@ -1,5 +1,6 @@
 import account from '@/locales/en/account.json';
 import address from '@/locales/en/address.json';
+import api_docs from '@/locales/en/api-docs.json';
 import app from '@/locales/en/app.json';
 import article from '@/locales/en/article.json';
 import article_order from '@/locales/en/article-order.json';
@@ -50,6 +51,7 @@ const en = {
 	// BE
 	account,
 	address: address,
+	'api-docs': api_docs,
 	app,
 	article,
 	'article-order': article_order,

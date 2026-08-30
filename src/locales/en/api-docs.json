@@ -1,0 +1,32 @@
+{
+	"meta": {
+		"title": "API reference | {{app_name}}",
+		"description": "Every endpoint the API exposes, with its parameters, responses and runnable request examples.",
+		"feature_title": "{{feature}} API | {{app_name}}",
+		"feature_description": "Endpoints, parameters and responses for the {{feature}} module."
+	},
+	"text": {
+		"heading": "API reference",
+		"subheading": "Every documented route module, generated from the API itself — so what you read here is what the server enforces.",
+		"base_url": "Base URL",
+		"group_none": "Open",
+		"group_none_hint": "Callable without a token.",
+		"group_partial": "Partly open",
+		"group_partial_hint": "Some endpoints are callable without a token; the rest need one.",
+		"group_required": "Requires a token",
+		"group_required_hint": "Every endpoint expects an Authorization: Bearer header and the matching permission.",
+		"entity": "Entity",
+		"module": "Module",
+		"endpoints": "Endpoints",
+		"auth_none": "No token",
+		"auth_partial": "Mixed",
+		"auth_required": "Bearer token",
+		"auth_note": "Endpoints still check the caller's permission for this entity — being able to read the documentation is not being able to call them.",
+		"cors_heading": "Calling from a browser",
+		"cors_note": "Browser calls are limited to allow-listed origins. A request carrying an Origin the API does not know is refused with 403 before it reaches the endpoint, whether or not it has a token — so an open endpoint is not one any page on the web can call. Server-to-server calls send no Origin and are unaffected.",
+		"back_to_list": "All modules",
+		"unavailable": "The API reference is temporarily unavailable. Please try again later.",
+		"not_found_heading": "Module not found",
+		"not_found_message": "There is no documented API module by that name."
+	}
+}
