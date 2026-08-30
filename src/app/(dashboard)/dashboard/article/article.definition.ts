@@ -31,6 +31,7 @@ import {
 	resolveValidatorMessages,
 	sharedValidatorMessages,
 } from '@/helpers/validator.helper';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	ARTICLE_DEFAULT_LAYOUT,
 	ARTICLE_DEFAULT_SETTINGS,
@@ -49,7 +50,6 @@ import {
 	getArticleContentProp,
 	getArticleLinkLabels,
 } from '@/models/article.model';
-import { type AccountModel, hasPermission } from '@/models/account.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type { Language } from '@/types/common.type';
 import type {

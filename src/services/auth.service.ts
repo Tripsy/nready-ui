@@ -41,7 +41,9 @@ async function destroySession(sessionToken?: string): Promise<void> {
  * the CSRF gate that every mutating `/api/` request passes.
  */
 
-export async function getAuth(): Promise<ApiResponseFetch<AccountModel | null>> {
+export async function getAuth(): Promise<
+	ApiResponseFetch<AccountModel | null>
+> {
 	try {
 		const sessionToken = await getTrackedCookie(
 			Configuration.get('user.sessionToken'),
