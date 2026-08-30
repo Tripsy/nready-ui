@@ -1,3 +1,5 @@
+import { Configuration } from '@/config/settings.config';
+
 /**
  * Mirror of the backend's `ApiOutputDocumentation` (`../nready-api/src/helpers/
  * api-documentation.helper.ts`), which is what `GET /public/api-docs/:feature` serves.
@@ -101,6 +103,17 @@ export type ApiDocsCatalogue = {
 	baseUrl: string;
 	entries: ApiDocsCatalogueEntry[];
 };
+
+/**
+ * Whether the API reference pages are served here.
+ *
+ * The backend holds the real gate — its own `API_DOCS_ENABLED` decides whether
+ * `/public/api-docs` answers at all — so this only keeps the site from offering a page that
+ * could have nothing behind it. The two settings have to agree, like the OAuth client ids.
+ */
+export function isApiDocsEnabled(): boolean {
+	return Configuration.get('apiDocs.enabled');
+}
 
 /**
  * Anchor for one action on the `/api-docs/:feature` page, e.g. `#action-read`.

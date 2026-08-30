@@ -14,6 +14,14 @@ function loadSettings() {
 				'RON') as Currency,
 			vatRate: Number(process.env.NEXT_PUBLIC_APP_VAT_RATE || 24),
 		},
+		apiDocs: {
+			/*
+			 * Whether the `/api-docs` pages exist. Opt-in, and it has to agree with the
+			 * backend's own `API_DOCS_ENABLED` — that one is the real gate, since it decides
+			 * whether there is anything to render.
+			 */
+			enabled: process.env.NEXT_PUBLIC_API_DOCS_ENABLED === 'true',
+		},
 		language: {
 			default: (process.env.NEXT_PUBLIC_LANGUAGE_DEFAULT ||
 				'ro') as Language,

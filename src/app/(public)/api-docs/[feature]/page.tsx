@@ -10,7 +10,11 @@ import { Configuration } from '@/config/settings.config';
 import { translate, translateBatch } from '@/config/translate.setup';
 import { ApiError } from '@/exceptions/api.error';
 import { requestPublicFeatureDocs } from '@/services/docs.service';
-import { type ApiDocs, apiDocsActionAnchor } from '@/types/api-docs.type';
+import {
+	type ApiDocs,
+	apiDocsActionAnchor,
+	isApiDocsEnabled,
+} from '@/types/api-docs.type';
 
 const TRANSLATION_PREFIX = 'api-docs';
 
@@ -71,6 +75,10 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 }
 
 export default async function Page(props: Props) {
+	if (!isApiDocsEnabled()) {
+		notFound();
+	}
+
 	const { feature } = await props.params;
 
 	const [translations, docs] = await Promise.all([

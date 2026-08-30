@@ -4,6 +4,7 @@ import { Icons } from '@/components/icon.component';
 import { LogoComponent } from '@/components/layout/logo.default';
 import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
+import { isApiDocsEnabled } from '@/types/api-docs.type';
 
 type FooterLinkSection = {
 	name: string;
@@ -25,16 +26,21 @@ const footerLinkSections: FooterLinkSection[] = [
 			{ label: 'Articles', href: Routes.get('articles') },
 		],
 	},
-	{
-		name: 'Developers',
-		links: [
-			{
-				label: 'API reference',
-				href: Routes.get('api-docs'),
-				title: 'API reference',
-			},
-		],
-	},
+	// Goes with the pages it links to, which `notFound()` when the reference is off.
+	...(isApiDocsEnabled()
+		? [
+				{
+					name: 'Developers',
+					links: [
+						{
+							label: 'API reference',
+							href: Routes.get('api-docs'),
+							title: 'API reference',
+						},
+					],
+				},
+			]
+		: []),
 	{
 		name: 'Company',
 		links: [

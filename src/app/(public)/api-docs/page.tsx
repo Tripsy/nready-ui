@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import NextLink from 'next/link';
+import { notFound } from 'next/navigation';
 import { Breadcrumb } from '@/app/(public)/_components/breadcrumb.component';
 import { AuthorizationBadge } from '@/app/(public)/api-docs/_components/authorization-badge.component';
 import { MethodBadge } from '@/components/api-docs-method-badge.component';
@@ -8,10 +9,11 @@ import { Configuration } from '@/config/settings.config';
 import { translate, translateBatch } from '@/config/translate.setup';
 import { logger } from '@/helpers/logger.helper';
 import { requestDocsCatalogue } from '@/services/docs.service';
-import type {
-	ApiDocsAuthorization,
-	ApiDocsCatalogue,
-	ApiDocsCatalogueEntry,
+import {
+	type ApiDocsAuthorization,
+	type ApiDocsCatalogue,
+	type ApiDocsCatalogueEntry,
+	isApiDocsEnabled,
 } from '@/types/api-docs.type';
 
 const TRANSLATION_PREFIX = 'api-docs';
@@ -116,6 +118,10 @@ function ModuleCard({
 }
 
 export default async function Page() {
+	if (!isApiDocsEnabled()) {
+		notFound();
+	}
+
 	const [translations, catalogue] = await Promise.all([
 		translateBatch(TRANSLATION_KEYS, TRANSLATION_PREFIX),
 		loadCatalogue(),
