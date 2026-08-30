@@ -39,6 +39,28 @@
 		"view": {
 			"title": "Template - {{entry}}",
 			"label": "View details"
+		},
+		"guide": {
+			"title": "How templates work",
+			"label": "Usage guide"
 		}
+	},
+	"help": {
+		"intro": "A template is content the backend stores instead of the code: the body of an email it sends, or the body of a public page under /page/<label>. Label, language and type together identify one — that trio is what the render-time lookup asks for, never the id.",
+		"step_1_title": "Give it a label",
+		"step_1_body": "The label is how everything else finds this template — \"password-recover\" for an email, \"terms\" for a page, where it is also the URL segment the page answers on. Label, language and type must be unique together among templates that are not deleted, and a duplicate is refused with a conflict.",
+		"step_2_title": "Pick the language",
+		"step_2_body": "A template exists once per language, and the two types treat a missing one differently. An email falls back — the requested language, then the configured default, then English — and the fallback is logged as a content gap worth closing. A page does not: /page/<label> in a language with no row is a 404.",
+		"step_3_title": "Choose the type",
+		"step_3_body": "Email or page, and the type decides the fields below it: an email carries a subject, HTML and optional plain text, a page a title and HTML. The type discriminates the whole shape, so moving an existing template from one to the other means supplying the new type's content in the same save.",
+		"step_4_title": "Write the body",
+		"step_4_body": "HTML is sanitised on save rather than on render — tags outside the allowed set are stripped before the row is written, so what you see stored is exactly what will be sent or served. Paste something rich and save it once to see what survived.",
+		"step_5_title": "Use variables — emails only",
+		"step_5_body": "An email's subject, HTML and text run through the template engine before sending, so {{ name }} and the globals ({{ siteName }}, {{ siteUrl }}, {{ supportEmail }}) resolve. A page is served exactly as stored, so the same placeholder is printed literally there. A variable the sender does not supply is an error rather than an empty string, and the queue row is written before the render — a template that fails leaves an entry in the mail queue that never goes out.",
+		"step_6_title": "Find it again",
+		"step_6_body": "Search matches the label and the stored content itself from three characters, so a phrase from the body finds the template holding it; an all-digit term is treated as an id. Filter by language and type, and order by id, label, created or updated date.",
+		"note": "Deleting a template is a soft delete, and the uniqueness rule ignores deleted rows — the label is free the moment it is deleted, and a restore fails while another template holds the same label, language and type. Because the render-time lookup is by label rather than by id, renaming, deleting or restoring one all clear that cached lookup as well as the row's own.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
 	}
 }

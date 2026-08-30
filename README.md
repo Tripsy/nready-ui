@@ -224,11 +224,13 @@ room in the container for both, and it is usually the dev server that gets kille
 
 # 📌 TODO
  
-1. Implement `usage-guide' for all the features        
-2. nready-native 
-3. Hero UI -> theme
-4. Add demo     
-5. Setup Sentry on UI
+1. Review image delete - local / s3 
+2. Add a dashboard configuration - should turn on / off api docs
+3. Check end-point to see if they actually return documentation       
+4. nready-native 
+5. Hero UI -> theme
+6. Add demo     
+7. Setup Sentry on UI
 
 # 🔗 Dependencies
 

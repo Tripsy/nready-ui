@@ -4,7 +4,7 @@
 	},
 	"validation": {
 		"invalid_place_type": "Select a valid place type",
-		"invalid_code": "Invalid code",
+		"invalid_code": "Invalid code; use at most {{max}} characters",
 		"invalid_parent_id": "Invalid parent place; Use entry from select",
 		"invalid_parent": "Invalid parent place",
 		"required_parent_id": "A region or city needs a parent place",
@@ -38,6 +38,26 @@
 		"view": {
 			"title": "Place details - {{entry}}",
 			"label": "View details"
+		},
+		"guide": {
+			"title": "How places work",
+			"label": "Usage guide"
 		}
+	},
+	"help": {
+		"intro": "A place is one node of a country → region → city tree, with its name and type label held once per language. Addresses point at a place rather than spelling a city out, so the name stays consistent and translates with the rest of the site.",
+		"step_1_title": "Pick the type",
+		"step_1_body": "Country, region or city — it decides what the parent field expects and how the place can be reached. Changing the type later is refused while the place still has children, so the level below has to come apart first.",
+		"step_2_title": "Choose the parent",
+		"step_2_body": "A country stands alone and is rejected if given a parent. A region must sit under a country and a city under a region — a city cannot hang straight off a country. The picker searches only the level above from three characters, so a suggestion it offers is one the save accepts.",
+		"step_3_title": "Add the code",
+		"step_3_body": "An abbreviation such as RO or NY — optional, and capped at three characters, which is the width of the column it is stored in. It is not unique, not tied to the type, and search never reads it.",
+		"step_4_title": "Fill in each language",
+		"step_4_body": "Name and type label are both required for a language to be stored, and one entry is needed before the place can be created. The type label is the word a visitor sees next to the name — County, Județ — which is why it is content per language rather than derived from the type. A language you leave empty is simply not written, and saving never removes a language already stored.",
+		"step_5_title": "Find it again",
+		"step_5_body": "The list reads one language at a time and drops any place with no content in it, so a place entered in English only disappears when the filter switches to Romanian. Search matches the name in that same language as a prefix from three characters, an all-digit term is treated as an id, and the list can only be ordered by id.",
+		"note": "Deleting a place is a soft delete and is refused while it still has a live child, so a branch comes down from the leaves up. A child that is already deleted does not block its parent, though — delete both and the child can be restored on its own, leaving it under a parent that is still deleted.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
 	}
 }

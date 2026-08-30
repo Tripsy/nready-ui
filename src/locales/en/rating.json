@@ -15,6 +15,10 @@
 		},
 		"viewUser": {
 			"title": "View user"
+		},
+		"guide": {
+			"title": "How ratings work",
+			"label": "Usage guide"
 		}
 	},
 	"reaction": {
@@ -25,5 +29,22 @@
 		"love": "Love",
 		"insightful": "Insightful",
 		"funny": "Funny"
+	},
+	"help": {
+		"intro": "Ratings are cast by readers on the public site — nothing here creates one. A row is the rating someone currently holds on one target, not a record of the moment they cast it: a reader who changes their mind edits that row rather than adding another.",
+		"step_1_title": "Read the target",
+		"step_1_body": "A rating points at an article or at a comment, named by type and id. The id is shown raw — there is no link through to the thing rated from this screen, so use the target type and id in that entity's own list to find it.",
+		"step_2_title": "Read the rating itself",
+		"step_2_body": "The type decides which column carries the answer: a like stores a direction (+1 or -1), stars a score from 1 to 5, and an emoji a reaction with no number at all. The Rating column merges the two, and the detail window shows both raw fields so you can see which one the row actually holds. Created is when the reader first rated; Updated appears only when they later changed it.",
+		"step_3_title": "See who cast it",
+		"step_3_body": "A rating from an account shows the name and id and opens that user's record; everything else is a guest. A guest rating is anchored to a hashed origin address that the backend never returns, so there is nothing more to learn about it from here.",
+		"step_4_title": "Expect one vote per target",
+		"step_4_body": "A target accepts one rating of each type per origin address, and one per account whatever the address — a second account does not buy a second vote, and two people behind one address (a household, an office, a mobile carrier) share a single one between them. A request whose address cannot be resolved is refused rather than stored, so no rating is ever recorded anonymously by accident.",
+		"step_5_title": "Narrow the list",
+		"step_5_body": "Filter by target type and id, rating type, reaction and user. There is no search box on this screen — the backend's list takes no free-text term — and ordering is limited to id and the created date.",
+		"note": "Deleting a rating is permanent: this table has no deleted state, so there is no restore. That is deliberate — a soft-deleted row would go on holding its slot, so nobody at that address could rate the target again, and it would keep counting in the aggregates. Ratings also leave on their own when their target is permanently deleted.",
+		"tab_info": "Info",
+		"tab_api": "API docs",
+		"tab_public": "Public API"
 	}
 }

@@ -39,6 +39,28 @@
 		"view": {
 			"title": "Șablon - {{entry}}",
 			"label": "Vezi detalii"
+		},
+		"guide": {
+			"title": "Cum funcționează șabloanele",
+			"label": "Ghid de utilizare"
 		}
+	},
+	"help": {
+		"intro": "Un șablon este conținut pe care backendul îl păstrează în loc de cod: corpul unui email pe care îl trimite sau corpul unei pagini publice de la /page/<label>. Eticheta, limba și tipul identifică împreună un șablon — acest triplet este ceea ce caută randarea, niciodată id-ul.",
+		"step_1_title": "Dă-i o etichetă",
+		"step_1_body": "Eticheta este modul în care restul aplicației găsește șablonul — „password-recover” pentru un email, „terms” pentru o pagină, unde este totodată segmentul de URL pe care răspunde pagina. Eticheta, limba și tipul trebuie să fie unice împreună între șabloanele neșterse, iar un duplicat este respins cu un conflict.",
+		"step_2_title": "Alege limba",
+		"step_2_body": "Un șablon există câte unul pe limbă, iar cele două tipuri tratează diferit o limbă lipsă. Emailul are rezervă — limba cerută, apoi limba implicită configurată, apoi engleza — iar folosirea rezervei este înregistrată ca o lipsă de conținut care merită completată. Pagina nu are: /page/<label> într-o limbă fără rând este 404.",
+		"step_3_title": "Alege tipul",
+		"step_3_body": "Email sau pagină, iar tipul decide câmpurile de dedesubt: un email are subiect, HTML și, opțional, text simplu, iar o pagină are titlu și HTML. Tipul discriminează întreaga formă, deci mutarea unui șablon existent dintr-un tip în celălalt înseamnă să trimiți în aceeași salvare și conținutul noului tip.",
+		"step_4_title": "Scrie corpul",
+		"step_4_body": "HTML-ul este curățat la salvare, nu la randare — etichetele din afara setului permis sunt eliminate înainte ca rândul să fie scris, deci ce vezi stocat este exact ce va fi trimis sau servit. Lipește ceva complex și salvează o dată ca să vezi ce a rămas.",
+		"step_5_title": "Folosește variabile — doar la emailuri",
+		"step_5_body": "Subiectul, HTML-ul și textul unui email trec prin motorul de șabloane înainte de trimitere, deci {{ name }} și variabilele globale ({{ siteName }}, {{ siteUrl }}, {{ supportEmail }}) sunt înlocuite. O pagină este servită exact așa cum este stocată, deci același substituent apare acolo ca atare. O variabilă pe care expeditorul nu o furnizează este o eroare, nu un șir gol, iar rândul din coadă este scris înainte de randare — un șablon care eșuează lasă în coada de mailuri o intrare care nu pleacă niciodată.",
+		"step_6_title": "Regăsește-l",
+		"step_6_body": "Căutarea potrivește eticheta și conținutul stocat, de la trei caractere, deci o expresie din corp găsește șablonul care o conține; un termen numeric este tratat ca id. Filtrează după limbă și tip și ordonează după id, etichetă, data creării sau a actualizării.",
+		"note": "Ștergerea unui șablon este una logică, iar regula de unicitate ignoră rândurile șterse — eticheta devine liberă imediat după ștergere, iar restaurarea eșuează cât timp alt șablon are aceeași etichetă, limbă și tip. Pentru că randarea caută după etichetă, nu după id, redenumirea, ștergerea și restaurarea golesc și acea intrare din cache, nu doar pe cea a rândului.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API"
 	}
 }

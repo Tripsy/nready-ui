@@ -10,6 +10,8 @@ export const PlaceTypeEnum = {
 
 export type PlaceType = (typeof PlaceTypeEnum)[keyof typeof PlaceTypeEnum];
 
+export const PLACE_CODE_MAX_CHARS = 3;
+
 export type PlaceContent = {
 	language: Language;
 	name: string;

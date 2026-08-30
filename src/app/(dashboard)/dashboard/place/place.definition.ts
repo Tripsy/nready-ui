@@ -4,7 +4,9 @@ import {
 	FormManagePlace,
 	type PlaceFormValuesType,
 } from '@/app/(dashboard)/dashboard/place/form-manage-place.component';
+import { UsageGuidePlace } from '@/app/(dashboard)/dashboard/place/usage-guide-place.component';
 import { ViewPlace } from '@/app/(dashboard)/dashboard/place/view-place.component';
+import { Icons } from '@/components/icon.component';
 import { getLanguageClient, translateBatch } from '@/config/translate.setup';
 import {
 	getFormDataAsEnum,
@@ -28,6 +30,7 @@ import { type AuthModel, hasPermission } from '@/models/auth.model';
 import {
 	displayPlaceLabel,
 	getPlaceContentProp,
+	PLACE_CODE_MAX_CHARS,
 	type PlaceContent,
 	type PlaceModel,
 	type PlaceType,
@@ -73,9 +76,22 @@ class PlaceValidator extends BaseValidator<typeof validatorMessages> {
 					PlaceTypeEnum,
 					this.getMessage('invalid_place_type'),
 				),
-				code: this.validateString(this.getMessage('invalid_code'), {
-					required: false,
-				}),
+				/*
+				 * Both constraints carry the same message: the helper falls back to its own
+				 * English default for any key left unset, which would leak untranslated text
+				 * into a form the user is reading in their own language.
+				 */
+				code: this.validateString(
+					{
+						invalid: this.getMessage('invalid_code', {
+							max: PLACE_CODE_MAX_CHARS,
+						}),
+						max_chars: this.getMessage('invalid_code', {
+							max: PLACE_CODE_MAX_CHARS,
+						}),
+					},
+					{ required: false, maxChars: PLACE_CODE_MAX_CHARS },
+				),
 				parent_id: this.validateId(
 					this.getMessage('invalid_parent_id'),
 					{
@@ -215,6 +231,7 @@ export default async function dataSourceConfig(): Promise<
 			'view.title',
 			'delete.title',
 			'restore.title',
+			'guide.title',
 		] as const,
 		'place.action',
 	);
@@ -381,6 +398,24 @@ export default async function dataSourceConfig(): Promise<
 				buttonPosition: 'hidden',
 				reloadEntry: (id: number) =>
 					requestView<PlaceModel>('place', id),
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuidePlace,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['place', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

@@ -4,7 +4,9 @@ import {
 	FormManageTemplate,
 	type TemplateFormValuesType,
 } from '@/app/(dashboard)/dashboard/template/form-manage-template.component';
+import { UsageGuideTemplate } from '@/app/(dashboard)/dashboard/template/usage-guide-template.component';
 import { ViewTemplate } from '@/app/(dashboard)/dashboard/template/view-template.component';
+import { Icons } from '@/components/icon.component';
 import { Configuration } from '@/config/settings.config';
 import { translateBatch } from '@/config/translate.setup';
 import { getFormDataAsEnum, getFormDataAsString } from '@/helpers/form.helper';
@@ -238,6 +240,7 @@ export default async function dataSourceConfig(): Promise<
 			'view.title',
 			'delete.title',
 			'restore.title',
+			'guide.title',
 		] as const,
 		'template.action',
 	);
@@ -400,6 +403,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['template', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideTemplate,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['template', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

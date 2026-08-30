@@ -34,6 +34,26 @@
 		"view": {
 			"title": "Termen - {{entry}}",
 			"label": "Vezi detalii"
+		},
+		"guide": {
+			"title": "Cum funcționează termenii",
+			"label": "Ghid de utilizare"
 		}
+	},
+	"help": {
+		"intro": "Un termen este o intrare din vocabularul comun — o etichetă, un nume de atribut, o valoare de atribut sau un text. Termenul în sine nu conține cuvinte: este un id la care fac referire alte înregistrări, iar formularea este păstrată câte una pe limbă, deci redenumirea lui schimbă totul dintr-o dată.",
+		"step_1_title": "Alege tipul",
+		"step_1_body": "Tipul spune la ce folosește termenul, nu ce conține: o etichetă marchează conținut, un nume de atribut denumește o proprietate („Culoare”), o valoare de atribut o completează („roșu”), iar textul este formulare liberă. Tipul este și jumătate din regula de duplicat, deci același cuvânt poate exista o dată ca etichetă și o dată ca valoare de atribut.",
+		"step_2_title": "Scrie formularea, câte o limbă pe rând",
+		"step_2_body": "Fiecare filă de limbă conține o singură valoare, iar cel puțin o limbă trebuie completată pentru a putea salva termenul. O filă lăsată goală pur și simplu nu este trimisă — nu cade la validare și nu șterge o formulare deja stocată, pentru că salvarea actualizează limbile pe care le conține și le lasă pe celelalte neatinse.",
+		"step_3_title": "Formularea ajunge cu litere mici",
+		"step_3_body": "Fiecare valoare este curățată de spații și stocată cu litere mici, în mod intenționat. Un termen este o etichetă reutilizată în multe înregistrări, iar „Vara” și „vara” afișate ca două etichete diferite este exact ce se evită astfel — valoarea stocată este singurul răspuns la ce spune termenul, iar afișarea decide cum îl scrie cu majusculă.",
+		"step_4_title": "Evită duplicatele",
+		"step_4_body": "Doi termeni de același tip nu pot avea aceeași formulare în aceeași limbă, iar verificarea ignoră majusculele. O coliziune este respinsă cu un conflict, nu contopită, deci al doilea trebuie reformulat — sau refolosit cel existent, ceea ce de obicei era și intenția.",
+		"step_5_title": "Regăsește-l și vezi lipsurile",
+		"step_5_body": "Lista arată câte o formulare pe rând, în limba după care filtrezi, și păstrează termenii care nu au niciuna în acea limbă — o valoare goală este modul în care o traducere lipsă se face vizibilă. Căutarea nu este limitată astfel: potrivește formularea din orice limbă, de la trei caractere, deci un termen găsit după numele englezesc poate apărea gol la română. Un termen numeric este tratat ca id, iar lista poate fi ordonată doar după id.",
+		"note": "Ștergerea unui termen este una logică și nimic nu verifică ce face referire la el, deci înregistrările care îl folosesc deja continuă să funcționeze. Regula de duplicat ignoră rândurile șterse, ceea ce eliberează imediat formularea — și înseamnă că restaurarea eșuează dacă între timp alt termen de același tip a preluat-o.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API"
 	}
 }

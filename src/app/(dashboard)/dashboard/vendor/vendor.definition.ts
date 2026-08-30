@@ -4,7 +4,9 @@ import {
 	FormManageVendor,
 	type VendorFormValuesType,
 } from '@/app/(dashboard)/dashboard/vendor/form-manage-vendor.component';
+import { UsageGuideVendor } from '@/app/(dashboard)/dashboard/vendor/usage-guide-vendor.component';
 import { ViewVendor } from '@/app/(dashboard)/dashboard/vendor/view-vendor.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import { getFormDataAsEnum, getFormDataAsString } from '@/helpers/form.helper';
 import { arrayHasValue } from '@/helpers/objects.helper';
@@ -98,6 +100,7 @@ export default async function dataSourceConfig(): Promise<
 			'restore.title',
 			'enable.title',
 			'disable.title',
+			'guide.title',
 		] as const,
 		'vendor.action',
 	);
@@ -318,6 +321,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['vendor', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideVendor,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['vendor', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

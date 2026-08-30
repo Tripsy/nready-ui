@@ -34,6 +34,26 @@
 		"view": {
 			"title": "Term - {{entry}}",
 			"label": "View details"
+		},
+		"guide": {
+			"title": "How terms work",
+			"label": "Usage guide"
 		}
+	},
+	"help": {
+		"intro": "A term is one entry of the shared vocabulary — a tag, an attribute label, an attribute value or a piece of text. The term itself holds no words: it is an id that other records point at, with the wording kept once per language, so renaming it changes it everywhere at once.",
+		"step_1_title": "Pick the type",
+		"step_1_body": "Type says what the term is for, not what it says: a tag labels content, an attribute label names a property (\"Colour\"), an attribute value fills one in (\"red\"), and text is free wording. It is also half of the duplicate rule, so the same word may exist once as a tag and once as an attribute value.",
+		"step_2_title": "Write the wording, one language at a time",
+		"step_2_body": "Each language tab holds one value, and at least one language must be filled in before the term can be saved. A tab you leave empty is simply not sent — it neither fails validation nor clears a wording already stored, because saving upserts the languages it carries and leaves the rest alone.",
+		"step_3_title": "Expect the wording to be lower-cased",
+		"step_3_body": "Every value is trimmed and stored in lower case, deliberately. A term is a label reused across many records, and \"Summer\" and \"summer\" rendering as two separate tags is exactly what this avoids — the stored value is the single answer to what the term says, and the display side decides how to capitalise it.",
+		"step_4_title": "Avoid duplicates",
+		"step_4_body": "Two terms of the same type may not carry the same wording in the same language, and the check ignores case. A collision is refused with a conflict rather than merged, so the second one has to be reworded — or the existing term reused, which is usually what was meant.",
+		"step_5_title": "Find it again, and spot the gaps",
+		"step_5_body": "The list shows one wording per row, in the language you filter by, and keeps a term that has none in that language — an empty value is how a missing translation announces itself. Search is not limited that way: it matches the wording in any language from three characters, so a term found by its English name may still show blank under Romanian. An all-digit term is treated as an id, and the list can only be ordered by id.",
+		"note": "Deleting a term is a soft delete and nothing checks what points at it, so records already using it keep resolving. The duplicate rule ignores deleted rows, which frees the wording immediately — and means a restore fails once another term of that type has taken it.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
 	}
 }

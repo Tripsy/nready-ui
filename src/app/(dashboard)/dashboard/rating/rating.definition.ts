@@ -1,5 +1,7 @@
 import { DataTableValue } from '@/app/(dashboard)/_components/data-table-value';
+import { UsageGuideRating } from '@/app/(dashboard)/dashboard/rating/usage-guide-rating.component';
 import { ViewRating } from '@/app/(dashboard)/dashboard/rating/view-rating.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import { requestDelete, requestFind } from '@/helpers/services.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
@@ -37,7 +39,12 @@ export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<RatingModel>
 > {
 	const translations = await translateBatch(
-		['delete.title', 'view.title', 'viewUser.title'] as const,
+		[
+			'delete.title',
+			'view.title',
+			'viewUser.title',
+			'guide.title',
+		] as const,
 		'rating.action',
 	);
 
@@ -181,6 +188,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['rating', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideRating,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['rating', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

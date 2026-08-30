@@ -4,7 +4,9 @@ import {
 	FormManageTerm,
 	type TermFormValuesType,
 } from '@/app/(dashboard)/dashboard/term/form-manage-term.component';
+import { UsageGuideTerm } from '@/app/(dashboard)/dashboard/term/usage-guide-term.component';
 import { ViewTerm } from '@/app/(dashboard)/dashboard/term/view-term.component';
+import { Icons } from '@/components/icon.component';
 import { Configuration } from '@/config/settings.config';
 import { getLanguageClient, translateBatch } from '@/config/translate.setup';
 import { getFormDataAsEnum } from '@/helpers/form.helper';
@@ -152,6 +154,7 @@ export default async function dataSourceConfig(): Promise<
 			'view.title',
 			'delete.title',
 			'restore.title',
+			'guide.title',
 		] as const,
 		'term.action',
 	);
@@ -324,6 +327,24 @@ export default async function dataSourceConfig(): Promise<
 				// The list row carries only the filtered language; the details window shows
 				// every wording, which is what `read` returns when no language is requested
 				reloadEntry: (id: number) => requestView<TermModel>('term', id),
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideTerm,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['term', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

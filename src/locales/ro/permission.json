@@ -28,6 +28,26 @@
 			"label": "Restaurează",
 			"success": "Permisiunea a fost restaurată",
 			"confirm": "Sigur vrei să restaurezi această permisiune?"
+		},
+		"guide": {
+			"title": "Cum funcționează permisiunile",
+			"label": "Ghid de utilizare"
 		}
+	},
+	"help": {
+		"intro": "O permisiune este o pereche — o entitate și o operațiune — pe care restul aplicației o verifică după nume. Rândul în sine nu acordă nimic; devine acces abia după ce este atribuit unui operator din ecranul de utilizatori.",
+		"step_1_title": "Alege entitatea",
+		"step_1_body": "Câmpul sugerează numele de entități pe care codul chiar le verifică; orice valoare scrisă în afara listei este salvată ca atare și nu este citită de nimeni. Două sugestii nu sunt entități din backend — „dashboard” protejează pagina principală a dashboardului din middleware-ul acestei aplicații, iar „account” doar identifică ecranele publice de autoservire.",
+		"step_2_title": "Alege operațiunea",
+		"step_2_body": "create, read, update, find și delete sunt cele verificate de backend, iar delete acoperă și restaurarea. Tot delete este cel care face vizibile rândurile șterse logic în lista acelei entități. Nu toate entitățile folosesc toate operațiunile — refund există doar pentru comenzi.",
+		"step_3_title": "Salvează perechea",
+		"step_3_body": "Entitatea și operațiunea sunt unice împreună între rândurile neșterse, iar un duplicat este respins cu un conflict. Dacă perechea există, dar este ștearsă, cine are permisiunea de ștergere pe „permission” primește acel rând restaurat în loc de unul nou; oricine altcineva este anunțat că există deja ca ștearsă.",
+		"step_4_title": "Atribuie-o unui operator",
+		"step_4_body": "Atribuirea se face în ecranul de utilizatori, la „Setup permissions”, și apare doar pentru operatori — membrii nu moștenesc nimic, iar administratorii trec peste orice verificare, deci niciunul nu o oferă. Nimic din ce se face aici nu schimbă cine ce deține.",
+		"step_5_title": "Regăsește-o",
+		"step_5_body": "Căutarea potrivește entitatea și operațiunea de la trei caractere, cu excepția unui termen numeric, tratat ca id și potrivit exact. Lista poate fi ordonată după id, entitate sau operațiune, și nimic altceva.",
+		"note": "Ștergerea unei permisiuni este una logică și o retrage de la toți operatorii care o dețin, pentru că verificarea de acces ignoră rândurile șterse. Atribuirile rămân neatinse, deci restaurarea rândului redă permisiunea tuturor deodată. Un operator deja autentificat păstrează accesul vechi până când setul lui de permisiuni din cache este reconstruit.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API"
 	}
 }
