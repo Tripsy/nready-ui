@@ -93,6 +93,15 @@ function loadSettings() {
 		},
 		remoteApi: {
 			url: process.env.REMOTE_API_URL,
+			/*
+			 * Sent as `x-api-key` on every request that leaves for the backend, which
+			 * gates all of its routes on it. Deliberately not `NEXT_PUBLIC_`: a key the
+			 * client bundle carried would be readable by the visitors it exists to keep
+			 * out. It resolves to `undefined` in the browser, and nothing there needs it —
+			 * every call the browser makes reaches the backend through `/api/proxy`, which
+			 * attaches the key server-side.
+			 */
+			key: process.env.REMOTE_API_KEY || '',
 			wsUrl: process.env.NEXT_PUBLIC_REMOTE_API_WS_URL,
 			wsReconnectDelay:
 				Number(process.env.NEXT_PUBLIC_REMOTE_API_WS_RECONNECT_DELAY) ||

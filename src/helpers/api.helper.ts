@@ -89,6 +89,24 @@ export function getRemoteApiUrl(path: string): string {
 	return `${Configuration.get('remoteApi.url')}/${path}`;
 }
 
+/** The header the backend's `clientKeyMiddleware` reads. */
+export const REMOTE_API_KEY_HEADER = 'x-api-key';
+
+/**
+ * The client key header for a call that leaves this app for the backend, or nothing when no
+ * key is configured.
+ *
+ * Empty rather than a blank header when unset, so a deployment with the gate switched off on
+ * both sides sends the same request it always did. `remoteApi.key` is server-only, so this
+ * yields `{}` in the browser — which is correct there and never reached: `remote-api` mode
+ * cannot work client-side anyway (`remoteApi.url` is server-only too).
+ */
+export function remoteApiKeyHeader(): Record<string, string> {
+	const key = Configuration.get('remoteApi.key');
+
+	return key ? { [REMOTE_API_KEY_HEADER]: key } : {};
+}
+
 export function getResponseData<T>(
 	response: ApiResponseFetch<T>,
 ): T | undefined {
@@ -184,7 +202,20 @@ export class ApiRequest {
 			proxyRoute += `?${rawQuery}`;
 		}
 
-		return Configuration.get('app.url') + proxyRoute;
+		/*
+		 * Relative in the browser, so the request is same-origin by construction whatever
+		 * host the app is reached on — `localhost`, an IP, a preview domain. Absolute would
+		 * pin it to `app.url`, and since these calls carry the `x-csrf-token` header they
+		 * would then be preflighted as cross-origin and blocked, with the widgets silently
+		 * rendering their empty state.
+		 *
+		 * `fetch` needs an absolute URL when there is no document to resolve against; no
+		 * server-side caller uses this mode today (they use `remote-api`), but the branch
+		 * keeps that from being a silent trap.
+		 */
+		return typeof window === 'undefined'
+			? Configuration.get('app.url') + proxyRoute
+			: proxyRoute;
 	}
 
 	/**
@@ -259,6 +290,17 @@ export class ApiRequest {
 		// multipart boundary; the default JSON header would make the body unreadable.
 		if (requestOptions.body instanceof FormData) {
 			(requestOptions.headers as Headers).delete('Content-Type');
+		}
+
+		/*
+		 * Only `remote-api` reaches the backend directly and so needs the client key.
+		 * A `use-proxy` / `same-site` call stops at this app's own origin, where the
+		 * route handler attaches it out of reach of the browser.
+		 */
+		if (this.requestMode === 'remote-api') {
+			for (const [name, value] of Object.entries(remoteApiKeyHeader())) {
+				(requestOptions.headers as Headers).set(name, value);
+			}
 		}
 
 		const withCsrf = this.needsCsrfToken(requestOptions);

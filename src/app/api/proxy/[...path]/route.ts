@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { Configuration } from '@/config/settings.config';
-import { getRemoteApiUrl } from '@/helpers/api.helper';
+import { getRemoteApiUrl, remoteApiKeyHeader } from '@/helpers/api.helper';
 import { getCookie } from '@/helpers/session.helper';
 import { apiHeaders } from '@/helpers/system.helper';
 
@@ -13,6 +13,9 @@ async function handler(request: NextRequest, path: string[]) {
 		'Content-Type': 'application/json',
 		...(token && { Authorization: `Bearer ${token}` }),
 		...(await apiHeaders(request.headers)),
+		// Attached here rather than by `ApiRequest`, which never sees this hop: the browser
+		// called this origin, and the key only exists on this side of it.
+		...remoteApiKeyHeader(),
 	};
 
 	const body = ['GET', 'HEAD'].includes(request.method)
