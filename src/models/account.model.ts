@@ -5,13 +5,13 @@ import type {
 } from '@/models/permission.model';
 import { type UserModel, UserRoleEnum } from '@/models/user.model';
 
-export type AuthModelPermissions = Record<
+export type AccountModelPermissions = Record<
 	PermissionEntityType,
 	PermissionOperationType[]
 >;
 
-export type AuthModel = UserModel<Date> & {
-	permissions: AuthModelPermissions;
+export type AccountModel = UserModel<Date> & {
+	permissions: AccountModelPermissions;
 	/*
 	 * False for a social sign-in account that has never set a password. Supplied by the
 	 * backend's auth context — the password hash itself is deliberately never sent, so this
@@ -24,15 +24,15 @@ export type AuthModel = UserModel<Date> & {
 	has_password?: boolean;
 };
 
-export function isAdmin(data: AuthModel | null): boolean {
+export function isAdmin(data: AccountModel | null): boolean {
 	return data?.role === UserRoleEnum.ADMIN;
 }
 
-export function isOperator(data: AuthModel | null): boolean {
+export function isOperator(data: AccountModel | null): boolean {
 	return data?.role === UserRoleEnum.OPERATOR;
 }
 
-export function isMember(data: AuthModel | null): boolean {
+export function isMember(data: AccountModel | null): boolean {
 	return data?.role === UserRoleEnum.MEMBER;
 }
 
@@ -47,16 +47,16 @@ export function isMember(data: AuthModel | null): boolean {
  * "has a password" keeps both guarded, and the backend rejects the request anyway if the
  * account turns out not to have one.
  */
-export function hasPassword(auth: AuthModel | null): boolean {
+export function hasPassword(auth: AccountModel | null): boolean {
 	return auth?.has_password !== false;
 }
 
-export function isAuthenticated(auth: AuthModel | null): boolean {
+export function isAuthenticated(auth: AccountModel | null): boolean {
 	return auth !== null;
 }
 
 export function hasPermission(
-	auth: AuthModel | null,
+	auth: AccountModel | null,
 	entity: PermissionEntityType,
 	operation?: PermissionOperationType,
 ): boolean {
@@ -81,7 +81,7 @@ export function hasPermission(
 	return auth?.permissions?.[entity]?.includes(operation) || false;
 }
 
-export function prepareAuthModel(data: AuthModel): AuthModel {
+export function prepareAccountModel(data: AccountModel): AccountModel {
 	// `password_updated_at` is listed explicitly: it is a user-model field, so it is not in
 	// `normalizeDates`' default set, and `/account/me` sends it as a string like the rest.
 	return normalizeDates(data, [
@@ -89,5 +89,5 @@ export function prepareAuthModel(data: AuthModel): AuthModel {
 		'updated_at',
 		'deleted_at',
 		'password_updated_at',
-	]) as unknown as AuthModel;
+	]) as unknown as AccountModel;
 }

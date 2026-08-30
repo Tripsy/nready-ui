@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/helpers/logger.helper';
-import { hasPermission } from '@/models/auth.model';
+import { hasPermission } from '@/models/account.model';
 import { type ImageStorage, ImageStorageEnum } from '@/models/image.model';
 import {
 	PermissionEntitiesSuggestions,

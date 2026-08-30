@@ -29,7 +29,7 @@ import {
 	resolveValidatorMessages,
 	sharedValidatorMessages,
 } from '@/helpers/validator.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	CATEGORY_DEFAULT_TYPE,
 	type CategoryContentType,
@@ -252,7 +252,7 @@ export default async function dataSourceConfig(): Promise<
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<CategoryModel>['displayButton'] {
 		return {
 			action: () =>
@@ -262,7 +262,7 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	function displayButtonStatus(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<CategoryModel>['displayButton'] {
 		return {
 			action: (entry: CategoryModel) => {

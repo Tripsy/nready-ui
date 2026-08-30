@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { ManagerImages } from '@/components/manager-images.component';
-import { hasPermission } from '@/models/auth.model';
+import { hasPermission } from '@/models/account.model';
 import type { BrandModel } from '@/models/brand.model';
 import { ImageSectionEnum, ImageTypeEnum } from '@/models/image.model';
 import { useAuth } from '@/providers/auth.provider';

@@ -49,7 +49,7 @@ import {
 	getArticleContentProp,
 	getArticleLinkLabels,
 } from '@/models/article.model';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type { Language } from '@/types/common.type';
 import type {
@@ -643,7 +643,7 @@ export default async function dataSourceConfig(): Promise<
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<ArticleModel>['displayButton'] {
 		return {
 			action: () =>
@@ -658,7 +658,7 @@ export default async function dataSourceConfig(): Promise<
 	 * where the choice is visible.
 	 */
 	function displayButtonStatus(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<ArticleModel>['displayButton'] {
 		return {
 			action: (entry: ArticleModel) => {

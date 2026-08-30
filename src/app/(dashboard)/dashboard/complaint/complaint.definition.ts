@@ -8,7 +8,7 @@ import {
 	requestFind,
 	requestRestore,
 } from '@/helpers/services.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	type ComplaintEntityType,
 	type ComplaintModel,
@@ -63,7 +63,7 @@ export default async function dataSourceConfig(): Promise<
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<ComplaintModel>['displayButton'] {
 		return {
 			action: () =>
@@ -73,7 +73,7 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	function displayButtonViewUser(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 		entry: ComplaintModel,
 	): DataTableValueOptionsType<ComplaintModel>['displayButton'] {
 		if (!entry.user_id) {
@@ -95,7 +95,7 @@ export default async function dataSourceConfig(): Promise<
 	 * closed one, restore a dismissed one.
 	 */
 	function displayButtonResolution(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<ComplaintModel>['displayButton'] {
 		return {
 			// `DataTableValue` throws without a data source to run the action against, and this

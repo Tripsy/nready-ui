@@ -2,7 +2,7 @@ import { type ComponentType, useMemo } from 'react';
 import { Icons } from '@/components/icon.component';
 import Routes from '@/config/routes.setup';
 import { useTranslation } from '@/hooks/use-translation.hook';
-import { hasPermission } from '@/models/auth.model';
+import { hasPermission } from '@/models/account.model';
 import { useAuth } from '@/providers/auth.provider';
 import type { DataSourceKey } from '@/types/data-source.key';
 

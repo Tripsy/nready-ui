@@ -25,7 +25,7 @@ import {
 	resolveValidatorMessages,
 	sharedValidatorMessages,
 } from '@/helpers/validator.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	type UserModel,
 	UserOperatorTypeEnum,
@@ -264,7 +264,7 @@ export default async function dataSourceConfig(): Promise<
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<UserModel>['displayButton'] {
 		return {
 			action: () =>
@@ -274,7 +274,7 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	function displayButtonStatus(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<UserModel>['displayButton'] {
 		return {
 			action: (entry: UserModel) => {
@@ -296,7 +296,7 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	function displayButtonSetupPermissions(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 		entry: UserModel,
 	): DataTableValueOptionsType<UserModel>['displayButton'] {
 		return {

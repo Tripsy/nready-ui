@@ -12,14 +12,14 @@ import {
 } from 'react';
 import { ApiError } from '@/exceptions/api.error';
 import { logRejection } from '@/helpers/logger.helper';
-import type { AuthModel } from '@/models/auth.model';
+import type { AccountModel } from '@/models/account.model';
 import { getAuth } from '@/services/auth.service';
 
 type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated' | 'error';
 
 type AuthContextType = {
-	auth: AuthModel | null;
-	setAuth: (model: AuthModel | null) => void;
+	auth: AccountModel | null;
+	setAuth: (model: AccountModel | null) => void;
 	authStatus: AuthStatus;
 	setAuthStatus: (status: AuthStatus) => void;
 	refreshAuth: () => Promise<void>;
@@ -34,9 +34,9 @@ const AuthProvider = ({
 	initAuth,
 }: {
 	children: ReactNode;
-	initAuth: AuthModel | null;
+	initAuth: AccountModel | null;
 }) => {
-	const [auth, setAuth] = useState<AuthModel | null>(initAuth);
+	const [auth, setAuth] = useState<AccountModel | null>(initAuth);
 	const [authStatus, setAuthStatus] = useState<AuthStatus>(
 		initAuth ? 'authenticated' : 'loading',
 	);

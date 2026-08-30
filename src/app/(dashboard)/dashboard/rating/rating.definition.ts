@@ -5,7 +5,7 @@ import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import { requestDelete, requestFind } from '@/helpers/services.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	displayRatingLabel,
 	displayRatingValue,
@@ -49,7 +49,7 @@ export default async function dataSourceConfig(): Promise<
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<RatingModel>['displayButton'] {
 		return {
 			action: () =>
@@ -59,7 +59,7 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	function displayButtonViewUser(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 		entry: RatingModel,
 	): DataTableValueOptionsType<RatingModel>['displayButton'] {
 		if (!entry.user_id) {

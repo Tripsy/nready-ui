@@ -21,7 +21,7 @@ import {
 } from '@/helpers/services.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
 import { type AddressModel, displayAddressLabel } from '@/models/address.model';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import { displayPlaceLabel, getPlaceContentProp } from '@/models/place.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type {
@@ -134,7 +134,7 @@ export default async function dataSourceConfig(): Promise<
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<AddressModel>['displayButton'] {
 		return {
 			action: () =>

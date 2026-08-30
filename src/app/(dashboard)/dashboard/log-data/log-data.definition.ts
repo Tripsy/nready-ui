@@ -4,7 +4,7 @@ import { ViewLogData } from '@/app/(dashboard)/dashboard/log-data/view-log-data.
 import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import { requestDeleteMultiple, requestFind } from '@/helpers/services.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import type {
 	LogCategory,
 	LogDataModel,
@@ -33,7 +33,7 @@ export default async function dataSourceConfig(): Promise<
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<LogDataModel>['displayButton'] {
 		return {
 			action: () =>

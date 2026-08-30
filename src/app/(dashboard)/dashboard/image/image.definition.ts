@@ -10,7 +10,7 @@ import {
 	requestUpdateStatus,
 	requestView,
 } from '@/helpers/services.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	displayImageLabel,
 	getImageContent,
@@ -53,7 +53,7 @@ export default async function dataSourceConfig(): Promise<
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<ImageModel>['displayButton'] {
 		return {
 			action: () =>
@@ -63,7 +63,7 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	function displayButtonStatus(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<ImageModel>['displayButton'] {
 		return {
 			action: (entry: ImageModel) => {
@@ -80,7 +80,7 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	function displayButtonManagerImages(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 		entry: ImageModel,
 	): DataTableValueOptionsType<ImageModel>['displayButton'] {
 		return {

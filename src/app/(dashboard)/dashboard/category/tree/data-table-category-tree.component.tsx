@@ -25,7 +25,7 @@ import { requestFind } from '@/helpers/services.helper';
 import { replaceVars } from '@/helpers/string.helper';
 import { useRefreshDataTable } from '@/hooks/use-refresh-data-table.hook';
 import { useTranslation } from '@/hooks/use-translation.hook';
-import { hasPermission } from '@/models/auth.model';
+import { hasPermission } from '@/models/account.model';
 import {
 	buildCategoryTree,
 	CATEGORY_DEFAULT_TYPE,

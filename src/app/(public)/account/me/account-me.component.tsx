@@ -12,7 +12,7 @@ import { Link } from '@/components/ui/link';
 import Routes from '@/config/routes.setup';
 import { formatDate } from '@/helpers/date.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
-import { hasPassword } from '@/models/auth.model';
+import { hasPassword } from '@/models/account.model';
 import { useAuth } from '@/providers/auth.provider';
 import { useToast } from '@/providers/toast.provider';
 import { requestGetSessions } from '@/services/account.service';

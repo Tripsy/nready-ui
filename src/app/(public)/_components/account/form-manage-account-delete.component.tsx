@@ -5,7 +5,7 @@ import type { AccountDeleteFormValuesType } from '@/app/(public)/account/delete/
 import { FormComponentPassword } from '@/components/form/form-element.component';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useTranslation } from '@/hooks/use-translation.hook';
-import { hasPassword } from '@/models/auth.model';
+import { hasPassword } from '@/models/account.model';
 import { useAuth } from '@/providers/auth.provider';
 import { useWindowForm } from '@/providers/window-form.provider';
 

@@ -270,8 +270,8 @@ entities/operations, DB schema, business rules read the code in `../nready-api`
   reads this table to redirect/authorize before a page ever renders.
 - **Auth flow**: session token lives in an httpOnly cookie (`Configuration.get('user.sessionToken')`).
   `src/proxy.ts` middleware validates it against the backend on every matched request and injects the
-  resulting `AuthModel` (user + `permissions` map) as the `x-auth-data` response header; `hasPermission()` in
-  `src/models/auth.model.ts` gates `protected` routes. `src/providers/auth.provider.tsx` exposes this to
+  resulting `AccountModel` (user + `permissions` map) as the `x-auth-data` response header; `hasPermission()` in
+  `src/models/account.model.ts` gates `protected` routes. `src/providers/auth.provider.tsx` exposes this to
   client components.
 - **Social login (OAuth)** — authorization-code flow split across two legs, both on this origin:
   1. *Start* — `src/app/api/oauth/[provider]/route.ts` (route `oauth-start`, `/api/oauth/:provider`).

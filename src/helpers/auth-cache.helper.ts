@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { Configuration } from '@/config/settings.config';
 import { getCacheProvider } from '@/helpers/cache.provider';
-import { type AuthModel, prepareAuthModel } from '@/models/auth.model';
+import { type AccountModel, prepareAccountModel } from '@/models/account.model';
 
 const KEY_NAMESPACE = 'auth';
 const KEY_LABEL = 'me';
@@ -13,7 +13,7 @@ const KEY_LABEL = 'me';
  * single navigation pays a backend round-trip before the page can start rendering.
  *
  * Driven through `CacheProvider`'s `read`/`set`/`delete` rather than its read-through
- * `get()`, because only a *successful* lookup may be stored — see `resolveAuthModel()` in
+ * `get()`, because only a *successful* lookup may be stored — see `resolveAccountModel()` in
  * the proxy.
  *
  * Staleness is bounded by the TTL: a permission or role change made in the backend takes up
@@ -38,9 +38,9 @@ function getTtl(): number {
 	return Number(Configuration.get('cache.authTtl'));
 }
 
-export async function getCachedAuthModel(
+export async function getCachedAccountModel(
 	sessionToken: string,
-): Promise<AuthModel | null> {
+): Promise<AccountModel | null> {
 	if (getTtl() <= 0) {
 		return null;
 	}
@@ -54,12 +54,12 @@ export async function getCachedAuthModel(
 	// JSON round-tripping turns the model's Date fields back into strings, so re-run the
 	// same normalisation the fresh path applies — the cached and uncached results are then
 	// indistinguishable to every caller.
-	return prepareAuthModel(cached as AuthModel);
+	return prepareAccountModel(cached as AccountModel);
 }
 
-export async function setCachedAuthModel(
+export async function setCachedAccountModel(
 	sessionToken: string,
-	auth: AuthModel,
+	auth: AccountModel,
 ): Promise<void> {
 	const ttl = getTtl();
 
@@ -70,7 +70,7 @@ export async function setCachedAuthModel(
 	await getCacheProvider().set(buildKey(sessionToken), auth, ttl);
 }
 
-export async function clearCachedAuthModel(
+export async function clearCachedAccountModel(
 	sessionToken: string,
 ): Promise<void> {
 	if (getTtl() <= 0) {

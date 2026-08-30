@@ -26,7 +26,7 @@ import {
 	resolveValidatorMessages,
 	sharedValidatorMessages,
 } from '@/helpers/validator.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	BRAND_DEFAULT_TYPE,
 	type BrandContentType,
@@ -182,7 +182,7 @@ export default async function dataSourceConfig(): Promise<
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<BrandModel>['displayButton'] {
 		return {
 			action: () =>
@@ -192,7 +192,7 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	function displayButtonStatus(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<BrandModel>['displayButton'] {
 		return {
 			action: (entry: BrandModel) => {

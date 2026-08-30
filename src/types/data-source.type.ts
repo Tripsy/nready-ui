@@ -1,6 +1,6 @@
 import type React from 'react';
 import type { JSX } from 'react';
-import type { AuthModel } from '@/models/auth.model';
+import type { AccountModel } from '@/models/account.model';
 import type {
 	PermissionEntityType,
 	PermissionOperationType,
@@ -70,7 +70,7 @@ export type DataTableColumnType<Entry> = {
 	body?: (
 		entry: Entry,
 		column: DataTableColumnType<Entry>,
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	) => JSX.Element | string;
 	/**
 	 * Width bounds in pixels. The data table is resizable, and react-aria's resize state

@@ -22,7 +22,7 @@ import {
 } from '@/helpers/services.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	COMMENT_DEFAULT_TYPE,
 	COMMENT_STATUS_TRANSITIONS,
@@ -141,7 +141,7 @@ export default async function dataSourceConfig(): Promise<
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<CommentModel>['displayButton'] {
 		return {
 			action: () =>
@@ -151,7 +151,7 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	function displayButtonViewUser(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 		entry: CommentModel,
 	): DataTableValueOptionsType<CommentModel>['displayButton'] {
 		if (!entry.user_id) {
@@ -175,7 +175,7 @@ export default async function dataSourceConfig(): Promise<
 	 * offers the choice.
 	 */
 	function displayButtonStatus(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<CommentModel>['displayButton'] {
 		return {
 			action: (entry: CommentModel) => {

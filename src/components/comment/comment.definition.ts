@@ -7,7 +7,7 @@ import {
 	getFormDataAsString,
 } from '@/helpers/form.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	type CommentEntityType,
 	CommentEntityTypeEnum,
@@ -206,7 +206,7 @@ export type CommentAbilitiesType = {
 };
 
 export function resolveCommentAbilities(
-	auth: AuthModel | null,
+	auth: AccountModel | null,
 	entry: Pick<CommentModel, 'user_id'>,
 ): CommentAbilitiesType {
 	const isOwn = Boolean(

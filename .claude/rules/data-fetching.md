@@ -90,6 +90,6 @@ const { data, isLoading } = useQuery({
   bare try/catch; let it surface to the form's `situation` state (see `forms.md`) or the caller's own error
   handling, and report failures through `useToast`, not `console.error`.
 - Auth-adjacent fetches follow a fail-open convention for server errors: in `src/proxy.ts`,
-  `fetchAuthModel()` treats a `>=500` `ApiError` as "server may be down, don't punish the user's session"
+  `fetchAccountModel()` treats a `>=500` `ApiError` as "server may be down, don't punish the user's session"
   (returns `false`, not `null`), while 401/403/invalid-token responses invalidate the session (`null`).
   Preserve this distinction if you touch auth-related fetches — a backend outage should not log users out.

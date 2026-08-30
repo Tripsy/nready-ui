@@ -123,7 +123,7 @@ export class CacheProvider {
 	 *
 	 * The read-through `get()` always stores whatever the fetch function returned, so it
 	 * cannot express "only some outcomes may be cached" — auth is the case in point: the
-	 * proxy's `resolveAuthModel()` *returns* a failure value on a backend outage rather than
+	 * proxy's `resolveAccountModel()` *returns* a failure value on a backend outage rather than
 	 * throwing, and a returned value is exactly what `get()` persists for the TTL. Callers
 	 * with that constraint drive the cache themselves via `read()`/`set()`.
 	 */

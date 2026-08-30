@@ -5,7 +5,7 @@ import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import { requestDeleteMultiple, requestFind } from '@/helpers/services.helper';
 import { toTitleCase } from '@/helpers/string.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import type {
 	LogHistoryModel,
 	LogHistorySource,
@@ -40,7 +40,7 @@ export default async function dataSourceConfig(): Promise<
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<LogHistoryModel>['displayButton'] {
 		return {
 			action: () =>
@@ -50,7 +50,7 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	function displayButtonViewUser(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 		entry: LogHistoryModel,
 	): DataTableValueOptionsType<LogHistoryModel>['displayButton'] {
 		if (!entry.auth_id) {

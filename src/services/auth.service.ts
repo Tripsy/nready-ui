@@ -4,7 +4,7 @@ import { Configuration } from '@/config/settings.config';
 import { translate } from '@/config/translate.setup';
 import { ApiError } from '@/exceptions/api.error';
 import { ApiRequest, getResponseData } from '@/helpers/api.helper';
-import { clearCachedAuthModel } from '@/helpers/auth-cache.helper';
+import { clearCachedAccountModel } from '@/helpers/auth-cache.helper';
 import {
 	deleteCookie,
 	getCookie,
@@ -12,7 +12,7 @@ import {
 	setupTrackedCookie,
 } from '@/helpers/session.helper';
 import { apiHeaders } from '@/helpers/system.helper';
-import { type AuthModel, prepareAuthModel } from '@/models/auth.model';
+import { type AccountModel, prepareAccountModel } from '@/models/account.model';
 import type { ApiResponseFetch } from '@/types/api.type';
 
 /**
@@ -28,7 +28,7 @@ async function destroySession(sessionToken?: string): Promise<void> {
 	const token = sessionToken ?? (await getCookie(cookieName));
 
 	if (token) {
-		await clearCachedAuthModel(token);
+		await clearCachedAccountModel(token);
 	}
 
 	await deleteCookie(cookieName);
@@ -41,7 +41,7 @@ async function destroySession(sessionToken?: string): Promise<void> {
  * the CSRF gate that every mutating `/api/` request passes.
  */
 
-export async function getAuth(): Promise<ApiResponseFetch<AuthModel | null>> {
+export async function getAuth(): Promise<ApiResponseFetch<AccountModel | null>> {
 	try {
 		const sessionToken = await getTrackedCookie(
 			Configuration.get('user.sessionToken'),
@@ -56,7 +56,7 @@ export async function getAuth(): Promise<ApiResponseFetch<AuthModel | null>> {
 			};
 		}
 
-		const fetchResponse: ApiResponseFetch<AuthModel> | undefined =
+		const fetchResponse: ApiResponseFetch<AccountModel> | undefined =
 			await new ApiRequest()
 				.setRequestMode('remote-api')
 				.doFetch('/account/me', {
@@ -71,7 +71,7 @@ export async function getAuth(): Promise<ApiResponseFetch<AuthModel | null>> {
 			const responseData = getResponseData(fetchResponse);
 
 			if (responseData) {
-				const authModel = prepareAuthModel(responseData);
+				const accountModel = prepareAccountModel(responseData);
 
 				await setupTrackedCookie(sessionToken, {
 					httpOnly: true,
@@ -79,7 +79,7 @@ export async function getAuth(): Promise<ApiResponseFetch<AuthModel | null>> {
 				});
 
 				return {
-					data: authModel,
+					data: accountModel,
 					message: 'Ok',
 					success: true,
 				};

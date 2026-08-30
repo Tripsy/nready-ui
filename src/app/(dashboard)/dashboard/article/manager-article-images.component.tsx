@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { ManagerImages } from '@/components/manager-images.component';
 import type { ArticleModel } from '@/models/article.model';
-import { hasPermission } from '@/models/auth.model';
+import { hasPermission } from '@/models/account.model';
 import { ImageSectionEnum, ImageTypeEnum } from '@/models/image.model';
 import { useAuth } from '@/providers/auth.provider';
 import { LanguageEnum } from '@/types/common.type';

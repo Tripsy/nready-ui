@@ -19,7 +19,7 @@ import {
 } from '@/helpers/services.helper';
 import { parseJson, toKebabCase } from '@/helpers/string.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	type TemplateLayoutEmail,
 	TemplateLayoutEmailEnum,
@@ -246,7 +246,7 @@ export default async function dataSourceConfig(): Promise<
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<TemplateModel>['displayButton'] {
 		return {
 			action: () =>

@@ -5,7 +5,7 @@ import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import { formatDate } from '@/helpers/date.helper';
 import { requestDeleteMultiple, requestFind } from '@/helpers/services.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import type {
 	MailQueueModel,
 	MailQueueStatus,
@@ -39,7 +39,7 @@ export default async function dataSourceConfig(): Promise<
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<MailQueueModel>['displayButton'] {
 		return {
 			action: () =>
@@ -49,7 +49,7 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	function displayButtonViewTemplate(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 		entry: MailQueueModel,
 	): DataTableValueOptionsType<MailQueueModel>['displayButton'] {
 		if (!entry.template) {

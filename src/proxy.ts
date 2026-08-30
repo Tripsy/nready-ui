@@ -5,17 +5,17 @@ import { Configuration } from '@/config/settings.config';
 import { ApiError } from '@/exceptions/api.error';
 import { ApiRequest, getResponseData } from '@/helpers/api.helper';
 import {
-	getCachedAuthModel,
-	setCachedAuthModel,
+	getCachedAccountModel,
+	setCachedAccountModel,
 } from '@/helpers/auth-cache.helper';
 import { CSRF_REJECTION_CODE } from '@/helpers/csrf.helper';
 import { getTrackedCookie } from '@/helpers/session.helper';
 import { apiHeaders } from '@/helpers/system.helper';
 import {
-	type AuthModel,
+	type AccountModel,
 	hasPermission,
-	prepareAuthModel,
-} from '@/models/auth.model';
+	prepareAccountModel,
+} from '@/models/account.model';
 import type { ApiResponseFetch } from '@/types/api.type';
 
 class MiddlewareContext {
@@ -210,7 +210,7 @@ class MiddlewareContext {
 			}
 		}
 
-		const authResult = await resolveAuthModel(sessionToken.value); // null = invalid token, false = server error
+		const authResult = await resolveAccountModel(sessionToken.value); // null = invalid token, false = server error
 
 		if (authResult === null) {
 			switch (routeAuth) {
@@ -297,11 +297,11 @@ class MiddlewareContext {
  *
  * @param token
  */
-async function fetchAuthModel(
+async function fetchAccountModel(
 	token: string,
-): Promise<AuthModel | null | false> {
+): Promise<AccountModel | null | false> {
 	try {
-		const fetchResponse: ApiResponseFetch<AuthModel> =
+		const fetchResponse: ApiResponseFetch<AccountModel> =
 			await new ApiRequest()
 				.setRequestMode('remote-api')
 				.doFetch('/account/me', {
@@ -316,7 +316,7 @@ async function fetchAuthModel(
 			const responseData = getResponseData(fetchResponse);
 
 			if (responseData) {
-				return prepareAuthModel(responseData);
+				return prepareAccountModel(responseData);
 			}
 		}
 
@@ -331,7 +331,7 @@ async function fetchAuthModel(
 }
 
 /**
- * Cache-backed wrapper around {@link fetchAuthModel}.
+ * Cache-backed wrapper around {@link fetchAccountModel}.
  *
  * This runs on every matched request, so the uncached path puts a backend round-trip in
  * front of each navigation. Only successful lookups are stored: an invalid token (`null`)
@@ -340,22 +340,22 @@ async function fetchAuthModel(
  *
  * @param token
  */
-async function resolveAuthModel(
+async function resolveAccountModel(
 	token: string,
-): Promise<AuthModel | null | false> {
-	const cachedAuthModel = await getCachedAuthModel(token);
+): Promise<AccountModel | null | false> {
+	const cachedAccountModel = await getCachedAccountModel(token);
 
-	if (cachedAuthModel) {
-		return cachedAuthModel;
+	if (cachedAccountModel) {
+		return cachedAccountModel;
 	}
 
-	const authModel = await fetchAuthModel(token);
+	const accountModel = await fetchAccountModel(token);
 
-	if (authModel) {
-		await setCachedAuthModel(token, authModel);
+	if (accountModel) {
+		await setCachedAccountModel(token, accountModel);
 	}
 
-	return authModel;
+	return accountModel;
 }
 
 export async function proxy(req: NextRequest) {

@@ -17,7 +17,7 @@ import {
 	requestUpdate,
 } from '@/helpers/services.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import { type CarrierModel, displayCarrierLabel } from '@/models/carrier.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type {
@@ -112,7 +112,7 @@ export default async function dataSourceConfig(): Promise<
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<CarrierModel>['displayButton'] {
 		return {
 			action: () =>
