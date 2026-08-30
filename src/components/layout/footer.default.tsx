@@ -29,7 +29,7 @@ const footerLinkSections: FooterLinkSection[] = [
 		name: 'Developers',
 		links: [
 			{
-				label: 'API',
+				label: 'API reference',
 				href: Routes.get('api-docs'),
 				title: 'API reference',
 			},

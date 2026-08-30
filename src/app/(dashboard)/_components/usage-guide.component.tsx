@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTranslation } from '@/hooks/use-translation.hook';
 
 /**
- * One API-docs tab. `feature` is the backend route module `GET /api-docs/:feature` serves, which
+ * One API-docs tab. `feature` is the backend route module `GET /public/api-docs/:feature` serves, which
  * is not always the entity: a feature directory can hold more than one module, and the article
  * folder ships `article` alongside `article-public`.
  */

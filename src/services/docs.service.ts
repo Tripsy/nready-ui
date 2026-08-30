@@ -22,7 +22,7 @@ const EMPTY_DOCS: ApiDocs = {
 
 /**
  * The generated API documentation for one backend route module, fetched through the proxy for
- * a signed-in caller. `GET /api-docs/:feature` is open, so this needs no permission — it goes
+ * a signed-in caller. `GET /public/api-docs/:feature` is open, so this needs no permission — it goes
  * through the proxy only because it is called from a client component (the dashboard's usage
  * guide), which cannot reach the backend directly.
  *
@@ -30,7 +30,7 @@ const EMPTY_DOCS: ApiDocs = {
  */
 export async function requestFeatureDocs(feature: string): Promise<ApiDocs> {
 	const response: ApiResponseFetch<ApiDocs> = await new ApiRequest().doFetch(
-		`/api-docs/${feature}`,
+		`/public/api-docs/${feature}`,
 	);
 
 	return getResponseData(response) ?? EMPTY_DOCS;
@@ -49,7 +49,7 @@ export async function requestDocsCatalogue(): Promise<
 > {
 	const response: ApiResponseFetch<ApiDocsCatalogue> = await new ApiRequest()
 		.setRequestMode('remote-api')
-		.doFetch('/api-docs', {
+		.doFetch('/public/api-docs', {
 			method: 'GET',
 			next: { revalidate: DOCS_REVALIDATE_SECONDS },
 		});
@@ -69,7 +69,7 @@ export async function requestPublicFeatureDocs(
 ): Promise<ApiDocs | undefined> {
 	const response: ApiResponseFetch<ApiDocs> = await new ApiRequest()
 		.setRequestMode('remote-api')
-		.doFetch(`/api-docs/${encodeURIComponent(feature)}`, {
+		.doFetch(`/public/api-docs/${encodeURIComponent(feature)}`, {
 			method: 'GET',
 			next: { revalidate: DOCS_REVALIDATE_SECONDS },
 		});

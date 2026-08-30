@@ -1,6 +1,6 @@
 /**
  * Mirror of the backend's `ApiOutputDocumentation` (`../nready-api/src/helpers/
- * api-documentation.helper.ts`), which is what `GET /api-docs/:feature` serves.
+ * api-documentation.helper.ts`), which is what `GET /public/api-docs/:feature` serves.
  *
  * Restated rather than imported — the two projects connect only over HTTP — so it has to be
  * kept in step with that type by hand when the backend's documentation shape changes.
