@@ -8,7 +8,7 @@ import {
 import { requestPublicCategories } from '@/services/category.service';
 import type { Language } from '@/types/common.type';
 
-// Same window as the category listing page: the catalogue is small and changes rarely, so a
+// Same window as the category listing page: the catalog is small and changes rarely, so a
 // visitor arriving on a category page reads it from Next's data cache.
 const CATEGORY_LIMIT = 200;
 const REVALIDATE_SECONDS = 3600;
@@ -19,7 +19,7 @@ const REVALIDATE_SECONDS = 3600;
  *
  * There is no lookup-by-slug endpoint on the backend, and the anonymous listing is capped at
  * a couple of hundred rows and cached for an hour — so the extra rows cost one cached fetch
- * rather than a query per visitor. Add a backend route once the catalogue outgrows the cap;
+ * rather than a query per visitor. Add a backend route once the catalog outgrows the cap;
  * past it a slug beyond the cap resolves as "not found" rather than wrongly.
  *
  * `undefined` means "no such category"; a backend failure throws, so the two are not

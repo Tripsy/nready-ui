@@ -101,7 +101,7 @@ export async function POST(
 
 	// The user pressed "cancel" on the provider's consent screen, or the provider refused.
 	if (providerError) {
-		return fail('oauth.message.cancelled');
+		return fail('oauth.message.canceled');
 	}
 
 	if (!isOAuthProvider(provider)) {

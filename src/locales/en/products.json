@@ -1,11 +1,11 @@
 {
 	"meta": {
 		"title": "Products | {{app_name}}",
-		"description": "The product catalogue we are getting ready."
+		"description": "The product catalog we are getting ready."
 	},
 	"text": {
 		"heading": "Products",
-		"subheading": "The catalogue is on its way.",
+		"subheading": "The catalog is on its way.",
 		"placeholder": "There is nothing to show here yet. The product listing is still being built.",
 		"browse_categories": "Browse categories"
 	}

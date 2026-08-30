@@ -70,7 +70,7 @@ export function buildOAuthAuthorizeUrl(
 				// backend reads the subject id and the verified email from.
 				scope: 'openid email profile',
 				state: state,
-				// Without these a returning user is silently re-authorised and never gets
+				// Without these a returning user is silently re-authorized and never gets
 				// the chance to pick a different account.
 				prompt: 'select_account',
 			});

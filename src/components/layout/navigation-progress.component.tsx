@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-// Safety net: if a navigation is cancelled or blocked (middleware redirect loop, aborted
+// Safety net: if a navigation is canceled or blocked (middleware redirect loop, aborted
 // fetch) the pathname never changes, so drop the bar instead of animating forever.
 const MAX_VISIBLE_MS = 15_000;
 

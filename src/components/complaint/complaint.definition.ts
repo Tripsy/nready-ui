@@ -58,7 +58,7 @@ export type ComplaintTranslations = Record<
 	string
 >;
 
-/** The translation key each reason is labelled by, so a host maps a subset without a switch. */
+/** The translation key each reason is labeled by, so a host maps a subset without a switch. */
 export const complaintReasonLabelKey = (
 	reason: ComplaintReason,
 ): keyof ComplaintTranslations =>

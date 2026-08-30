@@ -37,7 +37,7 @@ export async function requestFeatureDocs(feature: string): Promise<ApiDocs> {
 }
 
 /**
- * The whole catalogue — every documented route module with its endpoints listed but not
+ * The whole catalog — every documented route module with its endpoints listed but not
  * described — in one response, which is what lets `/api-docs` render its index without a request
  * per feature.
  *

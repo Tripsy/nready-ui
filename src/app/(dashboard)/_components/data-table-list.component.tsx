@@ -164,7 +164,7 @@ export default function DataTableList(props: { dataKey: string }) {
 	/*
 	 * Both `single` and `multiple` tables select rows; only a `null` selectionMode opts a
 	 * table out of selection entirely. `multiple` additionally gets a checkbox column and
-	 * `toggle` selection behaviour so several rows can be picked at once — `single` selects
+	 * `toggle` selection behavior so several rows can be picked at once — `single` selects
 	 * (and replaces) one row on click, with no checkbox column, matching react-aria's own
 	 * `single`/`multiple` distinction.
 	 */

@@ -18,7 +18,7 @@ const KEY_LABEL = 'me';
  *
  * Staleness is bounded by the TTL: a permission or role change made in the backend takes up
  * to `cache.authTtl` seconds to reach the proxy. Logout clears the entry outright, so a
- * logged-out session is never authorised from cache.
+ * logged-out session is never authorized from cache.
  */
 
 /**
@@ -52,7 +52,7 @@ export async function getCachedAccountModel(
 	}
 
 	// JSON round-tripping turns the model's Date fields back into strings, so re-run the
-	// same normalisation the fresh path applies — the cached and uncached results are then
+	// same normalization the fresh path applies — the cached and uncached results are then
 	// indistinguishable to every caller.
 	return prepareAccountModel(cached as AccountModel);
 }

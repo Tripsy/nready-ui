@@ -1,11 +1,11 @@
 {
 	"meta": {
 		"title": "Product categories | {{app_name}}",
-		"description": "Browse the product categories available in our catalogue."
+		"description": "Browse the product categories available in our catalog."
 	},
 	"text": {
 		"heading": "Product categories",
-		"subheading": "Everything in the catalogue, grouped the way we organise it.",
+		"subheading": "Everything in the catalog, grouped the way we organize it.",
 		"no_entries": "There are no product categories to show yet.",
 		"unavailable": "The category list is temporarily unavailable. Please try again later.",
 		"subcategories": "Subcategories"

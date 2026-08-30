@@ -1,6 +1,6 @@
 {
 	"message": {
-		"cancelled": "Autentificarea a fost anulată înainte de finalizare.",
+		"canceled": "Autentificarea a fost anulată înainte de finalizare.",
 		"unknown_provider": "Acest furnizor de autentificare nu este acceptat.",
 		"invalid_state": "Acest link de autentificare nu a putut fi verificat. Reia procesul din pagina de autentificare.",
 		"missing_code": "Furnizorul nu a returnat un cod de autorizare. Încearcă din nou.",

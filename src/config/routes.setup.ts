@@ -325,7 +325,7 @@ const EXCLUDED_ROUTE_NAMES: ReadonlySet<string> = new Set([
  * Check if the given path is an excluded route (usually auth related routes)
  * On successful login it doesn't redirect back to excluded routes
  *
- * Resolves the pathname to a route first, so `/account/email-confirm/abc123` is recognised
+ * Resolves the pathname to a route first, so `/account/email-confirm/abc123` is recognized
  * as `email-confirm` rather than compared as a literal string.
  *
  * @param pathname - a pathname without its query string

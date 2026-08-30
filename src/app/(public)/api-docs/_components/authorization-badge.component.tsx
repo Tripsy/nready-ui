@@ -12,7 +12,7 @@ const VARIANT: Record<
 
 /**
  * How much of a module needs a bearer token, as a label. Green reads as "you can call this
- * now" rather than as "safe" — the point of the colour is what a reader can do with it.
+ * now" rather than as "safe" — the point of the color is what a reader can do with it.
  */
 export function AuthorizationBadge({
 	authorization,

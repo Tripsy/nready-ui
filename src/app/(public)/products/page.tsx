@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { title, description };
 }
 
-// Placeholder: the catalogue listing has no public endpoint yet, so the page only announces
+// Placeholder: the catalog listing has no public endpoint yet, so the page only announces
 // itself and points at the categories, which do.
 export default async function Page() {
 	const translations = await translateBatch(

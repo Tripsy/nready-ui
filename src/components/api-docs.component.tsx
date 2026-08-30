@@ -225,7 +225,7 @@ function ActionDocs({
 	baseUrl: string;
 	/** Set by the stacked layout so a full-page action is directly linkable. */
 	anchor?: string;
-	/** The controller action, shown only where the actions are not already labelled by tabs. */
+	/** The controller action, shown only where the actions are not already labeled by tabs. */
 	name?: string;
 }) {
 	const { request, responses } = action;

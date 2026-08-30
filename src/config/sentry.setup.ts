@@ -19,7 +19,7 @@ export function isSentryEnabled(): boolean {
  * `window-draft.helper.ts` takes for form drafts, so a newly added credential field is
  * covered by default rather than by someone remembering to extend a list.
  *
- * A backstop, not the primary defence: `extra` is assembled by `logger` call sites all over
+ * A backstop, not the primary defense: `extra` is assembled by `logger` call sites all over
  * the app, and the rule there is still to never put a secret or a personal record in a log
  * context. This catches the one that eventually slips through.
  */

@@ -10,7 +10,7 @@ import { useTranslation } from '@/hooks/use-translation.hook';
 type PageItemType = number | 'ellipsis-start' | 'ellipsis-end';
 
 /**
- * First and last page are always shown, plus the current page with one neighbour on
+ * First and last page are always shown, plus the current page with one neighbor on
  * each side; an ellipsis stands in wherever that window skips a run. HeroUI's
  * Pagination ships only the primitives (it computes no page list of its own), so the
  * window is built here.

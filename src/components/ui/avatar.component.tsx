@@ -7,7 +7,7 @@ const AVATAR_DEFAULT_SIZE = 32;
 
 /**
  * The circles a nameless avatar is drawn from. Picked by name rather than at random: the same
- * person keeps their colour across a page, across a re-render, and across a reload — a colour that
+ * person keeps their color across a page, across a re-render, and across a reload — a color that
  * changed under them would read as a different person.
  */
 const AVATAR_COLORS = [
@@ -25,7 +25,7 @@ const AVATAR_COLORS = [
  * A stable index into the palette.
  *
  * Multiplying before adding is what spreads it: summing code points and taking the remainder
- * clusters names of similar length and letters onto the same colour, which is how three of four
+ * clusters names of similar length and letters onto the same color, which is how three of four
  * seeded authors ended up sharing one.
  */
 function avatarColor(name: string): string {

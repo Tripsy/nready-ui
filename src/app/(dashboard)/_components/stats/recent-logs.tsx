@@ -39,7 +39,7 @@ const levelOptions = [
 	...toOptionsFromEnum(LogLevelEnum, { formatter: formatEnumLabel }),
 ];
 
-/** Severity colouring for the level badge. Anything below `warn` stays neutral. */
+/** Severity coloring for the level badge. Anything below `warn` stays neutral. */
 const LEVEL_VARIANT: Partial<Record<LogLevel, BadgeVariant>> = {
 	[LogLevelEnum.WARN]: 'warning',
 	[LogLevelEnum.ERROR]: 'error',
@@ -80,7 +80,7 @@ export function useLogDataPanel(): PanelView {
 
 	return {
 		count: data?.entries.length ?? 0,
-		// `warn` is not a failure and `all` is a mixed bag, so neither earns the alert colour.
+		// `warn` is not a failure and `all` is a mixed bag, so neither earns the alert color.
 		isAlert: level === LogLevelEnum.ERROR || level === LogLevelEnum.FATAL,
 		filters: (
 			<>
@@ -112,7 +112,7 @@ export function useLogDataPanel(): PanelView {
 				{data?.entries.map((entry) => (
 					<PanelRow key={entry.id} aside={timeAgo(entry.created_at)}>
 						{/* Messages are free-form and can be long — clamp rather than let
-							    one entry stretch the panel past its neighbour. */}
+							    one entry stretch the panel past its neighbor. */}
 						<p className="font-medium truncate">{entry.message}</p>
 						<div className="flex items-center gap-2 mt-1">
 							<Badge

@@ -58,7 +58,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * The catalogue is one request for every module, so a failure is total — rendered as a notice
+ * The catalog is one request for every module, so a failure is total — rendered as a notice
  * rather than thrown, since an unreachable backend should not turn the reference into an
  * error page.
  */
@@ -66,7 +66,7 @@ async function loadCatalogue(): Promise<ApiDocsCatalogue | null> {
 	try {
 		return (await requestDocsCatalogue()) ?? null;
 	} catch (error) {
-		logger.error('Failed to load the API documentation catalogue', error);
+		logger.error('Failed to load the API documentation catalog', error);
 
 		return null;
 	}

@@ -49,7 +49,7 @@ class MiddlewareContext {
 		// Create the login URL
 		const loginUrl = new URL(Routes.get('login'), this.req.url);
 
-		// `set` percent-encodes on serialisation, so the raw path goes in: pre-encoding it
+		// `set` percent-encodes on serialization, so the raw path goes in: pre-encoding it
 		// here would encode the escapes themselves, and a reader doing one `get` would be
 		// handed `%2Fdashboard` — which `isSafeReturnPath` in the OAuth start route rejects
 		// for not beginning with a slash.
@@ -113,7 +113,12 @@ class MiddlewareContext {
 	 * custom header without a preflight — so a forged cross-site request fails both halves.
 	 *
 	 * This sits alongside `isValidRequestSource()` rather than replacing it: that check reads
-	 * headers the browser controls, this one requires a secret the attacker cannot obtain.
+	 * headers the browser controls, this one requires a value obtained from this origin.
+	 *
+	 * It is a CSRF defense, not an access control, and the distinction matters: `/api/csrf`
+	 * issues a token to anyone who asks, so a non-browser client fetches one and replays it.
+	 * What the pair actually proves is same-browser — which is the whole job here, since the
+	 * attack it stops is another origin's page acting as the visitor.
 	 */
 	isValidCsrfToken() {
 		const submitted = this.req.headers.get(
@@ -389,7 +394,7 @@ export async function proxy(req: NextRequest) {
 	 */
 	if (isMutating && req.nextUrl.pathname.startsWith('/api/')) {
 		if (!ctx.isValidCsrfToken()) {
-			// A recognisable body lets ApiRequest tell an expired token — refresh and retry
+			// A recognizable body lets ApiRequest tell an expired token — refresh and retry
 			// once — from a genuine refusal.
 			return NextResponse.json(
 				{ code: CSRF_REJECTION_CODE, message: 'Invalid CSRF token' },

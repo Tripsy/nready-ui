@@ -78,7 +78,7 @@ export type ApiDocs = {
 	actions: Record<string, ApiDocsAction>;
 };
 
-/** One action as it appears in the catalogue: enough to list an endpoint, not to document it. */
+/** One action as it appears in the catalog: enough to list an endpoint, not to document it. */
 export type ApiDocsCatalogueAction = {
 	name: string;
 	method: string;
@@ -96,7 +96,7 @@ export type ApiDocsCatalogueEntry = {
 };
 
 /**
- * Every documented route module, served by `GET /docs` in one response — the catalogue page
+ * Every documented route module, served by `GET /docs` in one response — the catalog page
  * renders the whole index without a request per feature.
  */
 export type ApiDocsCatalogue = {

@@ -367,7 +367,7 @@ function CommentEntry({
 					{/*
 					 * The thread's rail. It is pulled back to sit under the middle of this
 					 * comment's avatar — the content column starts past the avatar (32px) and
-					 * the gap (12px), so -28px lands the border on the avatar's centre line,
+					 * the gap (12px), so -28px lands the border on the avatar's center line,
 					 * and the padding then holds the replies clear of it.
 					 */}
 					{showReplies ? (

@@ -107,7 +107,7 @@ export const displayImageLabel = (m: ImageModel) => {
 /**
  * The route that signs a private-bucket object and redirects to it.
  *
- * Exported so a renderer can recognise a `src` pointing here: such a `src` cannot go through
+ * Exported so a renderer can recognize a `src` pointing here: such a `src` cannot go through
  * next/image's optimizer (see `isOptimizableImageSrc`).
  */
 export const IMAGE_VIEW_ROUTE = '/api/image/view';

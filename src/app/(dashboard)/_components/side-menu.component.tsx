@@ -300,7 +300,7 @@ function SideMenuClosedSection({
 	));
 
 	return (
-		// biome-ignore lint/a11y/noStaticElementInteractions: hover-reveal flyout container (mouse-only, mirrors prior collapsed-sidebar behaviour)
+		// biome-ignore lint/a11y/noStaticElementInteractions: hover-reveal flyout container (mouse-only, mirrors prior collapsed-sidebar behavior)
 		<div
 			ref={triggerRef}
 			onMouseEnter={openFlyout}

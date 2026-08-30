@@ -30,7 +30,7 @@ import {
 } from '@/services/comment.service';
 
 /**
- * `justify-start` is not decoration: `Button`'s base centres its content, which for a menu is a
+ * `justify-start` is not decoration: `Button`'s base centers its content, which for a menu is a
  * column of labels each starting at a different x. A list is read down its left edge.
  */
 const MENU_ITEM_CLASS =

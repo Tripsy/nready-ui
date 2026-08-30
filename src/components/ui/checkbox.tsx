@@ -24,8 +24,8 @@ export type CheckboxProps = Omit<
 	/**
 	 * Applied to the control (the square) — this is where field-state borders go.
 	 * Overrides the default border in *every* state, checked included, so the state
-	 * colour stays visible; supply a border *width* utility (`border`) alongside the
-	 * colour, since the HeroUI default resolves to `0`.
+	 * color stays visible; supply a border *width* utility (`border`) alongside the
+	 * color, since the HeroUI default resolves to `0`.
 	 */
 	controlClassName?: string;
 };
@@ -45,7 +45,7 @@ const Checkbox = ({
 	...props
 }: CheckboxProps) => {
 	// A caller-supplied border owns every state, so the checked-state transparency
-	// is dropped there — it would otherwise out-specify the state colour.
+	// is dropped there — it would otherwise out-specify the state color.
 	const controlClass = controlClassName
 		? cn('border', controlClassName)
 		: controlBaseClass;

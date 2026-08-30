@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
  */
 export type PanelView = {
 	count: number;
-	/** Whether the current filter actually selects failures, which decides the badge colour. */
+	/** Whether the current filter actually selects failures, which decides the badge color. */
 	isAlert: boolean;
 	/** Kept apart from `body` so the host can add its own controls to the filter row. */
 	filters: ReactNode;

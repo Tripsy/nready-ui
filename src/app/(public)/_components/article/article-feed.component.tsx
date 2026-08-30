@@ -21,7 +21,7 @@ import type { FindFunctionResponseType } from '@/types/action.type';
 import type { Language } from '@/types/common.type';
 
 /**
- * Fallback box for the cover, so a row without one keeps the same rhythm as its neighbours
+ * Fallback box for the cover, so a row without one keeps the same rhythm as its neighbors
  * rather than letting the text run the full width.
  */
 const COVER_WIDTH = 320;
