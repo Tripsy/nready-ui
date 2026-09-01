@@ -10,6 +10,7 @@ import type { ComplaintModel } from '@/models/complaint.model';
 import type { CronHistoryModel } from '@/models/cron-history.model';
 import type { DiscountModel } from '@/models/discount.model';
 import type { DocumentSeriesModel } from '@/models/document-series.model';
+import type { ExchangeRateModel } from '@/models/exchange-rate.model';
 import type { ImageModel } from '@/models/image.model';
 import type { LogDataModel } from '@/models/log-data.model';
 import type { LogHistoryModel } from '@/models/log-history.model';
@@ -38,6 +39,7 @@ export type DatasourceModels = {
 	'cron-history': CronHistoryModel;
 	discount: DiscountModel;
 	'document-series': DocumentSeriesModel;
+	'exchange-rate': ExchangeRateModel;
 	image: ImageModel;
 	'log-data': LogDataModel;
 	'log-history': LogHistoryModel;

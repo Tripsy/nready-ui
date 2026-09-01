@@ -261,6 +261,9 @@ Routes.group('dashboard')
 	.add('document-series', '/dashboard/document-series', {
 		permissionEntity: 'document-series',
 	})
+	.add('exchange-rate', '/dashboard/exchange-rate', {
+		permissionEntity: 'exchange-rate',
+	})
 	.add('image', '/dashboard/image', {
 		permissionEntity: 'image',
 	})

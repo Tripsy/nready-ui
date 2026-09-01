@@ -24,6 +24,7 @@ import discount from '@/locales/ro/discount.json';
 import document_series from '@/locales/ro/document-series.json';
 import email_confirm from '@/locales/ro/email-confirm.json';
 import email_confirm_send from '@/locales/ro/email-confirm-send.json';
+import exchange_rate from '@/locales/ro/exchange-rate.json';
 import home from '@/locales/ro/home.json';
 import image from '@/locales/ro/image.json';
 import layout from '@/locales/ro/layout.json';
@@ -75,6 +76,7 @@ const ro = {
 	'document-series': document_series,
 	'email-confirm': email_confirm,
 	'email-confirm-send': email_confirm_send,
+	'exchange-rate': exchange_rate,
 	home,
 	image,
 	'log-data': log_data,

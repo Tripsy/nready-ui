@@ -20,6 +20,7 @@ export const LogHistoryEntities = [
 	'complaint',
 	'discount',
 	'document_series',
+	'exchange_rate',
 	'grn',
 	'image',
 	'invoice',

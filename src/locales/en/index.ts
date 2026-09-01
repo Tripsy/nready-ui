@@ -24,6 +24,7 @@ import discount from '@/locales/en/discount.json';
 import document_series from '@/locales/en/document-series.json';
 import email_confirm from '@/locales/en/email-confirm.json';
 import email_confirm_send from '@/locales/en/email-confirm-send.json';
+import exchange_rate from '@/locales/en/exchange-rate.json';
 import home from '@/locales/en/home.json';
 import image from '@/locales/en/image.json';
 import layout from '@/locales/en/layout.json';
@@ -75,6 +76,7 @@ const en = {
 	'document-series': document_series,
 	'email-confirm': email_confirm,
 	'email-confirm-send': email_confirm_send,
+	'exchange-rate': exchange_rate,
 	home,
 	image,
 	'log-data': log_data,

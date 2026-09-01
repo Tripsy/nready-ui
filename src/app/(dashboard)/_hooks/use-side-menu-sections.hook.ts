@@ -27,6 +27,7 @@ const TRANSLATION_KEYS = [
 	'dashboard.labels.client',
 	'dashboard.labels.cash-flow',
 	'dashboard.labels.discount',
+	'dashboard.labels.exchange-rate',
 	'dashboard.labels.vendor',
 
 	'dashboard.labels.content',
@@ -111,6 +112,13 @@ export function useSideMenuSections(): {
 						text: translations['dashboard.labels.discount'],
 						icon: Icons.Discount,
 						permission: hasPermission(auth, 'discount'),
+					},
+					{
+						page: 'exchange-rate',
+						href: Routes.get('exchange-rate'),
+						text: translations['dashboard.labels.exchange-rate'],
+						icon: Icons.ExchangeRate,
+						permission: hasPermission(auth, 'exchange-rate'),
 					},
 					{
 						page: 'vendor',

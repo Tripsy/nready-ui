@@ -383,6 +383,7 @@ const PLURAL_ENDPOINT_KEYS: ReadonlySet<DataSourceKey> = new Set([
 	'comment',
 	'complaint',
 	'discount',
+	'exchange-rate',
 	'image',
 	'permission',
 	'place',

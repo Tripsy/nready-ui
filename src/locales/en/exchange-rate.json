@@ -1,0 +1,53 @@
+{
+	"meta": {
+		"title": "Exchange Rates - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_currency": "Invalid currency; use a 3-letter ISO 4217 code, e.g. EUR",
+		"invalid_rate": "Rate must be a positive number with at most {{decimals}} decimals",
+		"invalid_rate_date": "Rate date must be a valid day, today or earlier",
+		"invalid_notes": "Invalid notes"
+	},
+	"action": {
+		"create": {
+			"title": "Add new exchange rate",
+			"label": "Add",
+			"success": "New exchange rate added successfully"
+		},
+		"update": {
+			"title": "Update exchange rate - {{entry}}",
+			"label": "Update",
+			"success": "Exchange rate updated successfully"
+		},
+		"delete": {
+			"title": "Delete exchange rate - {{entry}}",
+			"label": "Delete",
+			"success": "Exchange rate deleted successfully",
+			"confirm": "Deleting a rate is permanent. Conversions asking for that day afterwards fall back to the last rate published before it. Are you sure?"
+		},
+		"view": {
+			"title": "Exchange rate details - {{entry}}",
+			"label": "View details"
+		},
+		"guide": {
+			"title": "How exchange rates work",
+			"label": "Usage guide"
+		}
+	},
+	"help": {
+		"intro": "A row records what one unit of a currency was worth in the base currency on one day — EUR, 5.2575, RON means 1 EUR = 5.2575 RON. The base currency is this deployment's own and is filled in for you, so an amount in the listed currency multiplied by the rate reaches the books. The table is a history, not a list of today's rates: a document is converted at the rate of the day it was written, which is why every day keeps its own row.",
+		"step_1_title": "Most rows arrive on their own",
+		"step_1_body": "A cron job reads the BNR reference bulletin every working day at 13:20 and stores a row per configured currency — EUR and USD today. Those rows show Source \"Imported\" and carry the provider name. Adding one by hand is for what the feed does not cover: a currency outside the list, or a day the import missed.",
+		"step_2_title": "Add a rate",
+		"step_2_body": "Give the currency as a 3-letter ISO 4217 code, the day it applies to, and the rate. A future day is refused — a rate is published for a day that has begun. One rate per currency per day: a second one for the same day is refused as a duplicate, so correct the existing row instead.",
+		"step_3_title": "Corrections win over the import",
+		"step_3_body": "Editing a rate marks the row Manual, and the daily import never writes over a manual row. That is what makes a correction stick — otherwise the next run would quietly restore the published figure. Only the rate and the notes are editable: the currency and the day identify the row, so a wrong one is deleted and entered again.",
+		"step_4_title": "Editing closes after seven days",
+		"step_4_body": "A rate stays editable for seven days after the day it applies to, measured from that day and not from when the row was written. Past that the Update button disappears, because documents have been priced against it and reports have been read. A rate backfilled today for three weeks ago is already outside the window.",
+		"step_5_title": "Find one",
+		"step_5_body": "Filter by source or by a range of rate dates, or search from three characters — a three-letter term matches either currency column or the provider, and an all-digit term is treated as an id. The list orders by rate date, currency or id, newest first.",
+		"note": "Documents keep their own frozen copy of the rate they were priced at, so editing or deleting a row here never moves figures already recorded. A day with no published rate is not an error: a conversion falls back to the most recent rate published before it, which is how weekends and holidays resolve.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
+	}
+}

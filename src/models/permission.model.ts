@@ -13,6 +13,7 @@ export const PermissionEntitiesSuggestions = [
 	'cron-history',
 	'discount',
 	'document-series',
+	'exchange-rate',
 	'grn',
 	'image',
 	'invoice',
