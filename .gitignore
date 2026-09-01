@@ -45,3 +45,6 @@ public/uploads/
 
 # Dev server logs (dev-stack.sh)
 /logs/
+
+# Custom
+/TODO.md

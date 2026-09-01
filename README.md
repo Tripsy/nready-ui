@@ -8,11 +8,10 @@
 
 # 📄 Description
 
-(Dashboard) is a demo frontend implementation using [NReady](https://github.com/Tripsy/nready-api) as a backend API.
+(NReady UI) is a demo frontend implementation using [NReady](https://github.com/Tripsy/nready-api) as a backend API.
 
 This boilerplate provides an authentication system (login, register, recover password, account pages, etc.)
-and includes an administration dashboard (user, cron-history, log-history, log-data, mail-queue, permission, 
-template, client, address, place, brand, category, cash-flow, etc.)
+and includes an administration dashboard.
 
 This project is still a work in progress, and the next goals are:
 - Include additional [NReady](https://github.com/Tripsy/nready-api) features in the administration dashboard
@@ -49,14 +48,41 @@ Meanwhile, we're open to suggestions / feedback, and if you find this project us
 
 # ✨ Features
 
-### Core features
+### Public site
 
-- [x] (Public) 
-    - Auth system: login, register, logout, forgot password, reset password, email confirmation, etc.
-- [x] (Dashboard) 
-    - cron-history, log-data, log-history, mail-queue, permission, template, user
-    - brand, category, cash-flow, address, client, place
-    - // TODO 
+- [x] Auth system: login, register, logout, password recover / reset, email confirmation, email change
+- [x] Social login (OAuth authorization-code flow) with per-provider client ids; linking / unlinking
+    handled from the account page
+- [x] Account self-service (`/account/me`): profile edit, password update, email update, account
+    delete, active session (auth token) list with per-session revoke
+- [x] Articles: listing, category listing and article page (`/articles/:category/:slug`)
+- [x] Comments, ratings and complaint (report) widgets on public content, with comment permalinks
+    (`/comments/:id`) and tokenized email unsubscribe — no account required
+- [x] Products: category listing (the catalog listing itself is a placeholder until the backend
+    exposes a public endpoint)
+
+### Dashboard
+
+Every entity below is a full CRUD list view — filters, sorting, pagination, row actions and a
+detail/edit window — gated per user by the backend permission map.
+
+- [x] Financial: client, cash-flow, discount, vendor
+- [x] Content: place, brand, category (incl. tree + manual ordering), term, image (upload / order,
+    local or S3 storage)
+- [x] Logistics: address, carrier
+- [x] Publishing: article (incl. ordering), rating, comment, complaint
+- [x] Settings: template, document-series
+- [x] Logs: log-data, log-history, cron-history, mail-queue
+- [x] User management: user, permission
+
+### Cross-cutting
+
+- [x] Route access declared centrally (`public` / `unauthenticated` / `authenticated` / `protected`
+    + permission entity) and enforced in middleware before a page renders
+- [x] CSRF gate on every mutating `/api/*` request; httpOnly session cookie
+- [x] i18n (en, ro) with per-language locale files
+- [x] Light / dark theme, responsive layout
+- [x] Sentry error reporting (client, server and edge runtimes) behind a single DSN switch
 
 # 🛠 Setup
 
@@ -202,34 +228,6 @@ room in the container for both, and it is usually the dev server that gets kille
 ├── next.config.ts
 └── tsconfig.json
 ```
-
-# 💡 How to
-
-## Adding new model for `dashboard` (ex: `cars`)
-
-1. Create `models/car.model.ts` from `models/user.model.ts`
-2. Duplicate `src/(dashboard)/dashboard/user` > `src/(dashboard)/dashboard/car` & rename files
-    - data-table-filters-car.component.tsx
-    - data-table-car.component.tsx    
-    - form-manage-car.component.tsx
-    - page.tsx
-    - car.definition.ts
-    - view-car.component.ts 
-3. Update `src/types/data-source.key.ts`
-4. Add `cars.json` to `src/locales/[language]` & update src/locales/en/index.ts
-5. Update `src/models/permission.model.ts`
-6. Update `src/models/log-history.model.ts`
-7. Update `src/app/(dashboard)/_components/side-menu.component.tsx`
-8. Update `Routes.group('dashboard')` in `src/config/routes.setup.ts`
-
-# 📌 TODO
- 
-1. Review image delete - local / s3
-2. Find a way to secure the proxy (`src/app/api/proxy/[...path]/route.ts`).
-3. nready-native 
-4. Hero UI -> theme
-5. Add demo     
-6. Setup Sentry on UI
 
 # 🔗 Dependencies
 
