@@ -25,8 +25,9 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { title, description };
 }
 
-// Placeholder: the catalog listing has no public endpoint yet, so the page only announces
-// itself and points at the categories, which do.
+// Placeholder: the storefront listing is not built yet, so the page only announces itself and
+// points at the categories. The backend endpoint it will read (`GET /public/products`) already
+// exists — this is the frontend half that is missing, not the contract.
 export default async function Page() {
 	const translations = await translateBatch(
 		TRANSLATION_KEYS,

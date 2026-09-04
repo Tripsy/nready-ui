@@ -38,6 +38,8 @@ import password_recover from '@/locales/ro/password-recover.json';
 import password_recover_change from '@/locales/ro/password-recover-change.json';
 import permission from '@/locales/ro/permission.json';
 import place from '@/locales/ro/place.json';
+import product from '@/locales/ro/product.json';
+import productBundle from '@/locales/ro/product-bundle.json';
 import products from '@/locales/ro/products.json';
 import rating from '@/locales/ro/rating.json';
 import register from '@/locales/ro/register.json';
@@ -89,6 +91,8 @@ const ro = {
 	'password-recover-change': password_recover_change,
 	permission,
 	place,
+	product,
+	'product-bundle': productBundle,
 	products,
 	rating,
 	register,

@@ -244,7 +244,7 @@
 	/* Dashboard related */
 
 	.dashboard-layout .main-section {
-		@apply min-h-[calc(100vh-4rem)] p-4 sm:p-6 lg:p-8 transition-all duration-300 md:ml-72;
+		@apply min-h-[calc(100vh-4rem)] p-4 sm:p-6 lg:p-8 transition-all duration-300 md:ml-66;
 	}
 
 	.dashboard-layout header .breadcrumb-container {

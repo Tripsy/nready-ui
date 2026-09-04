@@ -107,6 +107,34 @@ export const statusList: Record<
 		variant: 'default',
 		icon: Icons.Status.Archived,
 	},
+	pending_review: {
+		variant: 'warning',
+		icon: Icons.Status.Pending,
+	},
+	revision_required: {
+		variant: 'error',
+		icon: Icons.Status.Warning,
+	},
+	ready: {
+		variant: 'success',
+		icon: Icons.Status.Ok,
+	},
+	available: {
+		variant: 'success',
+		icon: Icons.Status.Active,
+	},
+	coming_soon: {
+		variant: 'warning',
+		icon: Icons.Status.Scheduled,
+	},
+	unavailable: {
+		variant: 'error',
+		icon: Icons.Status.Inactive,
+	},
+	discontinued: {
+		variant: 'default',
+		icon: Icons.Status.Archived,
+	},
 	in_use: {
 		variant: 'success',
 		icon: Icons.Status.InUse,

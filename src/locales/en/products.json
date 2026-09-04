@@ -7,6 +7,14 @@
 		"heading": "Products",
 		"subheading": "The catalog is on its way.",
 		"placeholder": "There is nothing to show here yet. The product listing is still being built.",
-		"browse_categories": "Browse categories"
+		"browse_categories": "Browse categories",
+		"back_to_list": "All products",
+		"unavailable": "This product is temporarily unavailable. Please try again later.",
+		"not_found_heading": "Product not found",
+		"not_found_message": "The product you are looking for does not exist, or is no longer on sale.",
+		"brand": "Brand",
+		"categories": "Categories",
+		"no_description": "This product has no description yet.",
+		"price_from": "from"
 	}
 }

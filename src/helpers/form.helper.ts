@@ -207,10 +207,7 @@ export function getFormDataAsEnum<T extends Record<string, string>>(
  * failure means the value was truncated in transit rather than mistyped — and an empty list
  * lets the validator report the missing collection instead of the pipeline throwing.
  */
-export function getFormDataAsJsonList<T>(
-	formData: FormData,
-	key: string,
-): T[] {
+export function getFormDataAsJsonList<T>(formData: FormData, key: string): T[] {
 	const parsed: unknown = parseJson(formData.get(key));
 
 	return Array.isArray(parsed) ? (parsed as T[]) : [];
@@ -354,4 +351,27 @@ export function countErrorMessages(value: unknown): number {
  */
 export function ownErrorMessages(value: unknown): string[] | undefined {
 	return Array.isArray(value) ? (value as string[]) : undefined;
+}
+
+/**
+ * The errors belonging to one entry of a list field, by its position.
+ *
+ * The counterpart of `ownErrorMessages`: that one reads a list's own messages, this one reads a
+ * single row's. `Row` only names the keys — every value stays `unknown`, because a field inside
+ * the row carries the same two shapes the list itself does and has to go back through
+ * `ownErrorMessages` before it is read as messages.
+ *
+ * Takes `unknown` rather than the host's typed error tree on purpose: that type claims a list
+ * field holds an array, which at runtime it never does (see `ownErrorMessages`). Narrowing here
+ * keeps the mismatch in one place instead of a cast at every repeatable editor.
+ */
+export function rowErrorsAt<Row>(
+	errors: unknown,
+	index: number,
+): { [K in keyof Row]?: unknown } | undefined {
+	if (!errors || typeof errors !== 'object' || Array.isArray(errors)) {
+		return undefined;
+	}
+
+	return (errors as Record<string, { [K in keyof Row]?: unknown }>)[index];
 }

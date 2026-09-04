@@ -1,0 +1,130 @@
+{
+	"meta": {
+		"title": "Products - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_sku": "Invalid SKU",
+		"invalid_type": "Invalid type",
+		"invalid_composition": "Invalid composition",
+		"invalid_unit": "Invalid unit",
+		"invalid_vat_category": "Invalid VAT category",
+		"invalid_label": "Invalid name",
+		"invalid_slug": "Invalid slug",
+		"invalid_language": "Invalid language",
+		"invalid_description": "Invalid description",
+		"invalid_meta_title": "Invalid meta title",
+		"invalid_meta_description": "Invalid meta description",
+		"invalid_meta_keywords": "Invalid meta keywords",
+		"invalid_reference": "Invalid selection",
+		"invalid_brand_id": "Invalid brand",
+		"invalid_date": "Invalid date",
+		"available_until_before_from": "Available until must be after available from",
+		"categories_required": "Pick at least one category",
+		"invalid_variants": "Invalid variant",
+		"variants_required": "A product needs at least one variant",
+		"variant_default_required": "Exactly one variant must be marked as the default",
+		"variant_sku_duplicate": "Two variants share a SKU",
+		"invalid_currency": "Invalid currency — use a three-letter code",
+		"invalid_price": "Invalid price",
+		"min_price_above_price": "Min price cannot be above the price",
+		"invalid_availability": "Check the day and the hours for this window",
+		"availability_end_before_start": "The window must end after it starts",
+		"availability_hours_paired": "Set both hours or neither — no hours at all means the whole day",
+		"availability_day_duplicate": "Only one interval per day — this day already has one",
+		"availability_every_day_exclusive": "An every-day interval must be the only one"
+	},
+	"status": {
+		"draft": "Draft",
+		"pending_review": "Pending Review",
+		"revision_required": "Revision Required",
+		"ready": "Ready",
+		"available": "Available",
+		"coming_soon": "Coming Soon",
+		"unavailable": "Unavailable",
+		"discontinued": "Discontinued",
+		"deleted": "Deleted"
+	},
+	"action": {
+		"create": {
+			"title": "Add new product",
+			"label": "Add product",
+			"success": "New product added successfully"
+		},
+		"update": {
+			"title": "Update product - {{entry}}",
+			"label": "Update",
+			"success": "Product updated successfully"
+		},
+		"delete": {
+			"title": "Delete product - {{entry}}",
+			"label": "Delete",
+			"success": "Product deleted successfully",
+			"confirm": "Are you sure you want to delete this product?"
+		},
+		"restore": {
+			"title": "Restore product - {{entry}}",
+			"label": "Restore",
+			"success": "Product restored successfully",
+			"confirm": "Are you sure you want to restore this product?"
+		},
+		"submitReview": {
+			"title": "Submit for review - {{entry}}",
+			"label": "Submit for review",
+			"success": "Product sent for review",
+			"confirm": "Send this product for review?"
+		},
+		"requestRevision": {
+			"title": "Request revision - {{entry}}",
+			"label": "Request revision",
+			"success": "Product sent back for revision",
+			"confirm": "Send this product back for revision?"
+		},
+		"markReady": {
+			"title": "Mark as ready - {{entry}}",
+			"label": "Mark as ready",
+			"success": "Product marked as ready",
+			"confirm": "Mark this product as ready? Nothing leads out of ready — the workflow cannot be walked back afterwards."
+		},
+		"view": {
+			"title": "Product details - {{entry}}",
+			"label": "View details"
+		},
+		"managerImages": {
+			"title": "Product images - {{entry}}",
+			"label": "Images"
+		},
+		"guide": {
+			"title": "How products work",
+			"label": "Usage guide"
+		},
+		"bundle": {
+			"title": "New bundle",
+			"label": "New bundle",
+			"success": "Bundle created successfully"
+		},
+		"bundleEdit": {
+			"title": "Edit bundle - {{entry}}",
+			"label": "Update",
+			"success": "Bundle updated successfully"
+		}
+	},
+	"help": {
+		"intro": "A product is the style — the thing you name and file. What is actually sold, priced and counted is its variant, and every product has at least one. Two statuses sit side by side on each row and mean different things: workflow is where the record stands editorially, sale status is whether it is sellable today.",
+		"step_1_title": "Give it a name in every language",
+		"step_1_body": "A product carries no code of its own — the codes belong to its variants. What identifies it is the translation: the slug is unique per language across live products, and the check ignores deleted ones, so deleting a product releases its slug for reuse and restoring it afterwards fails if something else has taken it.",
+		"step_2_title": "File it under a category",
+		"step_2_body": "At least one is required, and not for tidiness: the attribute form a product is asked to fill in is resolved from its categories, so one filed under nothing has no form. The public address does not depend on them — it is /products/<product-slug>, the slug alone. Only product-type categories are offered.",
+		"step_3_title": "Name it in each language",
+		"step_3_body": "Name and slug are required per language, and a language may appear only once. The slug is lower-cased on save and is the public URL segment, so changing it on a live product changes the address customers already have.",
+		"step_4_title": "Add the variants — this is where price and stock live",
+		"step_4_body": "At least one variant, exactly one marked default, and no two sharing a SKU. Prices exclude VAT and are per currency; min price is the floor a stacked discount may not resolve below, so it cannot exceed the price. Low stock threshold only means anything while track stock is on. If there is nothing to vary, add a single variant — that is the normal case, not a workaround.",
+		"step_5_title": "Set the catalog window, and let sale status follow",
+		"step_5_body": "Available from, available until and discontinued at describe the product's life in the catalog, and available until must be after available from. Sale status is not a field you set: a scheduled job recomputes it from those three dates, so it can lag an edit by a few minutes rather than flipping as you save. Discontinued is permanent.",
+		"step_6_title": "Move it through the workflow",
+		"step_6_body": "Draft goes to pending review; pending review goes either to ready or back for revision; revision required returns to pending review. Ready is terminal — nothing leads out of it, so a product that reaches it cannot be walked back. Workflow is changed by these buttons, never by the edit form, because each move is checked against that map.",
+		"note": "Deleting a product is a soft delete and works from any workflow state. Use Show deleted to find one and restore it. Bundles are a known gap: setting composition to bundle needs components, which cannot be picked here yet, and the API refuses to save a bundle without them — build those through the API for now.",
+		"tab_info": "Info",
+		"tab_api": "API docs",
+		"tab_public": "Public API"
+	}
+}

@@ -244,6 +244,12 @@ type FormComponentTimeProps<Fields> = Omit<
 	minTime?: string;
 	maxTime?: string;
 	minuteInterval?: number;
+	/**
+	 * Accessible name for a field whose label is not its own — a repeated row under one
+	 * header, where the visible label sits in the header rather than above each cell.
+	 * Ignored when `labelText` is given, which already names the field.
+	 */
+	ariaLabel?: string;
 };
 
 export const FormComponentTime = <Fields,>({
@@ -254,6 +260,7 @@ export const FormComponentTime = <Fields,>({
 	isRequired = false,
 	className = 'min-w-36',
 	placeholderText = '--:--',
+	ariaLabel,
 	disabled,
 	onChange,
 	error,
@@ -331,7 +338,13 @@ export const FormComponentTime = <Fields,>({
 
 	return (
 		<FormElement
-			label={{ for: id, text: labelText, required: isRequired }}
+			// Omitted rather than empty, as `FormComponentInput` does it: a label with no
+			// text still occupies its row and would push a header-labeled cell out of line.
+			label={
+				labelText
+					? { for: id, text: labelText, required: isRequired }
+					: undefined
+			}
 			error={error}
 		>
 			<div>
@@ -350,6 +363,7 @@ export const FormComponentTime = <Fields,>({
 							borderClass,
 							className,
 						)}
+						aria-label={labelText ? undefined : ariaLabel}
 						disabled={disabled}
 					>
 						<Icons.Clock className="mr-2 h-4 w-4" />
@@ -578,7 +592,9 @@ export const FormComponentSelect = <Fields,>({
 						fullWidth
 						aria-labelledby={labelledBy}
 						value={fieldValue ?? null}
-						onChange={(key) => onChange(key == null ? '' : String(key))}
+						onChange={(key) =>
+							onChange(key == null ? '' : String(key))
+						}
 						isDisabled={disabled}
 					>
 						<ComboBox.InputGroup>
@@ -602,7 +618,9 @@ export const FormComponentSelect = <Fields,>({
 						fullWidth
 						aria-labelledby={labelledBy}
 						value={fieldValue ?? null}
-						onChange={(key) => onChange(key == null ? '' : String(key))}
+						onChange={(key) =>
+							onChange(key == null ? '' : String(key))
+						}
 						isDisabled={disabled}
 						placeholder={placeholderText}
 					>

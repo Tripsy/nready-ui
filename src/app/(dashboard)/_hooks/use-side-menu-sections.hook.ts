@@ -37,6 +37,9 @@ const TRANSLATION_KEYS = [
 	'dashboard.labels.term',
 	'dashboard.labels.image',
 
+	'dashboard.labels.shop',
+	'dashboard.labels.product',
+
 	'dashboard.labels.logistics',
 	'dashboard.labels.address',
 	'dashboard.labels.carrier',
@@ -169,6 +172,21 @@ export function useSideMenuSections(): {
 						text: translations['dashboard.labels.image'],
 						icon: Icons.Image,
 						permission: hasPermission(auth, 'image'),
+					},
+				],
+			},
+			{
+				label: 'shop',
+				text: translations['dashboard.labels.shop'],
+				icon: Icons.Shop,
+				isExpanded: false,
+				items: [
+					{
+						page: 'product',
+						href: Routes.get('product'),
+						text: translations['dashboard.labels.product'],
+						icon: Icons.Product,
+						permission: hasPermission(auth, 'product'),
 					},
 				],
 			},

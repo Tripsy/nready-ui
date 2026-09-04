@@ -1,0 +1,31 @@
+{
+	"validation": {
+		"invalid_sku": "Introdu un SKU pentru pachetul în sine, maximum 255 de caractere",
+		"invalid_type": "Alege modul de livrare al pachetului",
+		"invalid_unit": "Alege o unitate permisă de tipul selectat",
+		"invalid_label": "Introdu un nume",
+		"invalid_slug": "Introdu un slug",
+		"invalid_language": "Alege o limbă",
+		"invalid_description": "Descrierea nu este validă",
+		"invalid_meta_title": "Meta titlul nu este valid",
+		"invalid_meta_description": "Meta descrierea nu este validă",
+		"invalid_meta_keywords": "Meta cuvintele cheie nu sunt valide",
+		"invalid_reference": "Alege o intrare din listă",
+		"invalid_brand_id": "Alege o marcă din listă",
+		"invalid_date": "Introdu o dată validă",
+		"available_until_before_from": "Sfârșitul perioadei trebuie să fie după început",
+		"categories_required": "Alege cel puțin o categorie",
+		"invalid_currency": "Folosește un singur cod de monedă din trei litere pentru fiecare piață",
+		"invalid_price": "Introdu prețul pachetului, fără TVA",
+		"min_price_above_price": "Prețul minim nu poate depăși prețul",
+		"invalid_quantity": "Introdu câte bucăți din această componentă include pachetul",
+		"components_required": "Un pachet are nevoie de cel puțin o componentă",
+		"components_too_few": "Un pachet trebuie să însumeze cel puțin două unități — adaugă altă componentă sau crește o cantitate",
+		"component_duplicate": "Fiecare componentă poate apărea o singură dată — crește cantitatea în schimb",
+		"invalid_availability": "Verifică ziua și orele pentru acest interval",
+		"availability_end_before_start": "Intervalul trebuie să se încheie după ce începe",
+		"availability_hours_paired": "Setează ambele ore sau niciuna — fără ore înseamnă toată ziua",
+		"availability_day_duplicate": "Un singur interval pe zi — această zi are deja unul",
+		"availability_every_day_exclusive": "Un interval pentru toate zilele trebuie să fie singurul"
+	}
+}

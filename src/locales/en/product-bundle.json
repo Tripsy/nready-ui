@@ -1,0 +1,31 @@
+{
+	"validation": {
+		"invalid_sku": "Enter a SKU for the bundle itself, up to 255 characters",
+		"invalid_type": "Choose how the bundle is fulfilled",
+		"invalid_unit": "Choose a unit the selected type allows",
+		"invalid_label": "Enter a name",
+		"invalid_slug": "Enter a slug",
+		"invalid_language": "Choose a language",
+		"invalid_description": "The description is not valid",
+		"invalid_meta_title": "The meta title is not valid",
+		"invalid_meta_description": "The meta description is not valid",
+		"invalid_meta_keywords": "The meta keywords are not valid",
+		"invalid_reference": "Pick an entry from the list",
+		"invalid_brand_id": "Pick a brand from the list",
+		"invalid_date": "Enter a valid date",
+		"available_until_before_from": "The end of the window must be after its start",
+		"categories_required": "Pick at least one category",
+		"invalid_currency": "Use one three-letter currency code per market",
+		"invalid_price": "Enter the bundle price, excluding VAT",
+		"min_price_above_price": "The minimum price cannot be above the price",
+		"invalid_quantity": "Enter how many of this component the bundle includes",
+		"components_required": "A bundle needs at least one component",
+		"components_too_few": "A bundle must add up to at least two units — add another component or raise a quantity",
+		"component_duplicate": "Each component may appear only once — raise its quantity instead",
+		"invalid_availability": "Check the day and the hours for this window",
+		"availability_end_before_start": "The window must end after it starts",
+		"availability_hours_paired": "Set both hours or neither — no hours at all means the whole day",
+		"availability_day_duplicate": "Only one interval per day — this day already has one",
+		"availability_every_day_exclusive": "An every-day interval must be the only one"
+	}
+}

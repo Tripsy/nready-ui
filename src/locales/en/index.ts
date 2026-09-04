@@ -38,6 +38,8 @@ import password_recover from '@/locales/en/password-recover.json';
 import password_recover_change from '@/locales/en/password-recover-change.json';
 import permission from '@/locales/en/permission.json';
 import place from '@/locales/en/place.json';
+import product from '@/locales/en/product.json';
+import productBundle from '@/locales/en/product-bundle.json';
 import products from '@/locales/en/products.json';
 import rating from '@/locales/en/rating.json';
 import register from '@/locales/en/register.json';
@@ -89,6 +91,8 @@ const en = {
 	'password-recover-change': password_recover_change,
 	permission,
 	place,
+	product,
+	'product-bundle': productBundle,
 	products,
 	rating,
 	register,

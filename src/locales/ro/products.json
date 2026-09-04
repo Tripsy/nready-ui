@@ -7,6 +7,14 @@
 		"heading": "Produse",
 		"subheading": "Catalogul este pe drum.",
 		"placeholder": "Momentan nu avem nimic de afișat aici. Lista de produse este încă în lucru.",
-		"browse_categories": "Vezi categoriile"
+		"browse_categories": "Vezi categoriile",
+		"back_to_list": "Toate produsele",
+		"unavailable": "Acest produs este temporar indisponibil. Încearcă din nou mai târziu.",
+		"not_found_heading": "Produsul nu a fost găsit",
+		"not_found_message": "Produsul căutat nu există sau nu mai este la vânzare.",
+		"brand": "Marcă",
+		"categories": "Categorii",
+		"no_description": "Acest produs nu are încă o descriere.",
+		"price_from": "de la"
 	}
 }

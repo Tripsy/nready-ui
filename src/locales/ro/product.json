@@ -1,0 +1,130 @@
+{
+	"meta": {
+		"title": "Produse - Panou de control | {{app_name}}"
+	},
+	"validation": {
+		"invalid_sku": "SKU invalid",
+		"invalid_type": "Tip invalid",
+		"invalid_composition": "Compoziție invalidă",
+		"invalid_unit": "Unitate invalidă",
+		"invalid_vat_category": "Categorie TVA invalidă",
+		"invalid_label": "Denumire invalidă",
+		"invalid_slug": "Slug invalid",
+		"invalid_language": "Limbă invalidă",
+		"invalid_description": "Descriere invalidă",
+		"invalid_meta_title": "Meta titlu invalid",
+		"invalid_meta_description": "Meta descriere invalidă",
+		"invalid_meta_keywords": "Meta cuvinte cheie invalide",
+		"invalid_reference": "Selecție invalidă",
+		"invalid_brand_id": "Brand invalid",
+		"invalid_date": "Dată invalidă",
+		"available_until_before_from": "Disponibil până trebuie să fie după disponibil de la",
+		"categories_required": "Alege cel puțin o categorie",
+		"invalid_variants": "Variantă invalidă",
+		"variants_required": "Un produs are nevoie de cel puțin o variantă",
+		"variant_default_required": "Exact o variantă trebuie marcată ca implicită",
+		"variant_sku_duplicate": "Două variante au același SKU",
+		"invalid_currency": "Monedă invalidă — folosește un cod din trei litere",
+		"invalid_price": "Preț invalid",
+		"min_price_above_price": "Prețul minim nu poate depăși prețul",
+		"invalid_availability": "Verifică ziua și orele pentru acest interval",
+		"availability_end_before_start": "Intervalul trebuie să se încheie după ce începe",
+		"availability_hours_paired": "Setează ambele ore sau niciuna — fără ore înseamnă toată ziua",
+		"availability_day_duplicate": "Un singur interval pe zi — această zi are deja unul",
+		"availability_every_day_exclusive": "Un interval pentru toate zilele trebuie să fie singurul"
+	},
+	"status": {
+		"draft": "Ciornă",
+		"pending_review": "În așteptarea verificării",
+		"revision_required": "Necesită revizuire",
+		"ready": "Pregătit",
+		"available": "Disponibil",
+		"coming_soon": "În curând",
+		"unavailable": "Indisponibil",
+		"discontinued": "Retras",
+		"deleted": "Șters"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă produs nou",
+			"label": "Adaugă",
+			"success": "Produsul nou a fost adăugat cu succes"
+		},
+		"update": {
+			"title": "Actualizează produsul - {{entry}}",
+			"label": "Actualizează",
+			"success": "Produsul a fost actualizat cu succes"
+		},
+		"delete": {
+			"title": "Șterge produsul - {{entry}}",
+			"label": "Șterge",
+			"success": "Produsul a fost șters cu succes",
+			"confirm": "Sigur vrei să ștergi acest produs?"
+		},
+		"restore": {
+			"title": "Restaurează produsul - {{entry}}",
+			"label": "Restaurează",
+			"success": "Produsul a fost restaurat cu succes",
+			"confirm": "Sigur vrei să restaurezi acest produs?"
+		},
+		"submitReview": {
+			"title": "Trimite spre verificare - {{entry}}",
+			"label": "Trimite spre verificare",
+			"success": "Produsul a fost trimis spre verificare",
+			"confirm": "Trimiți acest produs spre verificare?"
+		},
+		"requestRevision": {
+			"title": "Solicită revizuire - {{entry}}",
+			"label": "Solicită revizuire",
+			"success": "Produsul a fost trimis înapoi spre revizuire",
+			"confirm": "Trimiți acest produs înapoi spre revizuire?"
+		},
+		"markReady": {
+			"title": "Marchează ca pregătit - {{entry}}",
+			"label": "Marchează ca pregătit",
+			"success": "Produsul a fost marcat ca pregătit",
+			"confirm": "Marchezi acest produs ca pregătit? Din starea „pregătit” nu se mai poate ieși — fluxul nu mai poate fi parcurs înapoi."
+		},
+		"view": {
+			"title": "Detalii produs - {{entry}}",
+			"label": "Vezi detalii"
+		},
+		"managerImages": {
+			"title": "Imagini produs - {{entry}}",
+			"label": "Imagini"
+		},
+		"guide": {
+			"title": "Cum funcționează produsele",
+			"label": "Ghid de utilizare"
+		},
+		"bundle": {
+			"title": "Pachet nou",
+			"label": "Pachet nou",
+			"success": "Pachetul a fost creat cu succes"
+		},
+		"bundleEdit": {
+			"title": "Editează pachetul - {{entry}}",
+			"label": "Editează componentele",
+			"success": "Pachetul a fost actualizat cu succes"
+		}
+	},
+	"help": {
+		"intro": "Un produs este modelul — lucrul pe care îl denumești și îl clasifici. Ceea ce se vinde, se tarifează și se numără efectiv este varianta lui, iar fiecare produs are cel puțin una. Pe fiecare rând stau alături două stări cu înțelesuri diferite: fluxul arată unde se află înregistrarea din punct de vedere editorial, iar starea de vânzare arată dacă poate fi vândut astăzi.",
+		"step_1_title": "Denumește-l în fiecare limbă",
+		"step_1_body": "Un produs nu are cod propriu — codurile aparțin variantelor. Ceea ce îl identifică este traducerea: slug-ul este unic pe limbă printre produsele active, iar verificarea ignoră pe cele șterse, deci ștergerea unui produs își eliberează slug-ul, iar restaurarea eșuează dacă altceva l-a ocupat între timp.",
+		"step_2_title": "Încadrează-l într-o categorie",
+		"step_2_body": "Cel puțin una este obligatorie, și nu din motive de ordine: formularul de atribute pe care un produs trebuie să îl completeze este dedus din categoriile lui, așa că unul neîncadrat nicăieri nu are formular. Adresa publică nu depinde de ele — este /products/<slug-produs>, doar slug-ul. Sunt oferite doar categoriile de tip produs.",
+		"step_3_title": "Denumește-l în fiecare limbă",
+		"step_3_body": "Denumirea și slug-ul sunt obligatorii pentru fiecare limbă, iar o limbă poate apărea o singură dată. Slug-ul este trecut la litere mici la salvare și este segmentul public din URL, așa că modificarea lui la un produs deja publicat schimbă adresa pe care clienții o au deja.",
+		"step_4_title": "Adaugă variantele — aici stau prețul și stocul",
+		"step_4_body": "Cel puțin o variantă, exact una marcată ca implicită și niciun SKU repetat. Prețurile sunt fără TVA și se dau pe monedă; prețul minim este pragul sub care o reducere cumulată nu poate coborî, deci nu poate depăși prețul. Pragul de stoc scăzut contează doar cât timp urmărirea stocului este activă. Dacă nu ai ce varia, adaugă o singură variantă — acesta este cazul obișnuit, nu o soluție de compromis.",
+		"step_5_title": "Stabilește fereastra de catalog, iar starea de vânzare o va urma",
+		"step_5_body": "Disponibil de la, disponibil până și retras la descriu viața produsului în catalog, iar „disponibil până” trebuie să fie după „disponibil de la”. Starea de vânzare nu este un câmp pe care îl setezi: o sarcină programată o recalculează din aceste trei date, deci poate rămâne în urmă cu câteva minute față de modificare, în loc să se schimbe în momentul salvării. Retragerea este definitivă.",
+		"step_6_title": "Parcurge fluxul de lucru",
+		"step_6_body": "Ciorna trece în așteptarea verificării; de acolo se poate merge fie spre „pregătit”, fie înapoi spre revizuire; „necesită revizuire” se întoarce în așteptarea verificării. „Pregătit” este starea finală — nu duce nicăieri mai departe, deci un produs ajuns acolo nu mai poate fi readus. Fluxul se schimbă prin aceste butoane, niciodată din formularul de editare, pentru că fiecare trecere este verificată față de harta de mai sus.",
+		"note": "Ștergerea unui produs este una logică și funcționează din orice stare a fluxului. Folosește „Arată șterse” pentru a-l găsi și restaura. Pachetele sunt o limitare cunoscută: setarea compoziției pe „pachet” cere componente, care nu pot fi alese încă aici, iar API-ul refuză să salveze un pachet fără ele — construiește-le deocamdată prin API.",
+		"tab_info": "Informații",
+		"tab_api": "Documentație API",
+		"tab_public": "API public"
+	}
+}
