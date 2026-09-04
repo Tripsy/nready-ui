@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { FormComponentAutoComplete } from '@/components/form/form-element.component';
 import { Icons } from '@/components/icon.component';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
@@ -5,7 +6,7 @@ import { useLocalAutocomplete } from '@/hooks/use-local-autocomplete';
 import {
 	PermissionEntitiesSuggestions,
 	type PermissionEntityType,
-	PermissionOperationSuggestions,
+	permissionOperationsFor,
 	type PermissionOperationType,
 } from '@/models/permission.model';
 import { useWindowForm } from '@/providers/window-form.provider';
@@ -28,9 +29,18 @@ export function FormManagePermission() {
 		minLength: 1,
 	});
 
+	/*
+	 * Memoized because `useLocalAutocomplete` keys its suggestions on the array identity — a
+	 * fresh one per render would recompute the list on every keystroke in either field.
+	 */
+	const operationSource = useMemo(
+		() => permissionOperationsFor(formValues.entity),
+		[formValues.entity],
+	);
+
 	const operationAutocomplete = useLocalAutocomplete<PermissionOperationType>(
 		{
-			source: PermissionOperationSuggestions,
+			source: operationSource,
 			filter: (item, query) =>
 				item.toLowerCase().startsWith(query.toLowerCase()),
 			minLength: 1,

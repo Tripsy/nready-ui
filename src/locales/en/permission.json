@@ -39,7 +39,7 @@
 		"step_1_title": "Name the entity",
 		"step_1_body": "The field suggests the entity names the code actually checks; anything typed outside that list is stored as written and read by nobody. Two suggestions are not backend entities — \"dashboard\" gates the dashboard landing page from this app's middleware, and \"account\" only keys the public self-service screens.",
 		"step_2_title": "Pick the operation",
-		"step_2_body": "create, read, update, find and delete are what the backend checks, and delete covers restore as well. Holding delete on an entity is also what makes its soft-deleted rows visible in that entity's list at all. Not every entity uses every operation — refund exists for orders only.",
+		"step_2_body": "create, read, update, find and delete are what the backend checks, and delete covers restore as well. Holding delete on an entity is also what makes its soft-deleted rows visible in that entity's list at all. Not every entity uses every operation — refund exists for cash-flow entries only.",
 		"step_3_title": "Save the pair",
 		"step_3_body": "Entity and operation are unique together among rows that are not deleted, and a duplicate is refused with a conflict. If the pair exists but is deleted, whoever holds permission delete gets that row restored instead of a new one; anyone else is told it already exists as deleted.",
 		"step_4_title": "Grant it to an operator",

@@ -1,9 +1,10 @@
 import type React from 'react';
 import type { JSX } from 'react';
+import type { MapApiErrorFnType } from '@/helpers/form-process.helper';
 import type { AccountModel } from '@/models/account.model';
 import type {
 	PermissionEntityType,
-	PermissionOperationType,
+	PermissionOperationFor,
 } from '@/models/permission.model';
 import type {
 	ActionEventType,
@@ -20,6 +21,7 @@ import type {
 import type { QueryValueType } from '@/types/api.type';
 import type { DataSourceKey } from '@/types/data-source.key';
 import type {
+	FormSituationType,
 	FormValuesType,
 	GetFormStateFnType,
 	GetFormValuesFnType,
@@ -108,10 +110,14 @@ export type DataTableValueOptionsType<Entry> = {
 // Action Types
 // ============================================================================
 
-export type ActionConfigPermission = [
-	PermissionEntityType,
-	PermissionOperationType,
-];
+/**
+ * The entity and the operation checked before the action's button is rendered. A mapped union
+ * rather than a plain pair, so the operation is the one that entity actually gates:
+ * `['cash-flow', 'refund']` passes and `['user', 'refund']` does not.
+ */
+export type ActionConfigPermission = {
+	[E in PermissionEntityType]: [E, PermissionOperationFor<E>];
+}[PermissionEntityType];
 
 type ActionConfigBase<Entry, FormValues extends FormValuesType> = {
 	windowTitle: string;
@@ -132,6 +138,16 @@ type ActionConfigBase<Entry, FormValues extends FormValuesType> = {
 	validateForm?: ValidateFormFnType<FormValues>;
 	getFormValues?: GetFormValuesFnType<FormValues>;
 	getFormState?: GetFormStateFnType<FormValues, Entry>;
+
+	/**
+	 * Per-action translation of a backend `ApiError` into form state.
+	 *
+	 * Without one, `processForm` surfaces a backend message verbatim only for a 409 — everything
+	 * else falls back to the generic form error. The bundle form needs it because the rules only
+	 * the server can check (a component pointing at another bundle, a bundle containing itself,
+	 * a variant that no longer exists) all come back as 422 with the reason in the message.
+	 */
+	mapApiError?: MapApiErrorFnType<FormSituationType>;
 
 	events?: Partial<Record<'success' | 'error', ActionEventType<Entry>>>;
 };

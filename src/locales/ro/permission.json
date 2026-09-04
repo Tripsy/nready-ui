@@ -39,7 +39,7 @@
 		"step_1_title": "Alege entitatea",
 		"step_1_body": "Câmpul sugerează numele de entități pe care codul chiar le verifică; orice valoare scrisă în afara listei este salvată ca atare și nu este citită de nimeni. Două sugestii nu sunt entități din backend — „dashboard” protejează pagina principală a dashboardului din middleware-ul acestei aplicații, iar „account” doar identifică ecranele publice de autoservire.",
 		"step_2_title": "Alege operațiunea",
-		"step_2_body": "create, read, update, find și delete sunt cele verificate de backend, iar delete acoperă și restaurarea. Tot delete este cel care face vizibile rândurile șterse logic în lista acelei entități. Nu toate entitățile folosesc toate operațiunile — refund există doar pentru comenzi.",
+		"step_2_body": "create, read, update, find și delete sunt cele verificate de backend, iar delete acoperă și restaurarea. Tot delete este cel care face vizibile rândurile șterse logic în lista acelei entități. Nu toate entitățile folosesc toate operațiunile — refund există doar pentru intrările cash-flow.",
 		"step_3_title": "Salvează perechea",
 		"step_3_body": "Entitatea și operațiunea sunt unice împreună între rândurile neșterse, iar un duplicat este respins cu un conflict. Dacă perechea există, dar este ștearsă, cine are permisiunea de ștergere pe „permission” primește acel rând restaurat în loc de unul nou; oricine altcineva este anunțat că există deja ca ștearsă.",
 		"step_4_title": "Atribuie-o unui operator",
