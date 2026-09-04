@@ -6,7 +6,8 @@ import {
 	ViewField,
 	ViewSection,
 } from '@/app/(dashboard)/_components/view-detail';
-import { formatDate } from '@/helpers/date.helper';
+import { findTargetLabels } from '@/app/(dashboard)/dashboard/discount/target-source';
+import { formatDate, isoWeekdayName } from '@/helpers/date.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import {
 	type DiscountModel,
@@ -14,19 +15,6 @@ import {
 	displayDiscountValue,
 } from '@/models/discount.model';
 import { requestDiscountTargets } from '@/services/discount.service';
-
-const WEEKDAYS = [
-	'Monday',
-	'Tuesday',
-	'Wednesday',
-	'Thursday',
-	'Friday',
-	'Saturday',
-	'Sunday',
-];
-
-/** ISO weekday to name; the array is 0-based and Monday is 1. */
-const weekdayName = (day: number) => WEEKDAYS[day - 1] ?? String(day);
 
 /** One readable line per condition, in the order the form presents them. */
 function describeConditions(conditions: DiscountModel['conditions']): string[] {
@@ -60,7 +48,7 @@ function describeConditions(conditions: DiscountModel['conditions']): string[] {
 		const [from, to] = conditions.day_range;
 
 		lines.push(
-			`${weekdayName(from)} to ${weekdayName(to)}${from > to ? ' (wraps the week)' : ''}`,
+			`${isoWeekdayName(from)} to ${isoWeekdayName(to)}${from > to ? ' (wraps the week)' : ''}`,
 		);
 	}
 
@@ -70,13 +58,15 @@ function describeConditions(conditions: DiscountModel['conditions']): string[] {
 export function ViewDiscount({ entry }: { entry: DiscountModel }) {
 	const conditionLines = describeConditions(entry.conditions);
 
-	const hasTargets = entry.scope !== DiscountScopeEnum.ORDER;
+	/** `order` has no targets; every other scope points at rows of one catalog table. */
+	const targetScope =
+		entry.scope === DiscountScopeEnum.ORDER ? null : entry.scope;
 
 	// Targets live behind their own endpoint, so the entry alone cannot show them.
 	const { data: targets, isLoading: targetsLoading } = useQuery({
 		queryKey: ['discount', 'targets', entry.id],
 		queryFn: () => requestDiscountTargets(entry.id),
-		enabled: hasTargets,
+		enabled: targetScope !== null,
 		/*
 		 * Overrides the provider's 5-minute `staleTime`: this data is written by the manage
 		 * form through a different endpoint, so a cached copy is wrong the moment a submit
@@ -87,10 +77,19 @@ export function ViewDiscount({ entry }: { entry: DiscountModel }) {
 		refetchOnMount: 'always',
 	});
 
-	const targetIds =
-		entry.scope === DiscountScopeEnum.ORDER
-			? []
-			: (targets?.[entry.scope] ?? []);
+	const targetIds = targetScope ? (targets?.[targetScope] ?? []) : [];
+
+	/*
+	 * The targets endpoint returns ids and nothing else — it is the polymorphic link table, which
+	 * by design knows no more about a category than its number. The names come from the listing
+	 * each scope is served by, one request for the whole set.
+	 */
+	const { data: targetLabels } = useQuery({
+		queryKey: ['discount', 'target-labels', targetScope, targetIds],
+		// biome-ignore lint/style/noNonNullAssertion: gated by `enabled`
+		queryFn: () => findTargetLabels(targetScope!, targetIds),
+		enabled: targetScope !== null && targetIds.length > 0,
+	});
 
 	return (
 		<div className="space-y-6">
@@ -129,7 +128,7 @@ export function ViewDiscount({ entry }: { entry: DiscountModel }) {
 				/>
 			</ViewSection>
 
-			{hasTargets && (
+			{targetScope && (
 				<ViewSection title="Targets">
 					<ViewField
 						label={formatEnumLabel(entry.scope)}
@@ -138,7 +137,13 @@ export function ViewDiscount({ entry }: { entry: DiscountModel }) {
 								? 'Loading…'
 								: targetIds.length === 0
 									? null
-									: targetIds.map((id) => `#${id}`).join(', ')
+									: targetIds
+											.map(
+												(id) =>
+													targetLabels?.[id] ??
+													`#${id}`,
+											)
+											.join(', ')
 						}
 						full
 					/>

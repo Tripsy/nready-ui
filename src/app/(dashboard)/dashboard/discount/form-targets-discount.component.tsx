@@ -1,76 +1,16 @@
-/*
- * No `'use client'`: this is not a boundary, only a piece of `form-manage-discount`, which
- * already runs in the client graph. Carrying the directive would make it a client *entry*,
- * and an entry's props have to be serializable — the callbacks below are ordinary functions
- * passed between client components, which the Next TS plugin can only read as unserializable
- * ones.
- */
-import { type JSX, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { type JSX, useEffect, useState } from 'react';
+import {
+	findTargetLabels,
+	TARGET_SOURCES,
+} from '@/app/(dashboard)/dashboard/discount/target-source';
 import { FormComponentAutoComplete } from '@/components/form/form-element.component';
 import { Icons } from '@/components/icon.component';
-import { getLanguageClient } from '@/config/translate.setup';
 import { requestFind } from '@/helpers/services.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
-import { type BrandModel, displayBrandLabel } from '@/models/brand.model';
-import {
-	type CategoryModel,
-	displayCategoryLabel,
-} from '@/models/category.model';
-import { type ClientModel, displayClientLabel } from '@/models/client.model';
-import {
-	DiscountScopeEnum,
-	type DiscountTargetScope,
-} from '@/models/discount.model';
+import type { DiscountTargetScope } from '@/models/discount.model';
 import type { FindFunctionResponseType } from '@/types/action.type';
-import type { DataSourceKey } from '@/types/data-source.key';
-
-/**
- * The dashboard data source behind each scope's picker, and how to label a row from it.
- *
- * `product` and `variant` are absent on purpose: neither has a dashboard feature, so there is
- * nothing to search. The backend still stores and serves their links — the form says so rather
- * than offering a picker that could only ever come back empty.
- *
- * TODO: add both once the product dashboard exists. Combined with the "pick at least one
- * target" rule, their absence is what stops a product- or variant-scoped discount being saved
- * from this form at all. See the TODO in `../nready-api/README.md` for the full list.
- */
-const TARGET_SOURCES: Partial<
-	Record<
-		DiscountTargetScope,
-		{
-			dataSource: DataSourceKey;
-			label: string;
-			// biome-ignore lint/suspicious/noExplicitAny: one map over three unrelated models
-			getOptionLabel: (entry: any) => string;
-			/** Extra filter params the data source needs beyond `term`. */
-			filter?: Record<string, string>;
-		}
-	>
-> = {
-	[DiscountScopeEnum.CLIENT]: {
-		dataSource: 'client',
-		label: 'Clients',
-		getOptionLabel: (entry: ClientModel) => displayClientLabel(entry),
-	},
-	[DiscountScopeEnum.CATEGORY]: {
-		dataSource: 'category',
-		label: 'Categories',
-		/*
-		 * The backend defaults this filter to `article`, so without it a discount could only
-		 * ever be pointed at blog categories — never at the product tree it is meant for.
-		 */
-		filter: { type: 'product' },
-		getOptionLabel: (entry: CategoryModel) =>
-			displayCategoryLabel(entry, getLanguageClient(), false),
-	},
-	[DiscountScopeEnum.BRAND]: {
-		dataSource: 'brand',
-		label: 'Brands',
-		getOptionLabel: (entry: BrandModel) => displayBrandLabel(entry),
-	},
-};
 
 type Props = {
 	scope: DiscountTargetScope;
@@ -90,9 +30,10 @@ type Props = {
  * it survives `processForm` — which rebuilds its values from `FormData` on every submit, so
  * anything not rendered as a field would be dropped.
  *
- * Labels are cached here instead, keyed by id, purely so the chips read as names rather than
- * numbers. They are a display convenience: ids loaded from the API start as `#12` until the
- * user searches, and nothing depends on them being present.
+ * Labels are kept beside it, keyed by id, purely so the chips read as names rather than numbers.
+ * They are a display convenience and nothing depends on them being present: a row picked in this
+ * session is named by the search result it came from, a row loaded from the API by the lookup
+ * below, and anything neither resolves falls back to `#12`.
  */
 export function FormTargetsDiscount({
 	scope,
@@ -108,16 +49,47 @@ export function FormTargetsDiscount({
 
 	const source = TARGET_SOURCES[scope];
 
+	/*
+	 * The ids that still have no name — the stored selection, which reaches the form as bare
+	 * ids. What the user adds by searching is named on the spot by `addEntry`, so it never
+	 * enters this set and adding a chip costs no request.
+	 */
+	const missingIds = value.filter((id) => labels[id] === undefined);
+
+	const { data: resolvedLabels } = useQuery({
+		queryKey: ['discount', 'target-labels', scope, missingIds],
+		queryFn: () => findTargetLabels(scope, missingIds),
+		enabled: missingIds.length > 0,
+	});
+
+	/*
+	 * Merged into the cache so the resolved ids leave `missingIds`, which is what settles the
+	 * query. An id the listing did not return — a target whose row was soft-deleted after the
+	 * link was made — is pinned to its own `#12` for the same reason: left unresolved it would
+	 * be asked for again on every refetch.
+	 */
+	useEffect(() => {
+		if (!resolvedLabels) {
+			return;
+		}
+
+		setLabels((current) => {
+			const merged = { ...current };
+
+			for (const id of missingIds) {
+				merged[id] = resolvedLabels[id] ?? `#${id}`;
+			}
+
+			return merged;
+		});
+	}, [resolvedLabels, missingIds]);
+
 	const { suggestions, isFetching } = useRemoteAutocomplete<
 		Record<string, unknown>
 	>({
 		query: search,
 		queryKey: [`s-discount-target-${scope}`],
 		queryFn: async (term) => {
-			if (!source) {
-				return [];
-			}
-
 			const response:
 				| FindFunctionResponseType<Record<string, unknown>>
 				| undefined = await requestFind(source.dataSource, {
@@ -129,16 +101,6 @@ export function FormTargetsDiscount({
 		},
 		minLength: 3,
 	});
-
-	if (!source) {
-		return (
-			<div className="rounded-md border border-line p-3 text-sm text-muted">
-				Targets for the <strong>{scope}</strong> scope are stored by the
-				API but cannot be picked here yet — there is no {scope}{' '}
-				dashboard to search.
-			</div>
-		);
-	}
 
 	const addEntry = (id: number, label: string) => {
 		setSearch('');

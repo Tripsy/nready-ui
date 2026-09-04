@@ -7,6 +7,7 @@ import {
 	FormComponentSelect,
 	FormComponentTextarea,
 } from '@/components/form/form-element.component';
+import { ISO_WEEKDAYS } from '@/helpers/date.helper';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import { resolveWindowEntries } from '@/helpers/window.helper';
@@ -79,16 +80,11 @@ const types = toOptionsFromEnum(DiscountTypeEnum, {
 	formatter: formatEnumLabel,
 });
 
-/** ISO weekdays: Monday is 1, Sunday is 7 — the order the backend evaluates in. */
-const WEEKDAY_OPTIONS = [
-	{ label: 'Monday', value: '1' },
-	{ label: 'Tuesday', value: '2' },
-	{ label: 'Wednesday', value: '3' },
-	{ label: 'Thursday', value: '4' },
-	{ label: 'Friday', value: '5' },
-	{ label: 'Saturday', value: '6' },
-	{ label: 'Sunday', value: '7' },
-];
+// The select's values are strings; the shared list is the numbering the backend stores.
+const WEEKDAY_OPTIONS = ISO_WEEKDAYS.map((day) => ({
+	label: day.label,
+	value: String(day.value),
+}));
 
 export function FormManageDiscount() {
 	const { formValues, errors, handleChange, pending } =
@@ -248,8 +244,8 @@ export function FormManageDiscount() {
 
 			{/*
 			 * Directly under Scope, which is what decides the target type: the picker searches
-			 * clients, categories or brands depending on it, and changing Scope clears whatever
-			 * was picked under the previous one.
+			 * clients, categories, brands, products or variants depending on it, and changing
+			 * Scope clears whatever was picked under the previous one.
 			 */}
 			{targetScope && (
 				<div className="space-y-2">
