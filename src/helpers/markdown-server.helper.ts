@@ -2,19 +2,20 @@ import { marked } from 'marked';
 import sanitizeHtml from 'sanitize-html';
 
 /**
- * Renders an article's markdown to sanitized HTML **on the server**.
+ * Renders editor-authored markdown to sanitized HTML **on the server** — an article's body,
+ * a product's description, and anything else a public page has to put in the crawler's HTML.
  *
  * The browser twin (`renderMarkdown`) sanitizes with `DOMPurify`, which needs a real DOM and
  * so cannot run here. `sanitize-html` parses with its own tokenizer instead, which is why
  * this is a separate module rather than a branch inside the other one: importing it from a
  * client component would pull the parser into the browser bundle for nothing.
  *
- * The allow-list mirrors `safeHtml` in `nready-api` — the article body is editor free text
- * that markdown lets raw HTML through, so the same tags are permitted on both sides and a
- * body that survives one pass survives the other.
+ * The allow-list mirrors `safeHtml` in `nready-api` — the source is editor free text that
+ * markdown lets raw HTML through, so the same tags are permitted on both sides and a body
+ * that survives one pass survives the other.
  *
- * Public article pages are server-rendered for SEO, which is what forces sanitizing here: the
- * body has to be in the HTML the crawler receives, not injected on hydration.
+ * Public pages are server-rendered for SEO, which is what forces sanitizing here: the body has
+ * to be in the HTML the crawler receives, not injected on hydration.
  */
 export function renderMarkdownServer(value: string | null | undefined): string {
 	if (!value) {
