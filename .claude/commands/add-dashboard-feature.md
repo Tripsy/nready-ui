@@ -53,6 +53,17 @@ Before proposing an approach, read the path-scoped protocols that apply:
 | `usage-guide-<entity>.component.tsx` | a thin wrapper over the shared `UsageGuide` — see below |
 | `page.tsx` | `generateMetadata` from `<entity>.meta.title` + `BreadcrumbSetter` + the data table |
 
+**Declare `reloadEntry` on `update` and `view` whenever the list projection is narrower than the
+form.** The entry the data-table hands a window is the row it already has, and a list query is
+usually a reduced select — `product`'s omits `is_default`/`position`/`barcode` on variants and
+`description`/`meta` on contents. Seeding the form from that row and submitting sends those fields
+back empty, so the *save silently wipes data that was never on screen*.
+`reloadEntry: (id) => requestView<ProductModel>('product', id)` re-fetches the full row first;
+`brand`, `category`, `article`, `place`, `term` and `image` all declare it. Compare the backend's
+list select against its `read` select before deciding you do not need it: nothing warns, `create`
+never exercises it, and on `view` a missing field reads as a cosmetic omission rather than as the
+data loss the same gap causes on `update`.
+
 ### The usage guide window
 
 `src/app/(dashboard)/_components/usage-guide.component.tsx` renders the whole thing; the
@@ -124,18 +135,30 @@ status with no route back, a delete that keeps a unique column occupied. Read th
 4. `src/locales/{en,ro}/dashboard.json` — `labels.<entity>` (the side-menu / breadcrumb label, plural wording).
 5. `src/models/permission.model.ts` — add the entity to `PermissionEntitiesSuggestions` if absent.
 6. `src/models/log-history.model.ts` — add the **backend table name** (snake_case) to `LogHistoryEntities`.
-7. `src/components/icon.component.tsx` — a lucide import (alphabetical) + an `Icons.<Entity>` entry.
-8. `src/app/(dashboard)/_components/side-menu.component.tsx` — add `dashboard.labels.<entity>` to
-   `translationsKeys` **and** the item to a section, gated by `hasPermission(auth, '<entity>')`.
-   **Placement is the user's call, not yours.** Existing sections are `financial`, `content`,
-   `settings`, `logs`, `user-management`. Propose one — or a new section, with its own label,
+7. `src/components/icon.component.tsx` — a lucide import (alphabetical) + an `Icons.<Entity>` entry
+   for the side menu, **plus an `Icons.Action.<Action>` entry for every action name that is not
+   already in that registry**. Action buttons resolve their icon by convention through
+   `getActionIcon`, which *throws* on a miss (`SubmitReview is not defined in Icons.Action`) — so a
+   novel action name takes down the whole route via the error boundary rather than rendering
+   without an icon. Reuse an existing lucide import where the meaning matches.
+8. `src/helpers/display.helper.tsx` — add every status value the entity can hold to `statusList`
+   (variant + icon). A missing key does not throw: the badge falls back to a plain `default` with
+   no icon, so a table of five distinct statuses renders as five identical grey chips. This covers
+   any status-like column marked `isStatus: true`, not only one literally called `status`.
+9. `src/app/(dashboard)/_hooks/use-side-menu-sections.hook.ts` — add `dashboard.labels.<entity>` to
+   `TRANSLATION_KEYS` **and** the item to a section, gated by `hasPermission(auth, '<entity>')`.
+   The keys and the section tree both live in this hook; `side-menu.component.tsx` only renders
+   what it returns.
+   **Placement is the user's call, not yours.** Existing sections, in render order, are
+   `financial`, `content`, `warehouse`, `logistics`, `publishing`, `settings`, `logs`,
+   `user-management`. Propose one — or a new section, with its own label,
    icon and `dashboard.labels.<section>` entry in both locale files — say why, and **wait for
    confirmation before editing the file**. Everything else in this list you decide yourself;
    this one lands in front of the user on every page, so a wrong guess is theirs to live with.
    Build the rest of the feature while the question is open rather than blocking on it.
-9. `src/config/routes.setup.ts` — `.add('<entity>', '/dashboard/<entity>', { permissionEntity: '<entity>' })`
-   inside `Routes.group('dashboard')`. Extra sub-pages (order/tree) get their own entry with
-   `permissionOperation`.
+10. `src/config/routes.setup.ts` — `.add('<entity>', '/dashboard/<entity>', { permissionEntity: '<entity>' })`
+    inside `Routes.group('dashboard')`. Extra sub-pages (order/tree) get their own entry with
+    `permissionOperation`.
 
 Validation messages that are generic (`only_positive`, `name_min`, …) come from
 `sharedValidatorMessages` — spread them and use `resolveValidatorMessages()` instead of a bare

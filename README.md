@@ -77,8 +77,7 @@ detail/edit window — gated per user by the backend permission map.
 
 ### Cross-cutting
 
-- [x] Route access declared centrally (`public` / `unauthenticated` / `authenticated` / `protected`
-    + permission entity) and enforced in middleware before a page renders
+- [x] Route access declared centrally 
 - [x] CSRF gate on every mutating `/api/*` request; httpOnly session cookie
 - [x] i18n (en, ro) with per-language locale files
 - [x] Light / dark theme, responsive layout
@@ -141,7 +140,7 @@ pnpm run clean    # Delete .next (see below)
 
 ### When the dev server dies with nothing in the log
 
-That is the container's OOM killer, not a crash. Turbopack's persistent cache in
+That is the container's OOM killer, not a crash. `Turbopack` persistent cache in
 `.next/dev/cache` grows across sessions — left alone it reached 4.0G, which put startup memory
 at 2.5G before a single request and pushed the process into the 4g `mem_limit` set in
 `docker-compose.yml`. Because `tty: true` keeps the container up, it just looks like the dev
@@ -152,7 +151,7 @@ docker inspect nready-ui.test --format '{{.State.OOMKilled}}'
 ```
 
 Run `pnpm run clean` and restart. `experimental.turbopackMemoryLimit` in `next.config.ts` caps
-Turbopack's own memory, but not what the cache grows to on disk.
+`Turbopack` own memory, but not what the cache grows to on disk.
 
 Also avoid running `pnpm run build` or `tsc` while the dev server is up — there is not enough
 room in the container for both, and it is usually the dev server that gets killed.

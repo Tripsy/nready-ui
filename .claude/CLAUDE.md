@@ -40,6 +40,8 @@ context yet. Read the relevant one *before* proposing an approach in that area, 
 | `state.md` | Zustand stores, what belongs in a store vs. local state vs. server cache | `src/stores/**`, `src/components/window/**` |
 | `comment.md` | The public comment/rating/report widgets: translations across the server boundary, per-visitor reads, comment anchors | `src/components/{comment,complaint,rating}/**` |
 | `typescript.md` | TS/React conventions, linting rules, type-checking | every `.ts`/`.tsx` |
+| `oauth.md` | The two-leg social-login flow, the `state`/`oauth-state` CSRF contract, adding a provider | `src/app/api/oauth/**`, `src/app/(public)/account/oauth/**`, `oauth.type.ts` |
+| `observability.md` | `logger` internals, the Sentry init/mapping layer, the tunnel route | `sentry.setup.ts`, `sentry.*.config.ts`, `instrumentation*.ts`, `logger.helper.ts` |
 
 Backend behaviour has its own set in `../nready-api/.claude/rules/` (`api.md`, `auth.md`,
 `database.md`, `error-handling.md`, `validation.md`, ...) — consult those rather than inferring
@@ -53,22 +55,13 @@ backend rules from this project.
   a runtime probe is the only evidence — and inspection routinely gets it wrong (a helper's
   own doc examples can be wrong, a regex can be unreachable). This applies to your own fix
   as much as to the bug: run it before saying it works.
-- Path alias `@/*` maps to `src/*` (see `tsconfig.json`).
 - Prefer named exports for components
-- Use TypeScript strict mode
-- Follow the Next.js file-based routing conventions
 - Use next/image for optimized images
 - Use next/link for client-side navigation
 
 ## Coding Standards
 
-- **Readability** over cleverness - code is read 10x more than written
-- **Maintainability** - future developers (including yourself) should understand intent immediately
-- **Error handling** - always consider edge cases and failure modes
-- Prefer async/await over .then() chains
-- Explicit error handling - no empty catch blocks
 - Follow existing code conventions used in the project. When creating or editing a file, check sibling files for the correct structure, approach, and naming.
-- The code should follow **best practices** and **design principles** like SOLID, KISS, DRY, and strong security standards.
 
 ## Code Comments
 
@@ -117,20 +110,11 @@ dev server writes `./.next/dev/types/routes.d.ts`. It therefore shows up as a mo
 after any build — a generated artefact, not a change to commit. `git checkout next-env.d.ts`
 after building, or leave it for the dev server to flip back.
 
-To spot-check a helper without a test suite, Node 24 runs TypeScript directly via type
-stripping — `docker exec nready-ui.test sh -c "cd /var/www/html && node probe.ts"`, importing
-the real module (`./src/helpers/x.helper.ts`). Type-only imports are erased, so a file whose
-only `@/*` imports are `import type` resolves fine outside the path alias. This tests the
-shipped source rather than a copy of it, which is the whole point — a hand-copied
-reimplementation proves nothing about the code you are fixing.
-
-To probe a file that imports `@/*` for *values*, Node needs a resolver hook — it does not read
-`tsconfig` paths. Write a hook module exporting `resolve(specifier, context, next)` that maps
-`@/x` to `/var/www/html/src/x` (trying `.ts`/`.tsx`/`/index.ts`, since the alias leaves the
-extension implicit), register it from a second file via `register('./hook.mjs', pathToFileURL('/var/www/html/'))`,
-and run `node --import ./register.mjs probe.ts`. Delete all three afterwards — probes live in
-the scratchpad, not the repo. Prefer asserting through the module's public surface (call the
-exported factory and exercise what it returns) over reaching for internals.
+To prove a behavioural claim without a test suite, run a throwaway probe against the real source
+— `/probe-runtime` carries the recipes: Node 24 type-stripping in the container, the resolver
+hook a module importing `@/*` for *values* needs, and the targeted `tsconfig.probe.json` that
+type-checks a subset without stopping the dev server. Probes go in the repo (it is the only
+path mounted into the container) under the gitignored `__probe-*` / `tsconfig.probe.json` names.
 
 **After running `tsc` with the dev server stopped, `pnpm run clean` before restarting it.**
 Otherwise the restarted dev server answers **404 for every route** — `/`, `/articles`,
@@ -150,8 +134,10 @@ container (host memory pressure, Docker Desktop reclaiming) rather than by the c
 the symptom is the same — an API or UI that answers 404/500 to everything until it is restarted.
 `/dev-stack status` reports both the exit code and that flag.
 
-There is not enough headroom for the dev server and a `build`/`tsc` at the same time: stop the dev
-server before running either, or it is the one that gets killed.
+There is not enough headroom for the dev server and a `build`/full `tsc` at the same time: stop the
+dev server before running either, or it is the one that gets killed. A **targeted** `tsc` is the
+exception — a `tsconfig.probe.json` with an explicit `files` list costs little, writes nothing to
+`.next`, and so needs neither a stopped dev server nor a `clean` (`/probe-runtime`).
 
 ## Context
 
@@ -172,77 +158,18 @@ entities/operations, DB schema, business rules read the code in `../nready-api`
 
 ## Project Structure
 
-```
-├── docker/
-├── public/
-├── src/
-│   ├── app/
-│   │   ├── (dashboard)/       # Admin panel routes (see "Per-entity dashboard CRUD pattern")
-│   │   │   ├── _components/   # Dashboard-only components (side menu, data-table)
-│   │   │   ├── _events/       # Cross-component events (data-table action / filter reset)
-│   │   │   ├── _providers/    # data-table.provider.tsx (per-table store + Context)
-│   │   │   ├── dashboard/     # One folder per entity
-│   │   ├── (public)/          # Public site: marketing, auth, account
-│   │   │   ├── _components/   # Public-only components (incl. account/ self-service windows)
-│   │   │   ├── _hooks/
-│   │   │   ├── _providers/
-│   │   │   ├── account/       # Auth-entry flows + oauth/[provider] + me/
-│   │   │   ├── page/
-│   │   │   ├── status/
-│   │   │   ├── layout.tsx     # Public specific layout
-│   │   │   ├── loading.tsx
-│   │   │   ├── page.tsx
-│   │   ├── api/               # Route handlers
-│   │   │   ├── csrf/
-│   │   │   ├── health/
-│   │   │   ├── image/
-│   │   │   ├── language/
-│   │   │   ├── oauth/         # oauth/[provider] — social login redirect/callback
-│   │   │   ├── proxy/         # [...path] — forwards dashboard requests to nready-api
-│   │   ├── error.tsx          # Route error boundary
-│   │   ├── favicon.ico
-│   │   ├── global-error.tsx   # Root-layout error boundary (inline-styled, no globals.css)
-│   │   ├── globals.css
-│   │   ├── layout.tsx         # Base layout
-│   │   ├── providers.tsx      # Base providers
-│   ├── components/            # Common components
-│   │   ├── form/              # Form field components (form-element.component.tsx et al.)
-│   │   ├── layout/            # Header, footer, logo, user menu, theme/language switchers
-│   │   ├── ui/                # Thin wrappers over HeroUI primitives
-│   │   ├── window/            # Modal/window stack + WindowForm
-│   ├── config/                # Configuration files
-│   │   ├── data-source.config.ts
-│   │   ├── dayjs.config.ts
-│   │   ├── init-redis.config.ts
-│   │   ├── routes.setup.ts
-│   │   ├── sentry.setup.ts
-│   │   ├── settings.config.ts
-│   │   ├── translate.setup.ts
-│   ├── exceptions/            # Custom error classes
-│   ├── helpers/               # Utilities (api, date, string, form, window, logger, etc.)
-│   ├── hooks/                 # Custom hooks
-│   ├── locales/               # Language files (en, ro)
-│   ├── models/                # Models (entities)
-│   ├── providers/             # auth, query-client, theme, toast, window-form, ...
-│   ├── services/              # nready-api service wrappers (account, auth, image, ...)
-│   ├── stores/
-│   │   ├── data-table.store.ts
-│   │   ├── window.store.ts
-│   ├── types/
-│   ├── instrumentation.ts     # + instrumentation-client.ts, sentry.{server,edge}.config.ts
-│   └── proxy.ts               # Next.js middleware: auth, permissions, CSRF
-├── .env
-├── biome.json
-├── docker-compose.yml
-├── next.config.ts
-└── tsconfig.json
-```
+`src/app` splits into the `(public)` and `(dashboard)` route groups (each with its own layout)
+plus `api/` route handlers; alongside it sit `src/components`, `config`, `exceptions`, `helpers`,
+`hooks`, `locales`, `models`, `providers`, `services`, `stores`, `types`. The Next.js
+middleware is `src/proxy.ts`, and Sentry wiring lives in `src/instrumentation*.ts` /
+`src/sentry.*.config.ts`.
 
 ## Restrictions
 
 - This project has no tests at the moment.
 - Do not run biome after applying change. Run it only on demand or before git push commands.
-- Stop the dev server before running `build` or `tsc` — the container cannot hold both (see Commands).  
+- Stop the dev server before running `build` or a full `tsc` — the container cannot hold both (see
+  Commands). A targeted `tsc` over an explicit `files` list is fine alongside it.  
 - **Never commit onto `main`.** GitHub refuses a direct push to it, so a commit made there has to be
   moved off before it can go anywhere. If the current branch is `main` when a commit is requested,
   create the branch first (`git switch -c <type>/<short-name>`) and commit on that. The same applies
@@ -275,37 +202,12 @@ entities/operations, DB schema, business rules read the code in `../nready-api`
   resulting `AccountModel` (user + `permissions` map) as the `x-auth-data` response header; `hasPermission()` in
   `src/models/account.model.ts` gates `protected` routes. `src/providers/auth.provider.tsx` exposes this to
   client components.
-- **Social login (OAuth)** — authorization-code flow split across two legs, both on this origin:
-  1. *Start* — `src/app/api/oauth/[provider]/route.ts` (route `oauth-start`, `/api/oauth/:provider`).
-     A GET route handler, not a server action, because the browser has to **navigate** to the
-     provider; `OAuthProviders` (`(public)/_components/oauth-providers.component.tsx`) renders plain
-     `<a>` links for that reason. It mints a `state` uuid, stores `{ state, from }` in the httpOnly
-     `oauth-state` cookie (`sameSite: 'lax'` — a strict cookie would not survive the cross-site
-     return), and redirects to the provider.
-  2. *Callback* — the page is `(public)/account/oauth/[provider]/` (route `oauth-callback`,
-     `/account/oauth/:provider`, must match `getOAuthRedirectUri`), but the work happens in the
-     `POST /api/auth/oauth/:provider` route handler it calls through `requestOAuthCallback`. That
-     handler consumes the cookie (single-use — deleted whether or not the check passes), compares
-     `state`, then `requestOAuthLogin` → `writeSessionCookie`. The component redeems once behind a
-     `useRef` guard, since Strict Mode would otherwise spend the single-use `code` twice.
-     A route handler, not a server action: an action's response would re-render the callback page
-     and reset both that guard and the `useState` holding the result.
-  - **`state` is the entire CSRF defence for the provider round trip** and only this app can
-     enforce it — the backend never sees the browser leave. The middleware's `x-csrf-token` gate
-     cannot stand in for it: the start leg is a GET, so it is exempt. (The callback leg does pass
-     that gate, being a mutating `/api/` request, but it protects this origin's endpoint, not the
-     trip through the provider.) Don't "simplify" either leg into the other's shape.
-  - The `from` return target rides in the cookie, never through the provider's `state`, and is
-     validated against `isSafeReturnPath` / `isExcludedRoute` — a target that round-trips through a
-     third party is one an attacker can rewrite.
-  - Providers are declared in `src/types/oauth.type.ts` (`OAuthProviderEnum`, label map, per-provider
-     authorize-URL builder). A provider is offered only when its `NEXT_PUBLIC_OAUTH_*_CLIENT_ID` is
-     set; the backend holds the secret and answers 501 if it is not configured there too, so the two
-     configs must agree. Adding a provider means a new enum entry, label, `buildOAuthAuthorizeUrl`
-     case, `settings.config.ts` client id, and the matching backend `OAUTH_*` config.
-  - Account-level linking/unlinking is separate from sign-in: `requestGetOAuthIdentities` /
-     `requestUnlinkOAuth` (`account.service.ts`) behind `oauth-identity-list.component.tsx` on
-     `/account/me`.
+- **Social login (OAuth)** — authorization-code flow across two legs on this origin:
+  `/api/oauth/:provider` starts it, `/account/oauth/:provider` redeems the code. The `state` uuid
+  carried in the httpOnly `oauth-state` cookie is the entire CSRF defence for the provider round
+  trip — the middleware's `x-csrf-token` gate cannot stand in for it. Both legs are route
+  handlers, not server actions, and neither may be reshaped into the other.
+  Details: `.claude/rules/oauth.md`.
 - **Backend calls only go through the proxy** (`src/app/api/proxy/[...path]/route.ts`) or, server-side,
   through `ApiRequest` (`src/helpers/api.helper.ts`) with `.setRequestMode('remote-api')` — this is what
   attaches auth headers and builds the backend URL from `REMOTE_API_URL`. Don't call the backend directly
@@ -349,32 +251,10 @@ entities/operations, DB schema, business rules read the code in `../nready-api`
   ioredis's own `keyPrefix` option: that one does not reach the MATCH argument of SCAN, so
   `deleteByPattern` would scan the other app's keys. Build every key through `buildKey`.
 - **Logging** — never call `console.*` directly; use `logger` / `logRejection` from
-  `src/helpers/logger.helper.ts` (the only file allowed to touch `console`). Signature is
-  `(message, error?, context?)` — message first at every level, so a grouping backend can key on
-  it. `debug` is dropped unless `NEXT_PUBLIC_APP_DEBUG=true`; the other levels always reach the
-  console, because server-side that console *is* the sink (Docker captures stdout).
-  `logger.helper.ts` reads `process.env` rather than `Configuration` on purpose: settings
-  resolution logs through it, so importing it would close an import cycle.
-  The transport is attached via `setLogReporter()` — the reason the helper imports no SDK. The
-  backend's `log_data` is for business/audit events (`history`/`cron`/`system`); the dashboard
-  reads it and must never write to it, and it has no create route.
-- **Sentry** (`@sentry/nextjs`) — `src/config/sentry.setup.ts` owns the shared init options and the
-  `LogEntry` → Sentry mapping (`debug`/`info` become breadcrumbs, `warn`/`error` become events);
-  the three runtime entry points (`src/sentry.server.config.ts`, `src/sentry.edge.config.ts`,
-  `src/instrumentation-client.ts`) only call it. Edge is what covers `src/proxy.ts`.
-  `src/instrumentation.ts` loads the server/edge config per `NEXT_RUNTIME` and exports
-  `onRequestError`, which catches server-component and middleware errors that never reach a
-  `catch` and so are invisible to `logger`. Everything is gated on `NEXT_PUBLIC_SENTRY_DSN` — empty
-  means no `init` at all. Client events tunnel through `/sentry-tunnel` on this origin (set in
-  `next.config.ts`) to survive ad blockers; that path deliberately sits outside `/api/`, so the
-  CSRF gate in `proxy.ts` does not apply and it matches no entry in `routes.setup.ts`.
-  Session replay is off on purpose — bundle weight, and it records user/client input.
-- **What may go in a log context** — the third argument of a `logger` call is shipped to Sentry as
-  `extra` (or as breadcrumb `data`), so it leaves the browser. Pass identifiers and shapes, never
-  records or secrets: `{ key }`, `{ uid }`, `{ payloadLength }` — not the payload, not a user row.
-  `sendDefaultPii` is off, and `beforeSend`/`beforeBreadcrumb` in `sentry.setup.ts` redact keys
-  matching `/password|token|secret|authorization|cookie|credential/i`, but that is a backstop for
-  the call site that slips through, not permission to rely on it.
+  `src/helpers/logger.helper.ts` (the only file allowed to touch `console`); signature is
+  `(message, error?, context?)`, message first at every level. The third argument is shipped to
+  Sentry, so it takes identifiers and shapes (`{ key }`, `{ uid }`, `{ payloadLength }`), never a
+  payload, a record or a secret. Logger/Sentry wiring: `.claude/rules/observability.md`.
 - **Never call a server action from inside a form pipeline.** A server action is POSTed to the
   *current* URL and its response carries a re-rendered tree for that page. Applying that tree
   **resets the submitting form's state**: `useActionState` reverts to its initial value, so the
