@@ -78,6 +78,7 @@ const prepareConfigOnCreate = async (
 				getFormValues: actionConfig.getFormValues,
 				getFormState: actionConfig.getFormState,
 				reloadEntry: actionConfig.reloadEntry,
+				mapApiError: actionConfig.mapApiError,
 				prepareEntry: actionConfig.prepareEntry,
 				displayEntryLabel,
 			} as WindowDefinition;

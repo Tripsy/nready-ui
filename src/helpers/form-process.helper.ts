@@ -40,13 +40,21 @@ export type MapApiErrorFnType<Situation extends string | null> = (
 	resultData?: unknown;
 }>;
 
+/**
+ * `ValidatedValues` is what the validator *produces*, which is not always what the form holds:
+ * a schema that trims a slug, upper-cases a currency or coerces a typed figure to a number
+ * changes the shape on the way through. It defaults to `FormValues`, so a form whose schema only
+ * checks is unaffected — and the values echoed back into the state are the validated ones, which
+ * is why a lower-cased slug appears in the field after a submit.
+ */
 type ProcessFormOptionsType<
 	FormValues extends FormValuesType,
 	Situation extends string | null,
+	ValidatedValues = FormValues,
 > = {
 	getFormValues: GetFormValuesFnType<FormValues>;
-	validateForm: ValidateFormFnType<FormValues>;
-	operationFunction: FormOperationFnType<FormValues>;
+	validateForm: ValidateFormFnType<FormValues, ValidatedValues>;
+	operationFunction: FormOperationFnType<ValidatedValues>;
 	/** Only set for update operations — passed as the second argument to `operationFunction`. */
 	entryId?: number;
 	mapApiError?: MapApiErrorFnType<Situation>;
@@ -68,13 +76,18 @@ type ProcessFormOptionsType<
 export async function processForm<
 	FormValues extends FormValuesType,
 	State extends FormStateType<FormValues, string | null>,
+	ValidatedValues = FormValues,
 >(
 	formState: State,
 	formData: FormData,
 	// `State['situation']` rather than a separate `Situation` parameter: it has no
 	// other inference site, so a standalone parameter would silently collapse to
 	// its default and reject a flow's extra situations.
-	options: ProcessFormOptionsType<FormValues, State['situation']>,
+	options: ProcessFormOptionsType<
+		FormValues,
+		State['situation'],
+		ValidatedValues
+	>,
 ): Promise<State> {
 	const {
 		getFormValues,
@@ -114,22 +127,30 @@ export async function processForm<
 			});
 		}
 
-		values = validated.data;
+		/*
+		 * The validated shape, echoed back as the form's values. Asserted because the two can
+		 * differ — a schema may transform — and the state has one `values` field for both. It
+		 * is what the fields then render, which is the intent: a slug the schema lower-cased
+		 * should appear lower-cased.
+		 */
+		values = validated.data as unknown as FormValues;
 
 		// An entryId means an update — pass it as the second argument.
+		const operationValues = validated.data;
+
 		const fetchResponse =
 			entryId !== undefined
 				? await (
 						operationFunction as (
-							values: FormValues,
+							values: ValidatedValues,
 							entryId: number,
 						) => Promise<ApiResponseFetch<unknown>>
-					)(values, entryId)
+					)(operationValues, entryId)
 				: await (
 						operationFunction as (
-							values: FormValues,
+							values: ValidatedValues,
 						) => Promise<ApiResponseFetch<unknown>>
-					)(values);
+					)(operationValues);
 
 		return buildState({
 			values,
