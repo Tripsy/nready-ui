@@ -177,17 +177,31 @@ export const FormComponentInput = <Fields,>({
 	isRequired = false,
 	className = 'w-full',
 	placeholderText,
+	ariaLabel,
 	disabled,
 	autoComplete,
 	onChange,
 	error,
 	icons,
-}: FormComponentProps<Fields, InputValueType | number>) => {
+}: FormComponentProps<Fields, InputValueType | number> & {
+	/**
+	 * Accessible name for a field whose label is not its own — a repeated row under one
+	 * header, where the visible label sits in the header rather than above each input.
+	 * Ignored when `labelText` is given, which already names the field.
+	 */
+	ariaLabel?: string;
+}) => {
 	const { borderClass } = useFieldState({ error });
 
 	return (
 		<FormElement
-			label={{ for: id, text: labelText, required: isRequired }}
+			// Omitted rather than empty: a label with no text still occupies its row, which
+			// would push a header-labeled field out of line with its neighbors.
+			label={
+				labelText
+					? { for: id, text: labelText, required: isRequired }
+					: undefined
+			}
 			error={error}
 		>
 			<FormElementWrapper>
@@ -205,6 +219,7 @@ export const FormComponentInput = <Fields,>({
 						value={fieldValue ?? ''}
 						className={cn(borderClass, className)}
 						placeholder={placeholderText}
+						aria-label={labelText ? undefined : ariaLabel}
 						autoComplete={autoComplete}
 						disabled={disabled}
 						aria-invalid={!!error}
@@ -473,6 +488,7 @@ export const FormComponentSelect = <Fields,>({
 	options,
 	onChange,
 	searchable = false,
+	ariaLabel,
 }: Omit<
 	FormComponentProps<Fields, OptionValueType>,
 	'autoComplete' | 'icons' | 'onChange'
@@ -481,6 +497,8 @@ export const FormComponentSelect = <Fields,>({
 	onChange: (value: string) => void;
 	/** Render a searchable combobox (type-to-filter) instead of a plain select. */
 	searchable?: boolean;
+	/** Accessible name when the visible label lives in a shared header — see the input. */
+	ariaLabel?: string;
 }) => {
 	const { borderClass } = useFieldState({ error });
 
@@ -530,12 +548,24 @@ export const FormComponentSelect = <Fields,>({
 				</ListBox.Item>
 			));
 
+	const labelledBy = labelText || ariaLabel ? getFieldLabelId(id) : undefined;
+
 	return (
 		<FormElement
-			label={{ for: id, text: labelText, required: isRequired }}
+			label={
+				labelText
+					? { for: id, text: labelText, required: isRequired }
+					: undefined
+			}
 			error={error}
 		>
 			<div>
+				{!labelText && ariaLabel ? (
+					<span id={getFieldLabelId(id)} className="sr-only">
+						{ariaLabel}
+					</span>
+				) : null}
+
 				<input
 					type="hidden"
 					name={fieldName}
@@ -546,11 +576,9 @@ export const FormComponentSelect = <Fields,>({
 				{searchable ? (
 					<ComboBox
 						fullWidth
-						aria-labelledby={getFieldLabelId(id)}
-						selectedKey={fieldValue ?? null}
-						onSelectionChange={(key) =>
-							onChange(key == null ? '' : String(key))
-						}
+						aria-labelledby={labelledBy}
+						value={fieldValue ?? null}
+						onChange={(key) => onChange(key == null ? '' : String(key))}
 						isDisabled={disabled}
 					>
 						<ComboBox.InputGroup>
@@ -572,11 +600,9 @@ export const FormComponentSelect = <Fields,>({
 				) : (
 					<Select
 						fullWidth
-						aria-labelledby={getFieldLabelId(id)}
-						selectedKey={fieldValue ?? null}
-						onSelectionChange={(key) =>
-							onChange(key == null ? '' : String(key))
-						}
+						aria-labelledby={labelledBy}
+						value={fieldValue ?? null}
+						onChange={(key) => onChange(key == null ? '' : String(key))}
 						isDisabled={disabled}
 						placeholder={placeholderText}
 					>

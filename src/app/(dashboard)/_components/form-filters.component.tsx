@@ -22,6 +22,7 @@ import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
 import type { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import { hasPermission } from '@/models/account.model';
+import type { PermissionEntityType } from '@/models/permission.model';
 import { useAuth } from '@/providers/auth.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { DataSourceKey } from '@/types/data-source.key';
@@ -260,7 +261,11 @@ export function FormFiltersShowDeleted({
 	checked = false,
 	onCheckedChange,
 }: {
-	dataSource: DataSourceKey;
+	/**
+	 * Narrower than `DataSourceKey`, because the checkbox is gated on a `delete` permission and
+	 * not every data source has one
+	 */
+	dataSource: Extract<DataSourceKey, PermissionEntityType>;
 	checked: boolean;
 	onCheckedChange: (checked: boolean) => void;
 }) {

@@ -1,6 +1,7 @@
 import { ListBox, Pagination, Select } from '@heroui/react';
 import { useCallback, useMemo } from 'react';
 import { replaceVars } from '@/helpers/string.helper';
+import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useTranslation } from '@/hooks/use-translation.hook';
 
 /**
@@ -77,6 +78,8 @@ export function DataTablePaginator({
 
 	const { isTranslationLoading, translations } =
 		useTranslation(translationsKeys);
+
+	const elementIds = useElementIds(['rows-per-page'] as const);
 
 	const totalPages = rows > 0 ? Math.ceil(totalRecords / rows) : 0;
 	const currentPage = rows > 0 ? Math.floor(first / rows) + 1 : 1;
@@ -164,11 +167,21 @@ export function DataTablePaginator({
 				</Pagination.Item>
 			</Pagination.Content>
 
+			{/*
+			 * Named through `aria-labelledby`, not `aria-label`: HeroUI's Select builds its own
+			 * labelledby as [value, label] and falls back to the trigger when there is no label
+			 * to point at, which wins over `aria-label` by spec — this control announced its
+			 * value twice ("10 10"). The hidden span is the label that reference resolves to.
+			 */}
+			<span id={elementIds['rows-per-page']} className="sr-only">
+				{translations['dashboard.text.rows_per_page']}
+			</span>
+
 			<Select
-				aria-label={translations['dashboard.text.rows_per_page']}
+				aria-labelledby={elementIds['rows-per-page']}
 				className="justify-self-start sm:justify-self-end"
-				selectedKey={String(rows)}
-				onSelectionChange={(key) => changeRowsPerPage(Number(key))}
+				value={String(rows)}
+				onChange={(key) => changeRowsPerPage(Number(key))}
 			>
 				<Select.Trigger className="h-9 min-w-20 items-center rounded-md border border-border shadow-none">
 					<Select.Value />
