@@ -209,3 +209,55 @@ export function toOptionsFromEnum(
 		value,
 	}));
 }
+
+/**
+ * How many error messages are held anywhere inside an error value.
+ *
+ * `FormErrorsType` nests differently per field — a plain `string[]`, a record of them, or a
+ * record of them keyed by index for a list field — and the count only has to be a total, so
+ * this walks whatever shape it is handed rather than encoding each one. Used by every form that
+ * groups its fields into tabs, to put a badge on the tab holding the problem.
+ */
+export function countErrorMessages(value: unknown): number {
+	if (!value) {
+		return 0;
+	}
+
+	if (Array.isArray(value)) {
+		return value.reduce<number>(
+			(total, entry) =>
+				total +
+				(typeof entry === 'string' ? 1 : countErrorMessages(entry)),
+			0,
+		);
+	}
+
+	if (typeof value === 'object') {
+		return Object.values(value).reduce<number>(
+			(total, entry) => total + countErrorMessages(entry),
+			0,
+		);
+	}
+
+	return 0;
+}
+
+/**
+ * The messages a value holds **itself**, as opposed to ones belonging to its entries.
+ *
+ * A field's errors arrive in one of two shapes, and which one depends on where the issue was
+ * raised:
+ *
+ *  - a plain `string[]` when the message belongs to the list ("at least one category"), because
+ *    `accumulateZodErrors` pushes messages into a list at the leaf;
+ *  - an object keyed by the index as a **string** (`{ '0': { sku: [...] } }`) when the issues
+ *    belong to individual entries — the accumulator builds every intermediate container with
+ *    `{}`, so a numeric path segment never produces a real array.
+ *
+ * Indexing by number still reads the per-entry value (`obj[0]` is `obj['0']`), which is why a
+ * per-entry lookup can pass the value straight through. Anything wanting a field's own messages
+ * has to come through here, or it reads a per-entry record as one.
+ */
+export function ownErrorMessages(value: unknown): string[] | undefined {
+	return Array.isArray(value) ? (value as string[]) : undefined;
+}

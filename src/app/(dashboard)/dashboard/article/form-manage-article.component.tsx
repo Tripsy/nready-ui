@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Configuration } from '@/config/settings.config';
 import { getLanguageClient } from '@/config/translate.setup';
 import { cn } from '@/helpers/css.helper';
-import { toOptionsFromEnum } from '@/helpers/form.helper';
+import { countErrorMessages, toOptionsFromEnum } from '@/helpers/form.helper';
 import { renderMarkdown } from '@/helpers/markdown.helper';
 import { formatEnumLabel, toKebabCase } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
@@ -198,36 +198,6 @@ const TAB_CONTENT_FIELDS: Record<FormTabId, readonly string[]> = {
 		'author_description',
 	],
 };
-
-/**
- * Messages held anywhere inside an error value.
- *
- * `FormErrorsType` nests differently per field — a plain `string[]`, a record of them, or an
- * array of records for a list field — and the count only has to be a total, so this walks
- * whatever shape it is handed rather than encoding each one.
- */
-function countMessages(value: unknown): number {
-	if (!value) {
-		return 0;
-	}
-
-	if (Array.isArray(value)) {
-		return value.reduce<number>(
-			(total, entry) =>
-				total + (typeof entry === 'string' ? 1 : countMessages(entry)),
-			0,
-		);
-	}
-
-	if (typeof value === 'object') {
-		return Object.values(value).reduce<number>(
-			(total, entry) => total + countMessages(entry),
-			0,
-		);
-	}
-
-	return 0;
-}
 
 export function FormManageArticle() {
 	const { formValues, errors, handleChange, pending } =
@@ -427,7 +397,7 @@ export function FormManageArticle() {
 	const tabErrors = FORM_TABS.reduce<Record<FormTabId, number>>(
 		(counts, { id }) => {
 			const fieldErrors = TAB_FIELDS[id].reduce<number>(
-				(total, field) => total + countMessages(errors[field]),
+				(total, field) => total + countErrorMessages(errors[field]),
 				0,
 			);
 
@@ -442,7 +412,7 @@ export function FormManageArticle() {
 						TAB_CONTENT_FIELDS[id].reduce<number>(
 							(sum, field) =>
 								sum +
-								countMessages(
+								countErrorMessages(
 									(entry as Record<string, unknown>)[field],
 								),
 							0,
