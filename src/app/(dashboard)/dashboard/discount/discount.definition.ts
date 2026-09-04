@@ -20,6 +20,7 @@ import {
 	requestRestore,
 	requestUpdate,
 } from '@/helpers/services.helper';
+import { toCalendarValue } from '@/helpers/date.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import {
 	BaseValidator,
@@ -312,15 +313,6 @@ function getFormValues(formData: FormData): DiscountFormValuesType {
 			.map((id) => ({ id: Number(id) }))
 			.filter((target) => Number.isFinite(target.id)),
 	};
-}
-
-/** The calendar and the date validator both work on `YYYY-MM-DD`; a stored timestamp is trimmed to it. */
-function toCalendarValue(value: DiscountModel['start_at']): string | null {
-	if (!value) {
-		return null;
-	}
-
-	return (value instanceof Date ? value.toISOString() : value).slice(0, 10);
 }
 
 function getFormState(

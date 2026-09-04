@@ -4,7 +4,7 @@ import {
 	type BrandFormValuesType,
 	FormManageBrand,
 } from '@/app/(dashboard)/dashboard/brand/form-manage-brand.component';
-import { ManagerBrandImages } from '@/app/(dashboard)/dashboard/brand/manager-brand-images.component';
+import { ManagerImagesBrand } from '@/app/(dashboard)/dashboard/brand/manager-images-brand.component';
 import { UsageGuideBrand } from '@/app/(dashboard)/dashboard/brand/usage-guide-brand.component';
 import { ViewBrand } from '@/app/(dashboard)/dashboard/brand/view-brand.component';
 import { Icons } from '@/components/icon.component';
@@ -381,7 +381,7 @@ export default async function dataSourceConfig(): Promise<
 			managerImages: {
 				windowType: 'other',
 				windowTitle: translations['managerImages.title'],
-				windowComponent: ManagerBrandImages,
+				windowComponent: ManagerImagesBrand,
 				windowConfigProps: {
 					size: 'xl2',
 				},

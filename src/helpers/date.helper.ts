@@ -54,6 +54,38 @@ export function createPastDate(seconds: number): Date {
 }
 
 /**
+ * The days of the week as every weekday the backend stores numbers them — ISO 8601, Monday is 1
+ * through Sunday is 7. Both `product_availability.day_of_week` and `discount.conditions.day_range`
+ * are written in it, so one list serves the pickers and the readouts of both.
+ *
+ * It is not what `Date.getDay()` returns; a weekday read off a date has to be converted, which is
+ * the backend's `isoWeekday` and has no caller here yet.
+ */
+export const ISO_WEEKDAYS = [
+	{ value: 1, label: 'Monday' },
+	{ value: 2, label: 'Tuesday' },
+	{ value: 3, label: 'Wednesday' },
+	{ value: 4, label: 'Thursday' },
+	{ value: 5, label: 'Friday' },
+	{ value: 6, label: 'Saturday' },
+	{ value: 7, label: 'Sunday' },
+] as const;
+
+/**
+ * Names an ISO weekday. An out-of-range number renders as `Day 9` rather than as nothing — a
+ * value the backend's check constraint refuses, so seeing it means the two have drifted.
+ *
+ * @param {number} day - ISO weekday, 1 (Monday) through 7 (Sunday)
+ * @returns {string} - The day's English name
+ */
+export function isoWeekdayName(day: number): string {
+	return (
+		ISO_WEEKDAYS.find((weekday) => weekday.value === day)?.label ??
+		`Day ${day}`
+	);
+}
+
+/**
  * Check if a string is a valid date.
  *
  * Expects the calendar part to lead in `YYYY-MM-DD` form; anything after it (a time, an
@@ -68,6 +100,45 @@ export function isValidDate(date: string): boolean {
 	}
 
 	return dayjs(date).isValid();
+}
+
+/**
+ * A stored timestamp as a string, for the display helpers that take one.
+ *
+ * The same two shapes `toCalendarValue` reconciles — a list response carries the ISO string, an
+ * entry the window reloaded carries a `Date` — but the whole instant is kept: this feeds
+ * `formatDate`, which renders in the reader's own zone, where `toCalendarValue` answers the
+ * calendar day a form field is set to.
+ *
+ * @param value - The stored timestamp
+ * @returns The timestamp as an ISO string
+ */
+export function toDateValue(value: Date | string): string {
+	return value instanceof Date ? value.toISOString() : value;
+}
+
+/**
+ * A stored date as the calendar input and the date validator both want it: `YYYY-MM-DD`.
+ *
+ * A model field is `Date | string` depending on where the row came from — a list response
+ * carries the ISO string, an entry the window reloaded carries a `Date` — so both are trimmed
+ * to the calendar part. The trim reads the **UTC** day, which is what these fields mean: they
+ * take effect on the day given, not at a time of day.
+ *
+ * @param value - The stored timestamp, or nothing
+ * @returns The date as `YYYY-MM-DD`, or `null` when there is nothing to show
+ */
+export function toCalendarValue(
+	value: Date | string | null | undefined,
+): string | null {
+	if (!value) {
+		return null;
+	}
+
+	return (value instanceof Date ? value.toISOString() : value).slice(
+		0,
+		DEFAULT_DATE_FORMAT.length,
+	);
 }
 
 /**

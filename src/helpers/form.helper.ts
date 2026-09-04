@@ -1,6 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react';
 import type { z } from 'zod';
 import { logger } from '@/helpers/logger.helper';
+import { parseJson } from '@/helpers/string.helper';
 import type {
 	FormErrorsType,
 	FormValuesType,
@@ -196,6 +197,25 @@ export function getFormDataAsEnum<T extends Record<string, string>>(
 	return null;
 }
 
+/**
+ * A collection the form submits as one JSON field, because per-input names cannot express a
+ * nested shape — a list of variants, each with its own list of prices, has no flat encoding.
+ *
+ * Built on `parseJson` rather than repeating its `try`/`catch`: what this adds is the array
+ * check and an empty list as the fallback, so a missing, blank, malformed or object-valued
+ * field all read the same. The field is written by the form's own `JSON.stringify`, so a parse
+ * failure means the value was truncated in transit rather than mistyped — and an empty list
+ * lets the validator report the missing collection instead of the pipeline throwing.
+ */
+export function getFormDataAsJsonList<T>(
+	formData: FormData,
+	key: string,
+): T[] {
+	const parsed: unknown = parseJson(formData.get(key));
+
+	return Array.isArray(parsed) ? (parsed as T[]) : [];
+}
+
 export function toOptionsFromEnum(
 	enumObj: Record<string, string>,
 	options?: {
@@ -208,6 +228,80 @@ export function toOptionsFromEnum(
 		label: options?.formatter ? options.formatter(value) : value,
 		value,
 	}));
+}
+
+/**
+ * Error counts per tab, so a problem on a panel the editor cannot see still announces itself on
+ * the tab strip.
+ *
+ * Three things are summed for a tab, because a form's errors arrive in three shapes:
+ *
+ *  - the entity's own fields the tab owns (`tabFields`);
+ *  - the same tab's translated fields, counted across **every** language rather than the open
+ *    one — a missing Romanian label is the content tab's problem whichever translation happens
+ *    to be selected (`tabContentFields` against `contentErrors`);
+ *  - the list-level message for the translations themselves ("at least one translation"), which
+ *    has no field of its own and belongs to the content tab, where an editor would go to fix it.
+ *
+ * @param tabs - The tab strip, in order; only `id` is read
+ * @param tabFields - Which entity fields each tab owns
+ * @param tabContentFields - Which translated fields each tab owns
+ * @param errors - The form's error state
+ * @param contentErrors - One entry per language, each a record of that language's field errors
+ * @param contentListError - Messages about the translation list itself, not any one language
+ * @param contentTabId - The tab `contentListError` belongs to
+ */
+export function countTabErrors<TabId extends string>({
+	tabs,
+	tabFields,
+	tabContentFields,
+	errors,
+	contentErrors,
+	contentListError,
+	contentTabId,
+}: {
+	tabs: readonly { id: TabId }[];
+	tabFields: Record<TabId, readonly string[]>;
+	tabContentFields: Record<TabId, readonly string[]>;
+	errors: Record<string, unknown>;
+	contentErrors: readonly unknown[];
+	contentListError?: string[];
+	contentTabId: TabId;
+}): Record<TabId, number> {
+	return tabs.reduce<Record<TabId, number>>(
+		(counts, { id }) => {
+			const fieldErrors = tabFields[id].reduce<number>(
+				(total, field) => total + countErrorMessages(errors[field]),
+				0,
+			);
+
+			const perLanguage = contentErrors.reduce<number>((total, entry) => {
+				if (!entry || typeof entry !== 'object') {
+					return total;
+				}
+
+				return (
+					total +
+					tabContentFields[id].reduce<number>(
+						(sum, field) =>
+							sum +
+							countErrorMessages(
+								(entry as Record<string, unknown>)[field],
+							),
+						0,
+					)
+				);
+			}, 0);
+
+			const listLevel =
+				id === contentTabId ? (contentListError?.length ?? 0) : 0;
+
+			counts[id] = fieldErrors + perLanguage + listLevel;
+
+			return counts;
+		},
+		{} as Record<TabId, number>,
+	);
 }
 
 /**

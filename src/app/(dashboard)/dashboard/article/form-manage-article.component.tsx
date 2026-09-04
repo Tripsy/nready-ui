@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Configuration } from '@/config/settings.config';
 import { getLanguageClient } from '@/config/translate.setup';
 import { cn } from '@/helpers/css.helper';
-import { countErrorMessages, toOptionsFromEnum } from '@/helpers/form.helper';
+import { countTabErrors, toOptionsFromEnum } from '@/helpers/form.helper';
 import { renderMarkdown } from '@/helpers/markdown.helper';
 import { formatEnumLabel, toKebabCase } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
@@ -394,45 +394,15 @@ export function FormManageArticle() {
 	 * across every language rather than the open one — a missing Romanian title is the Content
 	 * tab's problem whichever translation happens to be selected.
 	 */
-	const tabErrors = FORM_TABS.reduce<Record<FormTabId, number>>(
-		(counts, { id }) => {
-			const fieldErrors = TAB_FIELDS[id].reduce<number>(
-				(total, field) => total + countErrorMessages(errors[field]),
-				0,
-			);
-
-			const perLanguage = contentErrorEntries.reduce<number>(
-				(total, entry) => {
-					if (!entry || typeof entry !== 'object') {
-						return total;
-					}
-
-					return (
-						total +
-						TAB_CONTENT_FIELDS[id].reduce<number>(
-							(sum, field) =>
-								sum +
-								countErrorMessages(
-									(entry as Record<string, unknown>)[field],
-								),
-							0,
-						)
-					);
-				},
-				0,
-			);
-
-			// The "at least one translation" message has no field of its own; it belongs to
-			// Content, which is where an editor would go to fix it.
-			const arrayLevel =
-				id === 'content' ? (contentsError?.length ?? 0) : 0;
-
-			counts[id] = fieldErrors + perLanguage + arrayLevel;
-
-			return counts;
-		},
-		{} as Record<FormTabId, number>,
-	);
+	const tabErrors = countTabErrors<FormTabId>({
+		tabs: FORM_TABS,
+		tabFields: TAB_FIELDS,
+		tabContentFields: TAB_CONTENT_FIELDS,
+		errors,
+		contentErrors: contentErrorEntries,
+		contentListError: contentsError,
+		contentTabId: 'content',
+	});
 
 	const isPreviewed = previewed[language] ?? false;
 

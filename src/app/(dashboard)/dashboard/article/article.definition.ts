@@ -4,12 +4,13 @@ import {
 	type ArticleFormValuesType,
 	FormManageArticle,
 } from '@/app/(dashboard)/dashboard/article/form-manage-article.component';
-import { ManagerArticleImages } from '@/app/(dashboard)/dashboard/article/manager-article-images.component';
+import { ManagerImagesArticle } from '@/app/(dashboard)/dashboard/article/manager-images-article.component';
 import { UsageGuideArticle } from '@/app/(dashboard)/dashboard/article/usage-guide-article.component';
 import { ViewArticle } from '@/app/(dashboard)/dashboard/article/view-article.component';
 import { Icons } from '@/components/icon.component';
 import Routes from '@/config/routes.setup';
 import { getLanguageClient, translateBatch } from '@/config/translate.setup';
+import { toCalendarValue, toDateValue } from '@/helpers/date.helper';
 import { DisplayFlagged } from '@/helpers/display.helper';
 import {
 	getFormDataAsBoolean,
@@ -399,20 +400,6 @@ function getFormValues(formData: FormData): ArticleFormValuesType {
 		tags: parseIdList(formData, 'tag_id'),
 		contents: parseContents(formData),
 	};
-}
-
-/** The calendar and the date validator both work on `YYYY-MM-DD`; a stored timestamp is trimmed to it. */
-function toCalendarValue(value: ArticleModel['publish_at']): string | null {
-	if (!value) {
-		return null;
-	}
-
-	return (value instanceof Date ? value.toISOString() : value).slice(0, 10);
-}
-
-/** `displayDate` formats a string; a list row carries the ISO one, a hydrated entry a `Date`. */
-function toDateValue(value: Date | string): string {
-	return value instanceof Date ? value.toISOString() : value;
 }
 
 function getFormState(
@@ -1036,7 +1023,7 @@ export default async function dataSourceConfig(): Promise<
 			managerImages: {
 				windowType: 'other',
 				windowTitle: translations['managerImages.title'],
-				windowComponent: ManagerArticleImages,
+				windowComponent: ManagerImagesArticle,
 				windowConfigProps: {
 					size: 'xl4',
 				},
