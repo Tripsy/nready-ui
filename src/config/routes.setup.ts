@@ -163,13 +163,16 @@ Routes.add('api-docs-feature', '/api-docs/:feature');
 Routes.add('page', '/page/:label');
 Routes.add('products', '/products');
 Routes.add('products-categories', '/products/categories');
+// Added after `products-categories` on purpose: `match` returns the first pattern that fits,
+// and `/products/:slug` fits that path too. Next resolves the file-system routes by the
+// same precedence, static segment before dynamic.
+Routes.add('product-view', '/products/:slug');
 Routes.add('articles', '/articles');
 Routes.add('articles-categories', '/articles/categories');
-// Added after `articles-categories` on purpose: `match` returns the first pattern that fits,
-// and `/articles/:category` fits that path too. Next resolves the file-system routes by the
-// same precedence, static segment before dynamic.
-Routes.add('articles-category', '/articles/:category');
-Routes.add('article-view', '/articles/:category/:slug');
+Routes.add('articles-category', '/articles/category/:slug');
+// Same ordering rule as the products block above: `/articles/:slug` also fits
+// `/articles/categories`, so both static siblings are registered ahead of it.
+Routes.add('article-view', '/articles/:slug');
 // The permalink a notification email links a comment by. It resolves the comment's target and
 // redirects, so a link in an old inbox survives the article being re-slugged or re-filed.
 Routes.add('comment-link', '/comments/:id');
@@ -248,6 +251,9 @@ Routes.group('dashboard')
 	})
 	.add('discount', '/dashboard/discount', {
 		permissionEntity: 'discount',
+	})
+	.add('product', '/dashboard/product', {
+		permissionEntity: 'product',
 	})
 	.add('log-data', '/dashboard/log-data', {
 		permissionEntity: 'log-data',

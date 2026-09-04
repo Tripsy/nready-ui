@@ -31,7 +31,7 @@ const TRANSLATION_KEYS = [
 ] as const;
 
 type Props = {
-	params: Promise<{ category: string }>;
+	params: Promise<{ slug: string }>;
 };
 
 /**
@@ -56,7 +56,7 @@ async function getCategory(
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-	const { category: slug } = await props.params;
+	const { slug } = await props.params;
 	const language = await getLanguage();
 	const category = await getCategory(slug, language);
 
@@ -78,7 +78,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 }
 
 export default async function Page(props: Props) {
-	const { category: slug } = await props.params;
+	const { slug } = await props.params;
 	const language = await getLanguage();
 
 	const [translations, category] = await Promise.all([

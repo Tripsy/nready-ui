@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import {
 	ARTICLE_AUTHOR_TRANSLATION_KEYS,
 	ArticleAuthor,
@@ -50,7 +50,6 @@ import { formatRelativeDate } from '@/helpers/date.helper';
 import { logger } from '@/helpers/logger.helper';
 import { renderMarkdownServer } from '@/helpers/markdown-server.helper';
 import {
-	ARTICLE_CATEGORY_FALLBACK_SLUG,
 	ARTICLE_DEFAULT_SETTINGS,
 	type ArticleContentType,
 	type ArticleModel,
@@ -98,7 +97,7 @@ type ArticleResult =
 	| { status: 'unavailable' };
 
 type Props = {
-	params: Promise<{ category: string; slug: string }>;
+	params: Promise<{ slug: string }>;
 };
 
 async function getArticle(
@@ -181,7 +180,7 @@ function BackToList({ label }: { label: string }) {
 }
 
 export default async function Page(props: Props) {
-	const { category: categorySlug, slug } = await props.params;
+	const { slug } = await props.params;
 	const language = await getLanguage();
 
 	const [
@@ -225,24 +224,13 @@ export default async function Page(props: Props) {
 		notFound();
 	}
 
+	/*
+	 * Read for the breadcrumb and the sidebar's "more from this category" only — the address
+	 * carries no category segment, so re-filing an article never changes its URL.
+	 */
 	const category = getArticlePrimaryCategory(entry, language);
 
-	/*
-	 * The category segment is part of the address but not part of the lookup — the article
-	 * slug alone identifies it. So a link built before the article was re-filed still
-	 * resolves, and is sent on to the address it has now rather than 404ing or serving the
-	 * same article under two URLs.
-	 */
-	const canonicalCategory = category?.slug ?? ARTICLE_CATEGORY_FALLBACK_SLUG;
-
-	const articlePath = Routes.get('article-view', {
-		category: canonicalCategory,
-		slug: content.slug,
-	});
-
-	if (categorySlug !== canonicalCategory) {
-		redirect(articlePath);
-	}
+	const articlePath = Routes.get('article-view', { slug: content.slug });
 
 	/*
 	 * The by-line the article carries, falling back to the account that filed it — which has
@@ -280,7 +268,7 @@ export default async function Page(props: Props) {
 								{
 									label: category.label,
 									href: Routes.get('articles-category', {
-										category: category.slug,
+										slug: category.slug,
 									}),
 								},
 							]

@@ -38,7 +38,7 @@ function CategoryChip({
 }) {
 	return (
 		<Link
-			href={Routes.get('articles-category', { category: category.slug })}
+			href={Routes.get('articles-category', { slug: category.slug })}
 			className="rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent-soft-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
 		>
 			{category.label}

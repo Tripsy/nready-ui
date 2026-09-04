@@ -287,14 +287,8 @@ export function getArticlePrimaryCategory(
 }
 
 /**
- * Segment standing in for the category of an article that has none, so every article still
- * has one address. Matched by the article page against the article's real category, which
- * is absent here — so the URL stays canonical rather than redirecting to itself.
- */
-export const ARTICLE_CATEGORY_FALLBACK_SLUG = 'other';
-
-/**
- * The public URL of an article: `/articles/<category-slug>/<article-slug>`.
+ * The public URL of an article: `/articles/<article-slug>`. The slug alone identifies it, so
+ * re-filing an article under another category leaves its address untouched.
  *
  * Returns `null` when the article carries no slug in this language — there is no address to
  * build, and a caller has to render it unlinked rather than point at a URL that 404s.
@@ -309,12 +303,7 @@ export function buildArticlePath(
 		return null;
 	}
 
-	const category = getArticlePrimaryCategory(entry, language);
-
-	return Routes.get('article-view', {
-		category: category?.slug ?? ARTICLE_CATEGORY_FALLBACK_SLUG,
-		slug,
-	});
+	return Routes.get('article-view', { slug });
 }
 
 /**

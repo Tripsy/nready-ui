@@ -1,10 +1,6 @@
 import Routes from '@/config/routes.setup';
 import { getResponseData } from '@/helpers/api.helper';
-import {
-	ARTICLE_CATEGORY_FALLBACK_SLUG,
-	type ArticleModel,
-	getArticlePrimaryCategory,
-} from '@/models/article.model';
+import type { ArticleModel } from '@/models/article.model';
 import type { CommentEntityType } from '@/models/comment.model';
 import { CommentEntityTypeEnum } from '@/models/comment.model';
 import { requestPublicArticles } from '@/services/article.service';
@@ -48,12 +44,7 @@ async function resolveArticleTarget(
 		return null;
 	}
 
-	return Routes.get('article-view', {
-		category:
-			getArticlePrimaryCategory(entry, language)?.slug ??
-			ARTICLE_CATEGORY_FALLBACK_SLUG,
-		slug: content.slug,
-	});
+	return Routes.get('article-view', { slug: content.slug });
 }
 
 /**
