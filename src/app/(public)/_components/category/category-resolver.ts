@@ -18,7 +18,7 @@ const REVALIDATE_SECONDS = 3600;
  * type and matching in memory.
  *
  * There is no lookup-by-slug endpoint on the backend, and the anonymous listing is capped at
- * a couple of hundred rows and cached for an hour — so the extra rows cost one cached fetch
+ * a couple of hundred rows and cached for an hour - so the extra rows cost one cached fetch
  * rather than a query per visitor. Add a backend route once the catalog outgrows the cap;
  * past it a slug beyond the cap resolves as "not found" rather than wrongly.
  *

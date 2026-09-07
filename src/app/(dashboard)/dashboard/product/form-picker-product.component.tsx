@@ -24,7 +24,7 @@ type Props = {
  * field.
  *
  * The label travels in the value rather than being looked up, which is what lets the chips
- * render after a failed submit — `processForm` echoes the submitted values back, and one input
+ * render after a failed submit - `processForm` echoes the submitted values back, and one input
  * per id would return the ids without their names, blanking every chip.
  */
 export function FormPickerProduct({

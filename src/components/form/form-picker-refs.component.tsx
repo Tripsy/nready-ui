@@ -1,6 +1,6 @@
 /*
  * No `'use client'`: this is not a boundary, only a piece of the forms that are. Carrying the
- * directive would make it a client *entry*, and an entry's props have to be serializable — the
+ * directive would make it a client *entry*, and an entry's props have to be serializable - the
  * callbacks below are ordinary functions passed between client components, which the Next TS
  * plugin can only read as unserializable ones.
  */
@@ -36,8 +36,8 @@ type Props<Model extends { id: number }> = {
 	getOptionLabel: (entry: Model) => string;
 	/**
 	 * The selection as chips. The caller resolves ids to labels because the two hosts hold
-	 * them differently — one carries the label in its form value, the other keeps a map keyed
-	 * by id — and nothing here depends on where they came from.
+	 * them differently - one carries the label in its form value, the other keeps a map keyed
+	 * by id - and nothing here depends on where they came from.
 	 */
 	entries: readonly PickerRefType[];
 	/** Called for a pick the selection does not already hold; deduplication happens here. */
@@ -45,19 +45,19 @@ type Props<Model extends { id: number }> = {
 	onRemove: (id: number) => void;
 	/**
 	 * The selection as real form fields. `processForm` rebuilds its values from `FormData` on
-	 * every submit, so a selection that lived only in React state would be dropped — and the
+	 * every submit, so a selection that lived only in React state would be dropped - and the
 	 * encoding is the host's business: one JSON field where the labels have to survive a failed
 	 * submit, one input per id where they do not.
 	 */
 	hiddenFields: ReactNode;
 	/**
-	 * Namespaces the suggestion cache. Two pickers over the same data source — an article's
-	 * categories and a product's — would otherwise share cached searches under one key.
+	 * Namespaces the suggestion cache. Two pickers over the same data source - an article's
+	 * categories and a product's - would otherwise share cached searches under one key.
 	 */
 	queryKeyPrefix: string;
 	/**
 	 * The line shown while nothing is selected. Omit it where an empty selection needs no
-	 * explanation — the row then collapses to the search box, and a validation error still
+	 * explanation - the row then collapses to the search box, and a validation error still
 	 * takes its place.
 	 */
 	emptyText?: string;
@@ -76,7 +76,7 @@ type Props<Model extends { id: number }> = {
 };
 
 /**
- * Search a data source, add rows, remove them — the shared half of every reference picker.
+ * Search a data source, add rows, remove them - the shared half of every reference picker.
  *
  * What it owns: the search box, the remote suggestions and their cache key, deduplication, the
  * chips and the empty/error line. What it does not own: how the selection reaches `FormData`
@@ -139,7 +139,7 @@ export function FormPickerRefs<Model extends { id: number }>({
 
 	/**
 	 * Hands the typed text to the data source's own create window, then links whatever comes
-	 * back. Reusing that window is what keeps the new entry a complete record — a tag needs a
+	 * back. Reusing that window is what keeps the new entry a complete record - a tag needs a
 	 * type and a translation per language, none of which fit in a search box.
 	 *
 	 * `open` minimizes the form this picker sits in, so the parent is captured beforehand and
@@ -168,7 +168,7 @@ export function FormPickerRefs<Model extends { id: number }>({
 					addEntry(entry);
 
 					// The searches already run are cached for five minutes, and the term the
-					// editor just typed is one of them — holding the empty result that sent
+					// editor just typed is one of them - holding the empty result that sent
 					// them here in the first place.
 					await queryClient.invalidateQueries({
 						queryKey: [suggestionsKey],

@@ -39,7 +39,7 @@ type Props = {
 
 /**
  * The backend answers 404 for a name it does not document and 422 for one that is not even a
- * module-shaped slug. Both mean "no such page"; anything else — a timeout, a 500 — is the
+ * module-shaped slug. Both mean "no such page"; anything else - a timeout, a 500 - is the
  * backend being unreachable and is rethrown, because answering 404 to that would tell a
  * crawler that an existing module is gone.
  */
@@ -174,7 +174,7 @@ export default async function Page(props: Props) {
 					/>
 				</div>
 
-				{/* Only where something here actually asks for a token — on a module
+				{/* Only where something here actually asks for a token - on a module
 				    with no gated action the remark describes nothing on the page. */}
 				{docs.authorization !== 'none' && (
 					<p className="mt-8 text-sm text-muted">

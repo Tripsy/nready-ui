@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /**
  * Where the provider returns the browser. The exchange itself runs in a server action from
- * the client component below — a Server Component cannot write the session cookie during
+ * the client component below - a Server Component cannot write the session cookie during
  * render, and the max-active-sessions case needs a real screen rather than a redirect.
  */
 export default async function Page({

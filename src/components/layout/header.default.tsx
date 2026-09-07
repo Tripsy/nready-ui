@@ -34,7 +34,7 @@ export function Header({
 	const observerRef = useRef<IntersectionObserver | null>(null);
 
 	/*
-	 * Every entry is public, so the nav is no longer gated on `authStatus` — it used to be,
+	 * Every entry is public, so the nav is no longer gated on `authStatus` - it used to be,
 	 * because the only destination besides home was the dashboard. Signed-in users still
 	 * reach that from `UserMenu`, which is where the authenticated destinations live.
 	 *

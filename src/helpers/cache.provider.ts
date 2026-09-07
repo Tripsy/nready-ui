@@ -122,7 +122,7 @@ export class CacheProvider {
 	 * Raw read with no fetch-on-miss.
 	 *
 	 * The read-through `get()` always stores whatever the fetch function returned, so it
-	 * cannot express "only some outcomes may be cached" — auth is the case in point: the
+	 * cannot express "only some outcomes may be cached" - auth is the case in point: the
 	 * proxy's `resolveAccountModel()` *returns* a failure value on a backend outage rather than
 	 * throwing, and a returned value is exactly what `get()` persists for the TTL. Callers
 	 * with that constraint drive the cache themselves via `read()`/`set()`.
@@ -143,7 +143,7 @@ export class CacheProvider {
 		/*
 		 * Redis rejects `EX 0` outright ("ERR invalid expire time in 'set' command"), and the
 		 * catch below would turn that into a silent no-op with only a log line. A resolved TTL
-		 * of 0 means caching is switched off — `get()` already reads it that way — so skip the
+		 * of 0 means caching is switched off - `get()` already reads it that way - so skip the
 		 * write rather than issue one that cannot succeed. This is reachable through the
 		 * default alone: `cache.ttl` is 0 in .env, so any caller omitting `ttl` lands here.
 		 */

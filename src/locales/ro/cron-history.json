@@ -24,17 +24,17 @@
 		"warning": "Avertisment"
 	},
 	"help": {
-		"intro": "Fiecare job programat scrie aici un rând când se termină — ecranul acesta este jurnalul a ceea ce a făcut backend-ul de unul singur. Nimic de aici nu creează și nu modifică o rulare; singura scriere disponibilă este ștergerea rândurilor vechi.",
+		"intro": "Fiecare job programat scrie aici un rând când se termină - ecranul acesta este jurnalul a ceea ce a făcut backend-ul de unul singur. Nimic de aici nu creează și nu modifică o rulare; singura scriere disponibilă este ștergerea rândurilor vechi.",
 		"step_1_title": "Citește starea",
-		"step_1_body": "„Ok” înseamnă că jobul s-a întors normal. „Eroare” înseamnă că a aruncat o excepție, iar mesajul este păstrat în conținut. „Avertisment” nu este niciuna dintre ele — jobul a reușit, dar a durat mai mult decât timpul de rulare pe care îl declară ca așteptat, ceea ce este semnul timpuriu că ceva crește.",
+		"step_1_body": "„Ok” înseamnă că jobul s-a întors normal. „Eroare” înseamnă că a aruncat o excepție, iar mesajul este păstrat în conținut. „Avertisment” nu este niciuna dintre ele - jobul a reușit, dar a durat mai mult decât timpul de rulare pe care îl declară ca așteptat, ceea ce este semnul timpuriu că ceva crește.",
 		"step_2_title": "Deschide conținutul",
 		"step_2_body": "Conținutul este ce a ales jobul să returneze: câte rânduri a curățat, câte emailuri a pus la coadă sau mesajul de eroare când a eșuat. Este liber ca formă, de la job la job, de aceea este afișat așa cum a fost stocat, nu în coloane fixe.",
 		"step_3_title": "Urmărește timpul de rulare",
 		"step_3_body": "Timpul de rulare este exprimat în secunde întregi, între start și final, iar pragul care îl transformă în avertisment aparține jobului, nu unei setări globale. Un job care avertizează constant fie face mai multă treabă decât înainte, fie a pierdut un index.",
 		"step_4_title": "Lasă supraveghetorii să citească în locul tău",
-		"step_4_body": "Trei joburi citesc singure acest tabel: unul trimite pe email numărul rulărilor eșuate din ultimele 24 de ore, unul trimite avertismentele ultimelor 7 zile grupate pe job, cu numărul de apariții și timpul mediu de rulare, iar unul raportează joburile care au pornit în exact același minut — programările care se suprapun sunt o cauză a rulărilor lente, nu un simptom.",
+		"step_4_body": "Trei joburi citesc singure acest tabel: unul trimite pe email numărul rulărilor eșuate din ultimele 24 de ore, unul trimite avertismentele ultimelor 7 zile grupate pe job, cu numărul de apariții și timpul mediu de rulare, iar unul raportează joburile care au pornit în exact același minut - programările care se suprapun sunt o cauză a rulărilor lente, nu un simptom.",
 		"step_5_title": "Găsește o rulare, apoi curăță",
-		"step_5_body": "Căutarea potrivește eticheta și conținutul stocat de la trei caractere, iar un termen numeric este tratat ca id. Filtrează după stare sau după un interval al datei de start, ordonează după id, etichetă sau ora de start. Ștergerea ia rândurile selectate, mai multe odată — tabelul nu are stare de șters, deci curățarea este definitivă.",
+		"step_5_body": "Căutarea potrivește eticheta și conținutul stocat de la trei caractere, iar un termen numeric este tratat ca id. Filtrează după stare sau după un interval al datei de start, ordonează după id, etichetă sau ora de start. Ștergerea ia rândurile selectate, mai multe odată - tabelul nu are stare de șters, deci curățarea este definitivă.",
 		"note": "Un job săptămânal șterge orice rulare mai veche de 90 de zile, deci curățarea manuală este pentru zgomotul pe care vrei să îl scoți mai devreme, nu pentru a ține tabelul mic. Fereastra este mai lungă decât cele 30 de zile păstrate de celelalte curățări, pentru că acest tabel este cel din care citesc rezumatele de erori și avertismente: o programare care se strică doar lunar are nevoie de câteva apariții consemnate înainte ca tiparul să se vadă.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"

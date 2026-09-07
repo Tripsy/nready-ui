@@ -22,7 +22,7 @@ function methodVariant(method: string): BadgeVariant {
  * The HTTP method of one documented endpoint.
  *
  * Its own module rather than a helper inside `api-docs.component.tsx`, because the catalog
- * page is a server component and that file is `'use client'` — importing from it would pull
+ * page is a server component and that file is `'use client'` - importing from it would pull
  * the whole docs renderer across the boundary for a colored label.
  */
 export function MethodBadge({ method }: { method: string }) {

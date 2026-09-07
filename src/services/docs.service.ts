@@ -6,7 +6,7 @@ import type { ApiDocs, ApiDocsCatalogue } from '@/types/api-docs.type';
  * How long a docs response may be served from Next's data cache.
  *
  * The backend fills its documentation registry once, at boot, from the `<module>.docs.ts`
- * files — so the payload changes on deploy and never between requests. An hour keeps a
+ * files - so the payload changes on deploy and never between requests. An hour keeps a
  * restarted backend from being misreported for long without making every visit a round trip.
  */
 export const DOCS_REVALIDATE_SECONDS = 3600;
@@ -22,7 +22,7 @@ const EMPTY_DOCS: ApiDocs = {
 
 /**
  * The generated API documentation for one backend route module, fetched through the proxy for
- * a signed-in caller. `GET /public/api-docs/:feature` is open, so this needs no permission — it goes
+ * a signed-in caller. `GET /public/api-docs/:feature` is open, so this needs no permission - it goes
  * through the proxy only because it is called from a client component (the dashboard's usage
  * guide), which cannot reach the backend directly.
  *
@@ -37,8 +37,8 @@ export async function requestFeatureDocs(feature: string): Promise<ApiDocs> {
 }
 
 /**
- * The whole catalog — every documented route module with its endpoints listed but not
- * described — in one response, which is what lets `/api-docs` render its index without a request
+ * The whole catalog - every documented route module with its endpoints listed but not
+ * described - in one response, which is what lets `/api-docs` render its index without a request
  * per feature.
  *
  * Server-side only, via `remote-api`: the public docs pages have no visitor to authenticate,
@@ -61,7 +61,7 @@ export async function requestDocsCatalogue(): Promise<
  * One route module's documentation, server-side, for the `/api-docs/:feature` page.
  *
  * Throws rather than swallowing, because the caller has to tell an undocumented name (404,
- * and a real `notFound()`) from a backend that is down (which must not answer 404 — that
+ * and a real `notFound()`) from a backend that is down (which must not answer 404 - that
  * would tell a crawler an existing page is gone).
  */
 export async function requestPublicFeatureDocs(

@@ -20,7 +20,7 @@ function buildPageItems(
 	currentPage: number,
 	totalPages: number,
 ): PageItemType[] {
-	// 1 … c-1 c c+1 … last — the widest list the window can produce.
+	// 1 … c-1 c c+1 … last - the widest list the window can produce.
 	const maxItems = 7;
 
 	if (totalPages <= maxItems) {
@@ -170,7 +170,7 @@ export function DataTablePaginator({
 			{/*
 			 * Named through `aria-labelledby`, not `aria-label`: HeroUI's Select builds its own
 			 * labelledby as [value, label] and falls back to the trigger when there is no label
-			 * to point at, which wins over `aria-label` by spec — this control announced its
+			 * to point at, which wins over `aria-label` by spec - this control announced its
 			 * value twice ("10 10"). The hidden span is the label that reference resolves to.
 			 */}
 			<span id={elementIds['rows-per-page']} className="sr-only">

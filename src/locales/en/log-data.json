@@ -19,17 +19,17 @@
 		}
 	},
 	"help": {
-		"intro": "This is the backend's own log, kept in the database so a failure can be looked up from here rather than from a console. Nothing writes to it from this screen — the application does, as it runs.",
+		"intro": "This is the backend's own log, kept in the database so a failure can be looked up from here rather than from a console. Nothing writes to it from this screen - the application does, as it runs.",
 		"step_1_title": "Expect only the serious levels",
 		"step_1_body": "The filter offers every level the logger knows, but only error and fatal are stored in the database by default. Info and warn are the bulk of the volume and go to the console, the log file and CloudWatch instead, so an empty result at those levels means they were never kept, not that nothing happened.",
 		"step_2_title": "Read the category",
-		"step_2_body": "System is the application answering requests, cron is a scheduled job failing on its own time, and history is the audit trail — that last one has its own screen and only lands here in the configuration where audit events are routed through the logger.",
+		"step_2_body": "System is the application answering requests, cron is a scheduled job failing on its own time, and history is the audit trail - that last one has its own screen and only lands here in the configuration where audit events are routed through the logger.",
 		"step_3_title": "Follow one failure across its lines",
-		"step_3_body": "The request id ties together everything logged while handling a single request, and the process id everything logged by one process. Searching either matches exactly, which is what makes them the fastest way in — a message or context search matches by substring instead.",
+		"step_3_body": "The request id ties together everything logged while handling a single request, and the process id everything logged by one process. Searching either matches exactly, which is what makes them the fastest way in - a message or context search matches by substring instead.",
 		"step_4_title": "Open the entry",
-		"step_4_body": "The detail window shows the message, the context the call site attached, and the stack when there was one. Context is deliberately small — identifiers and shapes, never records or secrets — so it tells you where to look rather than replacing the data.",
+		"step_4_body": "The detail window shows the message, the context the call site attached, and the stack when there was one. Context is deliberately small - identifiers and shapes, never records or secrets - so it tells you where to look rather than replacing the data.",
 		"step_5_title": "Narrow, then purge",
-		"step_5_body": "Filter by level, category or a creation date range; search matches from three characters, and an all-digit term is treated as an id. Delete takes the rows you select, several at a time, and is final — there is no deleted state to restore from.",
+		"step_5_body": "Filter by level, category or a creation date range; search matches from three characters, and an all-digit term is treated as an id. Delete takes the rows you select, several at a time, and is final - there is no deleted state to restore from.",
 		"note": "A weekly job already drops everything older than 30 days, so purging by hand is for noise you want gone sooner rather than for keeping the table small. Anything older than that lives in CloudWatch under its own retention.",
 		"tab_info": "Info",
 		"tab_api": "API docs"

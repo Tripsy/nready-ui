@@ -67,7 +67,7 @@ export function getCsrfToken(): Promise<string> {
 	return tokenRequest;
 }
 
-/** Drops the cached token so the next read re-fetches — used after a rejected request. */
+/** Drops the cached token so the next read re-fetches - used after a rejected request. */
 export function resetCsrfToken(): void {
 	tokenRequest = undefined;
 }

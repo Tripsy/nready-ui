@@ -73,16 +73,16 @@
 	"help": {
 		"intro": "Un brand este un nume și un slug, plus câte o intrare de conținut pentru fiecare limbă. Slug-ul îl identifică și este unic pe tipul de brand, nu global.",
 		"step_1_title": "Dă-i un nume și setează slug-ul",
-		"step_1_body": "Slug-ul este curățat de spații și trecut în minuscule la salvare, deci nu tu decizi forma finală. Trebuie să fie unic pentru tipul de brand — un duplicat este respins, nu corectat.",
+		"step_1_body": "Slug-ul este curățat de spații și trecut în minuscule la salvare, deci nu tu decizi forma finală. Trebuie să fie unic pentru tipul de brand - un duplicat este respins, nu corectat.",
 		"step_2_title": "Alege tipul de brand",
 		"step_2_body": "Tipul este jumătate din cheia de unicitate, deci același slug poate exista o dată pentru fiecare tip. Astăzi există doar „produs”, ceea ce face slug-urile efectiv unice în ansamblu.",
 		"step_3_title": "Scrie conținutul, câte o limbă pe rând",
-		"step_3_body": "Este necesară cel puțin o intrare de limbă, iar fiecare limbă poate apărea o singură dată — o limbă repetată este respinsă, nu combinată. Descrierea și meta sunt opționale în cadrul unei intrări.",
+		"step_3_body": "Este necesară cel puțin o intrare de limbă, iar fiecare limbă poate apărea o singură dată - o limbă repetată este respinsă, nu combinată. Descrierea și meta sunt opționale în cadrul unei intrări.",
 		"step_4_title": "Activează-l sau dezactivează-l",
 		"step_4_body": "Brandurile sunt active sau inactive și trec liber între cele două. Nu există stare de ciornă sau în așteptare.",
 		"step_5_title": "Adaugă un logo și stabilește ordinea",
-		"step_5_body": "Imagini deschide slotul de logo — un brand are un singur logo, nu o galerie. Ordonarea aranjează toate brandurile unui tip deodată și este cea citită la sortarea după ordine.",
-		"note": "Ștergerea unui brand este una logică, iar regula de unicitate ignoră rândurile șterse — deci slug-ul devine imediat liber și poate fi luat de un brand nou. Restaurarea celui vechi eșuează atunci cât timp numele este ocupat.",
+		"step_5_body": "Imagini deschide slotul de logo - un brand are un singur logo, nu o galerie. Ordonarea aranjează toate brandurile unui tip deodată și este cea citită la sortarea după ordine.",
+		"note": "Ștergerea unui brand este una logică, iar regula de unicitate ignoră rândurile șterse - deci slug-ul devine imediat liber și poate fi luat de un brand nou. Restaurarea celui vechi eșuează atunci cât timp numele este ocupat.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
 	}

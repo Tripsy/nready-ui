@@ -20,7 +20,7 @@ import type { DataSourceKey } from '@/types/data-source.key';
 
 type TargetSource = {
 	dataSource: DataSourceKey;
-	/** Plural, and used as written — "Targeted Brands", "Search brands…". */
+	/** Plural, and used as written - "Targeted Brands", "Search brands…". */
 	label: string;
 	// biome-ignore lint/suspicious/noExplicitAny: one map over five unrelated models
 	getOptionLabel: (entry: any) => string;
@@ -34,7 +34,7 @@ type TargetSource = {
  * differently.
  *
  * A full `Record` over `DiscountTargetScope`, so a scope added to the backend enum without an
- * entry here is a type error rather than a form that renders nothing. `order` is not a key — it
+ * entry here is a type error rather than a form that renders nothing. `order` is not a key - it
  * applies to the basket and points at nothing.
  */
 export const TARGET_SOURCES: Record<DiscountTargetScope, TargetSource> = {
@@ -48,7 +48,7 @@ export const TARGET_SOURCES: Record<DiscountTargetScope, TargetSource> = {
 		label: 'Categories',
 		/*
 		 * The backend defaults this filter to `article`, so without it a discount could only
-		 * ever be pointed at blog categories — never at the product tree it is meant for.
+		 * ever be pointed at blog categories - never at the product tree it is meant for.
 		 */
 		filter: { type: 'product' },
 		getOptionLabel: (entry: CategoryModel) =>
@@ -80,7 +80,7 @@ export const TARGET_SOURCES: Record<DiscountTargetScope, TargetSource> = {
 /**
  * Names the rows a set of target ids points at, as `{ [id]: label }`.
  *
- * One request per scope rather than one per id — every listing behind `TARGET_SOURCES` takes a
+ * One request per scope rather than one per id - every listing behind `TARGET_SOURCES` takes a
  * list on `filter[id]`. `limit` is the number asked for, so the page can never cut the answer
  * short.
  *

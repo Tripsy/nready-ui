@@ -13,7 +13,7 @@ const KEY_LABEL = 'me';
  * single navigation pays a backend round-trip before the page can start rendering.
  *
  * Driven through `CacheProvider`'s `read`/`set`/`delete` rather than its read-through
- * `get()`, because only a *successful* lookup may be stored — see `resolveAccountModel()` in
+ * `get()`, because only a *successful* lookup may be stored - see `resolveAccountModel()` in
  * the proxy.
  *
  * Staleness is bounded by the TTL: a permission or role change made in the backend takes up
@@ -22,7 +22,7 @@ const KEY_LABEL = 'me';
  */
 
 /**
- * The session token is a bearer credential, so it never becomes part of a Redis key —
+ * The session token is a bearer credential, so it never becomes part of a Redis key -
  * anyone able to read the keyspace could otherwise harvest live sessions. A SHA-256 digest
  * gives a stable, collision-free lookup; reversibility is not wanted here.
  */
@@ -52,7 +52,7 @@ export async function getCachedAccountModel(
 	}
 
 	// JSON round-tripping turns the model's Date fields back into strings, so re-run the
-	// same normalization the fresh path applies — the cached and uncached results are then
+	// same normalization the fresh path applies - the cached and uncached results are then
 	// indistinguishable to every caller.
 	return prepareAccountModel(cached as AccountModel);
 }

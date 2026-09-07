@@ -69,9 +69,9 @@
 		"not_verified": "Not Verified",
 		"last_updated": "Last updated:",
 		"last_used": "Last used:",
-		"password_not_set": "Not set — you sign in with a social provider",
+		"password_not_set": "Not set - you sign in with a social provider",
 		"linked": "Linked",
-		"not_linked": "Not linked — sign in with {{provider}} using this account’s email address to link it.",
+		"not_linked": "Not linked - sign in with {{provider}} using this account’s email address to link it.",
 		"active_session": "Active Session"
 	},
 	"button": {

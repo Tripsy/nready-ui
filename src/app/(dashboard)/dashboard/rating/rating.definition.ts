@@ -21,7 +21,7 @@ import type {
 } from '@/types/data-source.type';
 
 /**
- * Exactly the keys in the backend's `find.filterSchema` — it accepts no free-text term, so
+ * Exactly the keys in the backend's `find.filterSchema` - it accepts no free-text term, so
  * there is no `global` filter here and the table carries no search box.
  *
  * `user` is the label half of the autocomplete pair; only `user_id` reaches the backend.
@@ -91,7 +91,7 @@ export default async function dataSourceConfig(): Promise<
 					user_id: { value: null, matchMode: 'equals' },
 				} satisfies RatingDataTableFiltersType,
 			},
-			// Only `id` and `created_at` are sortable — the two columns the backend's
+			// Only `id` and `created_at` are sortable - the two columns the backend's
 			// `OrderByEnum` accepts.
 			columns: [
 				{

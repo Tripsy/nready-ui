@@ -71,7 +71,7 @@ export type ArticleSourceType = {
  * `content` carries **markdown**, which is what the form edits and what the backend stores; the
  * dashboard renders it to HTML for display only (`renderMarkdown`).
  *
- * `find` does not select `content`, so a list row arrives without it — anything reading the body
+ * `find` does not select `content`, so a list row arrives without it - anything reading the body
  * has to come from `read`.
  */
 export type ArticleContentType = {
@@ -97,7 +97,7 @@ export type ArticleVisibilityRuleType = {
 	requires_subscription: boolean;
 	allowed_countries: string[] | null;
 	/*
-	 * Defaults to true and is not editable from the dashboard — every article is listed unless
+	 * Defaults to true and is not editable from the dashboard - every article is listed unless
 	 * something outside this form says otherwise. Kept on the type because the API still
 	 * returns it.
 	 */
@@ -108,7 +108,7 @@ export type ArticleVisibilityRuleType = {
  * The reader-contributed features an article opts into. Stored on the API inside `details`, and
  * mirrored here as the resolved shape the read endpoints return: an article that overrides
  * nothing still comes back with all three, filled from the API's own defaults (all true unless
- * `ARTICLE_ALLOW_*` says otherwise). A payload may send any subset — an omitted key is left alone.
+ * `ARTICLE_ALLOW_*` says otherwise). A payload may send any subset - an omitted key is left alone.
  */
 export const ArticleSettingEnum = {
 	ALLOW_RATING: 'allow_rating',
@@ -123,7 +123,7 @@ export type ArticleSettingsType = Record<ArticleSetting, boolean>;
 
 /**
  * What the dashboard seeds a new article's switches with. It mirrors the API's shipped defaults
- * rather than reading them — they are backend env (`ARTICLE_ALLOW_*`) and the browser cannot see
+ * rather than reading them - they are backend env (`ARTICLE_ALLOW_*`) and the browser cannot see
  * them. Harmless where the two agree, which is every deployment that has not turned one off: the
  * API drops any value equal to its own default instead of storing it as an override.
  */
@@ -138,7 +138,7 @@ export const ARTICLE_DEFAULT_VISIBILITY = ArticleVisibilityEnum.PUBLIC;
 
 /**
  * The one image a public surface shows for an article: the first of its gallery, by
- * `sort_order`. Present only on the public endpoints, which attach it — the dashboard
+ * `sort_order`. Present only on the public endpoints, which attach it - the dashboard
  * manages images through the `image` feature instead.
  */
 export type ArticleCoverImageType = {
@@ -189,7 +189,7 @@ export type ArticleModel<D = Date | string> = {
 // Helpers
 /**
  * The wording carried by a row, falling back through the default language and then whatever
- * translation exists — `find` returns only the filtered language, so an article with no content
+ * translation exists - `find` returns only the filtered language, so an article with no content
  * there arrives with none at all.
  */
 export function getArticleContentProp(
@@ -232,7 +232,7 @@ export const displayArticleLabel = (
 /**
  * The category labels a list row carries, in the requested language.
  *
- * Empty when the article has none, and also on a row that came from `read` — that route
+ * Empty when the article has none, and also on a row that came from `read` - that route
  * returns the link rows without the category, so there is nothing to name.
  */
 export function displayArticleCategories(
@@ -250,7 +250,7 @@ export function displayArticleCategories(
 
 /**
  * The category an article is *shown* under: the first of its links that carries a
- * translation. An article can be filed under several, but a page needs one — it is the
+ * translation. An article can be filed under several, but a page needs one - it is the
  * category segment of the article's public URL and the chip above its title.
  *
  * `null` on an article with no category, and on a row that came from the dashboard `read`
@@ -290,7 +290,7 @@ export function getArticlePrimaryCategory(
  * The public URL of an article: `/articles/<article-slug>`. The slug alone identifies it, so
  * re-filing an article under another category leaves its address untouched.
  *
- * Returns `null` when the article carries no slug in this language — there is no address to
+ * Returns `null` when the article carries no slug in this language - there is no address to
  * build, and a caller has to render it unlinked rather than point at a URL that 404s.
  */
 export function buildArticlePath(
@@ -311,8 +311,8 @@ export function buildArticlePath(
  *
  * Both wordings fall back through the default language and then whatever translation exists,
  * so a link stays readable under a language it was never translated into. An id is dropped
- * only when its row carries no wording at all — which is every tag on a list row, since `find`
- * joins none — rather than mapped to a placeholder; the caller decides how a nameless id reads.
+ * only when its row carries no wording at all - which is every tag on a list row, since `find`
+ * joins none - rather than mapped to a placeholder; the caller decides how a nameless id reads.
  */
 export function getArticleLinkLabels(
 	entry: ArticleModel | undefined,

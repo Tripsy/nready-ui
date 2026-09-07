@@ -51,7 +51,7 @@ class MiddlewareContext {
 
 		// `set` percent-encodes on serialization, so the raw path goes in: pre-encoding it
 		// here would encode the escapes themselves, and a reader doing one `get` would be
-		// handed `%2Fdashboard` — which `isSafeReturnPath` in the OAuth start route rejects
+		// handed `%2Fdashboard` - which `isSafeReturnPath` in the OAuth start route rejects
 		// for not beginning with a slash.
 		loginUrl.searchParams.set('from', destinationPath);
 
@@ -110,14 +110,14 @@ class MiddlewareContext {
 	 * Double-submit check: the token sent in the header must match the httpOnly cookie that
 	 * `/api/csrf` issued. Only same-origin script can read the token (it is handed back in the
 	 * response body, never readable from the cookie), and only same-origin script can set a
-	 * custom header without a preflight — so a forged cross-site request fails both halves.
+	 * custom header without a preflight - so a forged cross-site request fails both halves.
 	 *
 	 * This sits alongside `isValidRequestSource()` rather than replacing it: that check reads
 	 * headers the browser controls, this one requires a value obtained from this origin.
 	 *
 	 * It is a CSRF defense, not an access control, and the distinction matters: `/api/csrf`
 	 * issues a token to anyone who asks, so a non-browser client fetches one and replays it.
-	 * What the pair actually proves is same-browser — which is the whole job here, since the
+	 * What the pair actually proves is same-browser - which is the whole job here, since the
 	 * attack it stops is another origin's page acting as the visitor.
 	 */
 	isValidCsrfToken() {
@@ -133,8 +133,8 @@ class MiddlewareContext {
 	}
 
 	isValidRequestSource() {
-		// Primary defense: Sec-Fetch-Site is a browser-set *forbidden* header —
-		// JavaScript cannot forge it — so it's a stronger CSRF signal than
+		// Primary defense: Sec-Fetch-Site is a browser-set *forbidden* header -
+		// JavaScript cannot forge it - so it's a stronger CSRF signal than
 		// Origin/Referer. Present on all evergreen browsers. A state-changing
 		// request from our own SPA is always `same-origin`; `cross-site` (and the
 		// direct-navigation `none`) have no legitimate mutating caller here.
@@ -153,7 +153,7 @@ class MiddlewareContext {
 
 		const allowedOrigins = Configuration.get('security.allowedOrigins');
 
-		// Probably a same-origin browser request — allow it
+		// Probably a same-origin browser request - allow it
 		if (!origin && !referer) {
 			return true;
 		}
@@ -386,16 +386,16 @@ export async function proxy(req: NextRequest) {
 	/*
 	 * CSRF is enforced here, in front of every mutating API request, rather than inside the
 	 * form pipeline: `processForm` runs in the browser, so a check there was only ever a
-	 * suggestion the client could skip. This single gate covers `/api/proxy/*` — every
-	 * backend mutation — plus `/api/image` and `/api/language`, which bypass the proxy.
+	 * suggestion the client could skip. This single gate covers `/api/proxy/*` - every
+	 * backend mutation - plus `/api/image` and `/api/language`, which bypass the proxy.
 	 *
 	 * Scoped to `/api/`: page routes are navigations, and server actions returned above
 	 * carry their own origin verification from Next.
 	 */
 	if (isMutating && req.nextUrl.pathname.startsWith('/api/')) {
 		if (!ctx.isValidCsrfToken()) {
-			// A recognizable body lets ApiRequest tell an expired token — refresh and retry
-			// once — from a genuine refusal.
+			// A recognizable body lets ApiRequest tell an expired token - refresh and retry
+			// once - from a genuine refusal.
 			return NextResponse.json(
 				{ code: CSRF_REJECTION_CODE, message: 'Invalid CSRF token' },
 				{ status: 403 },

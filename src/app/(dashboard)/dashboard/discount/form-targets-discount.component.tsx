@@ -27,7 +27,7 @@ type Props = {
  * Search-and-add picker for a discount's targets.
  *
  * The selection itself is a list of ids, held in form state, and mirrored into hidden inputs so
- * it survives `processForm` — which rebuilds its values from `FormData` on every submit, so
+ * it survives `processForm` - which rebuilds its values from `FormData` on every submit, so
  * anything not rendered as a field would be dropped.
  *
  * Labels are kept beside it, keyed by id, purely so the chips read as names rather than numbers.
@@ -50,7 +50,7 @@ export function FormTargetsDiscount({
 	const source = TARGET_SOURCES[scope];
 
 	/*
-	 * The ids that still have no name — the stored selection, which reaches the form as bare
+	 * The ids that still have no name - the stored selection, which reaches the form as bare
 	 * ids. What the user adds by searching is named on the spot by `addEntry`, so it never
 	 * enters this set and adding a chip costs no request.
 	 */
@@ -64,8 +64,8 @@ export function FormTargetsDiscount({
 
 	/*
 	 * Merged into the cache so the resolved ids leave `missingIds`, which is what settles the
-	 * query. An id the listing did not return — a target whose row was soft-deleted after the
-	 * link was made — is pinned to its own `#12` for the same reason: left unresolved it would
+	 * query. An id the listing did not return - a target whose row was soft-deleted after the
+	 * link was made - is pinned to its own `#12` for the same reason: left unresolved it would
 	 * be asked for again on every refetch.
 	 */
 	useEffect(() => {
@@ -169,7 +169,7 @@ export function FormTargetsDiscount({
 				>
 					{error?.length
 						? error.join(' ')
-						: 'No targets yet — this discount will not apply to anything.'}
+						: 'No targets yet - this discount will not apply to anything.'}
 				</p>
 			) : (
 				<ul className="flex flex-wrap gap-2">

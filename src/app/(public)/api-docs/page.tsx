@@ -39,7 +39,7 @@ const TRANSLATION_KEYS = [
 type Translations = Record<(typeof TRANSLATION_KEYS)[number], string>;
 
 /**
- * The order the groups are presented in — open first, because that is the half of the API a
+ * The order the groups are presented in - open first, because that is the half of the API a
  * reader with no account can act on today.
  *
  * `partial` is deliberately absent: a feature that mixes open and gated endpoints is split into
@@ -64,7 +64,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * The catalog is one request for every module, so a failure is total — rendered as a notice
+ * The catalog is one request for every module, so a failure is total - rendered as a notice
  * rather than thrown, since an unreachable backend should not turn the reference into an
  * error page.
  */
@@ -90,7 +90,7 @@ function ModuleCard({
 			href={Routes.get('api-docs-feature', { feature: entry.feature })}
 			className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-5 transition-colors hover:border-accent"
 		>
-			{/* The path gets the row to itself — a long one would otherwise push the
+			{/* The path gets the row to itself - a long one would otherwise push the
 			    badge onto a second line and leave the card header ragged. */}
 			<code className="font-semibold break-all">{entry.basePath}</code>
 
@@ -101,7 +101,7 @@ function ModuleCard({
 
 			{/*
 			 * Deduplicated: a module documents one action per route, and several of them share
-			 * a method — the row is meant to say which verbs the module answers to, not how
+			 * a method - the row is meant to say which verbs the module answers to, not how
 			 * many times each appears.
 			 */}
 			<div className="flex flex-wrap gap-1.5">
@@ -144,7 +144,7 @@ export default async function Page() {
 
 	/*
 	 * Only `partial` can land here, and only if a backend module regains a mixed set of
-	 * endpoints. The page cannot render it — there is no group to put it in — so it is named
+	 * endpoints. The page cannot render it - there is no group to put it in - so it is named
 	 * in the server log rather than disappearing from an index that claims to list every
 	 * documented module.
 	 */

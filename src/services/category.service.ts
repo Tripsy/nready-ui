@@ -14,7 +14,7 @@ import type { Language } from '@/types/common.type';
  *
  * Server-side only, via `remote-api`: the `/api/proxy` route the dashboard uses attaches the
  * session cookie, and this page has no visitor to attach. Going straight to the backend also
- * lets the response participate in Next's data cache — `revalidate` is the caller's to set,
+ * lets the response participate in Next's data cache - `revalidate` is the caller's to set,
  * since only it knows how fresh the page has to be.
  */
 export async function requestPublicCategories(params: {
@@ -44,7 +44,7 @@ export async function requestPublicCategories(params: {
 
 /**
  * Reorders one sibling group. The backend reads the group as "same type, same parent" and
- * treats an absent `parent_id` as the roots of that type — so the key is omitted rather than
+ * treats an absent `parent_id` as the roots of that type - so the key is omitted rather than
  * sent as null, which `JSON.stringify` does for an `undefined` value.
  */
 export async function orderUpdate(

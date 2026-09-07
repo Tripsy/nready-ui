@@ -62,7 +62,7 @@ export function UsageGuide({
 
 	/*
 	 * Tracked rather than left to the tabs, because every panel stays mounted (`TabsContent`
-	 * force-mounts) — each docs request is deferred until its own tab has been opened instead
+	 * force-mounts) - each docs request is deferred until its own tab has been opened instead
 	 * of firing for everyone who opens the window.
 	 */
 	const [selectedTab, setSelectedTab] = useState<string>(TAB_INFO);

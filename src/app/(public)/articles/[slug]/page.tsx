@@ -87,7 +87,7 @@ const TRANSLATION_KEYS = [
 
 /**
  * What the fetch produced, as the page has to render it: the article, the closed door, or the
- * backend being unreachable. A missing article is not in here — that one is `notFound()`,
+ * backend being unreachable. A missing article is not in here - that one is `notFound()`,
  * which never returns.
  */
 type ArticleResult =
@@ -220,12 +220,12 @@ export default async function Page(props: Props) {
 	const content = getContent(entry);
 
 	if (!content) {
-		// Published with no translation the reader can be served — nothing to render.
+		// Published with no translation the reader can be served - nothing to render.
 		notFound();
 	}
 
 	/*
-	 * Read for the breadcrumb and the sidebar's "more from this category" only — the address
+	 * Read for the breadcrumb and the sidebar's "more from this category" only - the address
 	 * carries no category segment, so re-filing an article never changes its URL.
 	 */
 	const category = getArticlePrimaryCategory(entry, language);
@@ -233,7 +233,7 @@ export default async function Page(props: Props) {
 	const articlePath = Routes.get('article-view', { slug: content.slug });
 
 	/*
-	 * The by-line the article carries, falling back to the account that filed it — which has
+	 * The by-line the article carries, falling back to the account that filed it - which has
 	 * a name and nothing else, so the box then reads as a bare attribution.
 	 */
 	const author = content.author?.name
@@ -244,14 +244,14 @@ export default async function Page(props: Props) {
 
 	const publishedAt = formatRelativeDate(entry.publish_at);
 
-	// `read` returns the tag links without the term itself, so ids are all there is — which
+	// `read` returns the tag links without the term itself, so ids are all there is - which
 	// is exactly what the listing filter takes.
 	const tagIds = (entry.tags ?? []).map((link) => link.tag_id);
 
 	/*
 	 * What this article accepts from its readers. The API resolves the three against its own
 	 * defaults before returning them, so the fallback only covers a response from an older
-	 * backend — one that does not send `settings` at all.
+	 * backend - one that does not send `settings` at all.
 	 */
 	const settings = entry.settings ?? ARTICLE_DEFAULT_SETTINGS;
 
@@ -345,7 +345,7 @@ export default async function Page(props: Props) {
 					{/*
 					 * Below the body and above the by-line: the reader has just finished
 					 * the article, which is the only moment either question makes sense.
-					 * Both are client-rendered — the counts, the reader's own vote and
+					 * Both are client-rendered - the counts, the reader's own vote and
 					 * their own report are resolved per visitor, and this page is served
 					 * from a 600s data cache.
 					 *
@@ -375,7 +375,7 @@ export default async function Page(props: Props) {
 					{/*
 					 * After the by-line and the source, which belong to the article itself:
 					 * the discussion is about it and reads as a separate section, not as
-					 * part of the piece. Client-rendered for the same reason the rating is —
+					 * part of the piece. Client-rendered for the same reason the rating is -
 					 * this page is served from a 600s data cache, and a comment approved in
 					 * the meantime would not appear until that window passed.
 					 */}

@@ -28,7 +28,7 @@ import { DataSourceSectionEnum } from '@/types/data-source.type';
 import type { WindowEntryType } from '@/types/window.type';
 
 /**
- * A category declares a handful of attributes, not a page of them — a product form asking
+ * A category declares a handful of attributes, not a page of them - a product form asking
  * thirty questions is a different problem from this one. The cap is here so a listing cannot be
  * requested unbounded, not because a real category is expected to approach it.
  */
@@ -130,13 +130,13 @@ function SortableAttributeRow({
 }
 
 /**
- * The attributes a product in this category is expected to carry — which labels apply, how each
+ * The attributes a product in this category is expected to carry - which labels apply, how each
  * is captured and which values are admissible.
  *
  * It edits `product_category_attribute`, an entity of its own with its own endpoints, so the
  * rows are fetched here rather than read off the category: a definition outlives every product
  * that answers to it, and the category payload carries none of them. The create and update
- * windows are the standard form windows for that data source — this is the list and the way in.
+ * windows are the standard form windows for that data source - this is the list and the way in.
  */
 export function ManagerAttributesCategory({
 	uid,
@@ -190,7 +190,7 @@ export function ManagerAttributesCategory({
 	/*
 	 * The list is held here as well as in the query cache: a drop has to move the row at once,
 	 * and the refetch that confirms it is a round trip away. The query stays the source of truth
-	 * — this follows it back whenever it settles, so a rejected reorder undoes itself.
+	 * - this follows it back whenever it settles, so a rejected reorder undoes itself.
 	 */
 	const [definitions, setDefinitions] = useState<
 		ProductCategoryAttributeModel[]
@@ -204,7 +204,7 @@ export function ManagerAttributesCategory({
 	 * Opens one of the data source's own windows and comes back here afterward.
 	 *
 	 * `open` minimizes every other window to make room, this one included, so the manager has to
-	 * be focused again on success — otherwise saving an attribute leaves the editor on an empty
+	 * be focused again on success - otherwise saving an attribute leaves the editor on an empty
 	 * desktop with the list parked in the dock. The list is refetched rather than patched: the
 	 * response to a create carries no joined label, and the sort order the row was given decides
 	 * where it belongs among the others.
@@ -300,7 +300,7 @@ export function ManagerAttributesCategory({
 
 			{definitions.length === 0 ? (
 				<p className="text-sm text-muted">
-					No attributes declared — a product here is asked nothing
+					No attributes declared - a product here is asked nothing
 					beyond its own fields.
 				</p>
 			) : (

@@ -166,7 +166,7 @@ class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 
 	/**
 	 * `requiredMessage` makes the list non-empty. Mirrors the backend's own rule rather than
-	 * adding a UI-only one — an article with no category has no public URL, so the form has
+	 * adding a UI-only one - an article with no category has no public URL, so the form has
 	 * to say so before the request rather than surfacing a 422 after it.
 	 */
 	idListSchema(message: string, requiredMessage?: string) {
@@ -291,7 +291,7 @@ class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 				}
 
 				// The expiry has nothing to expire without a slot, and the backend rejects
-				// the pair outright — caught here on the field holding the stray date.
+				// the pair outright - caught here on the field holding the stray date.
 				if (data.featured_expire_at && !data.featured_status) {
 					ctx.addIssue({
 						code: 'custom',
@@ -303,7 +303,7 @@ class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 				}
 
 				// The column is `varchar(2)[]`, and the backend rejects the whole array on the
-				// first bad entry — naming the field here beats a generic list error.
+				// first bad entry - naming the field here beats a generic list error.
 				const invalidCountry = splitList(
 					data.rule_allowed_countries,
 				).find((code) => code.length !== 2);
@@ -395,7 +395,7 @@ function getFormValues(formData: FormData): ArticleFormValuesType {
 		source_disclaimer: getFormDataAsString(formData, 'source_disclaimer'),
 		source_about: getFormDataAsString(formData, 'source_about'),
 		// The pickers render one hidden input per selected id, which is what puts them in
-		// `FormData` — `processForm` rebuilds its values from there on every submit.
+		// `FormData` - `processForm` rebuilds its values from there on every submit.
 		categories: parseIdList(formData, 'category_id'),
 		tags: parseIdList(formData, 'tag_id'),
 		contents: parseContents(formData),
@@ -430,8 +430,8 @@ function getFormState(
 			// Never seeded: the API returns the bcrypt hash to nobody.
 			rule_password: null,
 			/*
-			 * `read` returns these already resolved — the article's own override where it has
-			 * one, the API's default everywhere else — so an existing article seeds the boxes
+			 * `read` returns these already resolved - the article's own override where it has
+			 * one, the API's default everywhere else - so an existing article seeds the boxes
 			 * with what actually applies to it. A new one falls back to the mirrored defaults.
 			 */
 			allow_rating:
@@ -476,11 +476,11 @@ function getFormState(
 
 /**
  * The rule only travels with a restricted article. Absent means "leave alone" to the backend,
- * which is exactly right for a public one — it drops the row itself once visibility says public.
+ * which is exactly right for a public one - it drops the row itself once visibility says public.
  *
  * `password` is omitted while the field is empty rather than sent as `''`. An empty string
  * clears the stored hash, and the field is always empty on an update because the hash is never
- * returned — sending it would wipe the password on every unrelated save. The cost is that the
+ * returned - sending it would wipe the password on every unrelated save. The cost is that the
  * password cannot be cleared from this form; changing it works, and removing it means switching
  * the article to public and back.
  */
@@ -490,7 +490,7 @@ function buildVisibilityRule(data: ArticleManageOutput) {
 	}
 
 	/*
-	 * `is_listed` is omitted deliberately — the dashboard does not expose it, and the backend
+	 * `is_listed` is omitted deliberately - the dashboard does not expose it, and the backend
 	 * defaults it to true, which is the intended state for every article this form creates.
 	 */
 	return {
@@ -505,7 +505,7 @@ function buildVisibilityRule(data: ArticleManageOutput) {
  * The by-line the API stores, rebuilt from the flat form fields.
  *
  * `null` when no name was given: the backend requires one inside the object, and an absent
- * by-line is the normal case — the article then reads as filed by `author_id`.
+ * by-line is the normal case - the article then reads as filed by `author_id`.
  */
 function buildContents(data: ArticleManageOutput) {
 	return data.contents.map((content) => {
@@ -641,7 +641,7 @@ export default async function dataSourceConfig(): Promise<
 
 	/**
 	 * The row button offers the single next step of the editorial workflow. `pending` has three
-	 * onward transitions, so it offers none of them — that decision belongs in the action bar
+	 * onward transitions, so it offers none of them - that decision belongs in the action bar
 	 * where the choice is visible.
 	 */
 	function displayButtonStatus(
@@ -778,7 +778,7 @@ export default async function dataSourceConfig(): Promise<
 						}),
 				},
 				{
-					// Sorts on `publish_at` alone — the fallback below is a display choice and
+					// Sorts on `publish_at` alone - the fallback below is a display choice and
 					// the backend has no column mixing the two, so an unscheduled article sorts
 					// by its NULL rather than by the date shown.
 					field: 'publish_at',
@@ -848,7 +848,7 @@ export default async function dataSourceConfig(): Promise<
 						id,
 					);
 				},
-				// A list row carries neither the markdown nor the link rows — only `read` does.
+				// A list row carries neither the markdown nor the link rows - only `read` does.
 				reloadEntry: (id: number) =>
 					requestView<ArticleModel>('article', id),
 				buttonPosition: 'left',

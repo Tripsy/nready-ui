@@ -39,7 +39,7 @@ export default function OAuthCallback({
 		useState<OAuthCallbackStateType>(OAuthCallbackState);
 
 	/*
-	 * The authorization code is single-use — the provider rejects a second exchange. React
+	 * The authorization code is single-use - the provider rejects a second exchange. React
 	 * Strict Mode runs effects twice in development, so without this guard the first attempt
 	 * consumes the code and the second reports a failure over an already-successful sign-in.
 	 */
@@ -83,7 +83,7 @@ export default function OAuthCallback({
 		 * A document load, for the same reason as the password login (see
 		 * `account/login/login.component.tsx`): this flow has just run `oauthCallbackAction`,
 		 * and a server action's response re-renders the URL it was posted to and makes that URL
-		 * canonical again — which can undo a client-side navigation started around it. Leaving
+		 * canonical again - which can undo a client-side navigation started around it. Leaving
 		 * the page outright cannot be reverted, and the destination is server-rendered with the
 		 * session cookie, so `AuthProvider` is seeded from `x-auth-data` without a refresh.
 		 */

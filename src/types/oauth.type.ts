@@ -26,7 +26,7 @@ export function isOAuthProvider(value: string): value is OAuthProvider {
 
 /**
  * A provider is offered only when this app knows its client id. The backend enforces the
- * real gate (it holds the secret and answers 501 without one) — this just avoids showing a
+ * real gate (it holds the secret and answers 501 without one) - this just avoids showing a
  * button that could only ever fail.
  */
 export function isOAuthProviderEnabled(provider: OAuthProvider): boolean {
@@ -39,7 +39,7 @@ export function getEnabledOAuthProviders(): OAuthProvider[] {
 
 /**
  * Where the provider sends the browser back to. It has to match byte-for-byte between the
- * authorize request and the backend's token exchange — the provider compares them — so both
+ * authorize request and the backend's token exchange - the provider compares them - so both
  * legs are built from this one function.
  */
 export function getOAuthRedirectUri(provider: OAuthProvider): string {
@@ -51,7 +51,7 @@ export function getOAuthRedirectUri(provider: OAuthProvider): string {
  *
  * `state` is the CSRF guard: it is minted alongside a cookie before the redirect and has to
  * come back unchanged, which is what stops an attacker feeding their own `code` into a
- * victim's session. The backend cannot check it — it never sees the browser leave — so this
+ * victim's session. The backend cannot check it - it never sees the browser leave - so this
  * is the only place it is enforced.
  */
 export function buildOAuthAuthorizeUrl(

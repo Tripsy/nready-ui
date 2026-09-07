@@ -160,8 +160,8 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	/**
 	 * The market a figure is quoted in.
 	 *
-	 * Upper-cased so `ron` and `RON` reach the same `(variant_id, currency)` — or
-	 * `(option_id, currency)` — unique index rather than passing as two prices for one market.
+	 * Upper-cased so `ron` and `RON` reach the same `(variant_id, currency)` - or
+	 * `(option_id, currency)` - unique index rather than passing as two prices for one market.
 	 */
 	private readonly currencySchema = this.validateString(
 		this.getMessage('invalid_currency'),
@@ -174,7 +174,7 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	/**
 	 * Prices exclude VAT, matching the column they feed. `min_price` is the floor a stacked
 	 * discount may not resolve below, which is why it is checked against `price` here as well
-	 * as by the backend — a table `@Check` violation would reach the client as a masked 500.
+	 * as by the backend - a table `@Check` violation would reach the client as a masked 500.
 	 */
 	private readonly priceSchema = z
 		.object({
@@ -209,7 +209,7 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	/**
 	 * Optional and nullable, matching the backend's own `nonNegative` and the nullable columns
 	 * behind it. Declaring these required is stricter than the API and makes an existing row
-	 * unsavable — a variant stored with no low-stock threshold could not be edited at all.
+	 * unsavable - a variant stored with no low-stock threshold could not be edited at all.
 	 */
 	private readonly nonNegative = (message: string) =>
 		this.validateNumber(message, {
@@ -224,7 +224,7 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	 * One answer to a category-declared attribute, as the form holds it.
 	 *
 	 * Deliberately unshaped beyond the entry: what makes a *value* valid is the definition
-	 * governing its label — the option list, the bounds, the storage — and that lives in the
+	 * governing its label - the option list, the bounds, the storage - and that lives in the
 	 * resolved form the component holds, which this file never sees. The backend re-checks all
 	 * of it on write. The one rule checkable here is the one the entry carries itself.
 	 */
@@ -238,7 +238,7 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	});
 
 	private readonly variantSchema = z.object({
-		// Client-only row identity — see `ProductVariantFormType`. In the schema so a re-parse
+		// Client-only row identity - see `ProductVariantFormType`. In the schema so a re-parse
 		// keeps it; stripped by `prepareParamsFromFormValues`.
 		key: z.string(),
 		sku: this.validateString(this.getMessage('invalid_sku'), {
@@ -267,13 +267,13 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 			},
 		),
 		prices: z.array(this.priceSchema),
-		// The variant's own axes, shaped like the product's — see the comment there.
+		// The variant's own axes, shaped like the product's - see the comment there.
 		attributes: this.attributeEntrySchema.array(),
 	});
 
 	/**
 	 * Shared with the bundle form, which writes the same `availabilities` array to the same
-	 * endpoint — see `buildAvailabilitySchema` for why the rules live outside both validators.
+	 * endpoint - see `buildAvailabilitySchema` for why the rules live outside both validators.
 	 */
 	private readonly availabilitiesSchema = buildAvailabilitiesSchema({
 		invalid: this.getMessage('invalid_availability'),
@@ -284,7 +284,7 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	});
 
 	/**
-	 * Signed, unlike `priceSchema` — a delta of −5.00 is an answer ("no side"), not a discount,
+	 * Signed, unlike `priceSchema` - a delta of −5.00 is an answer ("no side"), not a discount,
 	 * and the column carries no positivity check for exactly that reason.
 	 */
 	private readonly optionDeltaSchema = z.object({
@@ -307,7 +307,7 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	 * keeps one row, because a zero delta says the same thing where an operator can see it.
 	 */
 	private readonly optionSchema = z.object({
-		// Client-only row identity — see `ProductOptionFormType`. In the schema so a re-parse
+		// Client-only row identity - see `ProductOptionFormType`. In the schema so a re-parse
 		// keeps it; stripped by `prepareParamsFromFormValues`.
 		key: z.string(),
 		label_id: this.validateId(this.getMessage('invalid_option_label')),
@@ -320,7 +320,7 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	});
 
 	/**
-	 * Cardinality is the `min_select` / `max_select` pair and nothing else — there is no
+	 * Cardinality is the `min_select` / `max_select` pair and nothing else - there is no
 	 * `is_required` flag to keep in agreement with it.
 	 *
 	 * Both bounds are re-checked here rather than left to the backend: `max >= min` is a table
@@ -420,7 +420,7 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 				),
 			/*
 			 * A product's attribute form is resolved from its categories, so one filed under
-			 * nothing has no form to fill in. The public address does not depend on them —
+			 * nothing has no form to fill in. The public address does not depend on them -
 			 * it is `/products/<product-slug>`, the slug alone.
 			 */
 			categories: this.refSchema
@@ -436,7 +436,7 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 			// the common case and must not cost a row per weekday to express.
 			availabilities: this.availabilitiesSchema,
 			/*
-			 * The questions asked at order time. No minimum either — most products ask none,
+			 * The questions asked at order time. No minimum either - most products ask none,
 			 * and a group is what a customization *is*, not something every product owes.
 			 */
 			option_groups: this.optionGroupSchema.array(),
@@ -448,7 +448,7 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 			 * the label, the option list and the bounds on every write.
 			 */
 			attributes: this.attributeEntrySchema.array(),
-			// The sentinel the two set-wide variant rules report on — see the form values type.
+			// The sentinel the two set-wide variant rules report on - see the form values type.
 			variants_rule: z.string().nullable(),
 			// Display-only, carried so a re-parse does not blank the autocomplete inputs;
 			// `prepareParamsFromFormValues` strips both.
@@ -458,7 +458,7 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 			/*
 			 * A required attribute has to carry an answer. Reported on the entry rather than on
 			 * the list, so the Attributes tab can put the message under the field that is
-			 * missing one — the entries are index-aligned with the fields the form renders.
+			 * missing one - the entries are index-aligned with the fields the form renders.
 			 */
 			data.attributes.forEach((attribute, index) => {
 				if (attribute.is_required && !hasAttributeValue(attribute)) {
@@ -491,7 +491,7 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 
 				/*
 				 * `ProductVariantRepository.syncPrices` keys the rows by currency, so a market
-				 * quoted twice does not fail — it collapses into one row carrying the last
+				 * quoted twice does not fail - it collapses into one row carrying the last
 				 * figure, and the price the editor typed first is gone with no sign of it. The
 				 * `(variant_id, currency)` unique index never sees the second row either, so
 				 * the server is not a backstop here.
@@ -501,7 +501,7 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 				 * carry the message, and `accumulateZodErrors` addresses it by path.
 				 *
 				 * Already trimmed and upper-cased by `currencySchema`, so `ron` and `RON` have
-				 * collapsed into one value by the time they are compared — which is the pair
+				 * collapsed into one value by the time they are compared - which is the pair
 				 * that reaches the same index and so the pair worth catching.
 				 */
 				const seenCurrencies = new Set<string>();
@@ -563,7 +563,7 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 			/*
 			 * The label term is the natural key of a group and of an answer: `syncGroups` keys
 			 * a product's groups by it, `syncOptions` keys a group's answers by it, and
-			 * `syncPrices` keys the deltas by currency. So a repeat does not fail on save — it
+			 * `syncPrices` keys the deltas by currency. So a repeat does not fail on save - it
 			 * collapses into the row it duplicates, and the editor's second copy silently
 			 * disappears along with whatever was typed into it.
 			 *
@@ -765,7 +765,7 @@ export function getFormState(
 					}))
 				: [emptyVariant(0, true)],
 			/*
-			 * Unlike variants, no row is seeded — an empty list is the meaningful default, and a
+			 * Unlike variants, no row is seeded - an empty list is the meaningful default, and a
 			 * pre-filled window would silently restrict every new product to office hours.
 			 */
 			availabilities: (data?.availabilities ?? []).map(
@@ -773,7 +773,7 @@ export function getFormState(
 					...availability,
 					/*
 					 * Trimmed to `HH:MM`. Postgres hands a `time` column back as `HH:MM:SS`,
-					 * which neither the picker nor `validateTime` accepts — a stored window
+					 * which neither the picker nor `validateTime` accepts - a stored window
 					 * would render as "09:00:00" and then fail validation on the next save
 					 * without the user having touched it.
 					 */
@@ -783,8 +783,8 @@ export function getFormState(
 				}),
 			),
 			/*
-			 * Listed explicitly rather than spread: the read hands back whole rows — ids,
-			 * timestamps, the joined label term — and `label` here is the wording rather than
+			 * Listed explicitly rather than spread: the read hands back whole rows - ids,
+			 * timestamps, the joined label term - and `label` here is the wording rather than
 			 * that term. Nothing outside this list belongs in the form.
 			 *
 			 * No group is seeded on create, unlike the first variant: a product that asks
@@ -824,8 +824,8 @@ export function getFormState(
 			),
 			/*
 			 * Grouped from the stored rows rather than built against the definitions: the form
-			 * is seeded the moment the window opens, and `resolve` — which the component asks
-			 * for once the categories are known — has not answered yet.
+			 * is seeded the moment the window opens, and `resolve` - which the component asks
+			 * for once the categories are known - has not answered yet.
 			 */
 			attributes: groupStoredAttributes(data?.attributes),
 			variants_rule: null,
@@ -843,7 +843,7 @@ export function prepareParamsFromFormValues(data: ProductManageOutput) {
 	/*
 	 * `composition` is carried through the form so the panel knows what it is editing, but is
 	 * never sent. `ProductService.saveComposition` wipes every bundle group and item the moment
-	 * the saved row reads `simple`, and this form has no components editor — so a submit from
+	 * the saved row reads `simple`, and this form has no components editor - so a submit from
 	 * here that named a composition would destroy a bundle's components. The listing no longer
 	 * offers this form for a bundle, which makes that unreachable through the UI; omitting the
 	 * key keeps it unreachable for any other caller, leaves the column alone on update, and
@@ -863,7 +863,7 @@ export function prepareParamsFromFormValues(data: ProductManageOutput) {
 		...product,
 		categories: categories.map((ref) => ref.id),
 		tags: tags.map((ref) => ref.id),
-		// One row per recorded value — a term-backed answer may contribute several.
+		// One row per recorded value - a term-backed answer may contribute several.
 		attributes: toAttributePayload(attributes),
 		// `key` is the form's own row identity and means nothing to the API.
 		variants: product.variants.map(
@@ -876,7 +876,7 @@ export function prepareParamsFromFormValues(data: ProductManageOutput) {
 			({ key: _key, ...availability }) => availability,
 		),
 		/*
-		 * `key` and `label` are the editor's own — row identity and the wording the picker
+		 * `key` and `label` are the editor's own - row identity and the wording the picker
 		 * shows. The payload names both levels by their label term's id, which is what the
 		 * sync keys on.
 		 */
@@ -898,7 +898,7 @@ export type ProductDataTableFiltersType = {
 	type: { value: ProductType | null; matchMode: 'equals' };
 	composition: { value: ProductComposition | null; matchMode: 'equals' };
 	sale_status: { value: ProductSaleStatus | null; matchMode: 'equals' };
-	/* The typed text and the brand it resolved to — the backend filters on the id alone. */
+	/* The typed text and the brand it resolved to - the backend filters on the id alone. */
 	brand: { value: string | null; matchMode: 'equals' };
 	brand_id: { value: number | null; matchMode: 'equals' };
 	is_deleted: { value: boolean; matchMode: 'equals' };
@@ -998,8 +998,8 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					/*
-					 * `label` is not a column on the row — it comes from the joined
-					 * translation — so the value is resolved here.
+					 * `label` is not a column on the row - it comes from the joined
+					 * translation - so the value is resolved here.
 					 */
 					field: 'label',
 					header: 'Name',
@@ -1183,7 +1183,7 @@ export default async function dataSourceConfig(): Promise<
 			},
 			/*
 			 * One action per legal move in WORKFLOW_TRANSITIONS. `ready` is terminal, so nothing
-			 * targets a product that has reached it — the backend refuses the move anyway, and
+			 * targets a product that has reached it - the backend refuses the move anyway, and
 			 * an offered button that always fails is worse than an absent one.
 			 */
 			submitReview: {
@@ -1278,7 +1278,7 @@ export default async function dataSourceConfig(): Promise<
 			/*
 			 * The bundle editor, in its own window rather than this form.
 			 *
-			 * A bundle is a product, so it writes to the same endpoint — but the two forms differ
+			 * A bundle is a product, so it writes to the same endpoint - but the two forms differ
 			 * enough that sharing one would mean a panel full of conditionals: a bundle carries
 			 * components and no composition select, its VAT category is unused, and its single
 			 * header variant replaces the variants tab. `bundle` creates one, `bundleEdit` opens
@@ -1302,8 +1302,8 @@ export default async function dataSourceConfig(): Promise<
 					);
 				},
 				/*
-				 * The rules only the server can check — a component pointing at another bundle,
-				 * a bundle containing itself, a variant that no longer exists — all come back as
+				 * The rules only the server can check - a component pointing at another bundle,
+				 * a bundle containing itself, a variant that no longer exists - all come back as
 				 * 422 with the reason in the message. `processForm` passes a backend message
 				 * through verbatim only for a 409, so without this the user is told nothing but
 				 * "form error".
@@ -1329,7 +1329,7 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['product', 'update'],
 				entriesSelection: 'single',
 				// Only a bundle has components to edit, and this form cannot make one out of a
-				// simple product — every submit it sends says `bundle`.
+				// simple product - every submit it sends says `bundle`.
 				customEntryCheck: (entry: ProductModel) =>
 					!entry.deleted_at &&
 					entry.composition === ProductCompositionEnum.BUNDLE,
@@ -1346,15 +1346,15 @@ export default async function dataSourceConfig(): Promise<
 					);
 				},
 				/*
-				 * The list row carries no `bundle_items` at all — only `GET /products/:id`
-				 * attaches them — so without this the form would open with an empty components
+				 * The list row carries no `bundle_items` at all - only `GET /products/:id`
+				 * attaches them - so without this the form would open with an empty components
 				 * list and wipe them on save.
 				 */
 				reloadEntry: (id: number) =>
 					requestView<ProductModel>('product', id),
 				/*
-				 * The rules only the server can check — a component pointing at another bundle,
-				 * a bundle containing itself, a variant that no longer exists — all come back as
+				 * The rules only the server can check - a component pointing at another bundle,
+				 * a bundle containing itself, a variant that no longer exists - all come back as
 				 * 422 with the reason in the message. `processForm` passes a backend message
 				 * through verbatim only for a 409, so without this the user is told nothing but
 				 * "form error".

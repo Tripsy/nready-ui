@@ -27,7 +27,7 @@ import type { UserModel } from '@/models/user.model';
 import type { VendorModel } from '@/models/vendor.model';
 
 export type DatasourceModels = {
-	// `account` is a virtual data source (no list endpoint) — its entry is the
+	// `account` is a virtual data source (no list endpoint) - its entry is the
 	// current authenticated user; used only for the account self-service windows.
 	account: UserModel;
 	address: AddressModel;
@@ -52,11 +52,11 @@ export type DatasourceModels = {
 	product: ProductModel;
 	/*
 	 * What a product in a category must say about itself. Gated on `product` like the backend
-	 * policy, and it has no dashboard page of its own — the definitions are managed from the
+	 * policy, and it has no dashboard page of its own - the definitions are managed from the
 	 * category they belong to, through `ManagerAttributesCategory`.
 	 */
 	'product-category-attribute': ProductCategoryAttributeModel;
-	// The same catalog listed by the sellable unit — read-only, and gated on `product`.
+	// The same catalog listed by the sellable unit - read-only, and gated on `product`.
 	'product-variant': ProductVariantModel;
 	rating: RatingModel;
 	template: TemplateModel;

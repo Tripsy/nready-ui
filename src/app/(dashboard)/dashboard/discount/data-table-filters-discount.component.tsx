@@ -26,7 +26,7 @@ import {
 } from '@/models/discount.model';
 
 /*
- * Fixed widths, sized for the longest option rather than the current value — the same reason as
+ * Fixed widths, sized for the longest option rather than the current value - the same reason as
  * the manage form: a content-sized trigger resizes the filter bar every time a filter changes.
  */
 const scopes = toOptionsFromEnum(DiscountScopeEnum, {

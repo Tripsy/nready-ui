@@ -104,7 +104,7 @@ export const DataTableFiltersCategory = (): JSX.Element => {
 
 			{/*
 			 * The backend joins the contents with an INNER join on this language, so a
-			 * category without a translation for it drops out of the list entirely —
+			 * category without a translation for it drops out of the list entirely -
 			 * the control is a scope, not a display preference.
 			 */}
 			<FormFiltersSelect<CategoryDataTableFiltersType>

@@ -8,7 +8,7 @@ import { ImageSectionEnum, ImageTypeEnum } from '@/models/image.model';
 import { useAuth } from '@/providers/auth.provider';
 import { LanguageEnum } from '@/types/common.type';
 
-/* A brand carries a single logo — no gallery, so the manager renders only the logo slot. */
+/* A brand carries a single logo - no gallery, so the manager renders only the logo slot. */
 const IMAGE_TYPES = [ImageTypeEnum.LOGO];
 const LANGUAGES = Object.values(LanguageEnum);
 

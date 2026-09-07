@@ -127,7 +127,7 @@ export const useModalStore = create<WindowStore>()(
 
 				// Makes room for the window identified by `activeUid`: every other
 				// window is minimized, except the ones flagged `allowMinimize: false`
-				// which are dropped from the stack — they have no dock representation
+				// which are dropped from the stack - they have no dock representation
 				// to return from, so parking them would strand them.
 				const stackBehind = (
 					stack: WindowConfig[],
@@ -200,7 +200,7 @@ export const useModalStore = create<WindowStore>()(
 							? stack.filter((m) => m.uid === uid)
 							: stack.filter((m) => !m.minimized); // Close the visible one
 
-						// Closing is the user discarding the form — the draft goes too
+						// Closing is the user discarding the form - the draft goes too
 						for (const window of closedStack) {
 							clearWindowDraft(window.uid);
 						}
@@ -219,7 +219,7 @@ export const useModalStore = create<WindowStore>()(
 					},
 
 					// A window flagged `allowMinimize: false` can only be submitted
-					// or closed — never parked in the dock.
+					// or closed - never parked in the dock.
 					minimize: (uid) =>
 						set((state) => ({
 							stack: state.stack.map((m) =>
@@ -266,7 +266,7 @@ export const useModalStore = create<WindowStore>()(
 						minimized: window.minimized,
 						data: window.data,
 						props: window.props,
-						// Events intentionally omitted — functions are not serializable
+						// Events intentionally omitted - functions are not serializable
 					})),
 				}),
 
@@ -282,12 +282,12 @@ let hydrationPromise: Promise<void> | null = null;
 
 /**
  * Restores the persisted window stack. `persist.rehydrate()` only brings back the
- * serialized shells (see `partialize` — no `definition`, no `events`), so each one
+ * serialized shells (see `partialize` - no `definition`, no `events`), so each one
  * is re-derived through `prepareConfigOnCreate` and the result is published in a
  * single `setState`. Until that lands, `isHydrated` stays false and consumers must
  * not render the stack: the intermediate entries have no `definition`.
  *
- * Safe to call from several components — the first call wins, the rest await it.
+ * Safe to call from several components - the first call wins, the rest await it.
  */
 export const hydrateWindowStore = (): Promise<void> => {
 	hydrationPromise ??= (async () => {
@@ -315,7 +315,7 @@ export const hydrateWindowStore = (): Promise<void> => {
 
 		useModalStore.setState((state) => {
 			// A window opened while hydration was in flight already carries a
-			// `definition` — it is fresher than the stored copy, so it wins.
+			// `definition` - it is fresher than the stored copy, so it wins.
 			const openedStack = state.stack.filter(
 				(window) => window.definition,
 			);
@@ -341,7 +341,7 @@ export const hydrateWindowStore = (): Promise<void> => {
  * entry data belonging to the session being ended, so it must not survive into the
  * next login on the same browser.
  *
- * Hydration is awaited first — a restore still in flight would otherwise repopulate
+ * Hydration is awaited first - a restore still in flight would otherwise repopulate
  * the stack right after it was cleared.
  */
 export const clearWindowStore = async (): Promise<void> => {

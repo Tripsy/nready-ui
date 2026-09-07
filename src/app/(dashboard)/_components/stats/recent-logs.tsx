@@ -23,7 +23,7 @@ import {
 
 const ENTRY_LIMIT = 10;
 
-/** Sentinel for an unset filter — the backend simply receives no filter for that field. */
+/** Sentinel for an unset filter - the backend simply receives no filter for that field. */
 const FILTER_ALL = 'all';
 
 type CategoryFilter = LogCategory | typeof FILTER_ALL;
@@ -111,7 +111,7 @@ export function useLogDataPanel(): PanelView {
 			>
 				{data?.entries.map((entry) => (
 					<PanelRow key={entry.id} aside={timeAgo(entry.created_at)}>
-						{/* Messages are free-form and can be long — clamp rather than let
+						{/* Messages are free-form and can be long - clamp rather than let
 							    one entry stretch the panel past its neighbor. */}
 						<p className="font-medium truncate">{entry.message}</p>
 						<div className="flex items-center gap-2 mt-1">

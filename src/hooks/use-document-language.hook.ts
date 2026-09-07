@@ -6,7 +6,7 @@ import { useSyncExternalStore } from 'react';
  * The language currently in effect, as a reactive value.
  *
  * `RootLayout` renders the resolved language onto `html[lang]` and `router.refresh()` patches
- * that attribute when the switcher changes it — the same source `getLanguageClient()` reads. So
+ * that attribute when the switcher changes it - the same source `getLanguageClient()` reads. So
  * the attribute, not a store or a cookie, is what tells a client component the language moved.
  *
  * Consumers use it to re-resolve text they resolved earlier: a translated string held in state

@@ -79,20 +79,20 @@
 		"notes": "Notițe"
 	},
 	"help": {
-		"intro": "Un client este fie o firmă, fie o persoană, iar această alegere decide ce câmpuri de identitate există pe el. Restul — date bancare, contact, notițe — este identic pentru amândouă și complet opțional.",
+		"intro": "Un client este fie o firmă, fie o persoană, iar această alegere decide ce câmpuri de identitate există pe el. Restul - date bancare, contact, notițe - este identic pentru amândouă și complet opțional.",
 		"step_1_title": "Alege tipul de client",
 		"step_1_body": "Firmă sau persoană. Formularul arată doar jumătatea potrivită, iar câmpurile celeilalte jumătăți sunt respinse, nu ignorate, deci schimbarea tipului pe un client existent înseamnă completarea noii jumătăți.",
 		"step_2_title": "Completează identitatea",
-		"step_2_body": "O firmă are nevoie de nume și CUI; numărul de la Registrul Comerțului este opțional. O persoană are nevoie de nume, iar CNP-ul este opțional, dar verificat integral, inclusiv cifra de control. CNP-ul nu este niciodată returnat la citire — este stocat, nu afișat.",
+		"step_2_body": "O firmă are nevoie de nume și CUI; numărul de la Registrul Comerțului este opțional. O persoană are nevoie de nume, iar CNP-ul este opțional, dar verificat integral, inclusiv cifra de control. CNP-ul nu este niciodată returnat la citire - este stocat, nu afișat.",
 		"step_3_title": "Păstrează identitatea unică",
 		"step_3_body": "Două firme nu pot avea același nume, același CUI sau același număr de înregistrare, iar două persoane nu pot avea același CNP. Verificarea ia în calcul și rândurile șterse, deci ștergerea unui client nu îi eliberează identitatea pentru altul.",
 		"step_4_title": "Adaugă datele bancare și de contact",
-		"step_4_body": "Toate sunt opționale. IBAN-ul este verificat ca format, la fel emailul și telefonul de contact — niciunul nu este verificat că este real sau că ajunge la cineva, iar numele băncii este text liber.",
+		"step_4_body": "Toate sunt opționale. IBAN-ul este verificat ca format, la fel emailul și telefonul de contact - niciunul nu este verificat că este real sau că ajunge la cineva, iar numele băncii este text liber.",
 		"step_5_title": "Activează-l sau dezactivează-l",
 		"step_5_body": "Un client este creat activ și trece liber între activ și inactiv. Starea „în așteptare” există în model, dar nimic nu o setează, deci apare doar pe rânduri mai vechi decât regula asta.",
 		"step_6_title": "Regăsește-l",
-		"step_6_body": "Căutarea citește câmpurile de identitate ale tipului selectat în filtre, sau ale ambelor când niciun tip nu este ales, de la trei caractere — un termen numeric este tratat în schimb ca id. Lista poate fi ordonată doar după id sau data creării și filtrată după un interval de creare.",
-		"note": "Ștergerea unui client este una logică, deci comenzile, facturile și înregistrările de flux de numerar care fac referire la el continuă să funcționeze. Folosește „Arată șterse” pentru a-l găsi și restaura — dar identitatea lui nu a fost liberă între timp.",
+		"step_6_body": "Căutarea citește câmpurile de identitate ale tipului selectat în filtre, sau ale ambelor când niciun tip nu este ales, de la trei caractere - un termen numeric este tratat în schimb ca id. Lista poate fi ordonată doar după id sau data creării și filtrată după un interval de creare.",
+		"note": "Ștergerea unui client este una logică, deci comenzile, facturile și înregistrările de flux de numerar care fac referire la el continuă să funcționeze. Folosește „Arată șterse” pentru a-l găsi și restaura - dar identitatea lui nu a fost liberă între timp.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
 	}

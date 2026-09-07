@@ -25,7 +25,7 @@ export function useFormSituation<
 	const prevStateRef = useRef(state);
 	const sourceRef = useRef<SituationSource>('server');
 
-	// Server state changed — server always wins
+	// Server state changed - server always wins
 	if (prevStateRef.current !== state) {
 		prevStateRef.current = state;
 		sourceRef.current = 'server';
@@ -44,7 +44,7 @@ export function useFormSituation<
 	 * the previous language. Some of those messages come verbatim from the backend and have no
 	 * key to re-resolve from, so dropping it is the only answer that holds for all of them.
 	 *
-	 * Client messages need no such treatment — `handleValidation` re-resolves them on the next
+	 * Client messages need no such treatment - `handleValidation` re-resolves them on the next
 	 * validation run, which `useFormValidation` triggers off the same language value.
 	 *
 	 * `success` is exempt: a flow may already be acting on it (the login redirect reads it from
@@ -56,7 +56,7 @@ export function useFormSituation<
 		previousLanguageRef.current = language;
 
 		// The empty string is the pre-hydration snapshot, not a language the user was reading
-		// in — treating it as one would wipe a server message on the first commit.
+		// in - treating it as one would wipe a server message on the first commit.
 		if (!previousLanguage || previousLanguage === language) {
 			return;
 		}
@@ -84,7 +84,7 @@ export function useFormSituation<
 					}) ?? FIELDS_NEED_ATTENTION_KEY,
 				);
 			} else if (sourceRef.current === 'client') {
-				// Only clear if client set it — never touch server-owned state
+				// Only clear if client set it - never touch server-owned state
 				sourceRef.current = 'client'; // stay client-owned until next server response
 
 				setFormSituation(null);

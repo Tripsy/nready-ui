@@ -27,7 +27,7 @@ export function useTranslation<const T extends readonly string[]>(keys: T) {
 
 	/*
 	 * The effects key on the *contents* of `keys`, not the array's identity. Depending on
-	 * the array itself would re-run them for any caller that builds it inline — each run
+	 * the array itself would re-run them for any caller that builds it inline - each run
 	 * setting state, re-rendering, and rebuilding the array again, without end. Callers are
 	 * therefore free to pass a literal; wrapping it in `useMemo` is no longer load-bearing.
 	 */
@@ -69,7 +69,7 @@ export function useTranslation<const T extends readonly string[]>(keys: T) {
 	useEffect(() => {
 		/*
 		 * The layout effect resolved every key from the loaded resource. The async path
-		 * reads that same cache, so it can only arrive at identical values — running it
+		 * reads that same cache, so it can only arrive at identical values - running it
 		 * would cost each consumer an extra render, and a fresh `translations` identity,
 		 * for nothing.
 		 */

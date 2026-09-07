@@ -66,7 +66,7 @@ const validatorMessages = [
 /**
  * One admissible value as the form holds it. `term_id` is the whole of what the API takes; the
  * wording is carried alongside so a chip can name what it points at, and so it survives a failed
- * submit — `processForm` rebuilds the values from `FormData`, and an id on its own would come
+ * submit - `processForm` rebuilds the values from `FormData`, and an id on its own would come
  * back nameless.
  */
 export type ProductCategoryAttributeOptionFormType = {
@@ -81,7 +81,7 @@ export type ProductCategoryAttributeFormValuesType = {
 	 * The categories the window may attach this definition to. Empty when it was opened from a
 	 * category, which fixes the answer; the product form passes the product's own categories,
 	 * since a definition belongs to exactly one and only the editor knows which of them should
-	 * carry it — attaching to Electronics gives it to everything beneath, attaching to Laptops
+	 * carry it - attaching to Electronics gives it to everything beneath, attaching to Laptops
 	 * does not.
 	 *
 	 * display-only fields, not part of validation
@@ -212,7 +212,7 @@ class ProductCategoryAttributeValidator extends BaseValidator<
 		 * Everything the table's three `@Check` constraints say, plus the one they cannot: a
 		 * list-backed definition has to carry admissible values, which live in another table.
 		 * A constraint violation reaches the client as a masked 500, so these are checked here
-		 * rather than left to the database — see `product-category-attribute.entity.ts`.
+		 * rather than left to the database - see `product-category-attribute.entity.ts`.
 		 */
 		.superRefine((data, ctx) => {
 			const isNumber =
@@ -292,7 +292,7 @@ class ProductCategoryAttributeValidator extends BaseValidator<
 
 			/*
 			 * `syncOptions` keys on `term_id`, and the table's unique index would refuse the
-			 * second row anyway — as a masked conflict rather than a message against the field.
+			 * second row anyway - as a masked conflict rather than a message against the field.
 			 */
 			const termIds = data.options.map((option) => option.term_id);
 
@@ -373,7 +373,7 @@ function getFormValues(
  * and where the new row lands in its order), update from the entry `reloadEntry` returned.
  *
  * The options arrive with their term joined, so the chips render from the stored wording rather
- * than from a second lookup — an option whose term has since been deleted keeps its id and says
+ * than from a second lookup - an option whose term has since been deleted keeps its id and says
  * so, instead of vanishing from the list on the next save.
  */
 function getFormState(
@@ -422,7 +422,7 @@ function getFormState(
 			options_rule: null,
 			/*
 			 * Keyed on the id rather than on `data` being present: create is seeded with a
-			 * prefill entry too — the category and the position the manager assigns — and an
+			 * prefill entry too - the category and the position the manager assigns - and an
 			 * entry that carries no label at all would render as the fallback `#undefined`.
 			 */
 			attribute_label: data?.attribute_label_id
@@ -435,7 +435,7 @@ function getFormState(
 /**
  * The columns the definition row owns.
  *
- * `options` carries only ids — the labels are the picker's chips and mean nothing to the API —
+ * `options` carries only ids - the labels are the picker's chips and mean nothing to the API -
  * and their `sort_order` is the position in the list, so the order they were arranged in is the
  * order a product form offers them.
  */
@@ -469,7 +469,7 @@ function prepareCreateParams(data: ProductCategoryAttributeManageOutput) {
 }
 
 /**
- * The backend's `update` schema takes the definition's own columns and its options only — the
+ * The backend's `update` schema takes the definition's own columns and its options only - the
  * category and the label it was created against are fixed, and a definition that could move
  * between them would be a different definition wearing the same id.
  */
@@ -489,7 +489,7 @@ export default async function dataSourceConfig(): Promise<
 		/*
 		 * No `dataTable`: this data source has no page of its own. A definition is only ever
 		 * read in the context of the category that declares it, which `ManagerAttributesCategory`
-		 * lists directly — the registry is here for the create/update windows the manager opens.
+		 * lists directly - the registry is here for the create/update windows the manager opens.
 		 */
 		displayEntryLabel: (entry: ProductCategoryAttributeModel) =>
 			displayAttributeLabel(entry, getLanguageClient()),
@@ -517,8 +517,8 @@ export default async function dataSourceConfig(): Promise<
 					>('product-category-attribute', params);
 				},
 				/*
-				 * The rules only the server can settle — the `(category, label)` conflict, and
-				 * every pairing check re-run against the merged row — come back as 409/422 with
+				 * The rules only the server can settle - the `(category, label)` conflict, and
+				 * every pairing check re-run against the merged row - come back as 409/422 with
 				 * the reason in the message. `processForm` passes a backend message through
 				 * verbatim only for a 409, so without this a 422 says nothing but "form error".
 				 */
@@ -552,7 +552,7 @@ export default async function dataSourceConfig(): Promise<
 					>('product-category-attribute', params, id);
 				},
 				/*
-				 * The listing carries no options at all — only `GET /:id` joins them — so
+				 * The listing carries no options at all - only `GET /:id` joins them - so
 				 * without this the form would open with an empty list and wipe them on save.
 				 */
 				reloadEntry: (id: number) =>

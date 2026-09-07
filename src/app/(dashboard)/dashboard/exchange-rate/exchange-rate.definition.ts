@@ -97,7 +97,7 @@ class ExchangeRateValidator extends BaseValidator<typeof validatorMessages> {
 			message: this.getMessage('invalid_currency'),
 		}),
 		// `maxFutureSeconds: 0` rejects any day after today while leaving today valid, matching
-		// the backend — a rate is published for a day that has begun
+		// the backend - a rate is published for a day that has begun
 		rate_date: this.validateDate(
 			{
 				invalid_date: this.getMessage('invalid_rate_date'),
@@ -135,7 +135,7 @@ async function validateFormUpdate(values: ExchangeRateFormValuesType) {
 
 function getFormValues(formData: FormData): ExchangeRateFormValuesType {
 	return {
-		// Null on update: both fields are rendered disabled, so they submit nothing — and the
+		// Null on update: both fields are rendered disabled, so they submit nothing - and the
 		// update schema drops them anyway.
 		currency: getFormDataAsString(formData, 'currency'),
 		rate: getFormDataAsNumber(formData, 'rate'),
@@ -208,7 +208,7 @@ export default async function dataSourceConfig(): Promise<
 					rate_date_end: { value: null, matchMode: 'equals' },
 				} satisfies ExchangeRateDataTableFiltersType,
 			},
-			// Only `id`, `rate_date` and `currency` are sortable — the three the backend's
+			// Only `id`, `rate_date` and `currency` are sortable - the three the backend's
 			// `OrderByEnum` accepts.
 			columns: [
 				{

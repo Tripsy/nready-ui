@@ -71,7 +71,7 @@ const TRANSLATION_KEYS = [
  * with it.
  *
  * Shared by the side menu and the menu search, which have to offer exactly the same set of
- * destinations — declaring it twice would let the two drift apart.
+ * destinations - declaring it twice would let the two drift apart.
  */
 export function useSideMenuSections(): {
 	sections: SideMenuSectionType[];

@@ -12,7 +12,7 @@ import type { Language } from '@/types/common.type';
 /**
  * One row of the catalog listed by the thing that is actually sold.
  *
- * Not `ProductVariantType` (`product.model.ts`), which is the *form's* shape — that one carries
+ * Not `ProductVariantType` (`product.model.ts`), which is the *form's* shape - that one carries
  * no id, no `product_id` and no product at all, because it only ever exists inside the payload
  * that syncs a product's whole variant set. This is what `GET /product-variants` returns: the
  * variant's own columns, the slice of its product the listing shows, and its prices.
@@ -35,7 +35,7 @@ export type ProductVariantModel<D = Date | string> = {
 	updated_at: D;
 	/**
 	 * The variant's own withdrawal. A variant whose *product* was deleted carries `null` here
-	 * and a timestamp on `product.deleted_at` — soft-deleting a product does not cascade to its
+	 * and a timestamp on `product.deleted_at` - soft-deleting a product does not cascade to its
 	 * variants. `resolveDeletedAt` reads the two as one, which is what every row-level "is this
 	 * deleted" question actually means.
 	 */
@@ -72,7 +72,7 @@ export function resolveDeletedAt<D>(
 	return entry.deleted_at ?? entry.product?.deleted_at;
 }
 
-/** The product's wording in the served language — the row's human name. */
+/** The product's wording in the served language - the row's human name. */
 export function getProductVariantLabel(
 	entry: ProductVariantModel,
 ): string | null {
@@ -80,12 +80,12 @@ export function getProductVariantLabel(
 }
 
 /**
- * How a variant names itself in a picker. The SKU is the part that is always there — `label`
+ * How a variant names itself in a picker. The SKU is the part that is always there - `label`
  * comes from the product's content row for the active language and is absent for a product with
- * no translation in it — so it leads, and the name only qualifies it.
+ * no translation in it - so it leads, and the name only qualifies it.
  */
 export function displayProductVariantLabel(entry: ProductVariantModel): string {
 	const label = getProductVariantLabel(entry);
 
-	return label ? `${entry.sku} — ${label}` : entry.sku;
+	return label ? `${entry.sku} - ${label}` : entry.sku;
 }

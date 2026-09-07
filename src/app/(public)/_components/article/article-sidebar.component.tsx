@@ -18,7 +18,7 @@ export type ArticleSidebarTranslations = Record<
 	string
 >;
 
-/** How many rows each box holds — enough to be useful, short enough to stay a sidebar. */
+/** How many rows each box holds - enough to be useful, short enough to stay a sidebar. */
 const SIDEBAR_LIMIT = 5;
 
 function ArticleSidebarBox({
@@ -84,13 +84,13 @@ function ArticleSidebarBox({
 /**
  * The article page's right-hand column: what else to read, from two angles.
  *
- * - *Similar articles* — anything sharing a tag with this one, which is the loosest
+ * - *Similar articles* - anything sharing a tag with this one, which is the loosest
  *   relation the data carries and so the one most likely to return something.
- * - *Latest articles* — the rest of this article's category, newest first.
+ * - *Latest articles* - the rest of this article's category, newest first.
  *
  * Both exclude the article being read, and a box that comes back empty (or whose backend
  * call fails) renders nothing at all rather than an empty heading. With no tags and no
- * category there is nothing to ask for and the whole column disappears — which is why the
+ * category there is nothing to ask for and the whole column disappears - which is why the
  * caller lays it out as a sibling that may render `null`.
  *
  * The two reads are issued together; they are independent and each is served from Next's

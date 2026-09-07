@@ -135,7 +135,7 @@ export function ViewCashFlow({ entry }: { entry: CashFlowModel }) {
 			});
 
 			// `requestFind` resolves to `undefined` when the response carries no payload, and
-			// TanStack Query rejects that as query data — the same failure the guard below
+			// TanStack Query rejects that as query data - the same failure the guard below
 			// exists to avoid. Throwing puts it in `isError`, where a caller can see it.
 			if (!response) {
 				throw new Error('Could not retrieve refunds');

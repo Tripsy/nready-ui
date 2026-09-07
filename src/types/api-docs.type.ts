@@ -4,7 +4,7 @@ import { Configuration } from '@/config/settings.config';
  * Mirror of the backend's `ApiOutputDocumentation` (`../nready-api/src/helpers/
  * api-documentation.helper.ts`), which is what `GET /public/api-docs/:feature` serves.
  *
- * Restated rather than imported — the two projects connect only over HTTP — so it has to be
+ * Restated rather than imported - the two projects connect only over HTTP - so it has to be
  * kept in step with that type by hand when the backend's documentation shape changes.
  */
 
@@ -61,7 +61,7 @@ export type ApiDocsAction = {
  * No module reports `partial` today: a feature that mixes open and gated endpoints is split into
  * two route modules on the backend, the way `account` and `account-public` are. The state stays in
  * the union because the API still computes it per action and would report it the moment a module
- * gained an open endpoint beside a gated one — the catalog page names such an entry in the log
+ * gained an open endpoint beside a gated one - the catalog page names such an entry in the log
  * rather than listing it, since it has no group to sit in.
  */
 export type ApiDocsAuthorization = 'none' | 'partial' | 'required';
@@ -73,7 +73,7 @@ export type ApiDocs = {
 	 * is server-side, so a runnable example cannot be built without it.
 	 */
 	baseUrl: string;
-	/** The route module's own name — `article` and `article-public` are separate entries. */
+	/** The route module's own name - `article` and `article-public` are separate entries. */
 	feature: string;
 	/** The permission entity the module's routes belong to; both article modules report `article`. */
 	entity: string;
@@ -101,7 +101,7 @@ export type ApiDocsCatalogueEntry = {
 };
 
 /**
- * Every documented route module, served by `GET /docs` in one response — the catalog page
+ * Every documented route module, served by `GET /docs` in one response - the catalog page
  * renders the whole index without a request per feature.
  */
 export type ApiDocsCatalogue = {
@@ -112,8 +112,8 @@ export type ApiDocsCatalogue = {
 /**
  * Whether the API reference pages are served here.
  *
- * The backend holds the real gate — its own `API_DOCS_ENABLED` decides whether
- * `/public/api-docs` answers at all — so this only keeps the site from offering a page that
+ * The backend holds the real gate - its own `API_DOCS_ENABLED` decides whether
+ * `/public/api-docs` answers at all - so this only keeps the site from offering a page that
  * could have nothing behind it. The two settings have to agree, like the OAuth client ids.
  */
 export function isApiDocsEnabled(): boolean {

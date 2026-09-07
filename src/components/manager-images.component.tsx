@@ -104,7 +104,7 @@ const ACCEPTED_EXTENSIONS = ACCEPTED_MIME_TYPES.join(',');
 const ACCEPTED_EXTENSIONS_DESC = 'JPEG, PNG, WebP, SVG, GIF';
 const DEFAULT_LANGUAGE = Configuration.get('language.default');
 
-// Fixed display order — independent of key order in whatever config object gets passed in
+// Fixed display order - independent of key order in whatever config object gets passed in
 const ATTRIBUTE_FIELD_ORDER: AttributeFieldName[] = ['title', 'description'];
 
 // Helpers
@@ -331,7 +331,7 @@ function ImageCard({
 
 	/*
 	 * A staged entry's `path` is the object URL of the local file, which the browser renders
-	 * directly. `showImage` is only for stored images — it would hand the blob URL to the view
+	 * directly. `showImage` is only for stored images - it would hand the blob URL to the view
 	 * route, which resolves paths inside the storage backend and cannot see a browser blob.
 	 */
 	const previewSrc = entry.file
@@ -367,7 +367,7 @@ function ImageCard({
 						<PropertyBadge
 							label="W"
 							value={
-								properties.width ? `${properties.width}px` : '—'
+								properties.width ? `${properties.width}px` : '-'
 							}
 						/>
 						<PropertyBadge
@@ -375,7 +375,7 @@ function ImageCard({
 							value={
 								properties.height
 									? `${properties.height}px`
-									: '—'
+									: '-'
 							}
 						/>
 					</div>
@@ -433,7 +433,7 @@ function ImageCard({
 				)}
 			</div>
 
-			{/* Attributes — only render if at least one field is configured */}
+			{/* Attributes - only render if at least one field is configured */}
 			{configuredFields.length > 0 && (
 				<div className="border-t border-border bg-surface-secondary/30 px-3 pb-3 pt-2.5">
 					<div className="flex flex-col gap-1.5">
@@ -844,7 +844,7 @@ export function ManagerImages({
 
 		const anySucceeded = results.some((r) => r.status === 'fulfilled');
 
-		// Invalidate even on partial success — some entries may have saved correctly
+		// Invalidate even on partial success - some entries may have saved correctly
 		if (anySucceeded) {
 			await invalidateImages();
 		}
@@ -1392,7 +1392,7 @@ export function ManagerImages({
 						</div>
 					)}
 
-					{/* Drop zone — hide when full */}
+					{/* Drop zone - hide when full */}
 					{!galleryFull && mode === 'edit' && (
 						<DropZone
 							label={

@@ -119,7 +119,7 @@ async function validateFormUpdate(values: DocumentSeriesFormValuesType) {
 
 function getFormValues(formData: FormData): DocumentSeriesFormValuesType {
 	return {
-		// Null on update: the field is rendered disabled, so it submits nothing — and the
+		// Null on update: the field is rendered disabled, so it submits nothing - and the
 		// update schema drops it anyway.
 		document_type: getFormDataAsEnum(
 			formData,
@@ -192,7 +192,7 @@ export default async function dataSourceConfig(): Promise<
 					document_type: { value: null, matchMode: 'equals' },
 				} satisfies DocumentSeriesDataTableFiltersType,
 			},
-			// Only `id` and `code` are sortable — they are the two columns the backend's
+			// Only `id` and `code` are sortable - they are the two columns the backend's
 			// `OrderByEnum` accepts.
 			columns: [
 				{

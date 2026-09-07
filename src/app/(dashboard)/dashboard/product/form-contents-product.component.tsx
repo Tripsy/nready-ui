@@ -28,7 +28,7 @@ export type ProductContentErrorsType = {
  * the SEO meta, one language at a time.
  *
  * Shared by the product form and the bundle form because both write the same `contents` array to
- * the same endpoint — a bundle is a product, and its wording is not a different problem. The
+ * the same endpoint - a bundle is a product, and its wording is not a different problem. The
  * panel owns the selected language and the preview toggle; the host owns the array and the
  * hidden field that submits it, since only the host knows the rest of its payload.
  */
@@ -46,7 +46,7 @@ export function FormContentsProduct({
 	elementIdPrefix: string;
 	/** The "at least one translation" message, which belongs to the array rather than a row. */
 	contentsError?: string[];
-	/** Resolved by the host per language — it holds the error tree the pipeline returned. */
+	/** Resolved by the host per language - it holds the error tree the pipeline returned. */
 	contentErrors: (language: Language) => ProductContentErrorsType | undefined;
 	onChange: (contents: ProductContentType[]) => void;
 }) {

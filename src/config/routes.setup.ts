@@ -316,7 +316,7 @@ Routes.group('dashboard')
  * Routes a signed-in user must never be sent back to.
  *
  * Held as route *names*, not paths: `Routes.get('email-confirm')` returns the pattern
- * `/account/email-confirm/:token` verbatim, which no real pathname ever equals — so a
+ * `/account/email-confirm/:token` verbatim, which no real pathname ever equals - so a
  * path-based list silently failed to exclude every parameterised route in it.
  */
 const EXCLUDED_ROUTE_NAMES: ReadonlySet<string> = new Set([

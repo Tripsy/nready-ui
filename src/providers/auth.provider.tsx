@@ -82,14 +82,14 @@ const AuthProvider = ({
 	}, [initAuth, refreshAuth]);
 
 	useEffect(() => {
-		// Interval-based refresh — runs regardless of visibility
+		// Interval-based refresh - runs regardless of visibility
 		const intervalId = setInterval(() => {
 			refreshAuth({ silent: true }).catch(
 				logRejection('Background auth refresh failed'),
 			);
 		}, REFRESH_INTERVAL);
 
-		// Tab visibility refresh — only refresh if tab was hidden long enough
+		// Tab visibility refresh - only refresh if tab was hidden long enough
 		let hiddenAt: number | null = null;
 		const HIDDEN_THRESHOLD = 5 * 60 * 1000; // only refresh if hidden for 5+ minutes
 

@@ -76,7 +76,7 @@ export type DataTableColumnType<Entry> = {
 	) => JSX.Element | string;
 	/**
 	 * Width bounds in pixels. The data table is resizable, and react-aria's resize state
-	 * takes plain numbers (or a `%` string) rather than CSS lengths — it has to compute
+	 * takes plain numbers (or a `%` string) rather than CSS lengths - it has to compute
 	 * with them, so a `rem` value has nothing to resolve against.
 	 */
 	minWidth?: number;
@@ -84,7 +84,7 @@ export type DataTableColumnType<Entry> = {
 	/**
 	 * Starting width in pixels for a column whose content does not deserve an equal share
 	 * of the table. Columns default to `1fr`, so a short one (an id) ends up as wide as a
-	 * long one (an email). This is the initial width only — the column stays resizable,
+	 * long one (an email). This is the initial width only - the column stays resizable,
 	 * which a controlled `width` would not.
 	 */
 	defaultWidth?: number;
@@ -142,7 +142,7 @@ type ActionConfigBase<Entry, FormValues extends FormValuesType> = {
 	/**
 	 * Per-action translation of a backend `ApiError` into form state.
 	 *
-	 * Without one, `processForm` surfaces a backend message verbatim only for a 409 — everything
+	 * Without one, `processForm` surfaces a backend message verbatim only for a 409 - everything
 	 * else falls back to the generic form error. The bundle form needs it because the rules only
 	 * the server can check (a component pointing at another bundle, a bundle containing itself,
 	 * a variant that no longer exists) all come back as 422 with the reason in the message.

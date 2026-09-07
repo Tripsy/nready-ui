@@ -50,7 +50,7 @@ const captureTypes = toOptionsFromEnum(ProductCategoryAttributeTypeEnum, {
 	formatter: formatEnumLabel,
 });
 
-/** The units, grouped by what they measure — a flat list of twenty-five reads as noise. */
+/** The units, grouped by what they measure - a flat list of twenty-five reads as noise. */
 const unitOptions: GroupedOptionsType = MEASURE_UNIT_GROUPS.map((group) => ({
 	label: group.dimension,
 	options: group.units.map((unit) => ({
@@ -60,7 +60,7 @@ const unitOptions: GroupedOptionsType = MEASURE_UNIT_GROUPS.map((group) => ({
 }));
 
 /**
- * A label term as the form shows it. The wording is stored lower-cased on purpose — see
+ * A label term as the form shows it. The wording is stored lower-cased on purpose - see
  * `displayAttributeLabel`, which capitalises the same way everywhere else the label is drawn.
  */
 function displayAttributeTerm(entry: TermModel, language: Language): string {
@@ -117,7 +117,7 @@ export function FormManageProductCategoryAttribute() {
 					filter: {
 						term: query,
 						// `attribute_label_id` is a plain foreign key to `term`, so the backend
-						// accepts any row — unfiltered the picker offers the tags and the
+						// accepts any row - unfiltered the picker offers the tags and the
 						// attribute *values* too, and a definition ends up labelled "red".
 						type: TermTypeEnum.ATTRIBUTE_LABEL,
 						language,
@@ -135,7 +135,7 @@ export function FormManageProductCategoryAttribute() {
 	const isTerm =
 		formValues.value_type === ProductCategoryAttributeValueTypeEnum.TERM;
 
-	/** Only the storages this capture admits — the rest fail the table's own check. */
+	/** Only the storages this capture admits - the rest fail the table's own check. */
 	const valueTypeOptions = VALUE_TYPES_BY_TYPE[formValues.type].map(
 		(valueType) => ({
 			label: formatEnumLabel(valueType),
@@ -166,7 +166,7 @@ export function FormManageProductCategoryAttribute() {
 	/**
 	 * Creating the label from here, because defining an attribute usually means naming one for
 	 * the first time. `open` minimizes this form, so it is captured beforehand and focused again
-	 * on success — otherwise the editor lands on an empty desktop with a half-filled form parked
+	 * on success - otherwise the editor lands on an empty desktop with a half-filled form parked
 	 * in the dock.
 	 */
 	const createLabelTerm = (typedValue: string) => {
@@ -219,7 +219,7 @@ export function FormManageProductCategoryAttribute() {
 			{/*
 			 * Carried, not offered. The order among a category's attributes is arranged by
 			 * dragging them in the category's attribute manager, so there is nothing to type
-			 * here — but `getFormValues` reads the payload off the DOM, and a field with no
+			 * here - but `getFormValues` reads the payload off the DOM, and a field with no
 			 * input in the form reaches it as absent and submits as 0. On create this holds the
 			 * position the manager assigned; on update, the row's existing one.
 			 */}
@@ -232,7 +232,7 @@ export function FormManageProductCategoryAttribute() {
 			{/*
 			 * Only when the caller offered a choice. Opened from a category, the answer is that
 			 * category and the field would be a select of one; opened from a product, it is the
-			 * one thing the product form cannot decide — a definition belongs to exactly one
+			 * one thing the product form cannot decide - a definition belongs to exactly one
 			 * category, and which of the product's should carry it is an editorial call.
 			 */}
 			{isCreate && formValues.category_options.length > 0 && (
@@ -389,7 +389,7 @@ export function FormManageProductCategoryAttribute() {
 					/>
 
 					{/*
-					 * The bounds are quoted in the unit above, like the values they bound —
+					 * The bounds are quoted in the unit above, like the values they bound -
 					 * the backend converts both through the same factor before comparing.
 					 */}
 					<FormComponentInput<ProductCategoryAttributeFormValuesType>
@@ -435,7 +435,7 @@ export function FormManageProductCategoryAttribute() {
 				/>
 
 				{/*
-				 * Decoration a measure does not cover — `pcs`, `%`. A unit renders in its place
+				 * Decoration a measure does not cover - `pcs`, `%`. A unit renders in its place
 				 * and converts; this one is a label and does not, so carrying both would leave
 				 * two answers to what follows the number.
 				 */}
@@ -491,7 +491,7 @@ export function FormManageProductCategoryAttribute() {
 						/>
 					}
 					queryKeyPrefix="s-attribute-value"
-					emptyText="A list has to offer something — add at least one value."
+					emptyText="A list has to offer something - add at least one value."
 					// The set-wide rules report here; a single entry has no field of its own.
 					error={errors.options_rule}
 					isRequired={true}
@@ -543,7 +543,7 @@ export function FormManageProductCategoryAttribute() {
 				</FormComponentCheckbox>
 
 				{/*
-				 * Governs the walk up the tree only — a category's own definitions always
+				 * Governs the walk up the tree only - a category's own definitions always
 				 * apply, and a child defining the same label overrides this one rather than
 				 * adding a second control for it.
 				 */}

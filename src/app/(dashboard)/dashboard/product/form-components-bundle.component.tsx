@@ -25,7 +25,7 @@ import {
 /**
  * One component of the bundle: what it points at, and how many.
  *
- * The variant it names is fixed once chosen — swapping one component for another is removing a
+ * The variant it names is fixed once chosen - swapping one component for another is removing a
  * row and adding another, which is also what the API sees, since `syncItems` keys on
  * `variant_id`. So the row shows the SKU and name read-only rather than re-opening the picker.
  */
@@ -68,7 +68,7 @@ function ComponentRow({
 					<div className="truncate text-xs text-muted">
 						{component.label ||
 							resolved?.product?.contents?.[0]?.label ||
-							'—'}
+							'-'}
 					</div>
 				</div>
 
@@ -104,7 +104,7 @@ function ComponentRow({
 }
 
 /**
- * The bundle's components — a flat list, every one of them always included.
+ * The bundle's components - a flat list, every one of them always included.
  *
  * A bundle is not customizable: there is nothing for the customer to choose between and no
  * per-component price adjustment, so a row is a variant and a quantity. The price is the
@@ -128,8 +128,8 @@ export function FormComponentsBundle({
 	const elementIds = useElementIds(['component-search'] as const);
 
 	/*
-	 * A stored component arrives as `variant_id` alone — `attachBranches` does not join the
-	 * variant behind a bundle item — so the rows an edit opens with carry no name until they are
+	 * A stored component arrives as `variant_id` alone - `attachBranches` does not join the
+	 * variant behind a bundle item - so the rows an edit opens with carry no name until they are
 	 * looked up. One request for the whole set through the listing's `id` list filter, and only
 	 * for the rows that need it: anything just picked already brought its own wording along.
 	 */
@@ -194,7 +194,7 @@ export function FormComponentsBundle({
 
 			<p className="flex items-start gap-1 text-xs text-muted">
 				<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-				Only simple products are offered — a bundle cannot contain
+				Only simple products are offered - a bundle cannot contain
 				another bundle.
 			</p>
 
@@ -236,7 +236,7 @@ export function FormComponentsBundle({
 
 			{/*
 			 * The whole list in one hidden field. Per-input names cannot express a nested
-			 * repeatable, and `getProductBundleFormValues` parses this back — `position` is
+			 * repeatable, and `getProductBundleFormValues` parses this back - `position` is
 			 * assigned from the array order on the way out, so it is not an input either.
 			 */}
 			<input

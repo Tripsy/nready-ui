@@ -17,7 +17,7 @@ import { requestRatingSummaryList } from '@/services/rating.service';
  * counts without discarding the ones already on screen.
  *
  * `staleTime: 0` against the provider's five-minute default: `own` is scoped to this visitor, and
- * a count is the one thing a reader checks immediately after reacting — a cached answer reads as
+ * a count is the one thing a reader checks immediately after reacting - a cached answer reads as
  * the click having failed.
  */
 export function useRatingSummaries(

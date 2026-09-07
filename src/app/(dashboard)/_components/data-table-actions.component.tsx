@@ -326,7 +326,7 @@ export function DataTableActions<K extends DataSourceKey>() {
 		(leftActions?.length ?? 0) > 0 ||
 		(rightActions?.length ?? 0) > 0;
 
-	// Nothing to show (no permitted actions, no selection counter) — an empty bar would
+	// Nothing to show (no permitted actions, no selection counter) - an empty bar would
 	// still claim its padding and reserved height.
 	if (!hasContent) {
 		return null;
@@ -334,7 +334,7 @@ export function DataTableActions<K extends DataSourceKey>() {
 
 	/*
 	 * The reserved height keeps the table from jumping as selection-dependent buttons come
-	 * and go, which only holds while the row stays one line — from `md` up. Narrower than
+	 * and go, which only holds while the row stays one line - from `md` up. Narrower than
 	 * that the buttons wrap, so the height changes regardless and the reservation would
 	 * only cost vertical space the viewport does not have.
 	 */

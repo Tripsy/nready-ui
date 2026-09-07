@@ -55,7 +55,7 @@ export interface ButtonProps
 		VariantProps<typeof buttonVariants> {}
 
 // Renders a plain <button>. For a link styled as a button use `ui/link`, which
-// applies the same `buttonVariants` to a NextLink — that replaced the previous
+// applies the same `buttonVariants` to a NextLink - that replaced the previous
 // `asChild`/Slot escape hatch and keeps the anchor/button distinction explicit.
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 	({ className, variant, size, hover, ...props }, ref) => {

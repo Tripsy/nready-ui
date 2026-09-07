@@ -202,7 +202,7 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'type',
 					header: 'Type',
-					// `formatEnumLabel`, not `capitalize` — the values are snake_case, so
+					// `formatEnumLabel`, not `capitalize` - the values are snake_case, so
 					// capitalizing alone leaves "Attribute_value" against the filter
 					// dropdown's "Attribute Value".
 					body: (entry, column) =>
@@ -214,7 +214,7 @@ export default async function dataSourceConfig(): Promise<
 					/*
 					 * The backend returns the one wording for the filtered language, so the row
 					 * carries at most a single content. An empty cell means the term has no
-					 * translation there — the state this table exists to surface.
+					 * translation there - the state this table exists to surface.
 					 */
 					field: 'contents',
 					header: 'Value',

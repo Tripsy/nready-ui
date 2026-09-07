@@ -24,7 +24,7 @@ import {
  * A **type** rather than the `as const` key array its server-rendered siblings export: this
  * module is `'use client'`, so Next replaces its value exports with client references and a
  * server component spreading the array would get something that is not iterable. Types are
- * erased, so this one crosses the boundary fine — the page lists the keys itself, the way
+ * erased, so this one crosses the boundary fine - the page lists the keys itself, the way
  * `ArticleFeed`'s caller does.
  */
 export type ArticleRatingTranslations = {
@@ -55,7 +55,7 @@ export function ArticleRating({
 	 * `staleTime: 0` against the provider's five-minute default: the response is scoped to
 	 * this visitor (`own` is their own vote) and the count is the one thing a reader checks
 	 * immediately after clicking, so a cached answer reads as the click having failed. The
-	 * backend does not cache it either — `RatingEntity.HAS_CACHE` is false.
+	 * backend does not cache it either - `RatingEntity.HAS_CACHE` is false.
 	 */
 	const { data } = useQuery({
 		queryKey,
@@ -73,7 +73,7 @@ export function ArticleRating({
 	const down = data?.summary.like.down ?? 0;
 
 	/*
-	 * One button press, three possible writes — which one depends on what the reader already
+	 * One button press, three possible writes - which one depends on what the reader already
 	 * holds, and the backend refuses the wrong one (409 on a second cast, 404 on changing
 	 * nothing), so the branch is not cosmetic.
 	 */
@@ -89,7 +89,7 @@ export function ArticleRating({
 			}
 
 			// Pressing the direction already held takes the vote back rather than casting
-			// it twice — the row is removed, freeing the target to be rated again.
+			// it twice - the row is removed, freeing the target to be rated again.
 			if (own === direction) {
 				return requestDeleteRating(ENTITY_TYPE, articleId, RATING_TYPE);
 			}

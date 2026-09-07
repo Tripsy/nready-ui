@@ -31,14 +31,14 @@ const BreadcrumbProvider = ({ children }: { children: ReactNode }) => {
 
 	/*
 	 * The trail and the highlighted menu entry belong to one route, but only the pages that
-	 * have something to say mount a `BreadcrumbSetter` — `/dashboard` itself does not. Both
+	 * have something to say mount a `BreadcrumbSetter` - `/dashboard` itself does not. Both
 	 * values are therefore cleared here whenever the route changes, and a page that wants
 	 * them writes them back.
 	 *
 	 * Deliberately during render rather than in an effect: effects run children-first, so an
 	 * effect here would fire *after* the incoming page's setter and wipe what it just wrote.
 	 * Setting state of this same component while rendering it is the supported way to reset
-	 * state on a prop change — React re-renders this subtree before committing, so no child
+	 * state on a prop change - React re-renders this subtree before committing, so no child
 	 * ever sees the stale value.
 	 */
 	if (pathname !== renderedPathname) {

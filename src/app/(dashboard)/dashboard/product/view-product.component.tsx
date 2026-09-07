@@ -39,7 +39,7 @@ function displayWeekday(dayOfWeek: number | null): string {
 
 /**
  * How many answers a question accepts. Restated in words because `min_select` / `max_select` are
- * its only expression — there is no required flag to read instead — and `null` as the maximum is
+ * its only expression - there is no required flag to read instead - and `null` as the maximum is
  * a value ("no upper bound") rather than a missing one.
  */
 function displayCardinality(
@@ -53,7 +53,7 @@ function displayCardinality(
 }
 
 /**
- * What one answer does to the price, per market. Signed on purpose — an answer that declines
+ * What one answer does to the price, per market. Signed on purpose - an answer that declines
  * something the price already includes carries a negative delta, and a bare number would read
  * as a surcharge.
  */
@@ -77,7 +77,7 @@ export function ViewProduct({ entry }: { entry: ProductModel }) {
 
 	/*
 	 * The request's own language when the product has a translation for it, otherwise the first
-	 * one it does carry — a product filed only in Romanian should open showing Romanian rather
+	 * one it does carry - a product filed only in Romanian should open showing Romanian rather
 	 * than an empty panel.
 	 */
 	const [language, setLanguage] = useState<Language>(() => {
@@ -133,19 +133,19 @@ export function ViewProduct({ entry }: { entry: ProductModel }) {
 					label="VAT Category"
 					value={formatEnumLabel(entry.vat_category)}
 				/>
-				<ViewField label="Brand" value={entry.brand?.name ?? '—'} />
+				<ViewField label="Brand" value={entry.brand?.name ?? '-'} />
 				<ViewField
 					label="Categories"
 					value={
 						categories.length
 							? categories.map((ref) => ref.label).join(', ')
-							: '—'
+							: '-'
 					}
 				/>
 				<ViewField
 					label="Tags"
 					value={
-						tags.length ? tags.map((r) => r.label).join(', ') : '—'
+						tags.length ? tags.map((r) => r.label).join(', ') : '-'
 					}
 				/>
 			</ViewSection>
@@ -170,7 +170,7 @@ export function ViewProduct({ entry }: { entry: ProductModel }) {
 			</ViewSection>
 
 			{/*
-			 * The catalog window, which is what `sale_status` above is computed from — the two
+			 * The catalog window, which is what `sale_status` above is computed from - the two
 			 * are shown together so a surprising status has its cause next to it.
 			 */}
 			<ViewSection title="Catalog window">
@@ -179,7 +179,7 @@ export function ViewProduct({ entry }: { entry: ProductModel }) {
 					value={
 						entry.available_from
 							? formatDate(entry.available_from, 'date-time')
-							: '—'
+							: '-'
 					}
 				/>
 				<ViewField
@@ -187,7 +187,7 @@ export function ViewProduct({ entry }: { entry: ProductModel }) {
 					value={
 						entry.available_until
 							? formatDate(entry.available_until, 'date-time')
-							: '—'
+							: '-'
 					}
 				/>
 				<ViewField
@@ -195,7 +195,7 @@ export function ViewProduct({ entry }: { entry: ProductModel }) {
 					value={
 						entry.discontinued_at
 							? formatDate(entry.discontinued_at, 'date-time')
-							: '—'
+							: '-'
 					}
 				/>
 			</ViewSection>
@@ -208,7 +208,7 @@ export function ViewProduct({ entry }: { entry: ProductModel }) {
 			<ViewSection title="Ordering interval" layout="rows">
 				{availabilities.length === 0 ? (
 					<span className="text-sm text-muted">
-						No restriction — orderable at any time while available.
+						No restriction - orderable at any time while available.
 					</span>
 				) : (
 					<ul className="space-y-1 text-sm">
@@ -231,7 +231,7 @@ export function ViewProduct({ entry }: { entry: ProductModel }) {
 
 			<ViewSection title={`Variants (${variants.length})`}>
 				{variants.length === 0 ? (
-					<ViewField label="—" value="No variants loaded" />
+					<ViewField label="-" value="No variants loaded" />
 				) : (
 					variants.map((variant) => (
 						<ViewField
@@ -242,7 +242,7 @@ export function ViewProduct({ entry }: { entry: ProductModel }) {
 									? variant.prices
 											.map(
 												(price) =>
-													`${price.sale_price ?? '—'} ${price.currency}`,
+													`${price.sale_price ?? '-'} ${price.currency}`,
 											)
 											.join(' · ')
 									: 'no price'
@@ -262,7 +262,7 @@ export function ViewProduct({ entry }: { entry: ProductModel }) {
 			>
 				{optionGroups.length === 0 ? (
 					<span className="text-sm text-muted">
-						No questions — ordered as it is.
+						No questions - ordered as it is.
 					</span>
 				) : (
 					<ul className="space-y-3 text-sm">
@@ -293,7 +293,7 @@ export function ViewProduct({ entry }: { entry: ProductModel }) {
 												? ' (preselected)'
 												: ''}
 											<span className="text-muted">
-												{' — '}
+												{' - '}
 												{displayDeltas(option.prices)}
 											</span>
 										</li>

@@ -54,13 +54,13 @@ import { DataSourceSectionEnum } from '@/types/data-source.type';
 
 /**
  * The markets a bundle may be priced in. A closed list rather than free text: the column is
- * `char(3)` and `(variant_id, currency)` is unique, so a typo does not fail — it silently
+ * `char(3)` and `(variant_id, currency)` is unique, so a typo does not fail - it silently
  * prices the bundle in a market nothing sells in.
  */
 const CURRENCY_OPTIONS = toOptionsFromEnum(CurrencyEnum);
 
 /**
- * Shared widths for the price grid's header and its row cells — change one and the columns drift.
+ * Shared widths for the price grid's header and its row cells - change one and the columns drift.
  *
  * `shrink-0` because the width has to survive a cell whose content is wider than it: a field's
  * own wrapper grows to fit an error message under it, and without this the cell either absorbs
@@ -106,7 +106,7 @@ const TAB_FIELDS: Record<
 	],
 };
 
-/** The per-language fields each tab owns — all of them belong to Content. */
+/** The per-language fields each tab owns - all of them belong to Content. */
 const TAB_CONTENT_FIELDS: Record<FormTabId, readonly string[]> = {
 	details: [],
 	content: ['label', 'slug', 'description', 'meta'],
@@ -121,7 +121,7 @@ const productTypes = toOptionsFromEnum(ProductTypeEnum, {
 
 /*
  * One option list per type rather than one for the enum: `toOptionsFromEnum` cannot subset, so
- * the narrowing happens here. Built once at module scope — the map is static.
+ * the narrowing happens here. Built once at module scope - the map is static.
  */
 const productUnitsByType = Object.fromEntries(
 	Object.values(ProductTypeEnum).map((type) => [
@@ -137,13 +137,13 @@ const productUnitsByType = Object.fromEntries(
 /**
  * The bundle editor, hosted in a window like every other entity form.
  *
- * A `WindowForm` child, which is what gives it the pipeline the product form has —
+ * A `WindowForm` child, which is what gives it the pipeline the product form has -
  * `processForm`, debounced live validation, draft persistence across a reload, and the submit
  * and cancel controls. This component is only the panels.
  *
  * Four tabs, and two of them differ from the product form on purpose. **Details** carries no
  * composition select (this form only ever writes `bundle`) and no VAT category (unused on a
- * bundle — the components carry their own). **Price** edits the bundle's single header variant
+ * bundle - the components carry their own). **Price** edits the bundle's single header variant
  * rather than a variant set, with the stock controls absent: availability is the minimum over
  * the components, and `track_stock` is forced false so the header stays out of shipment
  * allocation.
@@ -207,7 +207,7 @@ export function FormBundleProduct() {
 	);
 	const attributeValues = formValues.attributes ?? [];
 
-	// Reconciled on every change to the resolved set — see the product form for why both halves
+	// Reconciled on every change to the resolved set - see the product form for why both halves
 	// (filling the empties, dropping the undeclared) are needed
 	// biome-ignore lint/correctness/useExhaustiveDependencies: keyed on the resolved set, not on the values it reconciles
 	useEffect(() => {
@@ -242,7 +242,7 @@ export function FormBundleProduct() {
 	/**
 	 * Declares a new attribute from here, against one of the bundle's own categories.
 	 *
-	 * The definition is not bundle state — it is a rule the category carries, and every product
+	 * The definition is not bundle state - it is a rule the category carries, and every product
 	 * under that category answers it from then on. Which of them should own it is the one call
 	 * this form cannot make, so the window is handed the bundle's categories and asks; with a
 	 * single category there is nothing to ask and it is seeded outright.
@@ -291,7 +291,7 @@ export function FormBundleProduct() {
 		: Object.values(errors.contents ?? {});
 
 	// The list-level "at least one component" message joins the duplicate-variant rule, which
-	// reports on its own sentinel field — both describe the set rather than any one row.
+	// reports on its own sentinel field - both describe the set rather than any one row.
 	const componentRuleError = [
 		...(ownErrorMessages(errors.components) ?? []),
 		...(errors.components_rule ?? []),
@@ -323,7 +323,7 @@ export function FormBundleProduct() {
 
 	/**
 	 * Errors per tab, so one on a panel the editor cannot see still announces itself. Counted
-	 * across every language rather than the open one — a missing Romanian label is the Content
+	 * across every language rather than the open one - a missing Romanian label is the Content
 	 * tab's problem whichever translation happens to be selected.
 	 */
 	const tabErrors = countTabErrors<FormTabId>({
@@ -341,8 +341,8 @@ export function FormBundleProduct() {
 			{/*
 			 * Outside the panels because no single one owns it: the payload is assembled from
 			 * Content (label, description) and its SEO meta together. Fields *inside* a panel
-			 * still reach `FormData` — `TabsContent` force-mounts every panel and only hides the
-			 * inactive ones — which is what lets the components editor keep its own hidden input.
+			 * still reach `FormData` - `TabsContent` force-mounts every panel and only hides the
+			 * inactive ones - which is what lets the components editor keep its own hidden input.
 			 */}
 			<input
 				type="hidden"
@@ -504,7 +504,7 @@ export function FormBundleProduct() {
 
 						{/*
 						 * The answers ride to the backend as one JSON field, like every other
-						 * collection in this form — `processForm` rebuilds its values from
+						 * collection in this form - `processForm` rebuilds its values from
 						 * `FormData` on each submit, and a list of objects has no flat encoding.
 						 */}
 						<input
@@ -568,7 +568,7 @@ export function FormBundleProduct() {
 				<TabsContent id="content">
 					<p className="flex items-start gap-1 text-xs text-muted">
 						<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-						The wording, one set per language — name, slug,
+						The wording, one set per language - name, slug,
 						description and the SEO meta. The slug is the whole
 						public address (eg: /products/my-slug), so changing it
 						moves the page.
@@ -684,7 +684,7 @@ export function FormBundleProduct() {
 
 						{formValues.prices.map((row, index) => {
 							/*
-							 * The messages this market's own fields carry — a price row is
+							 * The messages this market's own fields carry - a price row is
 							 * validated field by field (`invalid_currency`, `invalid_price`,
 							 * `min_price_above_price`), and those land on the row rather than
 							 * on `prices`, so without this lookup they would be computed and
@@ -696,13 +696,13 @@ export function FormBundleProduct() {
 							>(errors.prices, index);
 
 							/*
-							 * A warning, not a rule — the same one the variants grid carries.
+							 * A warning, not a rule - the same one the variants grid carries.
 							 * `reference_price` means "what this would otherwise cost", so one
 							 * below the sale price advertises an increase as a saving. Nothing
 							 * downstream catches it: the table checks only `reference_price > 0`
 							 * and no pricing path reads the column, so a transposed pair reaches
 							 * the storefront unchallenged. Both figures are in the row's own
-							 * currency, so no conversion is involved. Equal is not flagged — it
+							 * currency, so no conversion is involved. Equal is not flagged - it
 							 * advertises no saving rather than a false one.
 							 */
 							const referenceBelowSale =
@@ -719,7 +719,7 @@ export function FormBundleProduct() {
 								// biome-ignore lint/suspicious/noArrayIndexKey: no stable id on a price row
 								<div key={index}>
 									<div className="flex flex-nowrap items-start gap-2">
-										{/* The width is on the cell, not the control — see PRICE_COLUMN. */}
+										{/* The width is on the cell, not the control - see PRICE_COLUMN. */}
 										<div className={PRICE_COLUMN.currency}>
 											<FormComponentSelect<{
 												currency: string;

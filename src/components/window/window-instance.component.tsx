@@ -74,7 +74,7 @@ const WINDOW_RENDERERS: Partial<
 			entries.length > 0 ? entries : entry ? [entry] : [];
 
 		// `free` selection covers windows with nothing to select against (e.g. a static
-		// help/guide window) — unlike `single`/`multiple`, an empty list there is expected.
+		// help/guide window) - unlike `single`/`multiple`, an empty list there is expected.
 		if (actionEntries.length === 0 && entriesSelection !== 'free') {
 			throw new Error('No entries defined for action');
 		}

@@ -274,13 +274,13 @@ export type CashFlowModel<D = Date | string> = {
 	amount: number; // stored in cents
 	/*
 	 * Both are virtual columns computed by the API from `amount` and `vat_rate`, and both are
-	 * snake_case on the wire like every other column — a camelCase name here reads as
+	 * snake_case on the wire like every other column - a camelCase name here reads as
 	 * `undefined` and every amount derived from it renders as `NaN`.
 	 */
 	net_amount: number; // decimal value (does not include VAT)
 	gross_amount: number; // decimal value (includes VAT)
 	/*
-	 * Real numbers on the wire, not the strings Postgres hands out for `numeric` — the API's
+	 * Real numbers on the wire, not the strings Postgres hands out for `numeric` - the API's
 	 * decimal columns carry `numericTransformer`, which converts on read. Do not "correct"
 	 * these to `string`; the transformer is the contract.
 	 */

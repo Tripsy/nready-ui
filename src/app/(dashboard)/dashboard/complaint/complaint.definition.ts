@@ -26,8 +26,8 @@ import type {
 } from '@/types/data-source.type';
 
 /**
- * Exactly the keys in the backend's `find.filterSchema`. `term` is the free-text search — it
- * matches the complaint's description — and reaches the table as `global`, which
+ * Exactly the keys in the backend's `find.filterSchema`. `term` is the free-text search - it
+ * matches the complaint's description - and reaches the table as `global`, which
  * `data-table-list.component.tsx` renames on the way out.
  *
  * `user` is the label half of the autocomplete pair; only `user_id` reaches the backend.
@@ -91,7 +91,7 @@ export default async function dataSourceConfig(): Promise<
 
 	/**
 	 * The resolution badge is the trigger, the way `user`'s status badge is: one click selects the
-	 * row and fires the move that matters from where it sits — close an open complaint, reopen a
+	 * row and fires the move that matters from where it sits - close an open complaint, reopen a
 	 * closed one, restore a dismissed one.
 	 */
 	function displayButtonResolution(
@@ -119,7 +119,7 @@ export default async function dataSourceConfig(): Promise<
 
 	/**
 	 * The two directions of the decision. They differ only in the flag they send and the state
-	 * they are offered from — a complaint already in that state has nothing to move, and a deleted
+	 * they are offered from - a complaint already in that state has nothing to move, and a deleted
 	 * one is restored before it is decided on.
 	 */
 	function resolutionAction(
@@ -216,8 +216,8 @@ export default async function dataSourceConfig(): Promise<
 				},
 				/*
 				 * A complaint's state, rendered as the status badge every other feature's status
-				 * column carries. It is not a `status` column on the table — the state is the
-				 * `is_resolved` flag — so the cell hands the key over as `customValue`.
+				 * column carries. It is not a `status` column on the table - the state is the
+				 * `is_resolved` flag - so the cell hands the key over as `customValue`.
 				 */
 				{
 					field: 'is_resolved',
@@ -254,7 +254,7 @@ export default async function dataSourceConfig(): Promise<
 			displayComplaintLabel(entry),
 		actions: {
 			// No `create` and no `update`: a complaint is filed by a reader through
-			// `/public/complaints`, and its text is their accusation — a moderator decides on it
+			// `/public/complaints`, and its text is their accusation - a moderator decides on it
 			// rather than rewriting it.
 			resolve: resolutionAction('resolve', true, 'success'),
 			reopen: resolutionAction('reopen', false, 'default'),

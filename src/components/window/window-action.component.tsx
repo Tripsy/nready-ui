@@ -122,8 +122,8 @@ export function WindowAction<WindowEntry extends WindowEntryType>({
 					);
 				}
 
-				// An action rewrites the row as much as a form does — a status transition,
-				// a delete, a restore — so any other window open on it is now stale.
+				// An action rewrites the row as much as a form does - a status transition,
+				// a delete, a restore - so any other window open on it is now stale.
 				await invalidateWindowEntries(
 					queryClient,
 					windowConfig.dataSource,

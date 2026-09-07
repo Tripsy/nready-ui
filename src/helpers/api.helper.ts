@@ -98,7 +98,7 @@ export const REMOTE_API_KEY_HEADER = 'x-api-key';
  *
  * Empty rather than a blank header when unset, so a deployment with the gate switched off on
  * both sides sends the same request it always did. `remoteApi.key` is server-only, so this
- * yields `{}` in the browser — which is correct there and never reached: `remote-api` mode
+ * yields `{}` in the browser - which is correct there and never reached: `remote-api` mode
  * cannot work client-side anyway (`remoteApi.url` is server-only too).
  */
 export function remoteApiKeyHeader(): Record<string, string> {
@@ -169,7 +169,7 @@ export class ApiRequest {
 	}
 
 	/**
-	 * Always throws — declared `never` so callers are known to be unreachable afterward.
+	 * Always throws - declared `never` so callers are known to be unreachable afterward.
 	 */
 	private handleError(error: unknown): never {
 		if (error instanceof ApiError) {
@@ -204,7 +204,7 @@ export class ApiRequest {
 
 		/*
 		 * Relative in the browser, so the request is same-origin by construction whatever
-		 * host the app is reached on — `localhost`, an IP, a preview domain. Absolute would
+		 * host the app is reached on - `localhost`, an IP, a preview domain. Absolute would
 		 * pin it to `app.url`, and since these calls carry the `x-csrf-token` header they
 		 * would then be preflighted as cross-origin and blocked, with the widgets silently
 		 * rendering their empty state.
@@ -220,7 +220,7 @@ export class ApiRequest {
 
 	/**
 	 * The middleware gates mutating `/api/*` requests on the CSRF header, so only requests
-	 * that actually go through it need a token — `remote-api` calls leave the app entirely.
+	 * that actually go through it need a token - `remote-api` calls leave the app entirely.
 	 */
 	private needsCsrfToken(requestOptions: RequestInit): boolean {
 		const method = (requestOptions.method || 'GET').toUpperCase();
@@ -258,9 +258,9 @@ export class ApiRequest {
 	}
 
 	/**
-	 * Single funnel for every failure mode: whatever `performFetch` throws — a bad route
+	 * Single funnel for every failure mode: whatever `performFetch` throws - a bad route
 	 * name from `Routes.get`, a network or timeout rejection, an unparsable body, or the
-	 * `ApiError` it raises for a non-2xx response — leaves this method as an `ApiError`.
+	 * `ApiError` it raises for a non-2xx response - leaves this method as an `ApiError`.
 	 */
 	public async doFetch<T>(
 		path: string,
@@ -307,7 +307,7 @@ export class ApiRequest {
 
 		/*
 		 * Two attempts at most. The CSRF cookie lives an hour, so a tab left open past
-		 * that submits a stale token and earns one 403 — refreshing and retrying turns
+		 * that submits a stale token and earns one 403 - refreshing and retrying turns
 		 * it into a save the user never notices, where a bare failure would look
 		 * arbitrary. Only a rejection the middleware explicitly marked as stale is
 		 * retried; every other 403 is a real refusal.

@@ -11,7 +11,7 @@ import { requestCreateComment } from '@/services/comment.service';
 
 /**
  * The form's fields are not the request's shape: the guest fields are dropped for a signed-in
- * reader — the backend ignores them anyway, and sending them would be claiming an identity the
+ * reader - the backend ignores them anyway, and sending them would be claiming an identity the
  * session already settles.
  */
 async function createCommentOperation(values: CommentFormValuesType) {
@@ -43,8 +43,8 @@ export async function commentAction(
 			switch (error.status) {
 				/*
 				 * The backend's own wording, and it is worth showing verbatim: a 400 here is
-				 * one of three different facts — the guest identity is missing, the parent is
-				 * no longer available, or the origin address could not be resolved — and only
+				 * one of three different facts - the guest identity is missing, the parent is
+				 * no longer available, or the origin address could not be resolved - and only
 				 * the first is something the reader can act on from this form.
 				 */
 				case 400:

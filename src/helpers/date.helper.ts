@@ -54,7 +54,7 @@ export function createPastDate(seconds: number): Date {
 }
 
 /**
- * The days of the week as every weekday the backend stores numbers them — ISO 8601, Monday is 1
+ * The days of the week as every weekday the backend stores numbers them - ISO 8601, Monday is 1
  * through Sunday is 7. Both `product_availability.day_of_week` and `discount.conditions.day_range`
  * are written in it, so one list serves the pickers and the readouts of both.
  *
@@ -72,7 +72,7 @@ export const ISO_WEEKDAYS = [
 ] as const;
 
 /**
- * Names an ISO weekday. An out-of-range number renders as `Day 9` rather than as nothing — a
+ * Names an ISO weekday. An out-of-range number renders as `Day 9` rather than as nothing - a
  * value the backend's check constraint refuses, so seeing it means the two have drifted.
  *
  * @param {number} day - ISO weekday, 1 (Monday) through 7 (Sunday)
@@ -105,8 +105,8 @@ export function isValidDate(date: string): boolean {
 /**
  * A stored timestamp as a string, for the display helpers that take one.
  *
- * The same two shapes `toCalendarValue` reconciles — a list response carries the ISO string, an
- * entry the window reloaded carries a `Date` — but the whole instant is kept: this feeds
+ * The same two shapes `toCalendarValue` reconciles - a list response carries the ISO string, an
+ * entry the window reloaded carries a `Date` - but the whole instant is kept: this feeds
  * `formatDate`, which renders in the reader's own zone, where `toCalendarValue` answers the
  * calendar day a form field is set to.
  *
@@ -120,8 +120,8 @@ export function toDateValue(value: Date | string): string {
 /**
  * A stored date as the calendar input and the date validator both want it: `YYYY-MM-DD`.
  *
- * A model field is `Date | string` depending on where the row came from — a list response
- * carries the ISO string, an entry the window reloaded carries a `Date` — so both are trimmed
+ * A model field is `Date | string` depending on where the row came from - a list response
+ * carries the ISO string, an entry the window reloaded carries a `Date` - so both are trimmed
  * to the calendar part. The trim reads the **UTC** day, which is what these fields mean: they
  * take effect on the day given, not at a time of day.
  *
@@ -222,7 +222,7 @@ export function formatDate(
 /**
  * Combine a date with a specified wall-clock time.
  *
- * `setHours` resolves against the runtime's zone, which is the user's own device zone —
+ * `setHours` resolves against the runtime's zone, which is the user's own device zone -
  * these run client-side. That is the intended reading: "20:00" means 20:00 where the user
  * is, and serializing the resulting Date yields the correct UTC instant for the backend. Do
  * not reach for `app.timezone` here; company time applies to filter day-boundaries only
@@ -327,11 +327,11 @@ export function timeAgo(date: string | Date): string {
  * weeks that framing stops carrying information ("4 months ago") and the date itself is the
  * more useful fact.
  *
- * **The absolute half resolves in `app.timezone`, not the viewer's zone** — the one display
+ * **The absolute half resolves in `app.timezone`, not the viewer's zone** - the one display
  * that departs from the convention in CLAUDE.md, and it has to. The article feed is a client
  * component rendered on the server first, so the same date is formatted twice: in the
  * container (UTC) for the HTML, then in the browser. An instant late in the UTC day lands on
- * the next date in a positive-offset browser, and React fails hydration on the mismatch —
+ * the next date in a positive-offset browser, and React fails hydration on the mismatch -
  * seen as "8 July 2026" against "7 July 2026". A publication date is an editorial fact
  * rather than a per-viewer instant, so pinning it to company time is both stable and true.
  *
@@ -371,7 +371,7 @@ export function formatRelativeDate(
  * That is deliberate, and the one place the app departs from device-local input: this backs
  * the dashboard's date-range filters, where a picked day has to mean the company's day so
  * two managers in different countries filtering "27-07" get the same rows. Instants typed
- * into forms take the opposite convention — see `combineDateAndTime`.
+ * into forms take the opposite convention - see `combineDateAndTime`.
  *
  * @param value - Date string in company time (e.g. "2024-01-15" or "2024-01-15T20:00")
  * @param endOfDay

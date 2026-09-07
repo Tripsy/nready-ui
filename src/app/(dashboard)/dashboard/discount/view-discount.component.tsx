@@ -70,7 +70,7 @@ export function ViewDiscount({ entry }: { entry: DiscountModel }) {
 		/*
 		 * Overrides the provider's 5-minute `staleTime`: this data is written by the manage
 		 * form through a different endpoint, so a cached copy is wrong the moment a submit
-		 * succeeds. It is a handful of ids — refetching per mount is cheaper than reasoning
+		 * succeeds. It is a handful of ids - refetching per mount is cheaper than reasoning
 		 * about who has to invalidate it.
 		 */
 		staleTime: 0,
@@ -80,7 +80,7 @@ export function ViewDiscount({ entry }: { entry: DiscountModel }) {
 	const targetIds = targetScope ? (targets?.[targetScope] ?? []) : [];
 
 	/*
-	 * The targets endpoint returns ids and nothing else — it is the polymorphic link table, which
+	 * The targets endpoint returns ids and nothing else - it is the polymorphic link table, which
 	 * by design knows no more about a category than its number. The names come from the listing
 	 * each scope is served by, one request for the whole set.
 	 */

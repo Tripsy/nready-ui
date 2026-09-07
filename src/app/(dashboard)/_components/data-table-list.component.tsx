@@ -134,7 +134,7 @@ export default function DataTableList(props: { dataKey: string }) {
 		/*
 		 * The data-source config is loaded asynchronously and is not part of the query
 		 * key, so an ungated query would fire once with no `find` to call, fail, and then
-		 * sit in its error state forever — the key never changes to trigger a refetch.
+		 * sit in its error state forever - the key never changes to trigger a refetch.
 		 */
 		enabled: dataTable !== null,
 		queryFn: async () => {
@@ -164,7 +164,7 @@ export default function DataTableList(props: { dataKey: string }) {
 	/*
 	 * Both `single` and `multiple` tables select rows; only a `null` selectionMode opts a
 	 * table out of selection entirely. `multiple` additionally gets a checkbox column and
-	 * `toggle` selection behavior so several rows can be picked at once — `single` selects
+	 * `toggle` selection behavior so several rows can be picked at once - `single` selects
 	 * (and replaces) one row on click, with no checkbox column, matching react-aria's own
 	 * `single`/`multiple` distinction.
 	 */
@@ -212,7 +212,7 @@ export default function DataTableList(props: { dataKey: string }) {
 	/**
 	 * Row identity. `dataKey` names a field every entry carries (`id` across the whole
 	 * dashboard), but it arrives as a plain string while `Entry` is the union of every
-	 * model — so the lookup is widened here, once, rather than at each call site.
+	 * model - so the lookup is widened here, once, rather than at each call site.
 	 */
 	const getRowKey = useCallback(
 		(entry: object): string =>
@@ -228,8 +228,8 @@ export default function DataTableList(props: { dataKey: string }) {
 	const onSelectionChange = useCallback(
 		(selection: Selection) => {
 			/*
-			 * Selection is page-scoped — it is cleared on every page, sort and filter
-			 * change — so the header checkbox's `all` means exactly the rows currently
+			 * Selection is page-scoped - it is cleared on every page, sort and filter
+			 * change - so the header checkbox's `all` means exactly the rows currently
 			 * rendered, and the store keeps whole entries because the action buttons
 			 * operate on entries, not ids.
 			 */

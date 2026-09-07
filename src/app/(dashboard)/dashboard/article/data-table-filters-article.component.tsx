@@ -178,7 +178,7 @@ export const DataTableFiltersArticle = (): JSX.Element => {
 
 			{/*
 			 * The backend joins the translation on this language, so it decides which title the
-			 * rows come back with — not just which rows. Left unset it falls back to the
+			 * rows come back with - not just which rows. Left unset it falls back to the
 			 * request's language; the control shows that fallback rather than a blank.
 			 */}
 			<FormFiltersSelect<ArticleDataTableFiltersType>
@@ -248,7 +248,7 @@ export const DataTableFiltersArticle = (): JSX.Element => {
 			 * inside its display window, so scheduled (`publish_at` in the future) and expired
 			 * (`archive_at` passed) rows drop out.
 			 *
-			 * Only the "on" state is a filter — the backend ignores the flag when false, so
+			 * Only the "on" state is a filter - the backend ignores the flag when false, so
 			 * unchecking it widens the list back to every status rather than asking for
 			 * unpublished articles.
 			 */}

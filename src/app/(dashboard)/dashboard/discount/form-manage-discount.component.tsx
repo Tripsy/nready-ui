@@ -35,7 +35,7 @@ export type DiscountFormValuesType = {
 	 * Conditions are edited as separate fields, not as JSON, and kept flat because
 	 * `FormValuesType` admits scalars and arrays-of-records but not a nested object of mixed
 	 * shapes. `prepareParamsFromFormValues` assembles the `conditions` object on the way out
-	 * and `getFormState` takes it apart on the way in — those two are a pair, change them
+	 * and `getFormState` takes it apart on the way in - those two are a pair, change them
 	 * together.
 	 *
 	 * A range needs both ends or neither; the validator enforces that rather than guessing a
@@ -55,14 +55,14 @@ export type DiscountFormValuesType = {
 	 * in the discount payload.
 	 *
 	 * Wrapped as `{ id }` records because `FormValuesType` admits arrays of records but not a
-	 * bare `number[]` — the picker itself works in plain ids and converts at this boundary.
+	 * bare `number[]` - the picker itself works in plain ids and converts at this boundary.
 	 */
 	targets: { id: number }[];
 };
 
 /*
  * The selects below carry a fixed width instead of sizing to their current value. The option
- * sets are fixed and known, so the trigger can be sized once for the longest of them —
+ * sets are fixed and known, so the trigger can be sized once for the longest of them -
  * otherwise picking a different value resizes the control and shifts everything beside it.
  * Each width is the measured need for the longest option, rounded up to the 4px scale:
  * Scope "Category" 104 → w-28, Reason "First Time Customer" 177 → w-48, Type "Amount" 94 →
@@ -115,8 +115,8 @@ export function FormManageDiscount() {
 	const entryId = entry && 'id' in entry ? (entry.id as number) : undefined;
 
 	/*
-	 * Targets live behind their own endpoint, so `getFormState` — which only sees the discount
-	 * row — cannot seed them. They are fetched here instead, the same way cash-flow loads its
+	 * Targets live behind their own endpoint, so `getFormState` - which only sees the discount
+	 * row - cannot seed them. They are fetched here instead, the same way cash-flow loads its
 	 * operational records.
 	 */
 	const { data: storedTargets, isLoading: targetsLoading } = useQuery({
@@ -127,7 +127,7 @@ export function FormManageDiscount() {
 		/*
 		 * Overrides the provider's 5-minute `staleTime`: this data is written by the manage
 		 * form through a different endpoint, so a cached copy is wrong the moment a submit
-		 * succeeds. It is a handful of ids — refetching per mount is cheaper than reasoning
+		 * succeeds. It is a handful of ids - refetching per mount is cheaper than reasoning
 		 * about who has to invalidate it.
 		 */
 		staleTime: 0,

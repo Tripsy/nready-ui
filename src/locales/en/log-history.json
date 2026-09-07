@@ -22,17 +22,17 @@
 		}
 	},
 	"help": {
-		"intro": "This is the record of who changed what. Every create, update, delete, restore and status move on a tracked entity writes a row as it happens — nothing on this screen writes one, and nothing can edit one.",
+		"intro": "This is the record of who changed what. Every create, update, delete, restore and status move on a tracked entity writes a row as it happens - nothing on this screen writes one, and nothing can edit one.",
 		"step_1_title": "Read a row as entity plus id",
 		"step_1_body": "An id is only meaningful inside its entity: id 5 exists for a user, a product and an order alike. Filtering by entity alone is fine; filtering by id alone is not, and the two together are what follow one record through its life.",
 		"step_2_title": "See who did it",
-		"step_2_body": "The acting account is linked, and the name is also stored on the row as it read at the time — so renaming or deleting that account later does not rewrite history. Source tells you whether the change came from a request, a scheduled job or a seed.",
+		"step_2_body": "The acting account is linked, and the name is also stored on the row as it read at the time - so renaming or deleting that account later does not rewrite history. Source tells you whether the change came from a request, a scheduled job or a seed.",
 		"step_3_title": "Follow one operation across entities",
 		"step_3_body": "The request id is shared by everything a single request changed, which is how a cascade is read: one delete that took a subtree with it shows up as many rows under one id. A bulk operation also shares its timestamp, stamped once for the whole set.",
 		"step_4_title": "Open the details",
-		"step_4_body": "Details is whatever the operation chose to record — the fields that moved, the ids that went down together. It is per action rather than a fixed shape, so it is shown as stored.",
+		"step_4_body": "Details is whatever the operation chose to record - the fields that moved, the ids that went down together. It is per action rather than a fixed shape, so it is shown as stored.",
 		"step_5_title": "Filter, then purge",
-		"step_5_body": "Every filter here matches exactly and there is no free-text search: entity, entity id, action, request id, source, and a recorded-date range. Delete takes the rows you select, several at a time, and is final — there is no deleted state to restore from.",
+		"step_5_body": "Every filter here matches exactly and there is no free-text search: entity, entity id, action, request id, source, and a recorded-date range. Delete takes the rows you select, several at a time, and is final - there is no deleted state to restore from.",
 		"note": "Nothing prunes this table on a schedule, unlike the log, so it grows for as long as the application runs. It is also the only place a past change is recorded: purge it for space, never to tidy up, and keep enough to answer who changed a record and when.",
 		"tab_info": "Info",
 		"tab_api": "API docs"

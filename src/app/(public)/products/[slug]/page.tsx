@@ -44,7 +44,7 @@ const TRANSLATION_KEYS = [
 
 /**
  * What the fetch produced, as the page has to render it: the product, or the backend being
- * unreachable. A missing product is not in here — that one is `notFound()`, which never
+ * unreachable. A missing product is not in here - that one is `notFound()`, which never
  * returns, and so is a product outside its sellable window, which the storefront answers 404
  * to rather than revealing through a different status.
  */
@@ -106,7 +106,7 @@ function getDisplayPrices(entry: ProductModel): ProductPriceType[] {
 }
 
 /**
- * Formats server-side, unlike `formatAmount` — this page is rendered for a crawler, so the
+ * Formats server-side, unlike `formatAmount` - this page is rendered for a crawler, so the
  * figure has to be in the HTML rather than filled in on hydration. Safe to do here because
  * the language comes from the request: only a *date* would pick up the container's zone.
  */
@@ -186,7 +186,7 @@ export default async function Page(props: Props) {
 	const content = getContent(entry);
 
 	if (!content) {
-		// Sellable with no translation the visitor can be served — nothing to render.
+		// Sellable with no translation the visitor can be served - nothing to render.
 		notFound();
 	}
 
@@ -196,7 +196,7 @@ export default async function Page(props: Props) {
 	 *
 	 * Categories without wording are dropped rather than shown. The public read joins
 	 * `category_content` on the served language alone, so an untranslated category arrives
-	 * carrying no contents, and `toCategoryRefs` then labels it `#<id>` — a fallback meant for
+	 * carrying no contents, and `toCategoryRefs` then labels it `#<id>` - a fallback meant for
 	 * an operator reading the dashboard, where a bare id is something to act on. It is noise
 	 * on a storefront.
 	 */

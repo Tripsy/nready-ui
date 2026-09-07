@@ -13,7 +13,7 @@ import {
 
 /**
  * Keyed by the response field, so a missing entry is a type error rather than a silent zero.
- * The key doubles as the dashboard route key — they happen to agree for all five.
+ * The key doubles as the dashboard route key - they happen to agree for all five.
  */
 const COUNT_ITEMS: ReadonlyArray<{
 	key: keyof ResponseStatsRecentCounts;
@@ -63,7 +63,7 @@ export function RecentCounts(): JSX.Element {
 					href={Routes.get(key)}
 					className="rounded-md transition-colors hover:bg-accent-soft focus:outline-none focus:ring-2 focus:ring-focus"
 				>
-					{/* Zero is the common case on a quiet day — muted so the eye goes to the
+					{/* Zero is the common case on a quiet day - muted so the eye goes to the
 					    counts that actually moved. */}
 					<div
 						className={cn(

@@ -16,7 +16,7 @@ import type { ApiResponseFetch } from '@/types/api.type';
  * only because a browser cannot reach the backend directly: the backend decides *whose* comment a
  * request speaks for from the session it carries and the origin address in `X-Forwarded-For`, both
  * of which the proxy attaches. A `remote-api` call from a server component would arrive as this
- * app's container, and every visitor would share one identity — enough to edit each other's
+ * app's container, and every visitor would share one identity - enough to edit each other's
  * comments.
  *
  * The thread read is cacheable in principle (it returns approved rows only, the same for
@@ -27,7 +27,7 @@ export type CommentThreadType = {
 	entries: CommentModel[];
 	pagination: { page: number; limit: number; total: number };
 	/**
-	 * The earliest reply under each root on this page, keyed by the comment it answers — a thread
+	 * The earliest reply under each root on this page, keyed by the comment it answers - a thread
 	 * shows its first reply without being unrolled, and this is what spares one request per root
 	 * to find it. Empty when reading a reply list, which is already replies.
 	 */
@@ -67,7 +67,7 @@ export async function requestCommentThread(
 
 /**
  * Posts a comment. It lands awaiting moderation, so it will not appear in a thread read until a
- * moderator approves it — the response carries `status` so the caller can say so.
+ * moderator approves it - the response carries `status` so the caller can say so.
  *
  * A signed-in visitor is identified by their session and the guest fields are ignored; a guest
  * must send `guest_name` and `guest_email` or the backend answers 400.
@@ -89,7 +89,7 @@ export async function requestCreateComment(params: {
 }
 
 /**
- * Edits the visitor's own comment — only the text, and only while it is `pending` or `approved`.
+ * Edits the visitor's own comment - only the text, and only while it is `pending` or `approved`.
  * Once a moderator has rejected, spammed or flagged it the backend answers 400: that text is the
  * record their decision was taken against.
  *
@@ -107,8 +107,8 @@ export async function requestUpdateComment(
 }
 
 /**
- * Withdraws the visitor's own comment. The row is removed outright — the table has no soft
- * delete — and its replies go with it.
+ * Withdraws the visitor's own comment. The row is removed outright - the table has no soft
+ * delete - and its replies go with it.
  */
 export async function requestDeleteComment(
 	id: number,
@@ -124,13 +124,13 @@ export async function requestDeleteComment(
  *
  * These are the **dashboard** routes, not the public ones: each is permission-gated backend-side
  * (`comment.update` / `comment.delete`, and an admin passes everything). The permission checks in
- * the UI decide what to *offer* — they are not what makes any of this safe, and a reader without
+ * the UI decide what to *offer* - they are not what makes any of this safe, and a reader without
  * the permission gets a 403 whatever the menu showed.
  *
  * They go through `/api/proxy` like every other write, which is what attaches the session.
  */
 
-/** Rewrites another reader's comment, or pins it. A partial update — send only what changes. */
+/** Rewrites another reader's comment, or pins it. A partial update - send only what changes. */
 export async function requestModerateComment(
 	id: number,
 	params: { content?: string; is_pinned?: boolean },
@@ -143,7 +143,7 @@ export async function requestModerateComment(
 
 /**
  * Removes a comment outright. The table has no soft delete and `parent_id` cascades, so the whole
- * thread under it goes too — which is why the control behind this confirms first.
+ * thread under it goes too - which is why the control behind this confirms first.
  */
 export async function requestModerateDeleteComment(
 	id: number,
@@ -155,7 +155,7 @@ export async function requestModerateDeleteComment(
 
 /**
  * The moderation decision. Only the moves `COMMENT_STATUS_TRANSITIONS` allows from the comment's
- * current state are accepted — from the article page that is always `approved`, since a public
+ * current state are accepted - from the article page that is always `approved`, since a public
  * thread returns nothing else, so this is how a comment is taken *off* the page. Putting one back
  * on it is the dashboard's job, where the pending queue is visible.
  *
@@ -178,7 +178,7 @@ export async function requestModerateCommentStatus(
 /**
  * The subscription behind an unsubscribe link, and the preference change the landing page makes.
  *
- * The token in the path is the whole credential — a guest subscriber holds no session — which is
+ * The token in the path is the whole credential - a guest subscriber holds no session - which is
  * why the read runs `remote-api` from the server component that renders the page: there is no
  * session for the proxy to attach, and the answer must not be cached, since it is one row
  * belonging to whoever holds that link.
@@ -194,7 +194,7 @@ export async function requestCommentSubscription(
 		});
 }
 
-/** Changes what the subscriber hears about — `unsubscribed` included, which is the opt-out. */
+/** Changes what the subscriber hears about - `unsubscribed` included, which is the opt-out. */
 export async function requestUpdateCommentSubscription(
 	token: string,
 	notificationType: CommentSubscriptionType,
@@ -209,7 +209,7 @@ export async function requestUpdateCommentSubscription(
 }
 
 /**
- * Where one comment lives (`GET /public/comments/:id`) — the target it hangs from and the comment
+ * Where one comment lives (`GET /public/comments/:id`) - the target it hangs from and the comment
  * it answers, which is everything the permalink page needs to build an address for it.
  *
  * Server-side through `remote-api`, and uncached: it is read once, when somebody follows a link

@@ -21,12 +21,12 @@
 		"invalid_quantity": "Enter how many of this component the bundle includes",
 		"components_required": "A bundle needs at least one component",
 		"attribute_required": "This attribute is required for the selected categories",
-		"components_too_few": "A bundle must add up to at least two units — add another component or raise a quantity",
-		"component_duplicate": "Each component may appear only once — raise its quantity instead",
+		"components_too_few": "A bundle must add up to at least two units - add another component or raise a quantity",
+		"component_duplicate": "Each component may appear only once - raise its quantity instead",
 		"invalid_availability": "Check the day and the hours for this window",
 		"availability_end_before_start": "The window must end after it starts",
-		"availability_hours_paired": "Set both hours or neither — no hours at all means the whole day",
-		"availability_day_duplicate": "Only one interval per day — this day already has one",
+		"availability_hours_paired": "Set both hours or neither - no hours at all means the whole day",
+		"availability_day_duplicate": "Only one interval per day - this day already has one",
 		"availability_every_day_exclusive": "An every-day interval must be the only one"
 	}
 }

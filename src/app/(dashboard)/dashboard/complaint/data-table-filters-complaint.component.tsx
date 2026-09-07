@@ -59,7 +59,7 @@ export const DataTableFiltersComplaint = (): JSX.Element => {
 			updateTableState,
 		);
 
-	// Matches the complaint's description — the backend's `term` filter, which
+	// Matches the complaint's description - the backend's `term` filter, which
 	// `data-table-list.component.tsx` renames `global` to on the way out.
 	const searchGlobal = useSearchFilter({
 		initialValue: filters.global.value ?? '',
@@ -69,7 +69,7 @@ export const DataTableFiltersComplaint = (): JSX.Element => {
 	});
 
 	// A single digit is a valid target id, so the debounce is the only thing keeping this
-	// from firing per keystroke — there is no length to wait for.
+	// from firing per keystroke - there is no length to wait for.
 	const searchEntityId = useSearchFilter({
 		initialValue: filters.entity_id.value ?? '',
 		debounceDelay: 1000,

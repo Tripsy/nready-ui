@@ -18,7 +18,7 @@ paths:
 
 - **TanStack Query is for reads.** Data tables, single-entity lookups, autocompletes, and any other GET all go
   through `useQuery`. The primary create/update/delete flow for an entity does **not** go through
-  `useMutation` — it goes through React 19 `useActionState` + the shared `WindowForm` component (see
+  `useMutation` - it goes through React 19 `useActionState` + the shared `WindowForm` component (see
   `forms.md`). Reserve `useMutation` for secondary, inline actions that aren't the form's main entity (e.g.
   the "quick-create a vendor" mutation inside `form-manage-cash-flow.component.tsx`).
 - **Never call the backend directly from a client component.** All backend access goes through
@@ -29,7 +29,7 @@ paths:
 ## 2. Service Layer
 
 - Generic CRUD: `src/helpers/services.helper.ts` exports `requestView`, `requestFind`, `requestCreate`,
-  `requestUpdate`, `requestDelete`, `requestDeleteMultiple`, `requestRestore`, `requestUpdateStatus` — all
+  `requestUpdate`, `requestDelete`, `requestDeleteMultiple`, `requestRestore`, `requestUpdateStatus` - all
   keyed by a `DataSourceKey` and resolved to a path via `resolveRequestPath()`. Use these for any entity that
   follows the standard dashboard CRUD shape rather than writing a bespoke fetch.
 - Entity-specific one-offs (auth flows, stats, image upload/delete, non-CRUD actions) live in
@@ -38,7 +38,7 @@ paths:
 - Unwrap responses with `getResponseData(response)` (`api.helper.ts`) rather than reaching into
   `response.data` inline.
 - Before wrapping a new backend endpoint, check `../nready-api/src/features/<entity>/<entity>.routes.ts`
-  and `<entity>.controller.ts` for the exact path, method, and response envelope — don't guess the shape from
+  and `<entity>.controller.ts` for the exact path, method, and response envelope - don't guess the shape from
   the frontend side.
 
 ## 3. Query Key Conventions
@@ -79,17 +79,17 @@ const { data, isLoading } = useQuery({
   - invalidates `[WINDOW_CACHE_LABEL, uid, entryId]` when the window definition has `reloadEntry` set (update
     actions only), and
   - dispatches `dispatchFilterReset(dataSourceKey)` to force the dashboard's data table to refetch.
-  Don't manually `invalidateQueries(['dataTable', ...])` inside a form component — it's already handled.
+  Don't manually `invalidateQueries(['dataTable', ...])` inside a form component - it's already handled.
 - For actions outside the form flow (bulk delete, restore, status change from a row action), call
   `useRefreshDataTable()` (`src/hooks/use-refresh-data-table.hook.ts`) explicitly, which invalidates
   `['dataTable', dataSourceKey]`.
 
 ## 6. Errors
 
-- `ApiRequest` throws `ApiError` (status + parsed payload) on a non-2xx response — don't swallow it with a
+- `ApiRequest` throws `ApiError` (status + parsed payload) on a non-2xx response - don't swallow it with a
   bare try/catch; let it surface to the form's `situation` state (see `forms.md`) or the caller's own error
   handling, and report failures through `useToast`, not `console.error`.
 - Auth-adjacent fetches follow a fail-open convention for server errors: in `src/proxy.ts`,
   `fetchAccountModel()` treats a `>=500` `ApiError` as "server may be down, don't punish the user's session"
   (returns `false`, not `null`), while 401/403/invalid-token responses invalidate the session (`null`).
-  Preserve this distinction if you touch auth-related fetches — a backend outage should not log users out.
+  Preserve this distinction if you touch auth-related fetches - a backend outage should not log users out.

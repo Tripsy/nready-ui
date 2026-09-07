@@ -68,7 +68,7 @@ const REACTIONS: {
 type RatingReactionsProps = {
 	entityType: RatingEntityType;
 	entityId: number;
-	/** Absent when nobody has reacted yet — the target simply has no rows. */
+	/** Absent when nobody has reacted yet - the target simply has no rows. */
 	summary?: RatingSummaryType;
 	own?: RatingOwnEntryType[];
 	translations: RatingTranslations;
@@ -80,7 +80,7 @@ type RatingReactionsProps = {
  * The reactions on one target: a single control showing what was cast and how many, which opens
  * the picker on hover.
  *
- * Collapsed by design — a row of five icons per comment would compete with the comment. What the
+ * Collapsed by design - a row of five icons per comment would compete with the comment. What the
  * control wears is the reader's own reaction when they hold one, so the state is legible without
  * opening anything.
  */
@@ -102,7 +102,7 @@ export function RatingReactions({
 	const close = useCallback(() => setOpen(false), []);
 
 	/*
-	 * One press, three possible writes — which one depends on what the reader already holds, and
+	 * One press, three possible writes - which one depends on what the reader already holds, and
 	 * the backend refuses the wrong one (409 on a second cast, 404 on changing nothing), so the
 	 * branch is not cosmetic.
 	 */
@@ -152,10 +152,10 @@ export function RatingReactions({
 		 * The handlers make this wrapper interactive without a role, which is what the
 		 * suppression below answers for: the trigger carries the label and `aria-expanded`, and
 		 * every reaction is a button reachable by keyboard, so the wrapper itself announces
-		 * nothing. The rule's suggested fix is worse — `role="group"` then trips
+		 * nothing. The rule's suggested fix is worse - `role="group"` then trips
 		 * `useSemanticElements`, which asks for a `fieldset` around what is not a form.
 		 */
-		// biome-ignore lint/a11y/noStaticElementInteractions: pointer conveniences over a wrapper whose controls are all real buttons — see above
+		// biome-ignore lint/a11y/noStaticElementInteractions: pointer conveniences over a wrapper whose controls are all real buttons - see above
 		<div
 			className="relative inline-flex"
 			onMouseEnter={() => setOpen(true)}
@@ -184,7 +184,7 @@ export function RatingReactions({
 				/*
 				 * Anchored over the trigger rather than above it with a gap between: the two
 				 * then share an edge, so there is no dead space for the pointer to cross on
-				 * its way to a reaction — which is what used to close the picker mid-reach.
+				 * its way to a reaction - which is what used to close the picker mid-reach.
 				 * It covers the trigger while open, and the trigger has nothing to do at that
 				 * point but stay put.
 				 */

@@ -17,7 +17,7 @@ function loadSettings() {
 		apiDocs: {
 			/*
 			 * Whether the `/api-docs` pages exist. Opt-in, and it has to agree with the
-			 * backend's own `API_DOCS_ENABLED` — that one is the real gate, since it decides
+			 * backend's own `API_DOCS_ENABLED` - that one is the real gate, since it decides
 			 * whether there is anything to render.
 			 */
 			enabled: process.env.NEXT_PUBLIC_API_DOCS_ENABLED === 'true',
@@ -52,7 +52,7 @@ function loadSettings() {
 			passwordMinChars: 8,
 			sessionToken: process.env.SESSION_TOKEN || 'session',
 			// Seconds, and it has to track the backend's AUTH_JWT_EXPIRES_IN (86400).
-			// The backend signs its JWT without an `exp` claim — a token's lifetime lives in
+			// The backend signs its JWT without an `exp` claim - a token's lifetime lives in
 			// `account_token.expire_at` (`now + authExpiresIn`), which auth.middleware slides
 			// forward on use. A cookie outliving that leaves the browser holding a session it
 			// believes is valid while every request behind it fails auth. The previous
@@ -62,7 +62,7 @@ function loadSettings() {
 			// Seconds of remaining life below which the session cookie is rewritten with a
 			// full `sessionMaxAge` again. Mirrors the backend's AUTH_JWT_REFRESH_EXPIRES_IN
 			// (28800), which is the same threshold auth.middleware uses to slide `expire_at`
-			// forward — so the cookie and the token it stands for extend together. Lower
+			// forward - so the cookie and the token it stands for extend together. Lower
 			// values are safe but log the user out while their backend session is still
 			// alive; higher ones rewrite the cookie on almost every request.
 			sessionRefreshThreshold: Number(
@@ -70,7 +70,7 @@ function loadSettings() {
 			),
 		},
 		/*
-		 * Social sign-in. Only the client ids live here — they are public by design and the
+		 * Social sign-in. Only the client ids live here - they are public by design and the
 		 * browser needs them to build the provider's authorize URL. The client *secrets*
 		 * belong to the backend, which is what performs the code exchange.
 		 *
@@ -97,7 +97,7 @@ function loadSettings() {
 			 * Sent as `x-api-key` on every request that leaves for the backend, which
 			 * gates all of its routes on it. Deliberately not `NEXT_PUBLIC_`: a key the
 			 * client bundle carried would be readable by the visitors it exists to keep
-			 * out. It resolves to `undefined` in the browser, and nothing there needs it —
+			 * out. It resolves to `undefined` in the browser, and nothing there needs it -
 			 * every call the browser makes reaches the backend through `/api/proxy`, which
 			 * attaches the key server-side.
 			 */
@@ -108,11 +108,11 @@ function loadSettings() {
 				3000,
 		},
 		sentry: {
-			// Empty disables Sentry entirely — `init` is skipped rather than run against a
+			// Empty disables Sentry entirely - `init` is skipped rather than run against a
 			// blank DSN, so a machine without one carries none of the SDK's instrumentation.
 			dsn: process.env.NEXT_PUBLIC_SENTRY_DSN || '',
 			// Fraction of transactions sampled for performance data. Errors are never
-			// sampled — this only bounds span volume against the plan's quota.
+			// sampled - this only bounds span volume against the plan's quota.
 			tracesSampleRate: Number(
 				process.env.NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE || 0.1,
 			),
@@ -159,7 +159,7 @@ type Settings = ReturnType<typeof loadSettings>;
 /**
  * Every valid dotted path into `Settings`, as a union of string literals.
  *
- * Arrays stop the recursion — `language.supported` is a leaf, there is no
+ * Arrays stop the recursion - `language.supported` is a leaf, there is no
  * `language.supported.0`. `NonNullable` lets an optional branch (`mail.host` is
  * `string | undefined`) still be classified by its non-undefined type.
  */
@@ -219,7 +219,7 @@ export const Configuration = {
 	},
 
 	// These read the cached object directly rather than going through `get()`, skipping the
-	// path split and lookup. They are the hot paths — `isEnvironment` runs on every request
+	// path split and lookup. They are the hot paths - `isEnvironment` runs on every request
 	// in the proxy, `defaultLanguage` on every translated render.
 	environment: () => {
 		return getSettings().app.environment;

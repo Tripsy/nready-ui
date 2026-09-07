@@ -52,7 +52,7 @@ export function sentryInitOptions(): Sentry.NodeOptions &
 		tracesSampleRate: Configuration.get('sentry.tracesSampleRate'),
 
 		// Off deliberately. The default would attach IP addresses and request headers to
-		// every event, and this app handles user and client records — anything Sentry
+		// every event, and this app handles user and client records - anything Sentry
 		// needs for triage should be an explicit `context` on the log call instead.
 		sendDefaultPii: false,
 
@@ -107,7 +107,7 @@ function reportToSentry({ level, message, error, context }: LogEntry): void {
 		return;
 	}
 
-	// No `Error` to group on — either the level carried none, or something non-Error was
+	// No `Error` to group on - either the level carried none, or something non-Error was
 	// thrown. The message is then the only stable identity the event has.
 	Sentry.captureMessage(message, {
 		level: sentryLevel,

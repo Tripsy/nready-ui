@@ -81,7 +81,7 @@ const validatorMessages = [
  *
  * `variant_id` is the whole of what the API takes; `sku` and `label` are display-only, carried so
  * the row can name what it points at without a second round trip on every re-parse. `key` is
- * client-only row identity, the same device `ProductVariantFormType` uses — a component has no
+ * client-only row identity, the same device `ProductVariantFormType` uses - a component has no
  * id until it is saved, and the array index is not stable across a reorder.
  */
 export type ProductBundleComponentFormType = {
@@ -100,7 +100,7 @@ export type ProductBundleComponentFormType = {
 };
 
 /**
- * Row keys only have to be unique within one form, so a counter is enough — and unlike
+ * Row keys only have to be unique within one form, so a counter is enough - and unlike
  * `crypto.randomUUID()` it does not need a secure context, which the plain-http dev host is not.
  */
 let componentKeySequence = 0;
@@ -140,7 +140,7 @@ export type ProductBundleFormValuesType = {
 	/*
 	 * The bundle's own default variant, flattened: a bundle carries exactly one, the header line
 	 * the components hang off, so there is no set to edit and no default to choose. `track_stock`
-	 * is not here either — it is forced false on the way out.
+	 * is not here either - it is forced false on the way out.
 	 */
 	sku: string;
 	// Text for the same reason as `ProductBundleComponentFormType.quantity`.
@@ -159,7 +159,7 @@ export type ProductBundleFormValuesType = {
 	attributes: ProductAttributeFormType[];
 
 	components: ProductBundleComponentFormType[];
-	/** Recurring ordering windows. Empty means unrestricted — see `FormAvailabilityProduct`. */
+	/** Recurring ordering windows. Empty means unrestricted - see `FormAvailabilityProduct`. */
 	availabilities: ProductAvailabilityFormType[];
 
 	/*
@@ -232,7 +232,7 @@ class ProductBundleValidator extends BaseValidator<typeof validatorMessages> {
 			.transform((value) => (value.trim() === '' ? null : Number(value)));
 
 	/**
-	 * The bundle's own headline price, shaped exactly as a variant's — it is stored as one, on
+	 * The bundle's own headline price, shaped exactly as a variant's - it is stored as one, on
 	 * the single default variant the bundle carries. `reference_price` is what the kit would
 	 * cost bought piece by piece, which is the saving the bundle is sold on; it is display only
 	 * and never charged.
@@ -259,7 +259,7 @@ class ProductBundleValidator extends BaseValidator<typeof validatorMessages> {
 			},
 		);
 
-	/** One answer, shaped exactly as the product form's — see `product.definition.ts`. */
+	/** One answer, shaped exactly as the product form's - see `product.definition.ts`. */
 	private readonly attributeEntrySchema = z.object({
 		attribute_label_id: z.number(),
 		value_type: z.string(),
@@ -286,7 +286,7 @@ class ProductBundleValidator extends BaseValidator<typeof validatorMessages> {
 
 	/**
 	 * Shared with the product form, which writes the same `availabilities` array to the same
-	 * endpoint — a bundle is a product, and its ordering hours are not a different problem.
+	 * endpoint - a bundle is a product, and its ordering hours are not a different problem.
 	 */
 	private readonly availabilitiesSchema = buildAvailabilitiesSchema({
 		invalid: this.getMessage('invalid_availability'),
@@ -409,7 +409,7 @@ class ProductBundleValidator extends BaseValidator<typeof validatorMessages> {
 			/*
 			 * A bundle has to be more than one thing, or it is a product wearing a bundle's
 			 * clothes. Counted in units rather than rows, so one component taken twice is a
-			 * bundle and two components taken once each is too — the same figure
+			 * bundle and two components taken once each is too - the same figure
 			 * `assertBundleIsComposed` sums on the backend.
 			 */
 			const componentUnits = data.components.reduce(
@@ -503,7 +503,7 @@ export function getProductBundleFormValues(
 /**
  * Seeds both windows: create with `data` omitted, edit with the product `reloadEntry` returned.
  *
- * A stored component is seeded with its `variant_id` and no wording — `attachBranches` does not
+ * A stored component is seeded with its `variant_id` and no wording - `attachBranches` does not
  * join the variant behind a bundle item, and this function is synchronous. `FormComponentsBundle`
  * looks the names up itself, which also keeps a component whose variant no longer resolves in the
  * list under its bare id rather than dropping it silently on the next save.
@@ -558,7 +558,7 @@ export function getProductBundleFormState(
 			components: (data?.bundle_items ?? []).map((item) => ({
 				key: nextComponentKey(),
 				variant_id: item.variant_id,
-				// Left blank on purpose — the editor resolves the wording; see above.
+				// Left blank on purpose - the editor resolves the wording; see above.
 				sku: '',
 				label: '',
 				quantity: String(Number(item.quantity)),
@@ -621,7 +621,7 @@ export function prepareProductBundleParams(data: ProductBundleManageOutput) {
 				track_stock: false,
 				position: 0,
 				prices,
-				// A bundle's default variant answers nothing of its own — see `attributes`
+				// A bundle's default variant answers nothing of its own - see `attributes`
 				// on the form values for why the `variant` scope is not asked here.
 				attributes: [],
 			},

@@ -13,7 +13,7 @@ const LANGUAGES = Object.values(LanguageEnum);
 
 /*
  * Captions are per-language because the gallery renders alongside the article content, which is
- * itself translated — an image kept only in the default language would break that pairing.
+ * itself translated - an image kept only in the default language would break that pairing.
  */
 const ATTRIBUTE_FIELDS = {
 	title: 'required' as const,

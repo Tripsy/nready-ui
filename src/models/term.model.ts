@@ -34,7 +34,7 @@ export type TermModel<D = Date | string> = {
  * only the filtered language, so the requested one is the sole content and the chain never
  * runs; `read` returns every translation, and there the chain is what keeps a term readable
  * under a language it was never translated into. A term carrying no content at all is the
- * one case that yields `fallback` — `-`, the same mark the shared value renderer uses for an
+ * one case that yields `fallback` - `-`, the same mark the shared value renderer uses for an
  * absent column, rather than a blank cell that reads like a failed load.
  */
 export const displayTermValue = (
@@ -67,7 +67,7 @@ export const displayTermValue = (
 
 /**
  * Window titles and confirmation lists. The type disambiguates two terms reading the same, and
- * every wording the entry carries is shown — one for a list row, all of them once `read` has
+ * every wording the entry carries is shown - one for a list row, all of them once `read` has
  * loaded the full set into a form.
  */
 export const displayTermLabel = (

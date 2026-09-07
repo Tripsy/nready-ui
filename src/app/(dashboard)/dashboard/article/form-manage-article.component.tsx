@@ -41,12 +41,12 @@ import { type Language, LanguageEnum } from '@/types/common.type';
 import type { PageMeta } from '@/types/page-meta.type';
 
 /**
- * `content` is markdown — that is what the backend stores and what the public site will render.
+ * `content` is markdown - that is what the backend stores and what the public site will render.
  * The preview on the Content tab is the only place it becomes HTML inside the dashboard.
  *
  * The by-line is flattened into `author_*` rather than nested: `FormValuesType` types an array
  * field as `Record<string, FormValueType>[]`, and `PageMeta` is the only object admitted as a
- * value — an `ArticleAuthorType` in here would not type. `buildContents` reassembles it.
+ * value - an `ArticleAuthorType` in here would not type. `buildContents` reassembles it.
  */
 export type ArticleContentFormType = {
 	language: Language;
@@ -92,7 +92,7 @@ export type ArticleFormValuesType = {
 	 * The visibility rule and the source attribution are edited as flat fields, not as nested
 	 * objects, because `FormValuesType` admits scalars and arrays-of-records but not an object
 	 * of mixed shapes. `buildVisibilityRule` / `buildSource` assemble them on the way out and
-	 * `getFormState` takes them apart on the way in — each pair changes together.
+	 * `getFormState` takes them apart on the way in - each pair changes together.
 	 *
 	 * `rule_allowed_countries` is comma-separated here and split at the boundary.
 	 */
@@ -102,7 +102,7 @@ export type ArticleFormValuesType = {
 	rule_password: string | null;
 	/*
 	 * The reader-participation switches. Flat booleans here for the same reason as the rule
-	 * fields above — `buildSettings` assembles them into the `settings` object the API takes,
+	 * fields above - `buildSettings` assembles them into the `settings` object the API takes,
 	 * which stores them inside `article.details`.
 	 */
 	allow_rating: boolean;
@@ -114,7 +114,7 @@ export type ArticleFormValuesType = {
 	source_about: string | null;
 	/*
 	 * `label` rides along only so the pickers can show names for the ids an existing article
-	 * starts with — `read` stores the wording nowhere else the form can reach. It is dropped
+	 * starts with - `read` stores the wording nowhere else the form can reach. It is dropped
 	 * by the validator and never submitted: `getFormValues` rebuilds these from the hidden
 	 * inputs, which carry ids alone.
 	 */
@@ -140,7 +140,7 @@ const visibilities = toOptionsFromEnum(ArticleVisibilityEnum, {
 /*
  * The three Settings selects share one width instead of sizing to their current value. Their
  * option sets are fixed and short, and a select that resizes as you change it shifts whatever
- * sits beside it — here, the Public At picker on the visibility row. Sized for the longest
+ * sits beside it - here, the Public At picker on the visibility row. Sized for the longest
  * option across all three ("Restricted", ~120px with the chevron and padding) and rounded up to
  * the 4px scale.
  */
@@ -186,7 +186,7 @@ const TAB_FIELDS: Record<FormTabId, readonly (keyof ArticleFormValuesType)[]> =
 
 /**
  * The per-language fields each tab owns. `meta` covers the whole nested SEO object, and `slug`
- * sits with it — the slug is the article's URL, which is an addressing concern rather than
+ * sits with it - the slug is the article's URL, which is an addressing concern rather than
  * something the writer composes.
  */
 const TAB_CONTENT_FIELDS: Record<FormTabId, readonly string[]> = {
@@ -261,7 +261,7 @@ export function FormManageArticle() {
 	>({});
 
 	/*
-	 * Languages whose slug the editor owns — either typed here or loaded with the article.
+	 * Languages whose slug the editor owns - either typed here or loaded with the article.
 	 * Deriving from the title has to stop at that point, and it cannot be decided from the
 	 * slug simply being non-empty: the derivation fills it in on the first keystroke, which
 	 * would then block every keystroke after it and leave the slug one character long.
@@ -317,7 +317,7 @@ export function FormManageArticle() {
 			[field]: value,
 		};
 
-		// The slug is what the public URL is built from, so it stays editable — it is only
+		// The slug is what the public URL is built from, so it stays editable - it is only
 		// derived while the editor has not written one, which covers the ordinary case of
 		// typing a title into a fresh translation.
 		if (field === 'slug') {
@@ -357,7 +357,7 @@ export function FormManageArticle() {
 	const tagIds = (formValues.tags ?? []).map((tag) => tag.id);
 
 	/*
-	 * A link list is validated as a whole — "at least one category", "not a valid id" — never
+	 * A link list is validated as a whole - "at least one category", "not a valid id" - never
 	 * per entry, so `accumulateZodErrors` leaves the messages as a `string[]` at the leaf. The
 	 * declared type still allows the per-item shape every array field could carry, which is
 	 * what this narrows away; anything else reads as no error rather than as a rendered object.
@@ -374,7 +374,7 @@ export function FormManageArticle() {
 	 *  - a plain `string[]` when the message belongs to the array itself ("at least one
 	 *    translation"), because `accumulateZodErrors` pushes messages into a list at the leaf;
 	 *  - an object keyed by the index as a **string** (`{ '0': { title: [...] } }`) when the
-	 *    issues belong to individual translations — the accumulator builds every intermediate
+	 *    issues belong to individual translations - the accumulator builds every intermediate
 	 *    container with `{}`, so a numeric path segment never produces a real array.
 	 *
 	 * Indexing by number still reads the per-item entry (`obj[0]` is `obj['0']`), which is why
@@ -399,7 +399,7 @@ export function FormManageArticle() {
 
 	/**
 	 * Errors per tab, so one on a panel the editor cannot see still announces itself. Counted
-	 * across every language rather than the open one — a missing Romanian title is the Content
+	 * across every language rather than the open one - a missing Romanian title is the Content
 	 * tab's problem whichever translation happens to be selected.
 	 */
 	const tabErrors = countTabErrors<FormTabId>({
@@ -651,7 +651,7 @@ export function FormManageArticle() {
 										Public At is the day the restriction
 										ends and the article becomes public. A
 										daily job applies it, then clears the
-										date and drops the rule below —
+										date and drops the rule below -
 										releasing an article is final, so
 										re-restricting it means stating the
 										terms again. Leave empty to keep the
@@ -771,7 +771,7 @@ export function FormManageArticle() {
 								/>
 
 								{/*
-								 * Always blank on an update — the API returns the hash to nobody.
+								 * Always blank on an update - the API returns the hash to nobody.
 								 * Left empty it is omitted from the payload, so an unrelated save
 								 * cannot wipe the stored password.
 								 */}
@@ -835,7 +835,7 @@ export function FormManageArticle() {
 									{/*
 									 * The label is hand-rolled so the preview toggle can sit
 									 * beside it, which is also why the field below carries no
-									 * label of its own — and no `isRequired`, which would
+									 * label of its own - and no `isRequired`, which would
 									 * render a second, orphaned asterisk under an empty label.
 									 */}
 									<span className="text-sm font-medium">
@@ -978,7 +978,7 @@ export function FormManageArticle() {
 							{/*
 							 * The slug is the article's public URL, so it lives with the rest
 							 * of the addressing. Derived from the title while the editor has
-							 * not written one — see `handleContentChange`.
+							 * not written one - see `handleContentChange`.
 							 */}
 							<FormComponentInput<ArticleContentFormType>
 								id={`${elementIds.contents}-${language}-slug`}
@@ -1049,7 +1049,7 @@ export function FormManageArticle() {
 							</h3>
 
 							{/*
-							 * Per-language, and it overrides the filing account field by field —
+							 * Per-language, and it overrides the filing account field by field -
 							 * `author_id` is stamped from the session on create and records who
 							 * filed the article, not how the credit should read.
 							 */}

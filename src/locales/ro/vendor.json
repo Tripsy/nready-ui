@@ -57,18 +57,18 @@
 		}
 	},
 	"help": {
-		"intro": "Un furnizor este cel de la care cumperi — un nume, ce anume oferă și în ce stare se află. Nu conține contacte, condiții sau prețuri; este înregistrarea la care fac referire alte funcționalități atunci când trebuie să spună cine a furnizat ceva.",
+		"intro": "Un furnizor este cel de la care cumperi - un nume, ce anume oferă și în ce stare se află. Nu conține contacte, condiții sau prețuri; este înregistrarea la care fac referire alte funcționalități atunci când trebuie să spună cine a furnizat ceva.",
 		"step_1_title": "Dă-i un nume",
-		"step_1_body": "Numele este singurul câmp de text liber și nu este unic — doi furnizori pot avea în mod legitim același nume, deci nimic nu împiedică apariția accidentală a unui aproape-duplicat. Este și singurul lucru citit de căutare, ceea ce face consecvența scrierii mai importantă decât cere validatorul.",
+		"step_1_body": "Numele este singurul câmp de text liber și nu este unic - doi furnizori pot avea în mod legitim același nume, deci nimic nu împiedică apariția accidentală a unui aproape-duplicat. Este și singurul lucru citit de căutare, ceea ce face consecvența scrierii mai importantă decât cere validatorul.",
 		"step_2_title": "Alege ce oferă",
-		"step_2_body": "„Supplier” înseamnă bunuri, „provider” înseamnă servicii — distincția ține de natura furnizării, nu de domeniu, deci un vânzător de combustibil și un distribuitor de mărfuri sunt amândoi „supplier”, în timp ce asigurările, taxele de drum și telematica sunt „provider”. Poate fi schimbat oricând ulterior.",
+		"step_2_body": "„Supplier” înseamnă bunuri, „provider” înseamnă servicii - distincția ține de natura furnizării, nu de domeniu, deci un vânzător de combustibil și un distribuitor de mărfuri sunt amândoi „supplier”, în timp ce asigurările, taxele de drum și telematica sunt „provider”. Poate fi schimbat oricând ulterior.",
 		"step_3_title": "Plimbă-l prin stări",
 		"step_3_body": "Un furnizor nou pornește în „pending”. „Activează” îl duce din „pending” sau „inactive” în „active”; „Dezactivează” îl duce din „pending” sau „active” în „inactive”. Nu există drum înapoi spre „pending”, iar cererea stării pe care o are deja este respinsă, nu ignorată.",
 		"step_4_title": "Ce face și ce nu face starea",
 		"step_4_body": "Starea este un indicator pe înregistrare, nu o blocare: nimic de aici nu împiedică folosirea unui furnizor inactiv, iar ecranele care aleg un furnizor decid singure dacă îl oferă. Tratează „inactive” ca „nu se mai folosește”, nu ca pe o restricție impusă.",
 		"step_5_title": "Regăsește-l",
 		"step_5_body": "Căutarea potrivește doar numele, de la trei caractere, cu excepția unui termen numeric, tratat ca id și potrivit exact. Filtrează după ce oferă și după stare și ordonează după id sau nume.",
-		"note": "Ștergerea unui furnizor este una logică și funcționează din orice stare — rândul își păstrează starea avută, iar tot ce face deja referire la el continuă să funcționeze. Folosește „Arată șterse” pentru a-l găsi și restaura, iar el revine exact așa cum a plecat.",
+		"note": "Ștergerea unui furnizor este una logică și funcționează din orice stare - rândul își păstrează starea avută, iar tot ce face deja referire la el continuă să funcționeze. Folosește „Arată șterse” pentru a-l găsi și restaura, iar el revine exact așa cum a plecat.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
 	}

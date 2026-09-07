@@ -6,7 +6,7 @@
 		"title_prefix": "Administrează-ți",
 		"title_highlight": "catalogul",
 		"title_suffix": "dintr-un singur dashboard",
-		"subtitle": "Produse, comenzi, stocuri și flux de numerar — toate într-un singur loc, cu accesul potrivit pentru fiecare rol din echipa ta."
+		"subtitle": "Produse, comenzi, stocuri și flux de numerar - toate într-un singur loc, cu accesul potrivit pentru fiecare rol din echipa ta."
 	},
 	"feature": {
 		"heading": "Tot ce are nevoie operațiunea ta",
@@ -22,7 +22,7 @@
 		"permissions_title": "Roluri și permisiuni",
 		"permissions_description": "Acordă acces per entitate și per operațiune, astfel încât administratorii și operatorii să vadă doar ce au nevoie.",
 		"dashboard_title": "Un singur dashboard de administrare",
-		"dashboard_description": "Fiecare entitate — utilizatori, jurnale, coadă de email, șabloane — gestionată dintr-o interfață CRUD unică și consecventă."
+		"dashboard_description": "Fiecare entitate - utilizatori, jurnale, coadă de email, șabloane - gestionată dintr-o interfață CRUD unică și consecventă."
 	},
 	"cta": {
 		"go_dashboard": "Mergi la dashboard",

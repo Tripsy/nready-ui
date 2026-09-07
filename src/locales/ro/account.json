@@ -69,9 +69,9 @@
 		"not_verified": "Neverificat",
 		"last_updated": "Ultima actualizare:",
 		"last_used": "Ultima utilizare:",
-		"password_not_set": "Nesetată — te autentifici printr-un furnizor social",
+		"password_not_set": "Nesetată - te autentifici printr-un furnizor social",
 		"linked": "Conectat",
-		"not_linked": "Neconectat — autentifică-te cu {{provider}} folosind adresa de email a acestui cont pentru a-l conecta.",
+		"not_linked": "Neconectat - autentifică-te cu {{provider}} folosind adresa de email a acestui cont pentru a-l conecta.",
 		"active_session": "Sesiune activă"
 	},
 	"button": {

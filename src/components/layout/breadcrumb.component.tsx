@@ -11,7 +11,7 @@ export type BreadcrumbItem = {
  * The trail shared by the dashboard and the public site: a home icon followed by the path to
  * the current page.
  *
- * Presentational only — where the items come from differs per surface (the dashboard reads a
+ * Presentational only - where the items come from differs per surface (the dashboard reads a
  * provider its pages write to, a public page knows its own trail at render time), so each
  * keeps a small wrapper of its own and this holds the markup they agree on.
  *
@@ -27,7 +27,7 @@ export function Breadcrumb({
 	className,
 }: {
 	items: BreadcrumbItem[];
-	/** Where the home icon points — the dashboard root, or the site root. */
+	/** Where the home icon points - the dashboard root, or the site root. */
 	homeHref: string;
 	className?: string;
 }) {

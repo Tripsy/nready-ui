@@ -7,7 +7,7 @@ const CLOCK_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
  * A stored clock time as the form holds it: `HH:MM`, or null for an all-day window.
  *
  * Postgres hands a `time` column back as `HH:MM:SS`, which neither the picker nor the schema
- * accepts — a window seeded raw would render as "09:00:00" and then fail validation on the next
+ * accepts - a window seeded raw would render as "09:00:00" and then fail validation on the next
  * save without the user having touched it. Null passes through: the two columns are null together
  * and that is what all day means.
  */
@@ -19,8 +19,8 @@ export function toClockValue(value: string | null): string | null {
  * One recurring ordering window, validated.
  *
  * A factory rather than a field on a validator class because both the product form and the
- * bundle form edit the same `availabilities` array against the same endpoint — a bundle is a
- * product — and the rules must not drift between them. It takes its messages already resolved,
+ * bundle form edit the same `availabilities` array against the same endpoint - a bundle is a
+ * product - and the rules must not drift between them. It takes its messages already resolved,
  * so it stays free of any one entity's translation namespace.
  *
  * Plain zod primitives rather than `BaseValidator`'s helpers: the list rides in a hidden JSON
@@ -30,7 +30,7 @@ export function toClockValue(value: string | null): string | null {
  *
  * Both refinements mirror `@Check` constraints on `product_availability`. They are repeated here
  * rather than left to the server because a constraint violation reaches the client as a masked
- * 500 — the backend's own validator makes the same pair for the same reason.
+ * 500 - the backend's own validator makes the same pair for the same reason.
  */
 export function buildAvailabilitySchema(messages: {
 	invalid: string;
@@ -42,11 +42,11 @@ export function buildAvailabilitySchema(messages: {
 	return (
 		z
 			.object({
-				// Client-only row identity — see `ProductAvailabilityFormType`. In the schema so
+				// Client-only row identity - see `ProductAvailabilityFormType`. In the schema so
 				// a re-parse keeps it; stripped before the payload is built.
 				key: z.string(),
 				/*
-				 * ISO 8601, 1 = Monday … 7 = Sunday — not what `getDay()` returns. Null is a
+				 * ISO 8601, 1 = Monday … 7 = Sunday - not what `getDay()` returns. Null is a
 				 * real value meaning every day, which is why it is nullable rather than
 				 * defaulted, and the range mirrors the table's check constraint.
 				 */
@@ -76,7 +76,7 @@ export function buildAvailabilitySchema(messages: {
 			})
 			/*
 			 * String comparison is correct for `HH:MM`, which is zero-padded and so sorts
-			 * lexicographically. A window may not wrap past midnight — an overnight service is
+			 * lexicographically. A window may not wrap past midnight - an overnight service is
 			 * two windows, and the backend refuses a single wrapping one too.
 			 */
 			.refine(
@@ -101,7 +101,7 @@ export function buildAvailabilitySchema(messages: {
  * it compares rows holding *different* values.
  *
  * Each message lands on the offending row's own `day_of_week` rather than on the array. That is
- * both better placed — it renders against the select the editor has to change — and simpler than
+ * both better placed - it renders against the select the editor has to change - and simpler than
  * the sentinel-field dance an array-level message needs, since `accumulateZodErrors` keys a
  * list's errors by index and discards a parent message that collides with them.
  */

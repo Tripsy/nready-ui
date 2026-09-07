@@ -11,7 +11,7 @@ import type {
 import type { ApiResponseFetch, QueryFiltersType } from '@/types/api.type';
 
 /**
- * Where the backend mounts the grants — a resource of its own, gated by the `permission`
+ * Where the backend mounts the grants - a resource of its own, gated by the `permission`
  * entity rather than by `user`, so it does not hang off `/users/:id`.
  *
  * Spelled out rather than resolved through `resolveRequestPath`: that maps a `DataSourceKey`,

@@ -26,13 +26,13 @@ import {
  *
  * A route handler, not a server action. The callback component holds the outcome in `useState`
  * and guards the single-use `code` with a `useRef`; an action's response re-renders the page it
- * was posted to, which resets both — dropping the result and re-arming the redeem guard so the
+ * was posted to, which resets both - dropping the result and re-arming the redeem guard so the
  * already-spent code is exchanged a second time. A route handler answers with plain JSON, so
  * the component keeps what it is holding.
  *
  * Still server-side, which is what the flow needs: the `state` cookie is httpOnly and must be
  * read and cleared where the browser cannot. Being a mutating request under `/api/`, it also
- * passes the middleware's CSRF gate — the client fetch carries the header, so the reason the
+ * passes the middleware's CSRF gate - the client fetch carries the header, so the reason the
  * old action gave for skipping that gate no longer applies.
  */
 
@@ -94,7 +94,7 @@ export async function POST(
 			providerError = null,
 		} = await request.json());
 	} catch {
-		// Leave all three null — the checks below report it as a failed callback.
+		// Leave all three null - the checks below report it as a failed callback.
 	}
 
 	const stateCookie = await consumeStateCookie();
@@ -167,7 +167,7 @@ export async function POST(
 					});
 				}
 				case 400:
-					// The backend's own message is the useful one here — it distinguishes a
+					// The backend's own message is the useful one here - it distinguishes a
 					// spent code from an unverified or withheld provider email.
 					return NextResponse.json({
 						situation: 'error' as const,

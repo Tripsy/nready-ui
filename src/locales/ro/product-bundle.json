@@ -21,12 +21,12 @@
 		"invalid_quantity": "Introdu câte bucăți din această componentă include pachetul",
 		"components_required": "Un pachet are nevoie de cel puțin o componentă",
 		"attribute_required": "Acest atribut este obligatoriu pentru categoriile selectate",
-		"components_too_few": "Un pachet trebuie să însumeze cel puțin două unități — adaugă altă componentă sau crește o cantitate",
-		"component_duplicate": "Fiecare componentă poate apărea o singură dată — crește cantitatea în schimb",
+		"components_too_few": "Un pachet trebuie să însumeze cel puțin două unități - adaugă altă componentă sau crește o cantitate",
+		"component_duplicate": "Fiecare componentă poate apărea o singură dată - crește cantitatea în schimb",
 		"invalid_availability": "Verifică ziua și orele pentru acest interval",
 		"availability_end_before_start": "Intervalul trebuie să se încheie după ce începe",
-		"availability_hours_paired": "Setează ambele ore sau niciuna — fără ore înseamnă toată ziua",
-		"availability_day_duplicate": "Un singur interval pe zi — această zi are deja unul",
+		"availability_hours_paired": "Setează ambele ore sau niciuna - fără ore înseamnă toată ziua",
+		"availability_day_duplicate": "Un singur interval pe zi - această zi are deja unul",
 		"availability_every_day_exclusive": "Un interval pentru toate zilele trebuie să fie singurul"
 	}
 }

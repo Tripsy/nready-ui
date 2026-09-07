@@ -47,16 +47,16 @@
 	"help": {
 		"intro": "Un loc este un nod dintr-un arbore țară → regiune → oraș, cu numele și eticheta de tip păstrate câte una pe limbă. Adresele fac referire la un loc în loc să scrie orașul ca text, deci numele rămâne consecvent și se traduce odată cu restul site-ului.",
 		"step_1_title": "Alege tipul",
-		"step_1_body": "Țară, regiune sau oraș — tipul decide ce așteaptă câmpul de părinte și cum poate fi legat locul. Schimbarea tipului ulterior este respinsă cât timp locul are copii, deci nivelul de dedesubt trebuie desfăcut mai întâi.",
+		"step_1_body": "Țară, regiune sau oraș - tipul decide ce așteaptă câmpul de părinte și cum poate fi legat locul. Schimbarea tipului ulterior este respinsă cât timp locul are copii, deci nivelul de dedesubt trebuie desfăcut mai întâi.",
 		"step_2_title": "Alege părintele",
-		"step_2_body": "O țară stă singură și este respinsă dacă primește un părinte. O regiune trebuie să stea sub o țară, iar un oraș sub o regiune — un oraș nu poate atârna direct de o țară. Selectorul caută doar nivelul imediat superior, de la trei caractere, deci o sugestie oferită este una pe care salvarea o acceptă.",
+		"step_2_body": "O țară stă singură și este respinsă dacă primește un părinte. O regiune trebuie să stea sub o țară, iar un oraș sub o regiune - un oraș nu poate atârna direct de o țară. Selectorul caută doar nivelul imediat superior, de la trei caractere, deci o sugestie oferită este una pe care salvarea o acceptă.",
 		"step_3_title": "Adaugă codul",
-		"step_3_body": "O abreviere de tipul RO sau NY — opțională și limitată la trei caractere, cât are coloana în care este stocată. Nu este unic, nu depinde de tip și căutarea nu îl citește niciodată.",
+		"step_3_body": "O abreviere de tipul RO sau NY - opțională și limitată la trei caractere, cât are coloana în care este stocată. Nu este unic, nu depinde de tip și căutarea nu îl citește niciodată.",
 		"step_4_title": "Completează fiecare limbă",
-		"step_4_body": "Numele și eticheta de tip sunt amândouă obligatorii pentru ca o limbă să fie salvată, iar o intrare este necesară pentru a putea crea locul. Eticheta de tip este cuvântul pe care îl vede vizitatorul lângă nume — County, Județ — și de aceea este conținut per limbă, nu ceva dedus din tip. O limbă lăsată goală pur și simplu nu este scrisă, iar salvarea nu șterge niciodată o limbă deja stocată.",
+		"step_4_body": "Numele și eticheta de tip sunt amândouă obligatorii pentru ca o limbă să fie salvată, iar o intrare este necesară pentru a putea crea locul. Eticheta de tip este cuvântul pe care îl vede vizitatorul lângă nume - County, Județ - și de aceea este conținut per limbă, nu ceva dedus din tip. O limbă lăsată goală pur și simplu nu este scrisă, iar salvarea nu șterge niciodată o limbă deja stocată.",
 		"step_5_title": "Regăsește-l",
 		"step_5_body": "Lista citește câte o singură limbă și elimină orice loc fără conținut în ea, deci un loc introdus doar în engleză dispare când filtrul trece pe română. Căutarea potrivește numele din aceeași limbă ca prefix, de la trei caractere, un termen numeric este tratat ca id, iar lista poate fi ordonată doar după id.",
-		"note": "Ștergerea unui loc este una logică și este respinsă cât timp acesta mai are un copil activ, deci o ramură se desface dinspre frunze spre rădăcină. Un copil deja șters însă nu blochează părintele — șterge-le pe amândouă și copilul poate fi restaurat singur, rămânând sub un părinte încă șters.",
+		"note": "Ștergerea unui loc este una logică și este respinsă cât timp acesta mai are un copil activ, deci o ramură se desface dinspre frunze spre rădăcină. Un copil deja șters însă nu blochează părintele - șterge-le pe amândouă și copilul poate fi restaurat singur, rămânând sub un părinte încă șters.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
 	}

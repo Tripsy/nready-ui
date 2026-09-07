@@ -11,7 +11,7 @@
 		"invalid_sort_order": "Enter a whole number",
 		"type_value_type_mismatch": "This capture cannot store that kind of value",
 		"unit_requires_number": "A unit only applies to a number",
-		"unit_excludes_suffix": "A unit already renders after the value — drop the suffix",
+		"unit_excludes_suffix": "A unit already renders after the value - drop the suffix",
 		"bounds_require_number": "Bounds only apply to a number",
 		"max_below_min": "The maximum cannot be below the minimum",
 		"options_require_term": "Only a list-backed attribute takes admissible values",

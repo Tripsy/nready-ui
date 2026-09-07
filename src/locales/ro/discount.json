@@ -19,7 +19,7 @@
 		"invalid_hour": "Ora trebuie să fie un număr întreg între 0 și 23",
 		"invalid_day": "Ziua trebuie să fie între luni și duminică",
 		"range_needs_both_ends": "Setează ambele capete ale intervalului sau niciunul",
-		"targets_required": "Alege cel puțin o țintă — o reducere cu acest domeniu nu se aplică nicăieri fără una"
+		"targets_required": "Alege cel puțin o țintă - o reducere cu acest domeniu nu se aplică nicăieri fără una"
 	},
 	"action": {
 		"create": {
@@ -54,18 +54,18 @@
 		}
 	},
 	"help": {
-		"intro": "O reducere se aplică doar când fiecare pas de mai jos este configurat corect — folosește-l ca listă de verificare înainte de a publica una.",
+		"intro": "O reducere se aplică doar când fiecare pas de mai jos este configurat corect - folosește-l ca listă de verificare înainte de a publica una.",
 		"step_1_title": "Definește elementele de bază",
 		"step_1_body": "Adaugă o etichetă, alege un motiv și setează tipul (procent sau sumă fixă) și valoarea.",
 		"step_2_title": "Alege un domeniu",
 		"step_2_body": "Domeniul decide la ce se poate aplica reducerea: comanda întreagă sau un set specific de produse, categorii sau branduri.",
 		"step_3_title": "Alege țintele",
-		"step_3_body": "Orice domeniu în afară de „comandă” are nevoie de cel puțin o țintă — folosește selectorul de ținte pentru a lega produsele, categoriile sau brandurile la care se aplică. Fără una, reducerea este salvată dar nu se aplică nicăieri.",
+		"step_3_body": "Orice domeniu în afară de „comandă” are nevoie de cel puțin o țintă - folosește selectorul de ținte pentru a lega produsele, categoriile sau brandurile la care se aplică. Fără una, reducerea este salvată dar nu se aplică nicăieri.",
 		"step_4_title": "Restrânge cu condiții (opțional)",
 		"step_4_body": "Adaugă o valoare minimă a comenzii, restricționează la anumite țări sau limitează la un interval de oră și zi. Lasă o condiție goală pentru a o omite.",
 		"step_5_title": "Setează perioada de activare",
 		"step_5_body": "Datele de început și sfârșit controlează când reducerea este activă. Lasă-le goale pentru o reducere activă imediat ce este creată.",
-		"note": "Schimbarea domeniului unei reduceri înlocuiește țintele pentru noul domeniu — țintele domeniului anterior sunt șterse, nu păstrate.",
+		"note": "Schimbarea domeniului unei reduceri înlocuiește țintele pentru noul domeniu - țintele domeniului anterior sunt șterse, nu păstrate.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
 	}

@@ -35,17 +35,17 @@
 		}
 	},
 	"help": {
-		"intro": "O serie este contorul din spatele referinței pe care o citește un om pe o factură, o comandă, o recepție sau un abonament. Ține doar două lucruri care se alocă — un cod și numărul următor — iar felul în care acestea devin INV-000142 rămâne în seama a ceea ce afișează documentul.",
+		"intro": "O serie este contorul din spatele referinței pe care o citește un om pe o factură, o comandă, o recepție sau un abonament. Ține doar două lucruri care se alocă - un cod și numărul următor - iar felul în care acestea devin INV-000142 rămâne în seama a ceea ce afișează documentul.",
 		"step_1_title": "O singură serie per tip de document",
-		"step_1_body": "Factura, comanda, recepția și abonamentul au fiecare exact una, iar a doua pentru același tip este refuzată. Tipul este cheia pe care o rezolvă o alocare, de aceea câmpul este blocat după creare — mutarea lui ar preda numerele deja emise altei serii.",
+		"step_1_body": "Factura, comanda, recepția și abonamentul au fiecare exact una, iar a doua pentru același tip este refuzată. Tipul este cheia pe care o rezolvă o alocare, de aceea câmpul este blocat după creare - mutarea lui ar preda numerele deja emise altei serii.",
 		"step_2_title": "Stabilește codul",
-		"step_2_body": "Cel mult zece caractere, și este prefixul din care se construiesc referințele. Poate fi schimbat ulterior, dar doar documentele numerotate după schimbare îl poartă pe cel nou — referințele vechi păstrează codul cu care au fost emise.",
+		"step_2_body": "Cel mult zece caractere, și este prefixul din care se construiesc referințele. Poate fi schimbat ulterior, dar doar documentele numerotate după schimbare îl poartă pe cel nou - referințele vechi păstrează codul cu care au fost emise.",
 		"step_3_title": "Alege de unde începe numerotarea",
 		"step_3_body": "Numărul de start este primul număr dat, așa preia o serie o numerotare veche în loc să o ia de la unu. Pe o serie nouă, contorul este egal cu el.",
 		"step_4_title": "Lasă contorul să avanseze singur",
-		"step_4_body": "Numărul următor nu se editează de aici. Avansează doar când un document ia un număr, în tranzacția acelui document — o salvare eșuată dă numărul înapoi, ceea ce menține șirul fără goluri. Creșterea numărului de start pe o serie care a emis deja documente consemnează o intenție și nu schimbă nimic din ce urmează.",
+		"step_4_body": "Numărul următor nu se editează de aici. Avansează doar când un document ia un număr, în tranzacția acelui document - o salvare eșuată dă numărul înapoi, ceea ce menține șirul fără goluri. Creșterea numărului de start pe o serie care a emis deja documente consemnează o intenție și nu schimbă nimic din ce urmează.",
 		"step_5_title": "Găsește o serie",
-		"step_5_body": "Filtrează după tipul de document sau caută codul de la trei caractere — un termen numeric este tratat ca id. Lista se ordonează după id sau cod, iar aici rareori sunt mai mult de câteva rânduri.",
+		"step_5_body": "Filtrează după tipul de document sau caută codul de la trei caractere - un termen numeric este tratat ca id. Lista se ordonează după id sau cod, iar aici rareori sunt mai mult de câteva rânduri.",
 		"note": "Ștergerea unei serii este definitivă și nepăzită: nu există stare de șters, deci nimic nu poate fi restaurat, iar nimic nu oprește ștergerea unei serii care a emis numere. Recrearea ei pornește contorul din nou de la numărul de start, iar următorul document intră în conflict cu referințe care există deja sub acel cod.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"

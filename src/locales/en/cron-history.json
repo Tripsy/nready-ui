@@ -24,17 +24,17 @@
 		"warning": "Warning"
 	},
 	"help": {
-		"intro": "Every scheduled job writes one row here when it finishes — this screen is the log of what the backend did on its own. Nothing on it creates or edits a run; the only write available is removing old rows.",
+		"intro": "Every scheduled job writes one row here when it finishes - this screen is the log of what the backend did on its own. Nothing on it creates or edits a run; the only write available is removing old rows.",
 		"step_1_title": "Read the status",
-		"step_1_body": "Ok means the job returned normally. Error means it threw, and the message is kept in the content. Warning is neither — the job succeeded but took longer than it declares as its expected run time, which is the early sign of something growing.",
+		"step_1_body": "Ok means the job returned normally. Error means it threw, and the message is kept in the content. Warning is neither - the job succeeded but took longer than it declares as its expected run time, which is the early sign of something growing.",
 		"step_2_title": "Open the content",
 		"step_2_body": "Content is whatever the job chose to return: how many rows it cleaned, how many mails it queued, or the error message when it failed. It is free-form per job, which is why it is shown as it was stored rather than in fixed columns.",
 		"step_3_title": "Watch the run time",
 		"step_3_body": "Run time is whole seconds between start and end, and the threshold that turns it into a warning belongs to the job, not to a global setting. A job that keeps warning is either doing more work than it used to or has lost an index.",
 		"step_4_title": "Let the watchdogs read this for you",
-		"step_4_body": "Three jobs read this table on their own: one mails a count of failed runs in the last 24 hours, one mails the warnings of the last 7 days grouped by job, with the occurrence count and average run time, and one reports jobs that started in the very same minute — schedules colliding is a cause of slow runs, not a symptom.",
+		"step_4_body": "Three jobs read this table on their own: one mails a count of failed runs in the last 24 hours, one mails the warnings of the last 7 days grouped by job, with the occurrence count and average run time, and one reports jobs that started in the very same minute - schedules colliding is a cause of slow runs, not a symptom.",
 		"step_5_title": "Find a run, then purge",
-		"step_5_body": "Search matches the label and the stored content from three characters, and an all-digit term is treated as an id. Filter by status or by a start-date range, order by id, label or start time. Delete takes the rows you select, several at a time — the table has no deleted state, so a purge is final.",
+		"step_5_body": "Search matches the label and the stored content from three characters, and an all-digit term is treated as an id. Filter by status or by a start-date range, order by id, label or start time. Delete takes the rows you select, several at a time - the table has no deleted state, so a purge is final.",
 		"note": "A weekly job drops every run older than 90 days, so purging by hand is for noise you want gone sooner rather than for keeping the table small. The window is longer than the 30 days the other cleanups keep, because this table is what the error and warning digests read: a schedule that only misbehaves monthly needs a few occurrences on record before the pattern shows.",
 		"tab_info": "Info",
 		"tab_api": "API docs"

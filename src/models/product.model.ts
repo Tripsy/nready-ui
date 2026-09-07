@@ -7,7 +7,7 @@ import type { PageMeta } from '@/types/page-meta.type';
 
 /**
  * The editorial state a product moves through, changed only via
- * `PATCH /products/:id/workflow/:workflow` — never as a field on the manage form, because the
+ * `PATCH /products/:id/workflow/:workflow` - never as a field on the manage form, because the
  * backend consults the transition map below on every move.
  */
 export const ProductWorkflowEnum = {
@@ -20,7 +20,7 @@ export const ProductWorkflowEnum = {
 export type ProductWorkflow =
 	(typeof ProductWorkflowEnum)[keyof typeof ProductWorkflowEnum];
 
-// Mirrors WORKFLOW_TRANSITIONS in the backend entity. `ready` is terminal — nothing leads out
+// Mirrors WORKFLOW_TRANSITIONS in the backend entity. `ready` is terminal - nothing leads out
 // of it, so a product that reaches it cannot be walked back through the workflow route.
 export const WORKFLOW_TRANSITIONS: StatusTransitions<ProductWorkflow> = {
 	[ProductWorkflowEnum.DRAFT]: [ProductWorkflowEnum.PENDING_REVIEW],
@@ -36,7 +36,7 @@ export const WORKFLOW_TRANSITIONS: StatusTransitions<ProductWorkflow> = {
 
 /**
  * Derived, never submitted: a backend cron recomputes it from `available_from`,
- * `available_until` and `discontinued_at`. It is display-and-filter only here — the timestamps
+ * `available_until` and `discontinued_at`. It is display-and-filter only here - the timestamps
  * are what the form edits.
  */
 export const ProductSaleStatusEnum = {
@@ -61,7 +61,7 @@ export type ProductType =
 
 /**
  * Whether the product is sold on its own or assembled from others. A `bundle` holds no stock and
- * its own `vat_category` is unused — the components carry both.
+ * its own `vat_category` is unused - the components carry both.
  */
 export const ProductCompositionEnum = {
 	SIMPLE: 'simple',
@@ -109,7 +109,7 @@ export const PRODUCT_DEFAULT_VAT_CATEGORY = ProductVatCategoryEnum.STANDARD;
  * Which units each type may be sold in. A service is priced by time, a download has no physical
  * dimension to measure, and only a physical good can be sold by weight, volume or length.
  *
- * Mirrored by a rule in the backend validator — this map is what the form offers, not what the
+ * Mirrored by a rule in the backend validator - this map is what the form offers, not what the
  * API accepts, and the two have to agree.
  */
 export const PRODUCT_UNITS_BY_TYPE: Record<
@@ -151,7 +151,7 @@ export type ProductContentType = {
  * One market's price for a variant, excluding VAT.
  *
  * `min_price` is the floor a stacked discount may not resolve below, and the backend rejects a
- * `min_price` above `sale_price`. `reference_price` is display only — the usual price a saving is
+ * `min_price` above `sale_price`. `reference_price` is display only - the usual price a saving is
  * measured against, never charged and read by no pricing path.
  */
 export type ProductPriceType = {
@@ -162,7 +162,7 @@ export type ProductPriceType = {
 };
 
 /**
- * The sellable unit — price and stock hang here, not on the product. Exactly one variant of a
+ * The sellable unit - price and stock hang here, not on the product. Exactly one variant of a
  * product carries `is_default`, and SKUs are unique within the set.
  */
 export type ProductVariantType = {
@@ -178,14 +178,14 @@ export type ProductVariantType = {
 	prices: ProductPriceType[];
 	/*
 	 * The axes that tell this variant from its siblings, against `variant`-scoped definitions.
-	 * Absent leaves the stored ones alone on a save; `[]` clears them — the same split the
+	 * Absent leaves the stored ones alone on a save; `[]` clears them - the same split the
 	 * product-level list carries, and the reason neither is defaulted.
 	 */
 	attributes?: ProductAttributeValueType[];
 };
 
 /**
- * The product's gallery image, attached by the public endpoints only — the dashboard manages
+ * The product's gallery image, attached by the public endpoints only - the dashboard manages
  * images through the `image` feature instead.
  */
 export type ProductCoverImageType = {
@@ -196,18 +196,18 @@ export type ProductCoverImageType = {
 };
 
 /**
- * One recurring window in which the product may be ordered — a lunch menu on weekdays between
+ * One recurring window in which the product may be ordered - a lunch menu on weekdays between
  * 12:00 and 15:00, a happy hour every evening.
  *
  * A different question from `available_from` / `available_until`, which are absolute and describe
  * the product's life in the catalog. These repeat within that life and leave `sale_status`
  * untouched: an out-of-hours product is still `available`, just not orderable right now.
  *
- * A window is a weekday and, optionally, a span of clock times — no hours at all means the whole
- * of that day. Bounding the recurrence itself — a list that runs daily but only over the summer —
+ * A window is a weekday and, optionally, a span of clock times - no hours at all means the whole
+ * of that day. Bounding the recurrence itself - a list that runs daily but only over the summer -
  * belongs on the product's absolute dates, where it reaches `sale_status`.
  *
- * **No window at all means unrestricted** — the common case costs no rows. `day_of_week` is an ISO
+ * **No window at all means unrestricted** - the common case costs no rows. `day_of_week` is an ISO
  * 8601 weekday (1 = Monday … 7 = Sunday, the numbering `ISO_WEEKDAYS` carries), and null there
  * means every day. `starts_at` / `ends_at` are clock times with no date, read in the venue's
  * timezone rather than the customer's, which is why they are strings and never `Date`.
@@ -215,7 +215,7 @@ export type ProductCoverImageType = {
 export type ProductAvailabilityType = {
 	day_of_week: number | null;
 	/*
-	 * Null in both together means all day — "available on Sundays" rather than the same rule
+	 * Null in both together means all day - "available on Sundays" rather than the same rule
 	 * spelled `00:00`–`23:59`. One set and one null is refused by the validator and by a check
 	 * constraint on the table, because nothing could agree on what half a window means.
 	 */
@@ -224,7 +224,7 @@ export type ProductAvailabilityType = {
 };
 
 /**
- * One component of a bundle: which variant, and how many. Every component is always included —
+ * One component of a bundle: which variant, and how many. Every component is always included -
  * a bundle is a flat list, with nothing for the customer to choose between.
  *
  * The answer is a **variant**, not a product: a component is a real sellable thing that consumes
@@ -237,7 +237,7 @@ export type ProductBundleItemType = {
 };
 
 /**
- * A `term` reference as a product read hands it back — the id it stores, and every translation
+ * A `term` reference as a product read hands it back - the id it stores, and every translation
  * the term carries. The same shape the category and tag links use, since it is the same problem:
  * a row holding an id alone cannot be drawn.
  */
@@ -247,8 +247,8 @@ export type ProductTermRefType = {
 };
 
 /**
- * What one answer does to the price, in one market. Signed, unlike `ProductPriceType` — "no
- * side, −5.00" is an answer rather than a discount — and per currency for the same reason
+ * What one answer does to the price, in one market. Signed, unlike `ProductPriceType` - "no
+ * side, −5.00" is an answer rather than a discount - and per currency for the same reason
  * variant prices are: adding 3 to a figure quoted in EUR is only right if the 3 is EUR.
  */
 export type ProductOptionPriceType = {
@@ -272,7 +272,7 @@ export type ProductOptionType = {
 };
 
 /**
- * A question asked at order time — "choose a side", "extras" — whose answers are its `options`.
+ * A question asked at order time - "choose a side", "extras" - whose answers are its `options`.
  *
  * Distinct from a variant: a variant is a different thing to sell, with its own SKU and price
  * row, while an option modifies the thing being sold by a delta. Large vs small is a variant;
@@ -317,7 +317,7 @@ export type ProductModel<D = Date | string> = {
 	deleted_at: D;
 
 	/*
-	 * Relations, present only when the backend joined them — `GET /products/:id` returns all of
+	 * Relations, present only when the backend joined them - `GET /products/:id` returns all of
 	 * these, `GET /products` only `contents`, `categories` and the default variant's prices.
 	 * The link rows carry the referenced row's wording alongside the id so a form seeded from
 	 * one shows names rather than bare ids, without a second round trip.
@@ -345,11 +345,11 @@ export type ProductModel<D = Date | string> = {
 	}[];
 	/**
 	 * The questions asked at order time, present only on `GET /products/:id` and the public
-	 * read. Both levels arrive with their label term joined — see `ProductTermRefType`.
+	 * read. Both levels arrive with their label term joined - see `ProductTermRefType`.
 	 */
 	option_groups?: ProductOptionGroupType[];
 	/*
-	 * The bundle's components, present only on `GET /products/:id` — the whole of what the
+	 * The bundle's components, present only on `GET /products/:id` - the whole of what the
 	 * bundle form edits.
 	 */
 	bundle_items?: ProductBundleItemType[];
@@ -365,7 +365,7 @@ export type ProductRefType = {
 
 /**
  * Picks the wording for a linked category or tag, preferring the given language and falling
- * back to whatever translation the row carries — a link is never rendered as a bare id.
+ * back to whatever translation the row carries - a link is never rendered as a bare id.
  */
 function refLabel(
 	contents:
@@ -448,7 +448,7 @@ export function getProductLabel(
 /**
  * What a window title and a confirmation dialog call a product.
  *
- * The name comes first because a product carries no code of its own — only its variants do. It
+ * The name comes first because a product carries no code of its own - only its variants do. It
  * falls through three steps rather than one: `getProductLabel` already tries the requested
  * language, then the default one, then any translation with a label, so reaching the slug means
  * every translation is blank and reaching the id means the row arrived with no content at all.

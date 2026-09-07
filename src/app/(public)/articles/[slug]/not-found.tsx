@@ -14,7 +14,7 @@ const TRANSLATION_KEYS = [
 /**
  * What `notFound()` in the article page renders.
  *
- * The boundary is what sets the 404 status as well — without a `not-found.tsx` in the tree
+ * The boundary is what sets the 404 status as well - without a `not-found.tsx` in the tree
  * Next renders an empty page and answers 200, which tells a crawler the slug is a real page.
  */
 export default async function NotFound() {

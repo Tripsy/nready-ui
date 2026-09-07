@@ -42,15 +42,15 @@ const PAGE_SIZE = 10;
 
 /**
  * How long the thread keeps looking for a comment a link named, in attempts of `ANCHOR_RETRY_MS`
- * each — long enough to page through a busy thread and open a reply list, short enough that a
+ * each - long enough to page through a busy thread and open a reply list, short enough that a
  * dead link stops costing anything.
  */
 const ANCHOR_RETRY_MS = 300;
 const ANCHOR_MAX_ATTEMPTS = 20;
 
 /**
- * The whole thread's query keys. Roots and each parent's replies are separate entries — they are
- * separate requests — but everything under one target shares the `[.., entityType, entityId]`
+ * The whole thread's query keys. Roots and each parent's replies are separate entries - they are
+ * separate requests - but everything under one target shares the `[.., entityType, entityId]`
  * prefix, so a new comment anywhere invalidates the lot with one call.
  */
 function threadKey(
@@ -152,7 +152,7 @@ function CommentEntry({
 	const cancelEdit = useCallback(() => setIsEditing(false), []);
 
 	/*
-	 * A saved edit, a removal, a pin, a hide — every one of them changes what the thread holds, so
+	 * A saved edit, a removal, a pin, a hide - every one of them changes what the thread holds, so
 	 * they all land on the same refetch the reply form uses. The editor closes with it: what comes
 	 * back is the row it was editing.
 	 */
@@ -163,7 +163,7 @@ function CommentEntry({
 
 	/*
 	 * A link to a reply names the thread it lives in, and that thread is closed until somebody
-	 * opens it — so the link opens it. An effect rather than the initial state: the fragment is
+	 * opens it - so the link opens it. An effect rather than the initial state: the fragment is
 	 * read after mount (there is no `location` while this renders on the server), and a cached
 	 * page can have these on screen before it is.
 	 */
@@ -183,7 +183,7 @@ function CommentEntry({
 
 	const replies = data?.entries ?? [];
 
-	// The replies are their own list, so they carry their own counts — one request for all of
+	// The replies are their own list, so they carry their own counts - one request for all of
 	// them, issued only once the thread is opened.
 	const { ratings: replyRatings, onRatingChanged: onReplyRatingChanged } =
 		useRatingSummaries(
@@ -200,7 +200,7 @@ function CommentEntry({
 
 	const author = commentAuthor(entry, translations);
 
-	// The count belongs to a thread, and only a root starts one — under a reply it would be a
+	// The count belongs to a thread, and only a root starts one - under a reply it would be a
 	// second number next to the first, counting something the reader cannot open from there.
 	const isRoot = entry.parent_id === null;
 
@@ -284,7 +284,7 @@ function CommentEntry({
 
 					{/*
 					 * The icon is the reply action; the number beside it is how many replies
-					 * this thread already holds. Opening them is a separate control below —
+					 * this thread already holds. Opening them is a separate control below -
 					 * one button cannot both answer a comment and unroll it.
 					 */}
 					<div className="mt-3 flex items-center gap-4 text-sm text-muted">
@@ -366,7 +366,7 @@ function CommentEntry({
 
 					{/*
 					 * The thread's rail. It is pulled back to sit under the middle of this
-					 * comment's avatar — the content column starts past the avatar (32px) and
+					 * comment's avatar - the content column starts past the avatar (32px) and
 					 * the gap (12px), so -28px lands the border on the avatar's center line,
 					 * and the padding then holds the replies clear of it.
 					 */}
@@ -473,8 +473,8 @@ export function CommentThread({
 	const queryClient = useQueryClient();
 
 	/*
-	 * The comment a link led here for. Read after mount rather than during render — there is no
-	 * `location` on the server — and cleared once it has been reached, so paging further does not
+	 * The comment a link led here for. Read after mount rather than during render - there is no
+	 * `location` on the server - and cleared once it has been reached, so paging further does not
 	 * scroll the reader back to it.
 	 */
 	const [anchor, setAnchor] = useState<CommentAnchorType | null>(null);
@@ -531,7 +531,7 @@ export function CommentThread({
 	/*
 	 * Walking the thread until the linked comment is on screen. It may sit past the page that has
 	 * been loaded, and a reply sits inside a collapsed thread that `openRepliesFor` unrolls once
-	 * its parent arrives — so each attempt loads what it can and looks again shortly after. The
+	 * its parent arrives - so each attempt loads what it can and looks again shortly after. The
 	 * retry is what covers the replies: they arrive through their own query, which this effect
 	 * has no other way to hear about.
 	 *
@@ -579,7 +579,7 @@ export function CommentThread({
 
 	/*
 	 * A posted comment is public straight away unless the backend is holding comments for
-	 * moderation (`comment.autoApprove`), so this refetch is usually what puts it on screen —
+	 * moderation (`comment.autoApprove`), so this refetch is usually what puts it on screen -
 	 * and when it is not, it still catches the case that matters: a parent whose `reply_count`
 	 * moved because a moderator approved something while this page was open.
 	 */
@@ -593,7 +593,7 @@ export function CommentThread({
 
 	/*
 	 * The first reply under each root, which the backend resolves alongside the page so a thread
-	 * can show one without being unrolled — and without a request per root to find it.
+	 * can show one without being unrolled - and without a request per root to find it.
 	 */
 	const firstReplies = Object.assign(
 		{},
@@ -601,7 +601,7 @@ export function CommentThread({
 	) as Record<number, CommentModel>;
 
 	/*
-	 * One request for everything on screen, previews included, re-keyed as more is paged in —
+	 * One request for everything on screen, previews included, re-keyed as more is paged in -
 	 * a preview reply carries its own reactions and would otherwise fetch them on its own.
 	 */
 	const { ratings, onRatingChanged } = useRatingSummaries(

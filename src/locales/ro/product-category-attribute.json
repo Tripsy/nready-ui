@@ -11,7 +11,7 @@
 		"invalid_sort_order": "Introdu un număr întreg",
 		"type_value_type_mismatch": "Acest mod de completare nu poate stoca acest tip de valoare",
 		"unit_requires_number": "Unitatea de măsură se aplică doar unui număr",
-		"unit_excludes_suffix": "Unitatea se afișează deja după valoare — renunță la sufix",
+		"unit_excludes_suffix": "Unitatea se afișează deja după valoare - renunță la sufix",
 		"bounds_require_number": "Limitele se aplică doar unui număr",
 		"max_below_min": "Maximul nu poate fi sub minim",
 		"options_require_term": "Doar un atribut cu listă acceptă valori admise",

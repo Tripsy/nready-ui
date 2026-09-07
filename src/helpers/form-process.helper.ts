@@ -20,7 +20,7 @@ import type {
 
 /**
  * Create (`values`) and update (`values`, `entryId`) requests both reach the
- * pipeline through this shape. The entry type is deliberately not tracked —
+ * pipeline through this shape. The entry type is deliberately not tracked -
  * `processForm` only forwards the response through as `resultData`, which is
  * `unknown` on `FormStateType` anyway; carrying an `Entry` generic here would
  * force a cast at every call site whose service returns `ApiResponseFetch<null>`.
@@ -34,7 +34,7 @@ type FormOperationFnType<FormValues> =
 
 /**
  * Per-flow translation of a backend `ApiError` into form state. Every field is
- * optional — whatever is left out falls back to the pipeline defaults
+ * optional - whatever is left out falls back to the pipeline defaults
  * (`fallbackErrorKey` for the message, `serverError` for the situation).
  */
 export type MapApiErrorFnType<Situation extends string | null> = (
@@ -49,7 +49,7 @@ export type MapApiErrorFnType<Situation extends string | null> = (
  * `ValidatedValues` is what the validator *produces*, which is not always what the form holds:
  * a schema that trims a slug, upper-cases a currency or coerces a typed figure to a number
  * changes the shape on the way through. It defaults to `FormValues`, so a form whose schema only
- * checks is unaffected — and the values echoed back into the state are the validated ones, which
+ * checks is unaffected - and the values echoed back into the state are the validated ones, which
  * is why a lower-cased slug appears in the field after a submit.
  */
 type ProcessFormOptionsType<
@@ -60,7 +60,7 @@ type ProcessFormOptionsType<
 	getFormValues: GetFormValuesFnType<FormValues>;
 	validateForm: ValidateFormFnType<FormValues, ValidatedValues>;
 	operationFunction: FormOperationFnType<ValidatedValues>;
-	/** Only set for update operations — passed as the second argument to `operationFunction`. */
+	/** Only set for update operations - passed as the second argument to `operationFunction`. */
 	entryId?: number;
 	mapApiError?: MapApiErrorFnType<Situation>;
 	/** Translation key for the generic failure message. */
@@ -70,7 +70,7 @@ type ProcessFormOptionsType<
 /**
  * The validation issues a backend rejection carries, if it carries any.
  *
- * `ApiResponseFetch` does not declare `errors` because most responses have none — the envelope
+ * `ApiResponseFetch` does not declare `errors` because most responses have none - the envelope
  * (`output-handler.middleware.ts` on the API side) fills it only where a controller ran a schema
  * and the parse failed. A service-layer 422 leaves it empty, which is what keeps this apart from
  * the messages `mapApiError` handles.
@@ -108,8 +108,8 @@ function joinIssueMessages(issues: ValidationIssueType[]): string {
  * `WindowForm` for every dashboard/account entity form and by each `<flow>.action.ts` for the
  * unauthenticated auth-entry flows.
  *
- * CSRF is deliberately absent here. This function runs in the browser — the auth actions have
- * no `'use server'` directive and `WindowForm` calls it straight from a client component — so
+ * CSRF is deliberately absent here. This function runs in the browser - the auth actions have
+ * no `'use server'` directive and `WindowForm` calls it straight from a client component - so
  * a check at this point was a decision the caller could simply skip. It is enforced in
  * `src/proxy.ts` instead, in front of every mutating `/api/*` request, where a forged
  * submission actually has to pass it.
@@ -171,12 +171,12 @@ export async function processForm<
 		/*
 		 * The validated shape, echoed back as the form's values, so a slug the schema
 		 * lower-cased appears lower-cased. Merged rather than assigned: `mergeNormalizedValues`
-		 * keeps the parse result only where it did not change a field's type — see there for
+		 * keeps the parse result only where it did not change a field's type - see there for
 		 * why a form holding a schema's converted output cannot validate again.
 		 */
 		values = mergeNormalizedValues(values, validated.data);
 
-		// An entryId means an update — pass it as the second argument.
+		// An entryId means an update - pass it as the second argument.
 		const operationValues = validated.data;
 
 		const fetchResponse =
@@ -207,7 +207,7 @@ export async function processForm<
 	} catch (error) {
 		/*
 		 * A rejection by the backend's own validator, reported field by field. It outranks a
-		 * per-flow `mapApiError`, which describes the service-layer failures — those carry a
+		 * per-flow `mapApiError`, which describes the service-layer failures - those carry a
 		 * written message and no issue list, so the two never compete for the same response.
 		 *
 		 * The messages go into the form's message line rather than onto the fields: nothing
@@ -217,7 +217,7 @@ export async function processForm<
 		 * what came back.
 		 *
 		 * `serverError`, not `failedValidation`: the latter is the client's own verdict, and
-		 * `FormComponentSubmit` disables the button while it stands — which the client clears
+		 * `FormComponentSubmit` disables the button while it stands - which the client clears
 		 * only by finding errors of its own. Here it has none (that is why the request went out
 		 * at all), so the form would be left with no way to submit again.
 		 */
@@ -261,7 +261,7 @@ export async function processForm<
 		 *
 		 * A 422 reaching here has already been sorted from the validator's field-by-field
 		 * rejections above, so what is left is a rule the service states in prose and writes
-		 * for an editor to read — which category a label is declared by, why a bundle is too
+		 * for an editor to read - which category a label is declared by, why a bundle is too
 		 * small. The fallback message says none of that, and a form that only says something
 		 * went wrong leaves the editor with nothing to change.
 		 */

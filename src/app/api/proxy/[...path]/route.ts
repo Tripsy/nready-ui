@@ -50,7 +50,7 @@ async function handler(request: NextRequest, path: string[]) {
 		});
 	}
 
-	// Non-JSON bodies (file downloads) are binary — reading them as text would
+	// Non-JSON bodies (file downloads) are binary - reading them as text would
 	// corrupt anything that isn't valid UTF-8, e.g. an .xlsx's zip bytes.
 	const data = await backendRes.arrayBuffer();
 

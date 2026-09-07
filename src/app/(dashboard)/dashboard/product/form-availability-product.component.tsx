@@ -13,7 +13,7 @@ import type { ProductAvailabilityType } from '@/models/product.model';
 /**
  * A window as the form holds it: the stored shape plus client-only row identity.
  *
- * `key` is needed for the same reason the variants editor needs one — a window has no id until it
+ * `key` is needed for the same reason the variants editor needs one - a window has no id until it
  * is saved, and nothing in the row is unique either (two windows on the same weekday at different
  * hours are both legitimate), so the array index is the only alternative, and it shifts on removal.
  */
@@ -45,11 +45,11 @@ export function emptyAvailability(): ProductAvailabilityFormType {
 	};
 }
 
-/** `null` is a real choice here — "every day" — so it needs a value of its own in the select. */
+/** `null` is a real choice here - "every day" - so it needs a value of its own in the select. */
 const EVERY_DAY = 'all';
 
 /**
- * Shared widths for the window grid's header and its rows — the same tokens on both, change one
+ * Shared widths for the window grid's header and its rows - the same tokens on both, change one
  * and the columns drift.
  *
  * The header spans are not `<label>`s, so they name nothing to a screen reader: each cell below
@@ -95,7 +95,7 @@ function AvailabilityRow({
 	const rowErrors = rowErrorsAt<ProductAvailabilityFormType>(errors, index);
 
 	/*
-	 * The two columns are null together — that is the stored shape of a whole-day window, and a
+	 * The two columns are null together - that is the stored shape of a whole-day window, and a
 	 * check constraint refuses a half-filled one. So the toggle writes both or clears both, and
 	 * reads from `starts_at` alone rather than needing a flag of its own in the form values.
 	 */
@@ -217,14 +217,14 @@ function AvailabilityRow({
 }
 
 /**
- * The product's recurring ordering windows — which weekdays and between which hours it can be
+ * The product's recurring ordering windows - which weekdays and between which hours it can be
  * ordered.
  *
  * **An empty list means unrestricted**, which is why there is no seeded first row and why the
  * empty state says so rather than reading as something unfinished. This is the opposite default
  * from the variants editor, where at least one row is required.
  *
- * A row with **All day** ticked is a weekday and no hours — "available on Sundays". Note that
+ * A row with **All day** ticked is a weekday and no hours - "available on Sundays". Note that
  * ticking it on a row set to *every* day restricts nothing, which is what an empty list already
  * says; the row is redundant rather than wrong, so nothing refuses it.
  *
@@ -247,7 +247,7 @@ export function FormAvailabilityProduct({
 		<div className="space-y-3">
 			{value.length === 0 ? (
 				<p className="rounded-lg border border-dashed border-line p-6 text-center text-sm text-muted">
-					No intervals — the product can be ordered at any time while
+					No intervals - the product can be ordered at any time while
 					it is available.
 				</p>
 			) : (
@@ -310,7 +310,7 @@ export function FormAvailabilityProduct({
 			</div>
 
 			{/*
-			 * The whole list in one hidden field — per-input names cannot express a repeatable,
+			 * The whole list in one hidden field - per-input names cannot express a repeatable,
 			 * and `getFormValues` parses this back.
 			 */}
 			<input

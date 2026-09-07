@@ -1,13 +1,13 @@
 ---
 description: Scaffold a new /dashboard CRUD entity end-to-end, mirroring an existing backend feature
-argument-hint: "<entity> (singular, kebab-case — e.g. carrier, warehouse, order-shipping)"
+argument-hint: "<entity> (singular, kebab-case - e.g. carrier, warehouse, order-shipping)"
 allowed-tools: Read, Grep, Glob, Edit, Write, Bash, Agent
 ---
 
 Add the dashboard CRUD feature for **$ARGUMENTS**.
 
 The backend (`../nready-api/src/features/<entity>/`) is the contract. Read it first, then build
-the frontend to match — never invent fields, filters or endpoints.
+the frontend to match - never invent fields, filters or endpoints.
 
 ## 1. Read the backend before writing anything
 
@@ -18,7 +18,7 @@ the frontend to match — never invent fields, filters or endpoints.
 | `<entity>.routes.ts` | which operations exist (`create/read/update/delete/restore/find`, status/extra routes) → which `actions` to declare; the **`basePath`** → whether the endpoint is plural |
 | `<entity>.repository.ts` | `filterByTerm` → what the global search actually matches, for the search label |
 | `<entity>.service.ts` | conflict rules (e.g. unique name → 409) and any create-only fields |
-| `<entity>/locales/en.json` | message keys; `docker exec nready-api.test sh -c "cd /var/www/html && pnpm run messages:check"` proves every `lang()` key and every `validatorMessages` entry resolves — run it if you touched the backend locale, and treat a finding as a real backend bug rather than papering over it |
+| `<entity>/locales/en.json` | message keys; `docker exec nready-api.test sh -c "cd /var/www/html && pnpm run messages:check"` proves every `lang()` key and every `validatorMessages` entry resolves - run it if you touched the backend locale, and treat a finding as a real backend bug rather than papering over it |
 
 Nothing in `find.filterSchema` means nothing to filter on: a filter the backend does not accept
 is dropped, so the table silently ignores it.
@@ -38,24 +38,24 @@ Before proposing an approach, read the path-scoped protocols that apply:
 
 ## 3. Files to create
 
-`src/models/<entity>.model.ts` — `<Entity>Model<D = Date | string>` plus any enum and a
+`src/models/<entity>.model.ts` - `<Entity>Model<D = Date | string>` plus any enum and a
 `display<Entity>Label(entry)` used for window titles.
 
 `src/app/(dashboard)/dashboard/<entity>/`:
 
 | File | Notes |
 |---|---|
-| `<entity>.definition.ts` | the whole feature: validator, `getFormValues` / `getFormState`, `<Entity>DataTableFiltersType`, table columns, `actions`. Default-exports `async function dataSourceConfig()` — `data-source.config.ts` imports it **by path convention**, so the filename must match the key exactly |
+| `<entity>.definition.ts` | the whole feature: validator, `getFormValues` / `getFormState`, `<Entity>DataTableFiltersType`, table columns, `actions`. Default-exports `async function dataSourceConfig()` - `data-source.config.ts` imports it **by path convention**, so the filename must match the key exactly |
 | `data-table-<entity>.component.tsx` | `DataTableProvider` + filters + actions + list |
 | `data-table-filters-<entity>.component.tsx` | one control per backend filter; `global` is renamed to `term` by `data-table-list.component.tsx` |
 | `form-manage-<entity>.component.tsx` | exports `<Entity>FormValuesType`; fields via `FormComponent*`, ids via `useElementIds` |
 | `view-<entity>.component.tsx` | `'use client'`, `ViewSection` / `ViewField`, timestamps section last |
-| `usage-guide-<entity>.component.tsx` | a thin wrapper over the shared `UsageGuide` — see below |
+| `usage-guide-<entity>.component.tsx` | a thin wrapper over the shared `UsageGuide` - see below |
 | `page.tsx` | `generateMetadata` from `<entity>.meta.title` + `BreadcrumbSetter` + the data table |
 
 **Declare `reloadEntry` on `update` and `view` whenever the list projection is narrower than the
 form.** The entry the data-table hands a window is the row it already has, and a list query is
-usually a reduced select — `product`'s omits `is_default`/`position`/`barcode` on variants and
+usually a reduced select - `product`'s omits `is_default`/`position`/`barcode` on variants and
 `description`/`meta` on contents. Seeding the form from that row and submitting sends those fields
 back empty, so the *save silently wipes data that was never on screen*.
 `reloadEntry: (id) => requestView<ProductModel>('product', id)` re-fetches the full row first;
@@ -83,7 +83,7 @@ export function UsageGuideDiscount() {
 ```
 
 - `entity` is the locale namespace (`<entity>.help.*`), and `stepCount` must equal the number of
-  `step_N_title`/`step_N_body` pairs there — a mismatch renders blank steps rather than failing.
+  `step_N_title`/`step_N_body` pairs there - a mismatch renders blank steps rather than failing.
 - `feature` is the **backend route module**, which is not always the entity: a feature folder can
   hold more than one, and `article` ships `article` alongside `article-public`. A reader-facing
   entity therefore gets a second tab (`{ id: 'public', labelKey: 'tab_public', feature:
@@ -91,7 +91,7 @@ export function UsageGuideDiscount() {
 - Each tab fetches only once its own tab is opened, so extra tabs cost nothing until used.
 - The API tab needs `../nready-api/src/features/<entity>/<entity>.docs.ts` to exist
   (`/implement-feature` writes it). Without it `GET /docs/<entity>` is a 404 and the tab shows an
-  error while the Info tab still works — so either write the backend docs in the same pass or leave
+  error while the Info tab still works - so either write the backend docs in the same pass or leave
   `docsTabs` empty until you do.
 
 The action itself, declared in `<entity>.definition.ts` alongside the CRUD ones:
@@ -109,74 +109,74 @@ guide: {
 },
 ```
 
-`'other'` + `'free'` is the entry-less window combination — every other `other` action selects a row
+`'other'` + `'free'` is the entry-less window combination - every other `other` action selects a row
 first. Add `'guide.title'` to the `translateBatch` list.
 
 **Write the Info steps from what the code enforces, not from the field labels.** The form already
-shows what the fields are called; the guide earns its place by carrying what it cannot — a value
+shows what the fields are called; the guide earns its place by carrying what it cannot - a value
 that is required only in combination with another, an action that appears only for one role, a
 status with no route back, a delete that keeps a unique column occupied. Read the validator's
 `superRefine` blocks and the definition's `customEntryCheck`s, and say what they do.
 
-## 4. Registrations — all of them, or the feature half-works
+## 4. Registrations - all of them, or the feature half-works
 
-1. `src/types/data-source.key.ts` — import the model, add `<entity>: <Entity>Model` to `DatasourceModels`.
-2. `src/helpers/api.helper.ts` — **if the backend `basePath` is not the key itself**: add the key to
+1. `src/types/data-source.key.ts` - import the model, add `<entity>: <Entity>Model` to `DatasourceModels`.
+2. `src/helpers/api.helper.ts` - **if the backend `basePath` is not the key itself**: add the key to
    `PLURAL_ENDPOINT_KEYS` (`carrier` → `/carriers`), or to `IRREGULAR_ENDPOINT_KEYS` for anything
    the `+ 's'` rule cannot express (`category` → `categories`). Skipping this is the classic
-   silent 404 — every request goes to the singular path and the table just comes back empty.
-3. `src/locales/en/<entity>.json` **and** `src/locales/ro/<entity>.json` — file name is
+   silent 404 - every request goes to the singular path and the table just comes back empty.
+3. `src/locales/en/<entity>.json` **and** `src/locales/ro/<entity>.json` - file name is
    **singular**, keys: `meta.title`, `validation.invalid_*`, `action.<op>.{title,label,success,confirm}`,
    plus `status.*` only if the entity has a status. Register both in `src/locales/<lang>/index.ts`
    (import + map entry; quote the key when it is kebab-case).
    The guide adds `action.guide.{title,label}` and a `help` block: `intro`, `note`, `tab_info`,
    `tab_api` (plus `tab_public` when there is a public module), and a `step_N_title`/`step_N_body`
    pair per step. Both languages, or the missing one renders raw keys.
-4. `src/locales/{en,ro}/dashboard.json` — `labels.<entity>` (the side-menu / breadcrumb label, plural wording).
-5. `src/models/permission.model.ts` — add the entity to `PermissionEntitiesSuggestions` if absent.
-6. `src/models/log-history.model.ts` — add the **backend table name** (snake_case) to `LogHistoryEntities`.
-7. `src/components/icon.component.tsx` — a lucide import (alphabetical) + an `Icons.<Entity>` entry
+4. `src/locales/{en,ro}/dashboard.json` - `labels.<entity>` (the side-menu / breadcrumb label, plural wording).
+5. `src/models/permission.model.ts` - add the entity to `PermissionEntitiesSuggestions` if absent.
+6. `src/models/log-history.model.ts` - add the **backend table name** (snake_case) to `LogHistoryEntities`.
+7. `src/components/icon.component.tsx` - a lucide import (alphabetical) + an `Icons.<Entity>` entry
    for the side menu, **plus an `Icons.Action.<Action>` entry for every action name that is not
    already in that registry**. Action buttons resolve their icon by convention through
-   `getActionIcon`, which *throws* on a miss (`SubmitReview is not defined in Icons.Action`) — so a
+   `getActionIcon`, which *throws* on a miss (`SubmitReview is not defined in Icons.Action`) - so a
    novel action name takes down the whole route via the error boundary rather than rendering
    without an icon. Reuse an existing lucide import where the meaning matches.
-8. `src/helpers/display.helper.tsx` — add every status value the entity can hold to `statusList`
+8. `src/helpers/display.helper.tsx` - add every status value the entity can hold to `statusList`
    (variant + icon). A missing key does not throw: the badge falls back to a plain `default` with
    no icon, so a table of five distinct statuses renders as five identical grey chips. This covers
    any status-like column marked `isStatus: true`, not only one literally called `status`.
-9. `src/app/(dashboard)/_hooks/use-side-menu-sections.hook.ts` — add `dashboard.labels.<entity>` to
+9. `src/app/(dashboard)/_hooks/use-side-menu-sections.hook.ts` - add `dashboard.labels.<entity>` to
    `TRANSLATION_KEYS` **and** the item to a section, gated by `hasPermission(auth, '<entity>')`.
    The keys and the section tree both live in this hook; `side-menu.component.tsx` only renders
    what it returns.
    **Placement is the user's call, not yours.** Existing sections, in render order, are
    `financial`, `content`, `warehouse`, `logistics`, `publishing`, `settings`, `logs`,
-   `user-management`. Propose one — or a new section, with its own label,
-   icon and `dashboard.labels.<section>` entry in both locale files — say why, and **wait for
+   `user-management`. Propose one - or a new section, with its own label,
+   icon and `dashboard.labels.<section>` entry in both locale files - say why, and **wait for
    confirmation before editing the file**. Everything else in this list you decide yourself;
    this one lands in front of the user on every page, so a wrong guess is theirs to live with.
    Build the rest of the feature while the question is open rather than blocking on it.
-10. `src/config/routes.setup.ts` — `.add('<entity>', '/dashboard/<entity>', { permissionEntity: '<entity>' })`
+10. `src/config/routes.setup.ts` - `.add('<entity>', '/dashboard/<entity>', { permissionEntity: '<entity>' })`
     inside `Routes.group('dashboard')`. Extra sub-pages (order/tree) get their own entry with
     `permissionOperation`.
 
 Validation messages that are generic (`only_positive`, `name_min`, …) come from
-`sharedValidatorMessages` — spread them and use `resolveValidatorMessages()` instead of a bare
+`sharedValidatorMessages` - spread them and use `resolveValidatorMessages()` instead of a bare
 `translateBatch`, otherwise the shared keys resolve to raw key strings.
 
 ## 5. Verify
 
-- `docker exec nready-ui.test sh -c "cd /var/www/html && npx tsc --noEmit"` — **stop the dev server
+- `docker exec nready-ui.test sh -c "cd /var/www/html && npx tsc --noEmit"` - **stop the dev server
   first** (`/dev-stack stop ui`); the container cannot hold both.
 - Then `/dev-stack start ui` and exercise the real page at `http://nready-ui.test/dashboard/<entity>`
-  — **not** `localhost`, which is not in `ALLOWED_ORIGINS` so sign-in fails there:
-  list loads, create, update, view, delete, restore, search, show-deleted, and the usage guide —
+  - **not** `localhost`, which is not in `ALLOWED_ORIGINS` so sign-in fails there:
+  list loads, create, update, view, delete, restore, search, show-deleted, and the usage guide -
   every tab, since each one only fetches when opened and an unregistered docs module fails there
-  and nowhere else. Reading the code is not evidence — this project has no tests, so the running
+  and nowhere else. Reading the code is not evidence - this project has no tests, so the running
   page is the only proof.
 - Admin bypasses permission checks (`hasPermission` short-circuits on role `admin`), so a green
   admin run says nothing about the `system.permission` rows a member/operator would need.
-- `docker exec nready-ui.test sh -c "cd /var/www/html && pnpm run biome"` — run it, do not just
+- `docker exec nready-ui.test sh -c "cd /var/www/html && pnpm run biome"` - run it, do not just
   suggest it. This is the "on demand" case CLAUDE.md's don't-run-biome rule leaves open: a new
   entity is a dozen fresh files and the import-order, formatting and circular-dependency checks
   are exactly what a copied folder gets wrong. It writes fixes in place, so re-read anything you

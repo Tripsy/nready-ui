@@ -39,7 +39,7 @@ function ParamRow({ name, param }: { name: string; param: ApiDocsParam }) {
 			)}
 			{extras.length > 0 && (
 				<span className="w-full text-xs text-muted">
-					{extras.join(' — ')}
+					{extras.join(' - ')}
 				</span>
 			)}
 		</li>
@@ -47,8 +47,8 @@ function ParamRow({ name, param }: { name: string; param: ApiDocsParam }) {
 }
 
 /**
- * One `params`/`query`/`body` block. Entries are one level nestable — `find` documents its
- * `filter` as a group — so a nested group is rendered as its own indented list rather than
+ * One `params`/`query`/`body` block. Entries are one level nestable - `find` documents its
+ * `filter` as a group - so a nested group is rendered as its own indented list rather than
  * flattened, which would lose the fact that those keys live under `filter`.
  */
 function ParamGroup({
@@ -97,8 +97,8 @@ function ParamGroup({
 
 /**
  * Fills the `:name` placeholders in a documented path, since a runnable example cannot carry
- * them literally. The stand-in follows the param's documented type — `1` for a numeric id, the
- * first documented value for an enum — so the result is a request that would actually route.
+ * them literally. The stand-in follows the param's documented type - `1` for a numeric id, the
+ * first documented value for an enum - so the result is a request that would actually route.
  * Anything else falls back to `<name>`, which reads as the placeholder it is.
  */
 function buildExampleUrl(baseUrl: string, action: ApiDocsAction): string {
@@ -130,7 +130,7 @@ const BEARER_PLACEHOLDER = '<token>';
  * The sample payload, but only where it is a request *body*.
  *
  * `request.sample` is whatever the backend documented for the action, and for a read it describes
- * the path and query instead — the public article read samples `{ slug, language }`, both of which
+ * the path and query instead - the public article read samples `{ slug, language }`, both of which
  * are already in the URL. Keying on a documented `body` is what stops those turning into a GET
  * carrying `-d` and a JSON content type.
  */
@@ -316,7 +316,7 @@ const STATUS_CLASS_NAME = 'min-h-0 py-8';
 /**
  * The documented actions of one route module.
  *
- * `tabs` is the modal layout — one action at a time, which is all a window has room for.
+ * `tabs` is the modal layout - one action at a time, which is all a window has room for.
  * `stacked` is the page layout: every action rendered in full, each behind its own anchor, so
  * a reader can scroll the module end to end and link to a single endpoint. Both put the same
  * markup in the DOM (the tab panels force-mount), so neither hides content from a crawler.
@@ -394,10 +394,10 @@ export function ApiDocsView({
 
 /**
  * Fetches and renders the documentation for one feature, for a caller that has only the
- * feature name — the dashboard's usage guide.
+ * feature name - the dashboard's usage guide.
  *
  * `enabled` is the caller's switch for deferring the request until the docs are actually on
- * screen — the tab hosting this stays mounted while hidden (see `ui/tabs`), so without it the
+ * screen - the tab hosting this stays mounted while hidden (see `ui/tabs`), so without it the
  * fetch would fire for everyone who opens the window.
  *
  * A page that can fetch server-side should render `ApiDocsView` with the data instead, so the

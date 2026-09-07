@@ -35,7 +35,7 @@ type Props = {
 };
 
 /**
- * `undefined` is a slug nobody publishes under — a 404. `null` is the backend being
+ * `undefined` is a slug nobody publishes under - a 404. `null` is the backend being
  * unreachable, which is a temporary failure and must not be answered with one.
  */
 async function getCategory(

@@ -5,7 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 /**
  * What a tabbed panel hands back to the card hosting it. `count` is how many rows the current
- * filter selected — the tab strip badges it, which is why every tab's query runs even while
+ * filter selected - the tab strip badges it, which is why every tab's query runs even while
  * its own panel is hidden.
  */
 export type PanelView = {
@@ -78,13 +78,13 @@ export function PanelRow({
 	aside,
 	children,
 }: {
-	/** Right-hand column, kept on one line — in practice the relative timestamp. */
+	/** Right-hand column, kept on one line - in practice the relative timestamp. */
 	aside: ReactNode;
 	children: ReactNode;
 }): JSX.Element {
 	return (
 		<div className="flex items-start justify-between gap-4 py-2 border-b border-border last:border-0">
-			{/* `min-w-0` lets the child's `truncate` engage — without it the flex item
+			{/* `min-w-0` lets the child's `truncate` engage - without it the flex item
 			    refuses to shrink below its content and the row overflows the card. */}
 			<div className="min-w-0">{children}</div>
 			<span className="text-sm text-muted whitespace-nowrap">

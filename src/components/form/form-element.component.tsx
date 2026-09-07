@@ -46,7 +46,7 @@ export type GroupedOptionsType = {
  * react-aria fields (Select, ComboBox, …) derive their accessible name from a
  * `<Label>` rendered *inside* their own context, or from `aria-label` /
  * `aria-labelledby`. This project's labels live one level up in `FormElement`, so
- * those fields must point back at the label with `aria-labelledby` — otherwise
+ * those fields must point back at the label with `aria-labelledby` - otherwise
  * react-aria logs "If you do not provide a visible label, you must specify an
  * aria-label or aria-labelledby attribute for accessibility" and the control ends
  * up with no accessible name.
@@ -130,7 +130,7 @@ export const FormElementIcon = ({
  *
  * There is deliberately no filled/valid state: an outline on every field that merely holds a
  * value marks the ordinary case rather than the one worth looking at, and on a form where most
- * fields are populated — or a filter bar carrying defaults — it leaves the field that actually
+ * fields are populated - or a filter bar carrying defaults - it leaves the field that actually
  * needs attention with nothing to set it apart.
  */
 const stateConfig = {
@@ -168,7 +168,7 @@ export type FormComponentProps<Fields, Value> = {
 
 /**
  * A field is named by exactly one of two things: the label it renders itself, or an `ariaLabel`
- * standing in for one that lives elsewhere — a shared column header, or the question column of
+ * standing in for one that lives elsewhere - a shared column header, or the question column of
  * a row layout.
  *
  * Spelled as a union because *neither* fails silently. The control reaches a screen reader with
@@ -184,7 +184,7 @@ type NamedByLabelOrAria =
 	| { labelText?: never; ariaLabel: string };
 
 /**
- * A textarea names itself differently: by its label, or — where it has none — by its
+ * A textarea names itself differently: by its label, or - where it has none - by its
  * placeholder, which is why one of the two is required rather than both being optional.
  *
  * Unlike the pair above these are not alternatives, so this is an "at least one" rather than an
@@ -490,7 +490,7 @@ export const FormComponentTextarea = <Fields,>({
 	return (
 		<FormElement
 			/*
-			 * No `labelText`, no label element — an empty one still renders its required
+			 * No `labelText`, no label element - an empty one still renders its required
 			 * asterisk, which reads as a field whose name failed to load. The name then has to
 			 * come from somewhere a screen reader can use, so it falls back to the placeholder;
 			 * a control with neither is unlabeled, which is why one of the two is required.
@@ -549,7 +549,7 @@ export const FormComponentSelect = <Fields,>({
 
 	const isGrouped = 'options' in options[0];
 
-	// Shared option collection — identical for the Select and ComboBox variants.
+	// Shared option collection - identical for the Select and ComboBox variants.
 	const listBoxItems = isGrouped
 		? (options as GroupedOptionsType).map((group) => (
 				<ListBox.Section
@@ -567,7 +567,7 @@ export const FormComponentSelect = <Fields,>({
 							textValue={label}
 							// `pr-8` reserves the strip the selected-state indicator occupies.
 							// It is absolutely positioned (`right: 8px`, 16px wide), so it is
-							// outside the item's intrinsic width — without the padding the
+							// outside the item's intrinsic width - without the padding the
 							// label runs underneath it and the popover never widens to fit.
 							className="whitespace-nowrap rounded-md pr-8"
 						>
@@ -584,7 +584,7 @@ export const FormComponentSelect = <Fields,>({
 					textValue={label}
 					// `pr-8` reserves the strip the selected-state indicator occupies. It is
 					// absolutely positioned (`right: 8px`, 16px wide), so it is outside the
-					// item's intrinsic width — without the padding the label runs underneath
+					// item's intrinsic width - without the padding the label runs underneath
 					// it and the popover never widens to fit.
 					className="whitespace-nowrap rounded-md pr-8"
 				>
@@ -677,7 +677,7 @@ export const FormComponentSelect = <Fields,>({
 };
 
 /**
- * A checkbox is named by the text beside the box rather than by a `labelText` — `Checkbox.Content`
+ * A checkbox is named by the text beside the box rather than by a `labelText` - `Checkbox.Content`
  * is the `<label>`, so the wording goes in as `children`. Which makes the naming rule the same
  * one as everywhere else, in different clothes: exactly one of `children` or `ariaLabel`, the
  * latter for a bare box whose question lives elsewhere. See `NamedByLabelOrAria`.
@@ -762,7 +762,7 @@ export const FormComponentRadio = <Fields,>({
 	<FormElement
 		/*
 		 * The group has no single control for `htmlFor` to point at, so it is named by reference
-		 * either way — from the label rendered here, or from the `sr-only` stand-in below. An
+		 * either way - from the label rendered here, or from the `sr-only` stand-in below. An
 		 * `ariaLabel` says the visible label is already on screen somewhere else, so rendering
 		 * one here too would state the question twice.
 		 */
@@ -841,13 +841,13 @@ export const FormComponentCalendarWithoutFormElement = <Fields,>({
 	maxDate?: Date;
 	/**
 	 * Accessible name for the picker. Needed because `placeholderText` is optional and,
-	 * for filters, arrives a tick late from `useTranslation` — react-aria's DatePicker
+	 * for filters, arrives a tick late from `useTranslation` - react-aria's DatePicker
 	 * warns when it renders with neither a visible label nor an aria-label.
 	 */
 	ariaLabel?: string;
 }) => {
 	// The project stores dates as `YYYY-MM-DD`, which is exactly what `parseDate`
-	// reads and `CalendarDate.toString()` emits — no timezone conversion is involved
+	// reads and `CalendarDate.toString()` emits - no timezone conversion is involved
 	// in either direction. `minDate`/`maxDate` arrive as JS `Date`s and are read as
 	// local calendar parts, matching what the calendar displays.
 	const value = fieldValue ? parseDate(fieldValue) : null;
@@ -855,7 +855,7 @@ export const FormComponentCalendarWithoutFormElement = <Fields,>({
 	/*
 	 * The popover has to be told what to anchor to. HeroUI's `DatePicker.Popover` renders
 	 * react-aria's `Popover` without passing a `triggerRef`, and its own trigger context is
-	 * private to the trigger — so with nothing to measure, react-aria positions the calendar at
+	 * private to the trigger - so with nothing to measure, react-aria positions the calendar at
 	 * the viewport's top-left corner instead of under the field. The trigger merges an outer
 	 * ref with its internal one, and the popover spreads unknown props straight through, so
 	 * handing the same ref to both is what connects them.
@@ -943,7 +943,7 @@ export const FormComponentCalendar = <Fields,>({
 				className={className}
 				placeholderText={placeholderText}
 				// The visible <label> is wired via `for`, but react-aria reads props, not
-				// the DOM — so the field's label doubles as the picker's accessible name.
+				// the DOM - so the field's label doubles as the picker's accessible name.
 				ariaLabel={labelText}
 				disabled={disabled}
 				onSelect={onSelect}
@@ -1114,7 +1114,7 @@ export const FormComponentAutoComplete = <Fields, T>({
 
 	return (
 		<FormElement
-			// No `labelText`, no label element — an empty one still renders its required
+			// No `labelText`, no label element - an empty one still renders its required
 			// asterisk, which reads as a name that failed to load.
 			label={
 				labelText
@@ -1164,7 +1164,7 @@ export const FormComponentAutoComplete = <Fields, T>({
 				{shouldShowDropdown && (
 					/*
 					 * Above the field's own error tooltip, which is `z-50`, absolutely
-					 * positioned at `top-full` and — on a pointer device — revealed by
+					 * positioned at `top-full` and - on a pointer device - revealed by
 					 * hovering the element. That is the same spot the suggestions occupy and
 					 * the same moment the user reaches for them, so at equal z-index the
 					 * later element wins and the tooltip swallows every click on the list.

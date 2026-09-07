@@ -30,7 +30,7 @@ export function FormManagePermission() {
 	});
 
 	/*
-	 * Memoized because `useLocalAutocomplete` keys its suggestions on the array identity — a
+	 * Memoized because `useLocalAutocomplete` keys its suggestions on the array identity - a
 	 * fresh one per render would recompute the list on every keystroke in either field.
 	 */
 	const operationSource = useMemo(

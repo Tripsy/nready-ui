@@ -71,7 +71,7 @@ export type ProductFormValuesType = {
 	type: ProductType;
 	/*
 	 * Carried so the form knows whether it is editing a bundle, never edited and never
-	 * submitted — `prepareParamsFromFormValues` strips it. See the comment there for why
+	 * submitted - `prepareParamsFromFormValues` strips it. See the comment there for why
 	 * sending it at all is unsafe.
 	 */
 	composition: ProductComposition;
@@ -90,20 +90,20 @@ export type ProductFormValuesType = {
 	variants: ProductVariantFormType[];
 	/**
 	 * The answers to the `product`-scoped definitions the product's categories declare. The
-	 * definitions themselves are not form state — they are fetched from `resolve` and change
+	 * definitions themselves are not form state - they are fetched from `resolve` and change
 	 * with the categories; this holds only what the editor filled in.
 	 */
 	attributes: ProductAttributeFormType[];
-	/** Recurring ordering windows. Empty means unrestricted — see `FormAvailabilityProduct`. */
+	/** Recurring ordering windows. Empty means unrestricted - see `FormAvailabilityProduct`. */
 	availabilities: ProductAvailabilityFormType[];
 	/**
 	 * The questions asked at order time and what each answer does to the price. Empty means the
-	 * product is ordered as it is — see `FormOptionsProduct`.
+	 * product is ordered as it is - see `FormOptionsProduct`.
 	 */
 	option_groups: ProductOptionGroupFormType[];
 
 	/*
-	 * The two set-wide variant rules — exactly one default, no repeated SKU — report here rather
+	 * The two set-wide variant rules - exactly one default, no repeated SKU - report here rather
 	 * than on `variants`, which holds one error object per row and so cannot also carry a
 	 * group-level string. `accumulateZodErrors` discards a parent message that collides with
 	 * nested ones, and says in its own docs that the fix is a leaf sentinel field. Never
@@ -119,7 +119,7 @@ const FORM_TABS = [
 	{ id: 'details', label: 'Details' },
 	{ id: 'content', label: 'Content' },
 	{ id: 'variants', label: 'Variants' },
-	// After Variants because a delta is measured against a variant's price — the thing being
+	// After Variants because a delta is measured against a variant's price - the thing being
 	// modified has to be priced before modifying it means anything.
 	{ id: 'options', label: 'Options' },
 	{ id: 'availability', label: 'Availability' },
@@ -150,7 +150,7 @@ const TAB_FIELDS: Record<FormTabId, readonly (keyof ProductFormValuesType)[]> =
 		content: [],
 	};
 
-/** The per-language fields each tab owns — all of them belong to Content. */
+/** The per-language fields each tab owns - all of them belong to Content. */
 const TAB_CONTENT_FIELDS: Record<FormTabId, readonly string[]> = {
 	details: [],
 	variants: [],
@@ -165,7 +165,7 @@ const productTypes = toOptionsFromEnum(ProductTypeEnum, {
 
 /*
  * One option list per type rather than one for the enum: `toOptionsFromEnum` cannot subset, so
- * the narrowing happens here. Built once at module scope — the map is static.
+ * the narrowing happens here. Built once at module scope - the map is static.
  */
 const productUnitsByType = Object.fromEntries(
 	Object.values(ProductTypeEnum).map((type) => [
@@ -184,7 +184,7 @@ const productVatCategories = toOptionsFromEnum(ProductVatCategoryEnum, {
 
 /**
  * Namespaces the brand suggestion cache. Declared once because the query and the invalidation
- * that follows a create have to name the same key — a mismatch leaves the editor looking at the
+ * that follows a create have to name the same key - a mismatch leaves the editor looking at the
  * empty result that sent them to the create window in the first place.
  */
 const BRAND_SUGGESTIONS_KEY = 's-product-brand';
@@ -236,7 +236,7 @@ export function FormManageProduct() {
 
 	/**
 	 * Creates the brand from here once the search comes back empty, seeding its window with the
-	 * typed name. Reusing that window is what keeps the new brand a complete record — it has a
+	 * typed name. Reusing that window is what keeps the new brand a complete record - it has a
 	 * slug and per-language content the search box has nowhere to ask for.
 	 *
 	 * `open` minimizes this form to make room, so the parent is captured beforehand and focused
@@ -251,7 +251,7 @@ export function FormManageProduct() {
 			section: DataSourceSectionEnum.DASHBOARD,
 			dataSource: 'brand',
 			action: 'create',
-			// `brand_type` is left to the form's own default — the enum holds `product` alone.
+			// `brand_type` is left to the form's own default - the enum holds `product` alone.
 			data: { prefillEntry: { name: typedValue } },
 			events: {
 				success: async (entry?: BrandModel) => {
@@ -271,7 +271,7 @@ export function FormManageProduct() {
 					setSearchBrand('');
 
 					// The searches already run are cached, and the term that sent the editor
-					// here is one of them — holding the empty result that prompted the create.
+					// here is one of them - holding the empty result that prompted the create.
 					await queryClient.invalidateQueries({
 						queryKey: [BRAND_SUGGESTIONS_KEY],
 					});
@@ -282,7 +282,7 @@ export function FormManageProduct() {
 
 	/*
 	 * The form a product in these categories answers. Refetched whenever the selection changes,
-	 * because the resolved set is the union across them and their ancestors — adding a category
+	 * because the resolved set is the union across them and their ancestors - adding a category
 	 * can bring a whole group of fields with it.
 	 */
 	const categoryIds = formValues.categories.map((ref) => ref.id);
@@ -314,7 +314,7 @@ export function FormManageProduct() {
 	 * definition, empties included, and nothing for a label the categories no longer declare.
 	 *
 	 * Both halves matter. An empty entry is what lets the validator see a required attribute
-	 * that was never filled in — it has no field of its own to report on otherwise. A leftover
+	 * that was never filled in - it has no field of its own to report on otherwise. A leftover
 	 * one would be sent against a label the backend does not declare, which it refuses outright,
 	 * so removing a category on the Details tab would fail the whole save with nothing on
 	 * screen to explain it.
@@ -352,7 +352,7 @@ export function FormManageProduct() {
 	/**
 	 * Declares a new attribute from here, against one of the product's own categories.
 	 *
-	 * The definition is not product state — it is a rule the category carries, and every product
+	 * The definition is not product state - it is a rule the category carries, and every product
 	 * under that category answers it from then on. Which of them should own it is the one call
 	 * this form cannot make, so the window is handed the product's categories and asks; with a
 	 * single category there is nothing to ask and it is seeded outright.
@@ -394,7 +394,7 @@ export function FormManageProduct() {
 	 *
 	 * The term window rather than a name typed inline, for the same reason the brand picker uses
 	 * it: a term is a row per language, and one created from a single typed string would be
-	 * translated nowhere. `apply` is the picker that asked — the editor writes back into it
+	 * translated nowhere. `apply` is the picker that asked - the editor writes back into it
 	 * rather than into a field this component can name, since either level of either row may
 	 * have opened the window.
 	 *
@@ -467,7 +467,7 @@ export function FormManageProduct() {
 		: Object.values(errors.contents ?? {});
 
 	// The list-level "at least one variant" message joins the two set-wide rules, which report
-	// on their own sentinel field — all three describe the set rather than any one row.
+	// on their own sentinel field - all three describe the set rather than any one row.
 	const variantRuleError = [
 		...(ownErrorMessages(errors.variants) ?? []),
 		...(errors.variants_rule ?? []),
@@ -475,7 +475,7 @@ export function FormManageProduct() {
 
 	/**
 	 * Errors per tab, so one on a panel the editor cannot see still announces itself. Counted
-	 * across every language rather than the open one — a missing Romanian label is the Content
+	 * across every language rather than the open one - a missing Romanian label is the Content
 	 * tab's problem whichever translation happens to be selected.
 	 */
 	const tabErrors = countTabErrors<FormTabId>({
@@ -493,8 +493,8 @@ export function FormManageProduct() {
 			{/*
 			 * Outside the panels because no single one owns it: the payload is assembled from
 			 * Content (label, description) and SEO (slug, meta) together. Fields *inside* a
-			 * panel still reach `FormData` — `TabsContent` force-mounts every panel and only
-			 * hides the inactive ones — which is what lets the variants editor keep its own
+			 * panel still reach `FormData` - `TabsContent` force-mounts every panel and only
+			 * hides the inactive ones - which is what lets the variants editor keep its own
 			 * hidden input on the Variants tab.
 			 */}
 			<input
@@ -593,7 +593,7 @@ export function FormManageProduct() {
 							<p className="rounded-md border border-line p-3 text-sm text-muted">
 								This product is a bundle. Its name, content,
 								categories, availability and price are edited
-								here; its components are not — they are managed
+								here; its components are not - they are managed
 								on the bundle page.
 							</p>
 						)}
@@ -601,8 +601,8 @@ export function FormManageProduct() {
 						{/*
 						 * A row of its own rather than beside the type and unit: it is a tax
 						 * classification, not a description of the goods, and the note under it
-						 * needs the width. The rate applies to the whole product — a `product`
-						 * column, not a per-variant one — which is a costly thing to misread.
+						 * needs the width. The rate applies to the whole product - a `product`
+						 * column, not a per-variant one - which is a costly thing to misread.
 						 */}
 						<div>
 							<FormComponentSelect<ProductFormValuesType>
@@ -624,7 +624,7 @@ export function FormManageProduct() {
 
 							<p className="mt-1 flex items-start gap-1 text-xs text-muted">
 								<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-								Applies to the whole product — every variant is
+								Applies to the whole product - every variant is
 								taxed at this rate.
 							</p>
 						</div>
@@ -710,7 +710,7 @@ export function FormManageProduct() {
 								displayTermLabel(entry, getLanguageClient())
 							}
 							// `product_tag.tag_id` is a plain foreign key to `term`, so the
-							// backend accepts any row — without the filter the picker offers
+							// backend accepts any row - without the filter the picker offers
 							// the attribute labels and values too, and a product ends up
 							// "tagged" with one of its own attribute values.
 							filter={{ type: TermTypeEnum.TAG }}
@@ -726,7 +726,7 @@ export function FormManageProduct() {
 						 * read as one decision.
 						 *
 						 * The answers ride to the backend as one JSON field, like every other
-						 * collection in this form — `processForm` rebuilds its values from
+						 * collection in this form - `processForm` rebuilds its values from
 						 * `FormData` on each submit, and a list of objects has no flat encoding.
 						 */}
 						<input
@@ -790,7 +790,7 @@ export function FormManageProduct() {
 				<TabsContent id="content">
 					<p className="flex items-start gap-1 text-xs text-muted">
 						<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-						The wording, one set per language — name, slug,
+						The wording, one set per language - name, slug,
 						description and the SEO meta. The slug is the whole
 						public address (eg: /products/my-slug), so changing it
 						moves the page.

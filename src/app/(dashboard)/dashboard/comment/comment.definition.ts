@@ -107,8 +107,8 @@ function getFormState(
 }
 
 /**
- * Exactly the keys in the backend's `find.filterSchema`. `term` is the free-text search — it
- * matches the comment body and a guest's name — and reaches the table as `global`, which
+ * Exactly the keys in the backend's `find.filterSchema`. `term` is the free-text search - it
+ * matches the comment body and a guest's name - and reaches the table as `global`, which
  * `data-table-list.component.tsx` renames on the way out.
  *
  * `user` is the label half of the autocomplete pair; only `user_id` reaches the backend.
@@ -171,7 +171,7 @@ export default async function dataSourceConfig(): Promise<
 	 * The status badge opens the transition window rather than performing a move.
 	 *
 	 * Unlike `complaint`, whose state is a boolean and so has exactly one move from anywhere, a
-	 * comment can go several ways from most of its states — the badge cannot pick one, so it
+	 * comment can go several ways from most of its states - the badge cannot pick one, so it
 	 * offers the choice.
 	 */
 	function displayButtonStatus(
@@ -324,7 +324,7 @@ export default async function dataSourceConfig(): Promise<
 			},
 			/*
 			 * One window for every moderation decision, since a comment has no single next
-			 * state. `windowType: 'other'` because the window owns the request itself — the
+			 * state. `windowType: 'other'` because the window owns the request itself - the
 			 * moves are rendered from the transition map and each one issues its own
 			 * `statusUpdate`, so there is no single `operationFunction` to declare here.
 			 */
@@ -348,7 +348,7 @@ export default async function dataSourceConfig(): Promise<
 					hover: 'default',
 				},
 			},
-			// Hard delete, and it takes the replies with it — `parent_id` cascades in the
+			// Hard delete, and it takes the replies with it - `parent_id` cascades in the
 			// database, so there is no orphaned subtree left behind and nothing to restore.
 			delete: {
 				windowType: 'action',

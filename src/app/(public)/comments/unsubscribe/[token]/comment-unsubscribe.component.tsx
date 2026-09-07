@@ -43,7 +43,7 @@ const CHOICES: {
  * a link to stop a busy discussion usually wants fewer emails rather than none, and offering only
  * the exit makes that the only answer they can give.
  *
- * No form pipeline — there is one enum field and no validation to speak of, so this is a mutation
+ * No form pipeline - there is one enum field and no validation to speak of, so this is a mutation
  * (`data-fetching.md` allows it for a secondary write of exactly this shape).
  */
 export function CommentUnsubscribe({
@@ -111,7 +111,7 @@ export function CommentUnsubscribe({
 
 				{error && (
 					<span className="text-sm text-danger">
-						{/* The backend's own wording where it has one — a spent link says so. */}
+						{/* The backend's own wording where it has one - a spent link says so. */}
 						{getErrorMessage(error) ||
 							translations['unsubscribe.failed']}
 					</span>

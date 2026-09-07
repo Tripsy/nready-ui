@@ -5,8 +5,8 @@ import type { Language } from '@/types/common.type';
 /**
  * Which of the two attribute tables a value written against this definition lands in.
  *
- * `product` — descriptive, one row per value; a product may carry several under one label.
- * `variant` — an axis that tells siblings apart, exactly one value per label per variant.
+ * `product` - descriptive, one row per value; a product may carry several under one label.
+ * `variant` - an axis that tells siblings apart, exactly one value per label per variant.
  *
  * Mirrors `ProductCategoryAttributeScopeEnum` in the backend's
  * `product-category-attribute.entity.ts`.
@@ -19,7 +19,7 @@ export const ProductCategoryAttributeScopeEnum = {
 export type ProductCategoryAttributeScope =
 	(typeof ProductCategoryAttributeScopeEnum)[keyof typeof ProductCategoryAttributeScopeEnum];
 
-/** How the value is stored — which column the product's attribute row occupies. */
+/** How the value is stored - which column the product's attribute row occupies. */
 export const ProductCategoryAttributeValueTypeEnum = {
 	TERM: 'term',
 	NUMBER: 'number',
@@ -30,7 +30,7 @@ export const ProductCategoryAttributeValueTypeEnum = {
 export type ProductCategoryAttributeValueType =
 	(typeof ProductCategoryAttributeValueTypeEnum)[keyof typeof ProductCategoryAttributeValueTypeEnum];
 
-/** How the value is captured. Orthogonal to storage — *330* is a number typed or picked. */
+/** How the value is captured. Orthogonal to storage - *330* is a number typed or picked. */
 export const ProductCategoryAttributeTypeEnum = {
 	INPUT: 'input',
 	SELECT: 'select',
@@ -53,7 +53,7 @@ export const PRODUCT_CATEGORY_ATTRIBUTE_DEFAULT_VALUE_TYPE =
  *
  * The database answers a violation as a masked 500 and the pairing is the first thing a form
  * gets wrong, so the select for `value_type` is narrowed to this rather than offering four
- * options and letting three of them fail. `checkbox` is the only capture taking two — a lone
+ * options and letting three of them fail. `checkbox` is the only capture taking two - a lone
  * yes/no toggle, or a multi-pick over the option list.
  */
 export const VALUE_TYPES_BY_TYPE: Record<
@@ -82,7 +82,7 @@ export const VALUE_TYPES_BY_TYPE: Record<
  * `src/shared/types/measure-unit.type.ts`.
  *
  * Only the key and how it reads are carried here. The `factor` that turns a value into the
- * dimension's base figure stays on the backend, where the conversion happens on write — a copy
+ * dimension's base figure stays on the backend, where the conversion happens on write - a copy
  * of it in the browser would be a second answer to what a stored value means.
  */
 export const MeasureUnitEnum = {
@@ -125,7 +125,7 @@ export type MeasureUnit =
 
 /**
  * The unit picker, grouped the way the backend groups the units themselves. A dimension is not
- * a field on the definition — it is only how the list is offered, so a volume and a mass do not
+ * a field on the definition - it is only how the list is offered, so a volume and a mass do not
  * sit next to each other in one flat dropdown of twenty-five entries.
  *
  * The symbol is how the unit renders beside a value; the key is an ASCII slug, so `m2` and `m³`
@@ -199,7 +199,7 @@ export const MEASURE_UNIT_GROUPS: {
 ];
 
 /**
- * How each unit reads, keyed by its stored value — the same symbols the picker offers, so the
+ * How each unit reads, keyed by its stored value - the same symbols the picker offers, so the
  * field that renders a value cannot drift from the select that chose the unit.
  */
 export const MEASURE_UNIT_SYMBOLS: Record<MeasureUnit, string> =
@@ -209,7 +209,7 @@ export const MEASURE_UNIT_SYMBOLS: Record<MeasureUnit, string> =
 		),
 	) as Record<MeasureUnit, string>;
 
-/** One admissible value for a list-backed definition — an `attribute_value` term. */
+/** One admissible value for a list-backed definition - an `attribute_value` term. */
 export type ProductCategoryAttributeOptionModel<D = Date | string> = {
 	id: number;
 	attribute_id: number;
@@ -220,7 +220,7 @@ export type ProductCategoryAttributeOptionModel<D = Date | string> = {
 	updated_at: D;
 	deleted_at: D;
 
-	// Joined by `read`, absent from `find` — the definition listing carries no options at all.
+	// Joined by `read`, absent from `find` - the definition listing carries no options at all.
 	term?: TermModel<D>;
 };
 
@@ -253,7 +253,7 @@ export type ProductCategoryAttributeModel<D = Date | string> = {
 	options?: ProductCategoryAttributeOptionModel<D>[];
 
 	/*
-	 * Never returned by the API — carried only on the prefill a create window is seeded with,
+	 * Never returned by the API - carried only on the prefill a create window is seeded with,
 	 * naming the categories that window may attach the definition to. `getFormState` reads the
 	 * prefill through this same type, which is why it lives here.
 	 */
@@ -262,7 +262,7 @@ export type ProductCategoryAttributeModel<D = Date | string> = {
 
 /**
  * What the definition is called. The row carries an `attribute_label_id` and the wording comes
- * from the joined term, so the id is the fallback rather than a blank — a definition whose
+ * from the joined term, so the id is the fallback rather than a blank - a definition whose
  * label term was deleted still has to be recognisable enough to be fixed.
  */
 export function displayAttributeLabel(
@@ -275,7 +275,7 @@ export function displayAttributeLabel(
 
 	/*
 	 * Capitalised here rather than stored that way: `TermValidator` lower-cases every wording on
-	 * the way in, deliberately — a term is a record many products point at, and "Colour" and
+	 * the way in, deliberately - a term is a record many products point at, and "Colour" and
 	 * "colour" being two of them is exactly what that avoids. Which leaves the display side to
 	 * decide how it reads, and a field label reads as a field label.
 	 */
@@ -293,7 +293,7 @@ export function displayAttributeLabel(
  * with the deepest category winning, split by the table its values land in.
  *
  * What `GET /product-category-attributes/resolve` answers. The label and the option terms come
- * with their wording — the ids alone would leave a control that cannot be drawn.
+ * with their wording - the ids alone would leave a control that cannot be drawn.
  */
 export type ResolvedAttributeFormType<D = Date | string> = {
 	[ProductCategoryAttributeScopeEnum.PRODUCT]: ProductCategoryAttributeModel<D>[];
@@ -316,12 +316,12 @@ export type ProductAttributeValueType = {
 };
 
 /**
- * One attribute as the form holds it — one entry per definition rather than per stored row.
+ * One attribute as the form holds it - one entry per definition rather than per stored row.
  *
  * The four value columns are flattened into three fields, because a form field is what the
  * editor sees and which column carries the answer is the definition's business, not theirs.
- * `terms` is a list for the one capture that admits several — a `checkbox` over terms, where
- * each choice becomes its own row — and holds at most one for every other.
+ * `terms` is a list for the one capture that admits several - a `checkbox` over terms, where
+ * each choice becomes its own row - and holds at most one for every other.
  *
  * `value_type` rides along so the payload can be built without the definitions in hand:
  * `prepareParamsFromFormValues` runs in the definition file, which never sees the resolved form.
@@ -332,8 +332,8 @@ export type ProductAttributeValueType = {
 export type ProductAttributeFormType = {
 	attribute_label_id: number;
 	/*
-	 * A plain string, not the union: the entry crosses a JSON boundary on every submit — the
-	 * form writes it into a hidden field and `getFormValues` parses it back — so what arrives
+	 * A plain string, not the union: the entry crosses a JSON boundary on every submit - the
+	 * form writes it into a hidden field and `getFormValues` parses it back - so what arrives
 	 * is whatever was in the DOM. The switches below compare it against the enum and ignore
 	 * anything else rather than pretend it was checked.
 	 */
@@ -346,14 +346,14 @@ export type ProductAttributeFormType = {
 	is_required: boolean;
 	/*
 	 * `{ id }` rather than a bare `number[]`: `FormValuesType` admits a list of groups or a
-	 * primitive, never a list of primitives — the same shape the category and tag pickers use.
+	 * primitive, never a list of primitives - the same shape the category and tag pickers use.
 	 */
 	terms: { id: number }[];
 	text: string;
 	boolean: boolean;
 };
 
-/** An empty answer for a definition — what a field renders before anything is filled in. */
+/** An empty answer for a definition - what a field renders before anything is filled in. */
 export function emptyAttributeValue(
 	definition: ProductCategoryAttributeModel,
 ): ProductAttributeFormType {
@@ -371,7 +371,7 @@ export function emptyAttributeValue(
  * The stored rows, folded back into one entry per label.
  *
  * Grouped rather than mapped one-to-one because a term-backed attribute may hold several rows
- * under one label — three allergens are three rows and one field. Which column is filled is
+ * under one label - three allergens are three rows and one field. Which column is filled is
  * what says how it was stored, so the entry can be rebuilt without the definitions: the form is
  * seeded the moment the window opens, and `resolve` has not answered yet.
  */
@@ -421,7 +421,7 @@ export function groupStoredAttributes(
 /**
  * The form entries as the payload wants them: one row per recorded value.
  *
- * A definition the editor left empty contributes nothing — absent is how "no value" is said,
+ * A definition the editor left empty contributes nothing - absent is how "no value" is said,
  * and `syncValues` reads the list as the complete set. A boolean is the exception: unticked is
  * an answer rather than a blank, so it always writes a row.
  */
@@ -480,7 +480,7 @@ export function toAttributePayload(
 /**
  * Drops the answers whose definition no longer applies.
  *
- * A product's categories are editable, and the resolved form changes with them — an answer left
+ * A product's categories are editable, and the resolved form changes with them - an answer left
  * behind from a category since removed would be sent against a label the backend no longer
  * declares, which it refuses with a 422.
  */
@@ -493,7 +493,7 @@ export function pruneAttributeValues(
 	);
 
 	/*
-	 * One entry per definition, in the order the form renders them — including the ones with no
+	 * One entry per definition, in the order the form renders them - including the ones with no
 	 * answer yet. The empties are what lets the validator see a required attribute that was
 	 * never filled in, and `toAttributePayload` drops them again on the way out, so they cost
 	 * nothing on the wire.
@@ -517,7 +517,7 @@ export function pruneAttributeValues(
 	});
 }
 
-/** Whether an attribute has been answered — what the required check reads. */
+/** Whether an attribute has been answered - what the required check reads. */
 export function hasAttributeValue(
 	value: ProductAttributeFormType | undefined,
 ): boolean {

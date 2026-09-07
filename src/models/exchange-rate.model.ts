@@ -5,7 +5,7 @@ import {
 } from '@/helpers/date.helper';
 
 /**
- * Where a stored rate came from, which decides whether the daily import may replace it —
+ * Where a stored rate came from, which decides whether the daily import may replace it -
  * mirrors `ExchangeRateSourceEnum` on the backend entity.
  */
 export const ExchangeRateSourceEnum = {
@@ -29,14 +29,14 @@ export const EXCHANGE_RATE_UPDATE_WINDOW_DAYS = 7;
 const SECONDS_PER_DAY = 86400;
 
 /**
- * What one unit of `currency` was worth in `base_currency` on `rate_date` — EUR, 5.2575, RON
+ * What one unit of `currency` was worth in `base_currency` on `rate_date` - EUR, 5.2575, RON
  * means 1 EUR = 5.2575 RON.
  *
  * `base_currency` is the deployment's own currency, not the priced one, matching how the word is
  * used everywhere else in this stack (`invoice.base_currency`, the "rate to the base currency" a
  * document freezes). It is filled in by the backend from its `app.currency`, so no form sends it.
  *
- * No `deleted_at`: the backend table has no soft delete, so there is no restore either — a
+ * No `deleted_at`: the backend table has no soft delete, so there is no restore either - a
  * soft-deleted row would keep its (currency, day) key occupied while disappearing from every
  * query, and the next import of that day would fail against a row nobody can see.
  */
@@ -46,7 +46,7 @@ export type ExchangeRateModel<D = Date | string> = {
 	currency: string;
 	base_currency: string;
 	rate: number;
-	/** A calendar day (`YYYY-MM-DD`), not a timestamp — it is a `date` column. */
+	/** A calendar day (`YYYY-MM-DD`), not a timestamp - it is a `date` column. */
 	rate_date: string;
 	source: ExchangeRateSource;
 	provider: string | null;
@@ -61,7 +61,7 @@ export type ExchangeRateModel<D = Date | string> = {
  * `EXCHANGE_RATE_UPDATE_WINDOW_DAYS` after the day they apply to, and refuse with a 400 after
  * that, because documents have been priced against them by then.
  *
- * Measured from `rate_date` rather than `created_at`, exactly as the service measures it — a rate
+ * Measured from `rate_date` rather than `created_at`, exactly as the service measures it - a rate
  * backfilled today for three weeks ago is already outside the window.
  */
 export const isWithinUpdateWindow = (entry: ExchangeRateModel): boolean => {

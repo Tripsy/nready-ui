@@ -27,17 +27,17 @@
 		}
 	},
 	"help": {
-		"intro": "Fiecare email pe care îl trimite aplicația este scris mai întâi aici, apoi predat unui proces de fundal. Ecranul acesta este evidența a ce a plecat și ce a eșuat — el nu trimite nimic și nu există retrimitere.",
+		"intro": "Fiecare email pe care îl trimite aplicația este scris mai întâi aici, apoi predat unui proces de fundal. Ecranul acesta este evidența a ce a plecat și ce a eșuat - el nu trimite nimic și nu există retrimitere.",
 		"step_1_title": "Urmărește cele trei stări",
 		"step_1_body": "Un email este scris ca „în așteptare”, iar în aceeași mișcare i se pune un job la coadă. Procesul de fundal îl trimite și scrie înapoi „trimis” sau „eroare”, cu mesajul pe care a eșuat, reîncercând de până la trei ori, cu pauze tot mai mari.",
 		"step_2_title": "Citește cu atenție data trimiterii",
 		"step_2_body": "Data trimiterii este pusă și la eșec, nu doar la succes, deci arată când s-a încheiat ultima încercare, nu că ceva a ajuns. Un rând în așteptare nu are niciuna, de aceea filtrarea după un interval de date ascunde tot ce încă așteaptă.",
 		"step_3_title": "Un rând blocat în așteptare este o problemă de infrastructură",
-		"step_3_body": "„În așteptare” înseamnă că procesul de fundal nu a terminat cu el. Dacă rândurile rămân așa, procesul sau conexiunea lui la Redis sunt lucrurile de verificat, nu emailul — nimic de aici nu îl poate împinge mai departe, iar ștergerea rândului nu anulează jobul deja pus la coadă pentru el.",
+		"step_3_body": "„În așteptare” înseamnă că procesul de fundal nu a terminat cu el. Dacă rândurile rămân așa, procesul sau conexiunea lui la Redis sunt lucrurile de verificat, nu emailul - nimic de aici nu îl poate împinge mai departe, iar ștergerea rândului nu anulează jobul deja pus la coadă pentru el.",
 		"step_4_title": "Vezi ce s-a trimis de fapt",
 		"step_4_body": "Conținutul stocat pe rând este subiectul, corpul și variabilele așa cum au fost redate în momentul punerii la coadă. Modificarea șablonului ulterior schimbă ce pleacă data viitoare, niciodată ce spune acest rând că a plecat.",
 		"step_5_title": "Găsește un email",
-		"step_5_body": "Filtrează după stare, șablon sau un interval al datei de trimitere. Căutarea în conținut potrivește tot conținutul redat, iar căutarea după destinatar potrivește numele și adresa împreună, ambele de la trei caractere — așa se găsește un email anume către o persoană anume.",
+		"step_5_body": "Filtrează după stare, șablon sau un interval al datei de trimitere. Căutarea în conținut potrivește tot conținutul redat, iar căutarea după destinatar potrivește numele și adresa împreună, ambele de la trei caractere - așa se găsește un email anume către o persoană anume.",
 		"note": "Nimic nu curăță acest tabel după un program, iar el păstrează o copie completă a fiecărui corp de email, deci este tabelul care crește cel mai repede pe o instalare aglomerată. Ștergerea este definitivă: nu există stare de șters, iar rândul este singura dovadă că emailul a fost trimis.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"

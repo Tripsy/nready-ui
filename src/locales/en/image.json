@@ -66,17 +66,17 @@
 		}
 	},
 	"help": {
-		"intro": "Every image belongs to something else — a product, a category, a brand or an article — and this screen is the flat list of all of them. Images are added from the entity they belong to, through its own Images window, not from here.",
+		"intro": "Every image belongs to something else - a product, a category, a brand or an article - and this screen is the flat list of all of them. Images are added from the entity they belong to, through its own Images window, not from here.",
 		"step_1_title": "Know what a row is",
 		"step_1_body": "A row records where a file already sits: which storage backend it went to and its path inside it, plus width, height, size and mime. The file itself is written when it is uploaded; the row is what the site reads to find it again.",
 		"step_2_title": "Logo or gallery",
-		"step_2_body": "A target holds one logo — the image that stands for it in a listing — and as many gallery images as it needs. Only the gallery is orderable, and only the first active image by order is the one picked to represent the target.",
+		"step_2_body": "A target holds one logo - the image that stands for it in a listing - and as many gallery images as it needs. Only the gallery is orderable, and only the first active image by order is the one picked to represent the target.",
 		"step_3_title": "Write the caption per language",
-		"step_3_body": "Title and description are per language and both optional, but at least one language entry has to exist. This is the only part of an image that can be edited afterwards: the file, its target and its type are what the row records — replacing a picture means uploading the new one and removing this row.",
+		"step_3_body": "Title and description are per language and both optional, but at least one language entry has to exist. This is the only part of an image that can be edited afterwards: the file, its target and its type are what the row records - replacing a picture means uploading the new one and removing this row.",
 		"step_4_title": "Enable or disable",
 		"step_4_body": "A disabled image stays on file but is skipped when the site picks the image standing for its target. Either move resets the image's position, so it lands at the end of the order it rejoins.",
 		"step_5_title": "Find one",
-		"step_5_body": "There is no text search here — an image is found through its target. Filter by section, entity id, type, status or language, and order by id or position.",
+		"step_5_body": "There is no text search here - an image is found through its target. Filter by section, entity id, type, status or language, and order by id or position.",
 		"note": "Deleting from this screen removes the row and the stored file with it. The backend's own cleanup does not: when an article or a product is removed, its image rows go and the files stay behind, because reaping storage is a job nothing currently runs.",
 		"tab_info": "Info",
 		"tab_api": "API docs"

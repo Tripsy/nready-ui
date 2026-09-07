@@ -57,14 +57,14 @@ Meanwhile, we're open to suggestions / feedback, and if you find this project us
     delete, active session (auth token) list with per-session revoke
 - [x] Articles: listing, category listing and article page (`/articles/:category/:slug`)
 - [x] Comments, ratings and complaint (report) widgets on public content, with comment permalinks
-    (`/comments/:id`) and tokenized email unsubscribe — no account required
+    (`/comments/:id`) and tokenized email unsubscribe - no account required
 - [x] Products: category listing (the catalog listing itself is a placeholder until the backend
     exposes a public endpoint)
 
 ### Dashboard
 
-Every entity below is a full CRUD list view — filters, sorting, pagination, row actions and a
-detail/edit window — gated per user by the backend permission map.
+Every entity below is a full CRUD list view - filters, sorting, pagination, row actions and a
+detail/edit window - gated per user by the backend permission map.
 
 - [x] Financial: client, cash-flow, discount, vendor
 - [x] Content: place, brand, category (incl. tree + manual ordering), term, image (upload / order,
@@ -141,7 +141,7 @@ pnpm run clean    # Delete .next (see below)
 ### When the dev server dies with nothing in the log
 
 That is the container's OOM killer, not a crash. `Turbopack` persistent cache in
-`.next/dev/cache` grows across sessions — left alone it reached 4.0G, which put startup memory
+`.next/dev/cache` grows across sessions - left alone it reached 4.0G, which put startup memory
 at 2.5G before a single request and pushed the process into the 4g `mem_limit` set in
 `docker-compose.yml`. Because `tty: true` keeps the container up, it just looks like the dev
 server quitting silently. Confirm with:
@@ -153,7 +153,7 @@ docker inspect nready-ui.test --format '{{.State.OOMKilled}}'
 Run `pnpm run clean` and restart. `experimental.turbopackMemoryLimit` in `next.config.ts` caps
 `Turbopack` own memory, but not what the cache grows to on disk.
 
-Also avoid running `pnpm run build` or `tsc` while the dev server is up — there is not enough
+Also avoid running `pnpm run build` or `tsc` while the dev server is up - there is not enough
 room in the container for both, and it is usually the dev server that gets killed.
 
 # 📁 Structure
@@ -233,15 +233,15 @@ room in the container for both, and it is usually the dev server that gets kille
 - [next](https://nextjs.org/)
 - [react](https://reactjs.org/)
 - [zustand](https://zustand.docs.pmnd.rs/)
-- [@heroui/react](https://www.heroui.com/) — component library (React Aria based); the dashboard data table is built on its `Table` + `Pagination`
+- [@heroui/react](https://www.heroui.com/) - component library (React Aria based); the dashboard data table is built on its `Table` + `Pagination`
 - [immer](https://immerjs.github.io/immer/)
-- [zod](https://zod.dev) — TypeScript-first schema validation with static type inference
-- [ioredis](https://github.com/luin/ioredis) — Robust Redis client for Node.js
-- [dayjs](https://day.js.org/) — Parses, validates, manipulates, and displays dates and times
-- [TanStack  Query](https://tanstack.com/query/latest) — Powerful asynchronous state management, server-state utilities and data fetching
+- [zod](https://zod.dev) - TypeScript-first schema validation with static type inference
+- [ioredis](https://github.com/luin/ioredis) - Robust Redis client for Node.js
+- [dayjs](https://day.js.org/) - Parses, validates, manipulates, and displays dates and times
+- [TanStack  Query](https://tanstack.com/query/latest) - Powerful asynchronous state management, server-state utilities and data fetching
 
 Dev only:
 
 - [typescript](https://www.typescriptlang.org/)
 - [tailwindcss](https://tailwindcss.com/)
-- [biome](https://biomejs.dev/) — Biome is a fast formatter for JavaScript, TypeScript, JSX, TSX, JSON, HTML, CSS and GraphQL — its `noImportCycles` rule also covers circular dependencies
+- [biome](https://biomejs.dev/) - Biome is a fast formatter for JavaScript, TypeScript, JSX, TSX, JSON, HTML, CSS and GraphQL - its `noImportCycles` rule also covers circular dependencies

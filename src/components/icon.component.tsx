@@ -128,7 +128,7 @@ const createIcon = (IconComponent: React.ComponentType<LucideProps>) => {
 };
 
 /**
- * Brand marks, which lucide does not carry — it dropped its brand set — so they are inlined
+ * Brand marks, which lucide does not carry - it dropped its brand set - so they are inlined
  * as single-path SVGs. They are drawn with `currentColor` and sized like the lucide wrappers
  * above, so a caller cannot tell the two apart.
  */

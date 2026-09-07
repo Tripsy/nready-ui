@@ -11,13 +11,13 @@ const MAX_VISIBLE_MS = 15_000;
  * Global navigation feedback bar.
  *
  * The App Router exposes no router-event API, and a soft navigation keeps the previous
- * page on screen for the whole RSC round-trip — which reads as a frozen UI. So the bar is
+ * page on screen for the whole RSC round-trip - which reads as a frozen UI. So the bar is
  * started from the click itself (capture phase, before Next handles it) and stopped when
  * `usePathname()` reports the new URL has committed.
  *
  * Trade-off: this covers anchor navigation only, not programmatic `router.push()`.
  * Catching those would mean wrapping/patching the router, which is far more invasive than
- * the handful of push call-sites justify — those are mostly post-submit redirects that
+ * the handful of push call-sites justify - those are mostly post-submit redirects that
  * already show their own pending state.
  *
  * The animation is deliberately indeterminate: we cannot know real progress, and faking a
@@ -35,7 +35,7 @@ export function NavigationProgress({ label }: NavigationProgressProps) {
 	const pathname = usePathname();
 	const [isNavigating, setIsNavigating] = useState(false);
 
-	// The new route committed (or the user navigated back) — we are done.
+	// The new route committed (or the user navigated back) - we are done.
 	// biome-ignore lint/correctness/useExhaustiveDependencies: pathname is the trigger, not an input. Dropping it would run this once on mount and the bar would never clear.
 	useEffect(() => {
 		setIsNavigating(false);
@@ -76,7 +76,7 @@ export function NavigationProgress({ label }: NavigationProgressProps) {
 			const target = new URL(anchor.href, window.location.href);
 
 			// External links leave the app; same-document links (hash, identical URL) never
-			// hit the server — neither produces a loading state worth showing.
+			// hit the server - neither produces a loading state worth showing.
 			if (target.origin !== window.location.origin) {
 				return;
 			}

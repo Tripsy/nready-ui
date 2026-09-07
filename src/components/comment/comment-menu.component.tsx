@@ -37,8 +37,8 @@ const MENU_ITEM_CLASS =
 	'flex w-full items-center justify-start gap-2 rounded-md px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-accent-soft hover:text-accent-soft-foreground';
 
 /**
- * The per-comment menu: the link to this comment, the way to report it, and — for the reader who
- * wrote it or a member of staff — the ways to change it.
+ * The per-comment menu: the link to this comment, the way to report it, and - for the reader who
+ * wrote it or a member of staff - the ways to change it.
  *
  * All of it is secondary to reading the thread, which is why it lives behind one control rather
  * than as a row of icons beside the reply and the reactions. What each reader is offered comes
@@ -55,7 +55,7 @@ export function CommentMenu({
 	entry: CommentModel;
 	translations: CommentTranslations;
 	complaintTranslations: ComplaintTranslations;
-	/** Puts the row into the inline editor, which the thread owns — this menu only asks for it. */
+	/** Puts the row into the inline editor, which the thread owns - this menu only asks for it. */
 	onEdit: () => void;
 	/** The comment is no longer what the thread has: refetch it. */
 	onChanged: () => void;
@@ -78,7 +78,7 @@ export function CommentMenu({
 	const fallbackFieldRef = useRef<HTMLTextAreaElement>(null);
 
 	/*
-	 * The address of the page the thread is rendered on plus this comment's fragment — the
+	 * The address of the page the thread is rendered on plus this comment's fragment - the
 	 * comments have no page of their own, and the host's path is the only thing that leads back
 	 * here. `search` is kept: a listing filter or a campaign parameter is part of where the
 	 * reader is, and dropping it would hand somebody else a different page.
@@ -98,7 +98,7 @@ export function CommentMenu({
 				detail: url,
 			});
 		} catch (error) {
-			// Denied permission or a non-secure origin — neither is something the reader can
+			// Denied permission or a non-secure origin - neither is something the reader can
 			// act on, so the address is shown for them to copy by hand.
 			logger.warn('Could not copy the comment link', error, {
 				commentId: entry.id,

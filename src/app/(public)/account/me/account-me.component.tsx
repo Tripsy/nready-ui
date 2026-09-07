@@ -120,7 +120,7 @@ export default function AccountMe() {
 			dataSource: 'account',
 			action: 'deleteAccount',
 			events: {
-				// Access is revoked immediately — send the user to the status
+				// Access is revoked immediately - send the user to the status
 				// page. `info` (not `error`): deletion succeeded, and the copy
 				// already lives at `app.info.account_delete`.
 				success: () => {
@@ -256,7 +256,7 @@ export default function AccountMe() {
 								</div>
 								{/*
 								 * A social sign-in account has no password, so there is
-								 * nothing to change and no meaningful "last updated" —
+								 * nothing to change and no meaningful "last updated" -
 								 * `password_updated_at` is stamped at creation regardless.
 								 * Setting a first one goes through password recovery, which
 								 * proves ownership by email instead of by current password.

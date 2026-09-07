@@ -18,7 +18,7 @@ import type { Language } from '@/types/common.type';
  *
  * The storefront surface carries no policy: what a visitor may see is decided by the query,
  * which only ever reaches the sellable window. A draft, an unreleased or a withdrawn product
- * answers 404 rather than leaking its existence through a different status code — and that is
+ * answers 404 rather than leaking its existence through a different status code - and that is
  * also what makes the response safe to keep in Next's shared data cache, since it can only
  * hold what any visitor may read.
  */
@@ -69,7 +69,7 @@ export async function findBundleCandidates(
  * The variants a set of ids names, for putting a name against components a stored bundle holds
  * only as `variant_id`.
  *
- * One request rather than one per component — the listing's `id` filter takes a list for exactly
+ * One request rather than one per component - the listing's `id` filter takes a list for exactly
  * this. Returns a map so the caller looks up by id rather than scanning; ids that no longer
  * resolve are simply absent, which is what lets the form render a withdrawn component as unknown
  * instead of failing to load.
@@ -111,7 +111,7 @@ export async function requestUpdateProductWorkflow(
  * Takes the categories rather than a product id: a product being created has none yet, and the
  * form has to be drawn the moment its categories are picked. The answer is the union across
  * them and their ancestors, deduped by label with the deepest category winning, split by scope
- * — the walk `.claude/rules/product.md` §12.6 describes, done server-side.
+ * - the walk `.claude/rules/product.md` §12.6 describes, done server-side.
  *
  * An empty list of categories short-circuits: the endpoint requires at least one, and a product
  * with none has no form to draw.
@@ -136,7 +136,7 @@ export async function requestResolvedAttributes(
 /**
  * Reorders one category's attribute definitions (`PATCH /product-category-attributes/order`).
  *
- * `positions` is that category's definition ids in the order they should be offered — the whole
+ * `positions` is that category's definition ids in the order they should be offered - the whole
  * set, because a position only means anything relative to its siblings and the backend refuses
  * anything short of it.
  */

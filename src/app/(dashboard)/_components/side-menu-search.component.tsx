@@ -1,6 +1,6 @@
 /*
  * No `'use client'`, and it must stay that way. The directive marks a boundary, and everything
- * a client module imports is already in the client graph — but Next's TS plugin treats any file
+ * a client module imports is already in the client graph - but Next's TS plugin treats any file
  * carrying it as a client *entry* and then rejects every non-serializable prop on the
  * components that file exports (TS71007), which the callbacks below are. Only the two
  * components a server file mounts declare the boundary: `side-menu.component.tsx` and
@@ -47,7 +47,7 @@ function normalizeSearchText(value: string): string {
 
 /**
  * Narrows the menu tree to what matches `query`. A section whose own label matches keeps all
- * of its items — searching for "logs" is a request for the whole group, not only for an item
+ * of its items - searching for "logs" is a request for the whole group, not only for an item
  * that happens to repeat the word.
  */
 export function filterSideMenuSections(
@@ -120,7 +120,7 @@ export function useDismissOnOutsidePress(
 type SideMenuSearchFieldProps = {
 	value: string;
 	onValueChange: (value: string) => void;
-	/** Escape on an already-empty field — the hosts that can close use it to close. */
+	/** Escape on an already-empty field - the hosts that can close use it to close. */
 	onEscape?: () => void;
 	label: string;
 	placeholder: string;
@@ -130,7 +130,7 @@ type SideMenuSearchFieldProps = {
 };
 
 /**
- * The search input itself — icon on the left, clear button on the right once there is
+ * The search input itself - icon on the left, clear button on the right once there is
  * something to clear. Presentational: each host owns its own query state, since the three
  * placements (open sidebar, collapsed rail flyout, mobile header) open and close separately.
  */
@@ -260,7 +260,7 @@ type SideMenuSearchRailProps = {
  * The collapsed sidebar's search: an accented icon button on the rail that slides a panel out
  * to its right, holding the input and the matches.
  *
- * The panel is portalled for the same reason the collapsed sections' flyouts are — the rail is
+ * The panel is portalled for the same reason the collapsed sections' flyouts are - the rail is
  * 4rem wide and clips its overflow, so a panel rendered inside it would be cut off.
  */
 export function SideMenuSearchRail({

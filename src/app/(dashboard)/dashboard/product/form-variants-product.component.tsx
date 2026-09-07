@@ -25,7 +25,7 @@ import { CurrencyEnum } from '@/types/common.type';
 import type { FormErrorsType } from '@/types/form.type';
 
 /**
- * A variant as the form holds it. `key` is client-only — the list needs a stable React key per
+ * A variant as the form holds it. `key` is client-only - the list needs a stable React key per
  * row, and a variant has none of its own: `sku` starts empty and may be edited, and the array
  * index is exactly what a reorder changes, so keying by it would leave the moved rows' inputs
  * holding their old neighbor's state. Stripped before the payload is built.
@@ -34,7 +34,7 @@ export type ProductVariantFormType = Omit<ProductVariantType, 'attributes'> & {
 	key: string;
 	/**
 	 * The axes that tell this variant from its siblings, as the form holds them. Always a list
-	 * — an omitted key would leave the stored values alone, and the editor showing no value for
+	 * - an omitted key would leave the stored values alone, and the editor showing no value for
 	 * an axis means it has none, not that it declines to say.
 	 */
 	attributes: ProductAttributeFormType[];
@@ -53,14 +53,14 @@ export function nextVariantKey(): string {
 }
 
 /*
- * The books are kept in one currency, so `cost_price` carries no currency column of its own —
+ * The books are kept in one currency, so `cost_price` carries no currency column of its own -
  * it is always this one, whatever markets the variant is priced for.
  */
 const BASE_CURRENCY = Configuration.get('app.currency');
 
 /**
  * The markets a price may be quoted in. A closed list rather than a free-text code: the column is
- * `char(3)` and `(variant_id, currency)` is unique, so a typo does not fail — it silently creates
+ * `char(3)` and `(variant_id, currency)` is unique, so a typo does not fail - it silently creates
  * a second market nothing sells in.
  */
 const CURRENCY_OPTIONS = toOptionsFromEnum(CurrencyEnum);
@@ -69,11 +69,11 @@ const CURRENCY_OPTIONS = toOptionsFromEnum(CurrencyEnum);
  * Column widths shared by the price table's header and its row cells.
  *
  * The rows are flex, not a real `<table>`, because each field is a `FormElement` carrying its
- * own error slot — so nothing aligns the two unless both sides name the same width.
+ * own error slot - so nothing aligns the two unless both sides name the same width.
  *
  * That error slot is also why the width goes on the cell wrapper rather than the control, with
  * `shrink-0`: a field's wrapper grows to fit the message under it, and a wide one would
- * otherwise push everything to its right — the remove button included — out of line.
+ * otherwise push everything to its right - the remove button included - out of line.
  */
 const PRICE_COLUMN = {
 	currency: 'w-28 shrink-0',
@@ -85,7 +85,7 @@ const THRESHOLD_MAX_DIGITS = 3;
 
 /**
  * A base-currency figure as one string. `formatAmount` returns the number and the symbol apart,
- * for callers that style them separately — inside a sentence they are simply joined.
+ * for callers that style them separately - inside a sentence they are simply joined.
  */
 function displayBaseAmount(amount: number): string {
 	const { value, currency } = formatAmount(amount, BASE_CURRENCY);
@@ -130,7 +130,7 @@ export function emptyVariant(
  *
  * `maxLength` does nothing on `type="number"`, so the cap is applied to the value itself: the
  * digits are taken as text and truncated, which stops the field at 999 while a typed fourth digit
- * simply does not appear. A `max` attribute would not do the same — it leaves the value in place
+ * simply does not appear. A `max` attribute would not do the same - it leaves the value in place
  * and only marks the input invalid.
  */
 function parseThreshold(value: string): number | null {
@@ -143,28 +143,28 @@ function parseThreshold(value: string): number | null {
  * Everything worth saying out loud about one price row.
  *
  * A list rather than one verdict: the floor rules and the reference-price rule are independent,
- * and a row can trip both. Each note carries its own tone — a missing floor is worth stating but
+ * and a row can trip both. Each note carries its own tone - a missing floor is worth stating but
  * is not a mistake, so it reads as information; the rest describe something the operator probably
  * did not intend.
  *
  * `resolveFloor` in the backend's `discount-resolution.service` clamps to `min_price` and to
- * nothing else — cost is an accounting figure and is deliberately not a fallback floor:
+ * nothing else - cost is an accounting figure and is deliberately not a fallback floor:
  *
- * - `below-cost` — a floor is set and sits under what the goods cost. The engine honors it
+ * - `below-cost` - a floor is set and sits under what the goods cost. The engine honors it
  *   outright, which is intended (a campaign may deliberately sell at a loss), but the figures are
  *   not in the same currency by default: `min_price` belongs to the market its row quotes while
  *   `cost_price` is a single base-currency number, so a floor that looks comfortable beside an EUR
- *   price can sit under cost once converted. Nothing on either side catches it — the table's
+ *   price can sit under cost once converted. Nothing on either side catches it - the table's
  *   `min_price <= price` check compares two figures in the same row, and the backend never sees
  *   the cost and the floor together. It is a margin observation, not a rule: selling under cost is
  *   allowed, and this only makes it deliberate rather than accidental.
- * - `reference-below-sale` — `reference_price` means "the usual price", so one below the sale
+ * - `reference-below-sale` - `reference_price` means "the usual price", so one below the sale
  *   price advertises a saving that is really an increase. Both figures sit in the row's own
  *   currency, so no conversion is involved. The table only checks `reference_price > 0` and no
  *   pricing path reads the column at all, which is why a transposed figure here reaches the
  *   storefront unchallenged.
  *
- * `unknown-rate` is deliberately not silence — an unanswerable comparison has to read as
+ * `unknown-rate` is deliberately not silence - an unanswerable comparison has to read as
  * unanswered, or an operator takes the absence of a warning for a pass.
  */
 type PriceRowNoteType =
@@ -387,7 +387,7 @@ function VariantRow({
 							<Icons.Info className="h-3.5 w-3.5 shrink-0" />
 
 							<span>
-								What the goods cost you, in {BASE_CURRENCY} —
+								What the goods cost you, in {BASE_CURRENCY} -
 								never charged, never shown to customers.
 							</span>
 						</p>
@@ -401,7 +401,7 @@ function VariantRow({
 
 					<p className="flex items-start gap-1 text-xs text-muted">
 						<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-						Off for anything not counted — a dish, a download. The
+						Off for anything not counted - a dish, a download. The
 						two settings beside it apply only while it is on, and
 						are cleared when it is turned off.
 					</p>
@@ -419,7 +419,7 @@ function VariantRow({
 									 * Both fields below only mean anything against a tracked
 									 * quantity, so untracking clears them rather than leaving
 									 * settings that read as deliberate and do nothing. Disabling
-									 * the controls is not enough on its own — the row rides in a
+									 * the controls is not enough on its own - the row rides in a
 									 * hidden JSON field, which a disabled input does not exclude.
 									 */
 									...(checked
@@ -546,7 +546,7 @@ function VariantRow({
 						return (
 							<div key={priceKey}>
 								<div className="flex flex-nowrap items-start gap-2">
-									{/* The width is on the cell, not the control — see PRICE_COLUMN. */}
+									{/* The width is on the cell, not the control - see PRICE_COLUMN. */}
 									<div className={PRICE_COLUMN.currency}>
 										<FormComponentSelect<ProductPriceType>
 											id={`${idPrefix}-${index}-price-${priceIndex}-currency`}
@@ -705,7 +705,7 @@ function VariantRow({
 										{note.kind === 'unknown-rate' && (
 											<span>
 												No {BASE_CURRENCY} rate for{' '}
-												{price.currency.toUpperCase()} —
+												{price.currency.toUpperCase()} -
 												this floor cannot be checked
 												against the cost price.
 											</span>
@@ -748,7 +748,7 @@ function VariantRow({
 				{/*
 				 * The axes that tell this variant from its siblings. Rendered per row rather
 				 * than once for the product because that is the whole point of the `variant`
-				 * scope — the same question, answered differently by each.
+				 * scope - the same question, answered differently by each.
 				 */}
 				{attributeDefinitions.length > 0 && (
 					<div className="space-y-2">
@@ -778,7 +778,7 @@ type Props = {
 	disabled: boolean;
 	errors?: FormErrorsType<ProductVariantFormType>[];
 	/**
-	 * The two set-wide rules — exactly one default, no repeated SKU. They arrive on their own
+	 * The two set-wide rules - exactly one default, no repeated SKU. They arrive on their own
 	 * sentinel field rather than on `variants`, which already holds one error object per row.
 	 */
 	ruleError?: string[];
@@ -787,7 +787,7 @@ type Props = {
 	 * an axis is declared by the product's categories, so it is the same question for each.
 	 */
 	attributeDefinitions: ProductCategoryAttributeModel[];
-	/** Passed straight through to every row — see `FormAttributesProduct`. */
+	/** Passed straight through to every row - see `FormAttributesProduct`. */
 	onDefinitionsChanged?: () => void;
 };
 
@@ -830,7 +830,7 @@ export function FormVariantsProduct({
 
 	/*
 	 * A missing rate is a fact the warning reports rather than a failure, so the query is left
-	 * to resolve with the currencies it could answer for — see the service. One request set per
+	 * to resolve with the currencies it could answer for - see the service. One request set per
 	 * distinct currency list, cached for the provider's five minutes.
 	 */
 	const { data: rates } = useQuery({
@@ -860,7 +860,7 @@ export function FormVariantsProduct({
 		);
 	};
 
-	/** Default is a property of the set, not of a row — marking one unmarks the rest. */
+	/** Default is a property of the set, not of a row - marking one unmarks the rest. */
 	const markDefault = (index: number) => {
 		onChange(
 			value.map((variant, current) => ({
@@ -890,7 +890,7 @@ export function FormVariantsProduct({
 	const removeVariant = (index: number) => {
 		const remaining = value.filter((_, current) => current !== index);
 
-		// Removing the default leaves the set without one, which the validator rejects — hand
+		// Removing the default leaves the set without one, which the validator rejects - hand
 		// the flag to the first survivor instead of making the user notice.
 		if (remaining.length > 0 && !remaining.some((v) => v.is_default)) {
 			remaining[0] = { ...remaining[0], is_default: true };
@@ -930,7 +930,7 @@ export function FormVariantsProduct({
 			{value.length === 0 ? (
 				<p className="text-sm text-muted">
 					A product is priced and stocked through its variants, so at
-					least one is required — add a single variant if there is
+					least one is required - add a single variant if there is
 					nothing to vary.
 				</p>
 			) : (
@@ -972,7 +972,7 @@ export function FormVariantsProduct({
 
 			{/*
 			 * The whole set as one field. `processForm` rebuilds its values from `FormData`, and
-			 * the nested prices make per-input names unworkable — the same approach `brand` uses
+			 * the nested prices make per-input names unworkable - the same approach `brand` uses
 			 * for its per-language contents.
 			 */}
 			<input

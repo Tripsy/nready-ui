@@ -1,5 +1,5 @@
 /**
- * What a discount attaches to. Mirrors the backend enum — every value except `order` implies
+ * What a discount attaches to. Mirrors the backend enum - every value except `order` implies
  * targets in the matching link table; `order` takes none and applies to the whole basket.
  * Country is not a scope: it is a condition inside `rules.applicable_countries`.
  */
@@ -39,7 +39,7 @@ export type DiscountReason =
 /**
  * The conditions a discount is subject to; it applies only when all of them are met.
  *
- * Closed key set, mirroring the backend — an unrecognized key is rejected on write and would
+ * Closed key set, mirroring the backend - an unrecognized key is rejected on write and would
  * stop the discount applying at all, so there is nothing useful to express outside this shape.
  *
  * Worth knowing when reading a cart: `hour_range`/`day_range` depend on when the question is

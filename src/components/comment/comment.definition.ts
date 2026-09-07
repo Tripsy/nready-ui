@@ -18,7 +18,7 @@ import type { FormErrorsType, FormSituationType } from '@/types/form.type';
 
 /**
  * The comments section is entity-agnostic: an article renders it today, a review will render the
- * same one. Everything that differs is a prop — the target — so the copy below lives in the
+ * same one. Everything that differs is a prop - the target - so the copy below lives in the
  * `comment` namespace rather than in the host page's, and every host resolves the same keys.
  */
 export const COMMENT_TRANSLATION_PREFIX = 'comment';
@@ -113,7 +113,7 @@ export type CommentAnchorType = {
 
 /**
  * Reads back what `commentAnchorId` wrote, from a `location.hash` (with or without its `#`).
- * Anything else on the page's fragment — another component's anchor, a stale link — resolves to
+ * Anything else on the page's fragment - another component's anchor, a stale link - resolves to
  * null rather than to a comment id nobody meant.
  */
 export function parseCommentAnchor(hash: string): CommentAnchorType | null {
@@ -135,7 +135,7 @@ export function parseCommentAnchor(hash: string): CommentAnchorType | null {
  * props: the submit goes through `processForm`, which reads everything it sends out of the
  * `FormData`.
  *
- * `requires_guest` is the same — it says whether this visitor has an account, which decides
+ * `requires_guest` is the same - it says whether this visitor has an account, which decides
  * whether the name and email below are required. It is not a claim the backend trusts: it reads
  * the session itself and ignores the guest fields for a member.
  */
@@ -183,7 +183,7 @@ export function buildCommentState(
 }
 
 /**
- * What this reader may do to this comment — resolved in one place so the menu, the inline editor
+ * What this reader may do to this comment - resolved in one place so the menu, the inline editor
  * and the thread cannot disagree about it.
  *
  * Everything here decides what to **offer**. The backend gates each endpoint on its own (the
@@ -192,7 +192,7 @@ export function buildCommentState(
  *
  * **A guest never gets these controls, including on their own comment.** The backend matches a
  * guest's edit by the hash of their origin address, which this app cannot compute and would not be
- * allowed to see — there is nothing on a rendered comment that identifies its guest author to the
+ * allowed to see - there is nothing on a rendered comment that identifies its guest author to the
  * browser. Their route back to it is the same one the backend offers: the public endpoints, from a
  * client that knows the id.
  */
@@ -201,7 +201,7 @@ export type CommentAbilitiesType = {
 	isOwn: boolean;
 	canEdit: boolean;
 	canDelete: boolean;
-	/** Pin and hide — staff only, never something an author does to their own comment. */
+	/** Pin and hide - staff only, never something an author does to their own comment. */
 	canModerate: boolean;
 };
 
@@ -225,7 +225,7 @@ export function resolveCommentAbilities(
 
 /**
  * The two ways a moderator takes a comment off the page from the thread itself. Both are reachable
- * from `approved`, which is the only status a public read returns — so this list needs no lookup
+ * from `approved`, which is the only status a public read returns - so this list needs no lookup
  * against `COMMENT_STATUS_TRANSITIONS`.
  *
  * `flagged` is deliberately absent: it is what the automatic reporting threshold sets, not a
@@ -257,7 +257,7 @@ export const COMMENT_EXCERPT_LENGTH = 350;
 
 /**
  * How far back the fold may reach to land between words. A word boundary is worth a few characters,
- * not a paragraph: one long token — a URL, a pasted key — sitting just inside the limit would
+ * not a paragraph: one long token - a URL, a pasted key - sitting just inside the limit would
  * otherwise pull the cut back to the whitespace before it and show a fraction of what fits.
  */
 const WORD_BOUNDARY_SLACK = 80;
@@ -267,7 +267,7 @@ const WORD_BOUNDARY_SLACK = 80;
  * is nothing to fold.
  *
  * Cut back to the last whitespace inside the limit so the fold lands between words rather than
- * mid-word — but only within `WORD_BOUNDARY_SLACK`. Beyond that, and when there is no whitespace to
+ * mid-word - but only within `WORD_BOUNDARY_SLACK`. Beyond that, and when there is no whitespace to
  * cut back to at all, the hard limit is what is shown.
  */
 export function buildCommentExcerpt(content: string): string | null {
@@ -320,7 +320,7 @@ class CommentValidator extends BaseValidator<typeof validatorMessages> {
 	}
 
 	/**
-	 * The fields the form carries but nobody types — the target, the parent and which of the two
+	 * The fields the form carries but nobody types - the target, the parent and which of the two
 	 * schemas below applies. They are validated as shapes rather than through `getMessage`: no
 	 * input reaches them, so a failure here is a tampered payload, not something to word for a
 	 * reader. `processForm` compares the parsed result against the whole form-values type, which
@@ -346,7 +346,7 @@ class CommentValidator extends BaseValidator<typeof validatorMessages> {
 
 	/**
 	 * `CHK_comment_author` requires a guest to leave a name and an address, so both are required
-	 * here — the backend answers 400 otherwise, which is a worse way to learn it.
+	 * here - the backend answers 400 otherwise, which is a worse way to learn it.
 	 */
 	guest = z.object({
 		...this.structural(),

@@ -31,18 +31,18 @@
 		"funny": "Amuzant"
 	},
 	"help": {
-		"intro": "Evaluările sunt date de cititori pe site-ul public — nimic de aici nu creează una. Un rând este evaluarea pe care cineva o are în acest moment pentru o țintă, nu o consemnare a momentului în care a dat-o: un cititor care se răzgândește modifică acel rând, nu adaugă altul.",
+		"intro": "Evaluările sunt date de cititori pe site-ul public - nimic de aici nu creează una. Un rând este evaluarea pe care cineva o are în acest moment pentru o țintă, nu o consemnare a momentului în care a dat-o: un cititor care se răzgândește modifică acel rând, nu adaugă altul.",
 		"step_1_title": "Citește ținta",
-		"step_1_body": "O evaluare face referire la un articol sau la un comentariu, identificat prin tip și id. Id-ul este afișat ca atare — din acest ecran nu există legătură către lucrul evaluat, deci folosește tipul și id-ul în lista entității respective ca să îl găsești.",
+		"step_1_body": "O evaluare face referire la un articol sau la un comentariu, identificat prin tip și id. Id-ul este afișat ca atare - din acest ecran nu există legătură către lucrul evaluat, deci folosește tipul și id-ul în lista entității respective ca să îl găsești.",
 		"step_2_title": "Citește evaluarea",
 		"step_2_body": "Tipul decide ce coloană poartă răspunsul: „like” stochează o direcție (+1 sau -1), „stars” un scor de la 1 la 5, iar „emoji” o reacție, fără niciun număr. Coloana Rating le combină, iar fereastra de detalii arată ambele câmpuri brute, ca să vezi care dintre ele este completat. „Created” este momentul primei evaluări; „Updated” apare doar dacă a fost schimbată ulterior.",
 		"step_3_title": "Vezi cine a dat-o",
 		"step_3_body": "O evaluare venită dintr-un cont afișează numele și id-ul și deschide fișa acelui utilizator; restul sunt vizitatori. O evaluare de vizitator este legată doar de un hash al adresei de origine, pe care backendul nu îl returnează niciodată, deci nu mai există nimic de aflat despre ea de aici.",
 		"step_4_title": "Un singur vot per țintă",
-		"step_4_body": "O țintă acceptă o singură evaluare de fiecare tip per adresă de origine și una per cont, indiferent de adresă — un al doilea cont nu aduce un al doilea vot, iar două persoane din spatele aceleiași adrese (o locuință, un birou, un operator mobil) împart unul singur. O cerere a cărei adresă nu poate fi determinată este respinsă, nu stocată, deci nicio evaluare nu ajunge din greșeală anonimă.",
+		"step_4_body": "O țintă acceptă o singură evaluare de fiecare tip per adresă de origine și una per cont, indiferent de adresă - un al doilea cont nu aduce un al doilea vot, iar două persoane din spatele aceleiași adrese (o locuință, un birou, un operator mobil) împart unul singur. O cerere a cărei adresă nu poate fi determinată este respinsă, nu stocată, deci nicio evaluare nu ajunge din greșeală anonimă.",
 		"step_5_title": "Filtrează lista",
-		"step_5_body": "Filtrează după tipul și id-ul țintei, tipul evaluării, reacție și utilizator. Acest ecran nu are casetă de căutare — lista din backend nu acceptă un termen liber — iar ordonarea se limitează la id și data creării.",
-		"note": "Ștergerea unei evaluări este definitivă: tabelul nu are stare de ștergere logică, deci nu există restaurare. Este intenționat — un rând șters logic și-ar păstra locul, deci nimeni de la acea adresă nu ar mai putea evalua ținta, iar el ar continua să conteze în agregate. Evaluările dispar și singure atunci când ținta lor este ștearsă definitiv.",
+		"step_5_body": "Filtrează după tipul și id-ul țintei, tipul evaluării, reacție și utilizator. Acest ecran nu are casetă de căutare - lista din backend nu acceptă un termen liber - iar ordonarea se limitează la id și data creării.",
+		"note": "Ștergerea unei evaluări este definitivă: tabelul nu are stare de ștergere logică, deci nu există restaurare. Este intenționat - un rând șters logic și-ar păstra locul, deci nimeni de la acea adresă nu ar mai putea evalua ținta, iar el ar continua să conteze în agregate. Evaluările dispar și singure atunci când ținta lor este ștearsă definitiv.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API",
 		"tab_public": "API public"

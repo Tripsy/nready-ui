@@ -1,6 +1,6 @@
 /**
  * The reaction picker's copy. Kept in the `rating` namespace and out of the client component, so
- * a server component can spread the keys — a `'use client'` module's value exports are client
+ * a server component can spread the keys - a `'use client'` module's value exports are client
  * references by the time one reads them.
  */
 export const RATING_TRANSLATION_PREFIX = 'rating';

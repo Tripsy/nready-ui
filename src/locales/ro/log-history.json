@@ -22,17 +22,17 @@
 		}
 	},
 	"help": {
-		"intro": "Acesta este registrul cine ce a schimbat. Fiecare creare, actualizare, ștergere, restaurare sau schimbare de stare pe o entitate urmărită scrie un rând în momentul în care se întâmplă — nimic din acest ecran nu scrie unul și nimic nu poate edita unul.",
+		"intro": "Acesta este registrul cine ce a schimbat. Fiecare creare, actualizare, ștergere, restaurare sau schimbare de stare pe o entitate urmărită scrie un rând în momentul în care se întâmplă - nimic din acest ecran nu scrie unul și nimic nu poate edita unul.",
 		"step_1_title": "Citește un rând ca entitate plus id",
-		"step_1_body": "Un id are înțeles doar în interiorul entității lui: id-ul 5 există și pentru un utilizator, și pentru un produs, și pentru o comandă. Filtrarea doar după entitate este în regulă; doar după id, nu — iar cele două împreună sunt cele care urmăresc o înregistrare de-a lungul vieții ei.",
+		"step_1_body": "Un id are înțeles doar în interiorul entității lui: id-ul 5 există și pentru un utilizator, și pentru un produs, și pentru o comandă. Filtrarea doar după entitate este în regulă; doar după id, nu - iar cele două împreună sunt cele care urmăresc o înregistrare de-a lungul vieții ei.",
 		"step_2_title": "Vezi cine a făcut-o",
-		"step_2_body": "Contul care a acționat este legat, iar numele este păstrat și pe rând, așa cum arăta atunci — deci redenumirea sau ștergerea acelui cont ulterior nu rescrie istoria. Sursa îți spune dacă schimbarea a venit dintr-o cerere, dintr-un job programat sau dintr-un seed.",
+		"step_2_body": "Contul care a acționat este legat, iar numele este păstrat și pe rând, așa cum arăta atunci - deci redenumirea sau ștergerea acelui cont ulterior nu rescrie istoria. Sursa îți spune dacă schimbarea a venit dintr-o cerere, dintr-un job programat sau dintr-un seed.",
 		"step_3_title": "Urmărește o operațiune peste entități",
 		"step_3_body": "Id-ul de cerere este comun pentru tot ce a schimbat o singură cerere, așa se citește o cascadă: o ștergere care a luat cu ea un subarbore apare ca mai multe rânduri sub același id. O operațiune în masă împarte și marcajul de timp, pus o singură dată pentru tot setul.",
 		"step_4_title": "Deschide detaliile",
-		"step_4_body": "Detaliile sunt ce a ales operațiunea să consemneze — câmpurile care s-au schimbat, id-urile care au căzut împreună. Sunt specifice acțiunii, nu au o formă fixă, deci se afișează așa cum au fost stocate.",
+		"step_4_body": "Detaliile sunt ce a ales operațiunea să consemneze - câmpurile care s-au schimbat, id-urile care au căzut împreună. Sunt specifice acțiunii, nu au o formă fixă, deci se afișează așa cum au fost stocate.",
 		"step_5_title": "Filtrează, apoi curăță",
-		"step_5_body": "Toate filtrele de aici potrivesc exact și nu există căutare liberă: entitate, id-ul entității, acțiune, id de cerere, sursă și un interval al datei consemnate. Ștergerea ia rândurile selectate, mai multe odată, și este definitivă — nu există stare de șters din care să restaurezi.",
+		"step_5_body": "Toate filtrele de aici potrivesc exact și nu există căutare liberă: entitate, id-ul entității, acțiune, id de cerere, sursă și un interval al datei consemnate. Ștergerea ia rândurile selectate, mai multe odată, și este definitivă - nu există stare de șters din care să restaurezi.",
 		"note": "Nimic nu curăță acest tabel după un program, spre deosebire de jurnal, deci crește cât timp rulează aplicația. Este și singurul loc în care o schimbare trecută este consemnată: curăță-l pentru spațiu, niciodată pentru ordine, și păstrează suficient cât să poți răspunde cine a modificat o înregistrare și când.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"

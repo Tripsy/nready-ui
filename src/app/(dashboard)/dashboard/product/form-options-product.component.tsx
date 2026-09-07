@@ -30,7 +30,7 @@ import {
 import { CurrencyEnum } from '@/types/common.type';
 
 /**
- * One delta as the form holds it. `price_delta` stays nullable while the field is empty — the
+ * One delta as the form holds it. `price_delta` stays nullable while the field is empty - the
  * validator is what refuses a row that never got a figure, and typing a number should not have
  * to pass through `0` on the way.
  */
@@ -41,7 +41,7 @@ export type ProductOptionPriceFormType = ProductOptionPriceType;
  *
  * `key` is client-only: an answer has no identity of its own until it is saved (`label_id` is
  * null while the picker is still empty, and two half-filled rows would collide on it), and the
- * array index is exactly what a reorder changes — keying by it leaves the moved rows' inputs
+ * array index is exactly what a reorder changes - keying by it leaves the moved rows' inputs
  * holding their old neighbor's state. `label` is the wording the picker shows; the id is what
  * the payload carries. Both are stripped before the payload is built.
  */
@@ -56,7 +56,7 @@ export type ProductOptionFormType = Omit<
 	prices: ProductOptionPriceFormType[];
 };
 
-/** A group as the form holds it — same client-only fields, one level up. */
+/** A group as the form holds it - same client-only fields, one level up. */
 export type ProductOptionGroupFormType = Omit<
 	ProductOptionGroupType,
 	'label_id' | 'position' | 'options' | 'label'
@@ -88,7 +88,7 @@ const BASE_CURRENCY = Configuration.get('app.currency');
 
 /**
  * A closed list rather than a free-text code: the column is `char(3)` and `(option_id, currency)`
- * is unique, so a typo does not fail — it silently prices a market nothing sells in.
+ * is unique, so a typo does not fail - it silently prices a market nothing sells in.
  */
 const CURRENCY_OPTIONS = toOptionsFromEnum(CurrencyEnum);
 
@@ -127,7 +127,7 @@ export function emptyOption(position: number): ProductOptionFormType {
 		/*
 		 * Nothing is preselected until someone says so. The backend allows a group with no
 		 * default (the unique index is partial, on `is_default = true`), and preselecting an
-		 * answer decides for the customer — a paid extra ticked by the editor's convention
+		 * answer decides for the customer - a paid extra ticked by the editor's convention
 		 * rather than their intent.
 		 */
 		is_default: false,
@@ -141,7 +141,7 @@ export function emptyOptionGroup(position: number): ProductOptionGroupFormType {
 		label_id: null,
 		label: '',
 		/*
-		 * Optional and unbounded — the mildest shape a question can have, so adding a group
+		 * Optional and unbounded - the mildest shape a question can have, so adding a group
 		 * never silently makes a product unorderable, nor caps a list before anyone has said
 		 * how many answers it takes. Empty is what `max_select` reads as "no limit".
 		 */
@@ -154,7 +154,7 @@ export function emptyOptionGroup(position: number): ProductOptionGroupFormType {
 
 /**
  * The cardinality in words, because `min_select` / `max_select` are the *only* expression of it
- * — there is no `is_required` flag to read instead, and two bare numbers do not tell an operator
+ * - there is no `is_required` flag to read instead, and two bare numbers do not tell an operator
  * whether they have just made a question mandatory.
  */
 function describeCardinality(
@@ -165,26 +165,26 @@ function describeCardinality(
 
 	if (maxSelect === null) {
 		return min === 0
-			? 'Optional — any number of answers.'
-			: `Required — at least ${min}, no upper limit.`;
+			? 'Optional - any number of answers.'
+			: `Required - at least ${min}, no upper limit.`;
 	}
 
 	if (maxSelect === 1) {
 		return min === 0
-			? 'Optional — at most one answer.'
-			: 'Required — exactly one answer.';
+			? 'Optional - at most one answer.'
+			: 'Required - exactly one answer.';
 	}
 
 	if (min === maxSelect) {
-		return `Required — exactly ${min} answers.`;
+		return `Required - exactly ${min} answers.`;
 	}
 
 	return min === 0
-		? `Optional — up to ${maxSelect} answers.`
-		: `Required — between ${min} and ${maxSelect} answers.`;
+		? `Optional - up to ${maxSelect} answers.`
+		: `Required - between ${min} and ${maxSelect} answers.`;
 }
 
-/** `null` is a real choice for `max_select` — no upper bound — so it needs a value of its own. */
+/** `null` is a real choice for `max_select` - no upper bound - so it needs a value of its own. */
 const NO_UPPER_BOUND = '';
 
 function parseBound(value: string): number | null {
@@ -216,7 +216,7 @@ function DeltaRow({
 
 	return (
 		<div className="flex flex-nowrap items-start gap-2">
-			{/* The width is on the cell, not the control — see DELTA_COLUMN. */}
+			{/* The width is on the cell, not the control - see DELTA_COLUMN. */}
 			<div className={DELTA_COLUMN.currency}>
 				<FormComponentSelect<ProductOptionPriceFormType>
 					id={elementIds.currency}
@@ -318,7 +318,7 @@ function OptionRow({
 					term,
 					/*
 					 * `label_id` is a plain foreign key to `term`, so the backend accepts any
-					 * row — unfiltered the picker offers the tags and the attribute vocabulary
+					 * row - unfiltered the picker offers the tags and the attribute vocabulary
 					 * too, and an answer ends up wearing a category attribute's wording. `text`
 					 * is what an answer is: free wording with nothing declaring it elsewhere.
 					 */
@@ -350,7 +350,7 @@ function OptionRow({
 				 * Preselected is a property of the set, not of a row: ticking one answer unticks
 				 * the rest, which is the group's unique partial index (`is_default = true`) held
 				 * to on this side. Unticking is allowed and leaves the group with nothing
-				 * preselected — the state a group starts in, and a legitimate one to return to.
+				 * preselected - the state a group starts in, and a legitimate one to return to.
 				 */}
 				<FormComponentCheckbox<ProductOptionFormType>
 					id={elementIds.default}
@@ -451,7 +451,7 @@ function OptionRow({
 
 				{deltas.map((price, priceIndex) => (
 					<DeltaRow
-						// biome-ignore lint/suspicious/noArrayIndexKey: a delta row has no stable id — its currency is empty until the editor picks one
+						// biome-ignore lint/suspicious/noArrayIndexKey: a delta row has no stable id - its currency is empty until the editor picks one
 						key={`${option.key}-delta-${priceIndex}`}
 						price={price}
 						index={priceIndex}
@@ -589,10 +589,10 @@ function OptionGroupCard({
 		});
 	};
 
-	/** Preselected belongs to the group, not to a row — marking one unmarks the rest. */
+	/** Preselected belongs to the group, not to a row - marking one unmarks the rest. */
 	/**
 	 * At most one answer carries the flag, so ticking a row clears the others. Ticking the row
-	 * that already holds it clears the group instead — a question whose answer the customer
+	 * that already holds it clears the group instead - a question whose answer the customer
 	 * should choose for themselves is why the flag is optional.
 	 */
 	const toggleDefault = (optionIndex: number) => {
@@ -757,7 +757,7 @@ function OptionGroupCard({
 
 					{/*
 					 * The two numbers restated in words. They are the whole expression of
-					 * cardinality — there is no `is_required` flag — so what the pair means is
+					 * cardinality - there is no `is_required` flag - so what the pair means is
 					 * worth saying rather than leaving to be inferred.
 					 */}
 					<p className="flex items-center gap-1 text-xs text-muted">
@@ -780,13 +780,13 @@ function OptionGroupCard({
 
 					<p className="text-xs text-muted">
 						Each answer moves the variant price by its delta, per
-						market. A negative delta is legitimate — declining
+						market. A negative delta is legitimate - declining
 						something the price already includes.
 					</p>
 
 					{options.length === 0 ? (
 						<p className="text-sm text-muted">
-							A question has to offer something — add at least one
+							A question has to offer something - add at least one
 							answer.
 						</p>
 					) : (
@@ -866,7 +866,7 @@ type Props = {
 /**
  * The questions a product asks at order time, and what each answer does to the price.
  *
- * **An empty list is the meaningful default** — most products ask nothing — which is why no group
+ * **An empty list is the meaningful default** - most products ask nothing - which is why no group
  * is seeded and the empty state says so rather than reading as something unfinished. The opposite
  * default from the variants editor, where at least one row is required.
  *
@@ -886,7 +886,7 @@ export function FormOptionsProduct({
 	canCreateTerm,
 	onCreateTerm,
 }: Props): JSX.Element {
-	/** Re-stamps `position` from the index — see the same function one level down. */
+	/** Re-stamps `position` from the index - see the same function one level down. */
 	const commit = (groups: ProductOptionGroupFormType[]) => {
 		onChange(groups.map((group, position) => ({ ...group, position })));
 	};
@@ -926,7 +926,7 @@ export function FormOptionsProduct({
 
 			{value.length === 0 ? (
 				<p className="rounded-lg border border-dashed border-line p-6 text-center text-sm text-muted">
-					No questions — the product is ordered as it is, with nothing
+					No questions - the product is ordered as it is, with nothing
 					for the customer to choose.
 				</p>
 			) : (
@@ -972,7 +972,7 @@ export function FormOptionsProduct({
 
 			{/*
 			 * The whole set as one field. `processForm` rebuilds its values from `FormData`, and
-			 * two levels of nesting make per-input names unworkable — the same approach the
+			 * two levels of nesting make per-input names unworkable - the same approach the
 			 * variants editor takes.
 			 */}
 			<input

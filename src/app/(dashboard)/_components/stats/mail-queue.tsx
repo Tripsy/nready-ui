@@ -21,7 +21,7 @@ import {
 
 const ENTRY_LIMIT = 10;
 
-/** Sentinel for an unset filter — the backend simply receives no `status` filter. */
+/** Sentinel for an unset filter - the backend simply receives no `status` filter. */
 const FILTER_ALL = 'all';
 
 type StatusFilter = MailQueueStatus | typeof FILTER_ALL;

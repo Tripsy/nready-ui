@@ -117,7 +117,7 @@ export const IMAGE_VIEW_ROUTE = '/api/image/view';
  *
  * Local files are served statically by Next straight off `/public`. S3 objects live in a
  * private bucket and are only reachable through a presigned URL, which cannot be minted
- * here — this function is synchronous and runs inside client components. So S3 paths point
+ * here - this function is synchronous and runs inside client components. So S3 paths point
  * at `IMAGE_VIEW_ROUTE`, which authorizes the request and redirects to a signed URL.
  */
 export function showImage(path: string, storage?: ImageStorage) {
@@ -143,7 +143,7 @@ export function showImage(path: string, storage?: ImageStorage) {
  *   carries no cookies, so the route's permission gate sees an anonymous caller and answers
  *   403; and even authorized it answers a 307 to S3, whose empty body the optimizer rejects
  *   as `"url" parameter is valid but internal response is invalid`. Either way the optimizer
- *   returns 400 and the image is broken — verified against the running server.
+ *   returns 400 and the image is broken - verified against the running server.
  *
  * Serving these raw costs nothing: a staged preview is a local file that never leaves the
  * tab, and an S3 object is already delivered by the bucket rather than by this app.

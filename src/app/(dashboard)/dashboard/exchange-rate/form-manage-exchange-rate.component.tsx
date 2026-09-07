@@ -30,7 +30,7 @@ export function FormManageExchangeRate() {
 	] as const);
 
 	/*
-	 * The currency and the day it applies to are together the row's identity — the backend's
+	 * The currency and the day it applies to are together the row's identity - the backend's
 	 * update payload has no slot for either, and moving one would rewrite a rate documents were
 	 * already priced against. Both stay visible on update for context but disabled, which also
 	 * keeps their inputs out of the submitted `FormData`.

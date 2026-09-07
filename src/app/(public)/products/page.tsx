@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 // Placeholder: the storefront listing is not built yet, so the page only announces itself and
 // points at the categories. The backend endpoint it will read (`GET /public/products`) already
-// exists — this is the frontend half that is missing, not the contract.
+// exists - this is the frontend half that is missing, not the contract.
 export default async function Page() {
 	const translations = await translateBatch(
 		TRANSLATION_KEYS,

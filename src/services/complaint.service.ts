@@ -13,7 +13,7 @@ import type { ApiResponseFetch } from '@/types/api.type';
  *
  * Not one of the generic helpers in `services.helper.ts`: `requestUpdateStatus` addresses a status
  * enum in the path, and a complaint's state is a boolean. The direction is the endpoint rather than
- * a field in the body — the backend validates a required boolean as "must be true", so a body
+ * a field in the body - the backend validates a required boolean as "must be true", so a body
  * carrying `false` could never pass.
  */
 export async function requestResolveComplaint(
@@ -28,7 +28,7 @@ export async function requestResolveComplaint(
 
 /**
  * The reader-facing complaint endpoints (`/public/complaints`). Unlike ratings and comments there
- * is no guest path — `user_id` is `NOT NULL` on the table, so every one of these answers 401 to a
+ * is no guest path - `user_id` is `NOT NULL` on the table, so every one of these answers 401 to a
  * caller without a session, and the widget asks for a sign-in rather than sending the request.
  *
  * All four go through `/api/proxy` (the default request mode): the backend reads *whose* complaint
@@ -60,7 +60,7 @@ export async function requestOwnComplaint(
 }
 
 /**
- * Files a complaint. Strictly an insert — 409 when this reader already holds a live one on the
+ * Files a complaint. Strictly an insert - 409 when this reader already holds a live one on the
  * target, which `requestUpdateComplaint` is for.
  */
 export async function requestCreateComplaint(params: {
@@ -77,7 +77,7 @@ export async function requestCreateComplaint(params: {
 
 /**
  * Amends a complaint already filed. The target addresses the row together with the caller and
- * travels in the path — it is what the complaint *is*, not a field — so the body carries only the
+ * travels in the path - it is what the complaint *is*, not a field - so the body carries only the
  * reason and the description. Answers 400 once a moderator has resolved it.
  */
 export async function requestUpdateComplaint(
@@ -95,8 +95,8 @@ export async function requestUpdateComplaint(
 }
 
 /**
- * Withdraws the reader's complaint. Soft on the backend — what was reported and taken back stays
- * on record — but it releases the slot under `UQ_complaint_user`, so the target can be reported
+ * Withdraws the reader's complaint. Soft on the backend - what was reported and taken back stays
+ * on record - but it releases the slot under `UQ_complaint_user`, so the target can be reported
  * again afterwards.
  */
 export async function requestDeleteComplaint(

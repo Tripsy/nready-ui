@@ -57,18 +57,18 @@
 		}
 	},
 	"help": {
-		"intro": "A vendor is who you buy from — a name, what it supplies, and where it stands. It holds no contacts, terms or prices; it is the record other features point at when they need to say who supplied something.",
+		"intro": "A vendor is who you buy from - a name, what it supplies, and where it stands. It holds no contacts, terms or prices; it is the record other features point at when they need to say who supplied something.",
 		"step_1_title": "Name it",
-		"step_1_body": "The name is the only free-text field, and it is not unique — two vendors may legitimately share one, so nothing stops a near-duplicate being created by accident. It is also the only thing search reads, which makes a consistent spelling worth more here than the validator asks for.",
+		"step_1_body": "The name is the only free-text field, and it is not unique - two vendors may legitimately share one, so nothing stops a near-duplicate being created by accident. It is also the only thing search reads, which makes a consistent spelling worth more here than the validator asks for.",
 		"step_2_title": "Choose what it supplies",
-		"step_2_body": "Supplier means goods, provider means services — the distinction is about the nature of the supply, not the industry, so a fuel seller and a goods distributor are both suppliers while insurance, tolls and telematics are providers. It can be changed later at any time.",
+		"step_2_body": "Supplier means goods, provider means services - the distinction is about the nature of the supply, not the industry, so a fuel seller and a goods distributor are both suppliers while insurance, tolls and telematics are providers. It can be changed later at any time.",
 		"step_3_title": "Move it through its statuses",
 		"step_3_body": "A new vendor starts pending. Enable moves pending or inactive to active; Disable moves pending or active to inactive. There is no route back to pending, and asking for the status it already holds is refused rather than ignored.",
 		"step_4_title": "Know what status does, and does not, do",
 		"step_4_body": "Status is a flag on the record, not a lock: nothing here stops an inactive vendor being referenced, and the screens that pick a vendor decide for themselves whether to offer one. Treat inactive as \"no longer in use\" rather than as an enforced block.",
 		"step_5_title": "Find it again",
 		"step_5_body": "Search matches the name alone from three characters, except for an all-digit term, which is treated as an id and matched exactly. Filter by what it supplies and by status, and order by id or name.",
-		"note": "Deleting a vendor is a soft delete and works from any status — the row keeps the status it had, and anything already pointing at it keeps resolving. Use Show deleted to find one and restore it, which brings it back exactly as it left.",
+		"note": "Deleting a vendor is a soft delete and works from any status - the row keeps the status it had, and anything already pointing at it keeps resolving. Use Show deleted to find one and restore it, which brings it back exactly as it left.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
 	}

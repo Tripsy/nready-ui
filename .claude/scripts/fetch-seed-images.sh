@@ -26,7 +26,7 @@ force=0
 # the API database rather than recomputed here from the same modulo.
 paths=$(docker exec "$API_CONTAINER" sh -c \
 	"cd /var/www/html && npx tsx cli/list-image-paths.ts article" 2>/dev/null | grep '^article/') || {
-	echo "Could not read image rows from $API_CONTAINER — is the stack up and seeded?" >&2
+	echo "Could not read image rows from $API_CONTAINER - is the stack up and seeded?" >&2
 	exit 1
 }
 
@@ -50,7 +50,7 @@ while IFS= read -r path; do
 
 	mkdir -p "$(dirname "$target")"
 
-	# The id is the directory name — used as the seed so a given article keeps its photo.
+	# The id is the directory name - used as the seed so a given article keeps its photo.
 	article_id="$(basename "$(dirname "$path")")"
 
 	curl -fsSL --max-time 30 \

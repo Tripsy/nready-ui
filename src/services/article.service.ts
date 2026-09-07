@@ -16,11 +16,11 @@ export type PublicArticlesParams = {
 	term?: string;
 	featured_status?: ArticleFeaturedStatus;
 	category_id?: number;
-	/** Any of these tags — the article page's "similar" box passes the whole set. */
+	/** Any of these tags - the article page's "similar" box passes the whole set. */
 	tag_id?: number[];
 	/** Article to leave out, so a sidebar never recommends the page it sits on. */
 	exclude_id?: number;
-	/** One article by id — how a permalink resolves a target it only knows the id of. */
+	/** One article by id - how a permalink resolves a target it only knows the id of. */
 	id?: number;
 	page?: number;
 	limit?: number;
@@ -62,7 +62,7 @@ function buildPublicArticlesQuery(params: PublicArticlesParams): string {
  *
  * Server-side only, via `remote-api`: the `/api/proxy` route the dashboard uses attaches the
  * session cookie, and this page has no visitor to attach. Going straight to the backend also
- * lets the response participate in Next's data cache — `revalidate` is the caller's to set,
+ * lets the response participate in Next's data cache - `revalidate` is the caller's to set,
  * since only it knows how fresh the listing has to be.
  *
  * Rows carry no body (`content`); each carries its categories and its cover image.
@@ -83,12 +83,12 @@ export async function requestPublicArticles(
 }
 
 /**
- * The same listing, for a **client** component — the infinite-scroll feed asking for page
+ * The same listing, for a **client** component - the infinite-scroll feed asking for page
  * two and beyond.
  *
  * Goes through `/api/proxy` (the default request mode) rather than `remote-api`: a browser
  * cannot reach the backend directly, and the proxy is the only sanctioned path from there.
- * No `revalidate` either — a client fetch does not participate in Next's data cache, and
+ * No `revalidate` either - a client fetch does not participate in Next's data cache, and
  * TanStack Query is what holds the pages already loaded.
  */
 export async function requestPublicArticlesPage(
@@ -105,7 +105,7 @@ export async function requestPublicArticlesPage(
 /**
  * One published article by slug (`GET /public/articles/:slug`), body included.
  *
- * The request is anonymous — nothing here forwards the reader's session — so the backend
+ * The request is anonymous - nothing here forwards the reader's session - so the backend
  * evaluates an article's visibility rule against no one: a `restricted` article throws
  * (401/403 as an `ApiError`) rather than answering. That is also what makes the response safe
  * to keep in Next's shared data cache, since it can only ever hold what any visitor may read.
@@ -135,7 +135,7 @@ export async function requestPublicArticle(params: {
  *
  * `category_id` scopes the `category` group to a subtree and is meaningless for `section`; the
  * backend rejects the pair the other way round. `positions` must be the complete group in the
- * order it should read — the API compares the set against what it finds and refuses a subset.
+ * order it should read - the API compares the set against what it finds and refuses a subset.
  */
 export async function orderUpdate(
 	featured_status: ArticleFeaturedStatus,

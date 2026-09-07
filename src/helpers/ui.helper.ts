@@ -1,8 +1,8 @@
 /**
  * Puts one line on the clipboard, through the async API where it exists.
  *
- * `navigator.clipboard` is undefined outside a secure context — every plain-http host, the dev
- * server among them — so the selection-and-`execCommand` route is kept as the fallback. It is
+ * `navigator.clipboard` is undefined outside a secure context - every plain-http host, the dev
+ * server among them - so the selection-and-`execCommand` route is kept as the fallback. It is
  * deprecated but universally implemented, and the alternative is a control that does nothing
  * on http.
  *
@@ -14,7 +14,7 @@
  * ref here, and copy before dismissing the overlay that holds it.
  *
  * Rejects rather than returning a boolean, so a caller reports failure the same way for both
- * routes — the async API rejects on a denied permission.
+ * routes - the async API rejects on a denied permission.
  */
 export async function copyToClipboard(
 	text: string,

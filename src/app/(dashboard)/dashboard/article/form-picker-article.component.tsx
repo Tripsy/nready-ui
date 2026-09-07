@@ -35,7 +35,7 @@ type Props<Model extends { id: number }> = {
 /**
  * The article side of `FormPickerRefs`: a selection of ids, one hidden input each.
  *
- * Labels are cached here, keyed by id, purely so the chips read as names — ids loaded from the
+ * Labels are cached here, keyed by id, purely so the chips read as names - ids loaded from the
  * API start as `#12` until the user searches for them, and nothing depends on a label being
  * present. That is the difference from the product picker, which carries labels in its value
  * because its payload is one JSON field.

@@ -58,7 +58,7 @@ type ApiHeaders = {
 
 /**
  * Headers describing the visitor, attached to every backend call the proxy makes on their
- * behalf — without them the backend sees this app's container and nothing of the reader.
+ * behalf - without them the backend sees this app's container and nothing of the reader.
  *
  * `X-Forwarded-For` is the one the backend's `getClientIp` actually reads (it falls back to
  * `req.ip`, which through the proxy is this container). `X-Client-IP` carries the same value

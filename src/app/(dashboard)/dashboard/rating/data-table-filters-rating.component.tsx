@@ -59,7 +59,7 @@ export const DataTableFiltersRating = (): JSX.Element => {
 		);
 
 	// A single digit is a valid target id, so the debounce is the only thing keeping this
-	// from firing per keystroke — there is no length to wait for.
+	// from firing per keystroke - there is no length to wait for.
 	const searchEntityId = useSearchFilter({
 		initialValue: filters.entity_id.value ?? '',
 		debounceDelay: 1000,

@@ -38,7 +38,7 @@ import { useAuth } from '@/providers/auth.provider';
 import type { Language } from '@/types/common.type';
 
 /**
- * The whole active tree is fetched in one page — a hierarchy cannot be paginated without
+ * The whole active tree is fetched in one page - a hierarchy cannot be paginated without
  * losing the parents that give it shape. The cap is a guard against a pathological dataset,
  * not an expected boundary; the header says so when it bites.
  */
@@ -84,7 +84,7 @@ const CategoryTreeItem = ({
 	const hasChildren = children.length > 0;
 	const isCollapsed = collapsedIds.has(entry.id);
 
-	// The window definitions already own permissions, titles and confirmations — the row only
+	// The window definitions already own permissions, titles and confirmations - the row only
 	// says which action and on which entry.
 	const runAction = (action: string) =>
 		dispatchDataTableAction<CategoryModel>({
@@ -202,7 +202,7 @@ const DataTableCategoryTreeContent = (): JSX.Element => {
 
 	/*
 	 * An update or a delete announces itself with a filter reset for the data source. Only the
-	 * refetch is wanted here — `useDataTableFilterReset`, which the list pages use, would also
+	 * refetch is wanted here - `useDataTableFilterReset`, which the list pages use, would also
 	 * restore the default filters and so throw the tree back to another type mid-edit.
 	 */
 	useEffect(
@@ -221,7 +221,7 @@ const DataTableCategoryTreeContent = (): JSX.Element => {
 	/*
 	 * Keyed under the `dataTable` prefix, unlike the order page: an edit or a delete made from
 	 * this page dispatches a filter reset for the data source, which invalidates
-	 * `['dataTable', 'category']` — a key outside that prefix would go stale silently.
+	 * `['dataTable', 'category']` - a key outside that prefix would go stale silently.
 	 */
 	const queryKey = useMemo(
 		() => ['dataTable', dataSource, 'tree', type, language],

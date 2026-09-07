@@ -46,7 +46,7 @@ export function ViewComment({ entry }: { entry: CommentModel }) {
 				/>
 				<ViewField label="Entity ID" value={entry.entity_id} />
 				<ViewField label="Thread" value={displayCommentThread(entry)} />
-				{/* Approved replies only — the count follows what a reader can open. */}
+				{/* Approved replies only - the count follows what a reader can open. */}
 				<ViewField label="Replies" value={entry.reply_count} />
 			</ViewSection>
 

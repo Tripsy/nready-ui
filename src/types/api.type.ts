@@ -22,7 +22,7 @@ export type QueryValueType =
 
 export type NestedValueType = {
 	// The array member is the `filter[key][]` list shape `buildQueryString` repeats the key
-	// for — the backend's `qs` parser reads it back as an array.
+	// for - the backend's `qs` parser reads it back as an array.
 	[key: string]:
 		| string
 		| number

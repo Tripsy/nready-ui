@@ -1,6 +1,6 @@
 export const PermissionEntitiesSuggestions = [
 	'dashboard', // NOT an entity
-	'account', // NOT an entity — virtual key for the public account self-service data source (no backend permission gating)
+	'account', // NOT an entity - virtual key for the public account self-service data source (no backend permission gating)
 	'address',
 	'article',
 	'brand',
@@ -37,7 +37,7 @@ export const PermissionEntitiesSuggestions = [
 export type PermissionEntityType =
 	(typeof PermissionEntitiesSuggestions)[number];
 
-/** The five every entity gates — what the backend's `PolicyAbstract` checks. */
+/** The five every entity gates - what the backend's `PolicyAbstract` checks. */
 const CrudOperations = ['create', 'update', 'read', 'find', 'delete'] as const;
 
 /**
@@ -54,7 +54,7 @@ export type PermissionOperationType =
 	| (typeof ExtraOperations)[keyof typeof ExtraOperations][number];
 
 /**
- * The operations valid for one entity — the CRUD five plus whatever it adds. Correlating the two
+ * The operations valid for one entity - the CRUD five plus whatever it adds. Correlating the two
  * is what makes `['user', 'refund']` a compile error rather than a permission row no policy reads.
  */
 export type PermissionOperationFor<E extends PermissionEntityType> =

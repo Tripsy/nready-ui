@@ -42,18 +42,18 @@
 		}
 	},
 	"help": {
-		"intro": "Un curier este firma de transport la care face referire o expediere — un nume plus date de contact opționale. Nu conține tarife, zone sau logică de urmărire; este doar înregistrarea la care se raportează alte funcționalități.",
+		"intro": "Un curier este firma de transport la care face referire o expediere - un nume plus date de contact opționale. Nu conține tarife, zone sau logică de urmărire; este doar înregistrarea la care se raportează alte funcționalități.",
 		"step_1_title": "Dă-i un nume",
 		"step_1_body": "Numele este singurul câmp obligatoriu și trebuie să fie unic între curierii care nu sunt șterși. Un duplicat este respins cu un conflict, nu corectat automat.",
 		"step_2_title": "Adaugă site-ul web",
-		"step_2_body": "Opțional și păstrat ca text liber, nu verificat ca URL — orice este acceptat, deci consecvența protocolului și a scrierii rămâne în sarcina ta. Este și al doilea câmp citit de căutare, alături de nume.",
+		"step_2_body": "Opțional și păstrat ca text liber, nu verificat ca URL - orice este acceptat, deci consecvența protocolului și a scrierii rămâne în sarcina ta. Este și al doilea câmp citit de căutare, alături de nume.",
 		"step_3_title": "Adaugă telefonul și emailul",
 		"step_3_body": "Ambele sunt opționale și verificate doar ca format. Telefonul acceptă între 7 și 15 cifre, cu un + opțional la început, iar spațiile, punctele, liniuțele și parantezele sunt ignorate; niciunul dintre câmpuri nu este verificat că ajunge la cineva.",
 		"step_4_title": "Scrie notițele",
-		"step_4_body": "Text liber, doar pentru dashboard — numere de cont, persoana de contact, termenii contractului. Nu este niciodată căutat, deci tot ce ai nevoie ca să găsești un curier ține de nume sau de site.",
+		"step_4_body": "Text liber, doar pentru dashboard - numere de cont, persoana de contact, termenii contractului. Nu este niciodată căutat, deci tot ce ai nevoie ca să găsești un curier ține de nume sau de site.",
 		"step_5_title": "Regăsește-l",
 		"step_5_body": "Căutarea potrivește numele și site-ul de la trei caractere, cu excepția unui termen numeric, tratat ca id și potrivit exact. Lista poate fi ordonată după id, nume, data creării sau a actualizării, și nimic altceva.",
-		"note": "Ștergerea unui curier este una logică, deci expedierile care fac deja referire la el continuă să funcționeze — folosește „Arată șterse” pentru a-l găsi și restaura. Regula de unicitate ignoră rândurile șterse, deci numele devine liber imediat după ștergere, iar restaurarea eșuează cât timp alt curier îl folosește.",
+		"note": "Ștergerea unui curier este una logică, deci expedierile care fac deja referire la el continuă să funcționeze - folosește „Arată șterse” pentru a-l găsi și restaura. Regula de unicitate ignoră rândurile șterse, deci numele devine liber imediat după ștergere, iar restaurarea eșuează cât timp alt curier îl folosește.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
 	}

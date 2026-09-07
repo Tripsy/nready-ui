@@ -14,7 +14,7 @@ export function WindowContainer({
 }) {
 	const { stack, isHydrated } = useModalStore();
 
-	// Hydration restores the whole stack, not this container's section, so it runs once —
+	// Hydration restores the whole stack, not this container's section, so it runs once -
 	// no `section` in the log context either, which would drag it into the dependencies.
 	useEffect(() => {
 		hydrateWindowStore().catch(
@@ -50,7 +50,7 @@ export function WindowContainer({
 				);
 			})}
 
-			{/* The dock is the way back to a minimized window — the visible one
+			{/* The dock is the way back to a minimized window - the visible one
 			    is already on screen, so it gets no chip */}
 			{minimizedModals.length > 0 && (
 				<WindowDock modals={minimizedModals} />

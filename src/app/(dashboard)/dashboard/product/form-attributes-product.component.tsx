@@ -36,7 +36,7 @@ type Props = {
 	onChange: (values: ProductAttributeFormType[]) => void;
 	/**
 	 * Keyed by `attribute_label_id`, since that is what a definition is addressed by everywhere
-	 * else — the index in the list is not stable across a category change.
+	 * else - the index in the list is not stable across a category change.
 	 */
 	errors?: Record<number, string[] | undefined>;
 	disabled: boolean;
@@ -47,14 +47,14 @@ type Props = {
 	idPrefix: string;
 	/**
 	 * Called once a new admissible value has been added to a definition. The resolved form is
-	 * the host's — it holds the query — so this only says that it is stale.
+	 * the host's - it holds the query - so this only says that it is stale.
 	 */
 	onDefinitionsChanged?: () => void;
 };
 
 /**
  * What follows the value: the definition's unit symbol, or the affix it carries instead. Never
- * both — the table forbids it, since two answers to what trails a number is one too many.
+ * both - the table forbids it, since two answers to what trails a number is one too many.
  */
 function displayValueSuffix(
 	definition: ProductCategoryAttributeModel,
@@ -74,18 +74,18 @@ const OPTION_SORT_STEP = 10;
  * widens the answer list.
  *
  * Declared here rather than per row, with each row a `subgrid` of it, so the fields and the "Add
- * value" buttons line up down the whole panel — a row whose definition has no button leaves that
+ * value" buttons line up down the whole panel - a row whose definition has no button leaves that
  * cell empty instead of reclaiming the width and pulling its own field out of line with the rest.
  *
  * `grid` overrides the `flex flex-col` that `.form-section` carries: that rule sits in the
  * components layer and this is a utility, so ordering settles it. The class is kept because the
- * error tooltips are positioned by `.form-section .form-element .form-element-error` — drop it
+ * error tooltips are positioned by `.form-section .form-element .form-element-error` - drop it
  * and every error renders as a static block instead.
  *
  * One column below `sm`, where a three-way split leaves the field nothing usable. Stated
  * explicitly rather than left implicit: a `subgrid` row inherits only the tracks its parent
  * *declares*, and with none to inherit it would open implicit columns of its own and lay the
- * three cells out side by side — the opposite of the stack the narrow width needs.
+ * three cells out side by side - the opposite of the stack the narrow width needs.
  */
 const ATTRIBUTE_GRID =
 	'form-section grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-[minmax(0,10rem)_minmax(0,1fr)_auto]';
@@ -109,7 +109,7 @@ function toOptions(
  * The fields a product (or one of its variants) answers, rendered from the definitions its
  * categories declare.
  *
- * Nothing here decides *which* definitions apply — that walk is the backend's, answered by
+ * Nothing here decides *which* definitions apply - that walk is the backend's, answered by
  * `resolve`. This only draws them, keyed on the pairing of `type` (how the value is captured)
  * and `value_type` (where it is stored), which the table's own check constrains to the
  * combinations handled below.
@@ -172,8 +172,8 @@ export function FormAttributesProduct({
 	/**
 	 * Adds a value the list does not offer yet.
 	 *
-	 * Two writes, in this order: the wording becomes an `attribute_value` term — a record other
-	 * products point at too, so a rename corrects them all — and the definition is then updated
+	 * Two writes, in this order: the wording becomes an `attribute_value` term - a record other
+	 * products point at too, so a rename corrects them all - and the definition is then updated
 	 * to offer it. The definition owns the list, so the option cannot be created on its own.
 	 *
 	 * `open` minimizes this form to make room, so the parent is captured beforehand and focused
@@ -250,7 +250,7 @@ export function FormAttributesProduct({
 					ProductCategoryAttributeValueTypeEnum.TERM;
 
 				/*
-				 * Number and string, the pairing the two above leave — and the only one whose
+				 * Number and string, the pairing the two above leave - and the only one whose
 				 * value a unit or an affix trails. The table lets a term-backed or boolean
 				 * definition carry a `suffix` too (it only forbids pairing one with a `unit`),
 				 * but there is no figure for it to follow there.
@@ -268,7 +268,7 @@ export function FormAttributesProduct({
 				const options = isTerm ? toOptions(definition, language) : [];
 
 				// The unit reads as part of the question rather than as decoration on the
-				// answer — the input holds a bare number, which is what keeps it filterable
+				// answer - the input holds a bare number, which is what keeps it filterable
 				const questionText =
 					suffix && isTextual
 						? `${labelText} (${suffix})`
@@ -299,7 +299,7 @@ export function FormAttributesProduct({
 				/*
 				 * The label is rendered here rather than by the field, which is what puts it
 				 * beside the answer instead of above it. Every field is then named by
-				 * `ariaLabel` — a native `<label for>` would give the text input click-to-focus,
+				 * `ariaLabel` - a native `<label for>` would give the text input click-to-focus,
 				 * but it names only that one control: the select is a react-aria trigger and the
 				 * option lists have no single control to point at, so they would still need
 				 * `ariaLabel` and the two branches would drift.
@@ -330,7 +330,7 @@ export function FormAttributesProduct({
 							 *
 							 * Kept as a bare wrapper with the row on the div inside it. The
 							 * preflight reset strips a fieldset's default margin, padding and
-							 * border, so it costs no space — but it is left a block, clear of
+							 * border, so it costs no space - but it is left a block, clear of
 							 * the `display: flex` a fieldset has a long history of mishandling.
 							 */}
 							<fieldset aria-label={labelText}>

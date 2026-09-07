@@ -27,17 +27,17 @@
 		}
 	},
 	"help": {
-		"intro": "Every mail the application sends is written here first, then handed to a background worker. This screen is the record of what went out and what failed — it does not send anything itself, and there is no resend.",
+		"intro": "Every mail the application sends is written here first, then handed to a background worker. This screen is the record of what went out and what failed - it does not send anything itself, and there is no resend.",
 		"step_1_title": "Follow the three statuses",
 		"step_1_body": "A mail is written as pending and a job is queued for it in the same breath. The worker sends it and writes back sent, or error with the message it failed on, retrying up to three times with a growing delay in between.",
 		"step_2_title": "Read the sent date carefully",
 		"step_2_body": "The sent date is stamped on failure as well as on success, so it is when the last attempt finished rather than proof anything arrived. A pending row has none at all, which is why filtering by a date range hides everything still waiting.",
 		"step_3_title": "Treat a stuck pending row as infrastructure",
-		"step_3_body": "Pending means the worker has not finished with it. If rows stay that way, the worker or its Redis connection is the thing to look at, not the mail — nothing here can push one through, and deleting the row does not cancel the job already queued for it.",
+		"step_3_body": "Pending means the worker has not finished with it. If rows stay that way, the worker or its Redis connection is the thing to look at, not the mail - nothing here can push one through, and deleting the row does not cancel the job already queued for it.",
 		"step_4_title": "Read what was actually sent",
 		"step_4_body": "The content stored on the row is the rendered subject, body and variables as they were at the moment of queueing. Editing the template afterwards changes what goes out next, never what this row says went out.",
 		"step_5_title": "Find one",
-		"step_5_body": "Filter by status, template or a sent-date range. The content search matches the whole rendered payload and the recipient search matches name and address together, both from three characters — which is how a specific mail to a specific person is found.",
+		"step_5_body": "Filter by status, template or a sent-date range. The content search matches the whole rendered payload and the recipient search matches name and address together, both from three characters - which is how a specific mail to a specific person is found.",
 		"note": "Nothing prunes this table on a schedule, and it holds a full copy of every mail body, so it is the fastest-growing table here on a busy deployment. Deleting is final: there is no deleted state, and the row is the only record that the mail was ever sent.",
 		"tab_info": "Info",
 		"tab_api": "API docs"

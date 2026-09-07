@@ -16,7 +16,7 @@ import {
 } from '@/services/complaint.service';
 
 /**
- * One submit, two possible writes — which one depends on whether the reader already holds a live
+ * One submit, two possible writes - which one depends on whether the reader already holds a live
  * complaint on this target, and the backend refuses the wrong one (409 on a second filing, 404 on
  * amending nothing), so the branch is not cosmetic.
  *
@@ -59,7 +59,7 @@ export async function complaintAction(
 				/*
 				 * The backend's own wording, and it is worth showing verbatim: a 400 says the
 				 * complaint has already been decided on and is no longer the reporter's to
-				 * change, a 409 that one was filed while this form was open — neither is
+				 * change, a 409 that one was filed while this form was open - neither is
 				 * something the form's own copy could distinguish.
 				 */
 				case 400:

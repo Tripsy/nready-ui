@@ -19,7 +19,7 @@ const SEARCH_TRANSLATION_KEYS = [
 ] as const;
 
 /**
- * The mobile search bar — its own sticky band directly under the header, repeating that
+ * The mobile search bar - its own sticky band directly under the header, repeating that
  * header's surface, gutters and row height so the two read as one. The input is always
  * visible and the matches drop over the page beneath it.
  *
@@ -29,7 +29,7 @@ const SEARCH_TRANSLATION_KEYS = [
  * `top-16` pins it below the header, which is `top-0` and exactly that tall; `z-50` matches
  * the header rather than the drawer's `z-40`, so the results still cover an open drawer.
  *
- * It sits in a file of its own because the dashboard layout — a server component — imports it
+ * It sits in a file of its own because the dashboard layout - a server component - imports it
  * directly. That makes this a client entry, where Next allows only serializable props on the
  * components a file exports; the pieces it builds on take callbacks, so they stay in
  * `side-menu-search.component.tsx`, which no server component imports.

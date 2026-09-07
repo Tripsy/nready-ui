@@ -188,7 +188,7 @@ class DiscountValidator extends BaseValidator<typeof validatorMessages> {
 			}),
 			/*
 			 * Carried through validation rather than stripped: zod drops unknown keys, and
-			 * `processForm` assigns the parsed output back over the form values — so a targets
+			 * `processForm` assigns the parsed output back over the form values - so a targets
 			 * list left out of the schema would vanish from the picker on every submit.
 			 * It is not part of the discount payload; `prepareParamsFromFormValues` removes it.
 			 */
@@ -197,7 +197,7 @@ class DiscountValidator extends BaseValidator<typeof validatorMessages> {
 		.superRefine((data, ctx) => {
 			/*
 			 * Every scope except `order` resolves through the target link table, so a discount
-			 * without targets can never match a basket line — it is saved, looks fine in the
+			 * without targets can never match a basket line - it is saved, looks fine in the
 			 * list, and silently applies to nothing. The backend cannot enforce this: targets
 			 * are written by a second call that needs the discount's id, so the row legitimately
 			 * exists without them for an instant.
@@ -307,7 +307,7 @@ function getFormValues(formData: FormData): DiscountFormValuesType {
 		end_at: getFormDataAsString(formData, 'end_at'),
 		notes: getFormDataAsString(formData, 'notes'),
 		// The picker renders one hidden input per selected id, which is what puts them in
-		// `FormData` — `processForm` rebuilds its values from there on every submit.
+		// `FormData` - `processForm` rebuilds its values from there on every submit.
 		targets: formData
 			.getAll('target_id')
 			.map((id) => ({ id: Number(id) }))
@@ -351,12 +351,12 @@ type DiscountManageOutput = ValidatorOutput<DiscountValidator, 'manage'>;
 
 /**
  * Turns the validated `rules` text into the `jsonb` object the backend expects. The parse
- * cannot throw here — the validator has already rejected anything `JSON.parse` would choke
+ * cannot throw here - the validator has already rejected anything `JSON.parse` would choke
  * on. `undefined` (rather than `null`) for an empty box, because the backend's update path
  * copies a key only when it is present, so omitting it leaves the stored rules alone.
  */
 /**
- * Rebuilds the `conditions` object from the flat form fields — the inverse of what
+ * Rebuilds the `conditions` object from the flat form fields - the inverse of what
  * `getFormState` pulls apart.
  *
  * An absent condition is omitted rather than sent as null: the backend's schema is `.strict()`
@@ -412,7 +412,7 @@ function buildConditions(
 
 function prepareParamsFromFormValues(data: DiscountManageOutput) {
 	// `targets` goes to its own endpoint, and the flat condition fields are folded into one
-	// `conditions` object — neither belongs in the discount payload as the form holds them.
+	// `conditions` object - neither belongs in the discount payload as the form holds them.
 	const {
 		targets: _targets,
 		condition_min_order_value: _minOrderValue,
@@ -432,7 +432,7 @@ function prepareParamsFromFormValues(data: DiscountManageOutput) {
 
 /**
  * Sends the picker's selection to `PUT /discounts/:id/targets` after the discount itself is
- * saved, as a second call in the same `operationFunction` — the pipeline supports multi-step
+ * saved, as a second call in the same `operationFunction` - the pipeline supports multi-step
  * submits there, and it is the only place that knows the new id after a create.
  *
  * Only the selected scope is sent, so switching a discount from `category` to `brand` clears the
@@ -505,7 +505,7 @@ export default async function dataSourceConfig(): Promise<
 				} satisfies DiscountDataTableFiltersType,
 			},
 			// Only `id`, `label`, `start_at`, `end_at`, `created_at` and `updated_at` are
-			// sortable — they are the columns the backend's `OrderByEnum` accepts.
+			// sortable - they are the columns the backend's `OrderByEnum` accepts.
 			columns: [
 				{
 					field: 'id',

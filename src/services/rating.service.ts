@@ -17,7 +17,7 @@ import type { ApiResponseFetch } from '@/types/api.type';
  * from a server component would arrive as this app's container, and every visitor would share
  * one vote.
  *
- * For the same reason none of these participate in Next's data cache — the answer is
+ * For the same reason none of these participate in Next's data cache - the answer is
  * per-visitor, and `own` is nobody else's business.
  */
 
@@ -63,7 +63,7 @@ export async function requestRatingSummaryList(
 
 /**
  * Casts a rating the visitor does not hold yet. Answers 409 when they already rated this
- * target — or when somebody else behind the same address did, which is a different message
+ * target - or when somebody else behind the same address did, which is a different message
  * and not something the caller can resolve by retrying.
  */
 export async function requestCreateRating(params: {
@@ -81,7 +81,7 @@ export async function requestCreateRating(params: {
 
 /**
  * Changes a rating already cast. The target and `type` address the row and travel in the
- * path — they are not editable — so the body carries only the new value or reaction.
+ * path - they are not editable - so the body carries only the new value or reaction.
  * Answers 404 when this visitor holds nothing on the target.
  */
 export async function requestUpdateRating(
@@ -100,8 +100,8 @@ export async function requestUpdateRating(
 }
 
 /**
- * Withdraws the visitor's rating of this type. The row is removed outright — the table has no
- * soft delete — so this frees the target up to be rated again.
+ * Withdraws the visitor's rating of this type. The row is removed outright - the table has no
+ * soft delete - so this frees the target up to be rated again.
  */
 export async function requestDeleteRating(
 	entityType: RatingEntityType,

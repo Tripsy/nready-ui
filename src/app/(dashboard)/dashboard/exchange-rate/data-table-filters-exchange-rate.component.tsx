@@ -46,7 +46,7 @@ export const DataTableFiltersExchangeRate = (): JSX.Element => {
 
 	/*
 	 * The backend's `filterByTerm` matches the id exactly for an all-digit term, and otherwise
-	 * both currency columns and the provider — which is why there is no separate currency
+	 * both currency columns and the provider - which is why there is no separate currency
 	 * control: a three-letter term already selects one.
 	 */
 	const searchGlobal = useSearchFilter({

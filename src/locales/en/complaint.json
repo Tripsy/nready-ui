@@ -78,18 +78,18 @@
 		"invalid_description": "The details must be between 2 and 2000 characters"
 	},
 	"help": {
-		"intro": "A report is one reader accusing one article or comment of something. Nothing here files them — readers do, from the public site — and nothing here rewrites them: the text is their accusation, and this screen is only what happens next.",
+		"intro": "A report is one reader accusing one article or comment of something. Nothing here files them - readers do, from the public site - and nothing here rewrites them: the text is their accusation, and this screen is only what happens next.",
 		"step_1_title": "Know who is reporting",
 		"step_1_body": "Reporting requires an account, so every row carries a name you can ask about it. One live report per person per target, which is what makes the reporter count meaningful rather than a measure of how often someone clicked.",
 		"step_2_title": "Read the reason, then the target",
-		"step_2_body": "The reason is the report; the description is optional and often empty, which is fine. Only articles and comments can be reported — a review is dealt with by flagging it in moderation instead.",
+		"step_2_body": "The reason is the report; the description is optional and often empty, which is fine. Only articles and comments can be reported - a review is dealt with by flagging it in moderation instead.",
 		"step_3_title": "Resolve it, or reopen it",
-		"step_3_body": "Resolving stamps the decision with your name and the time; reopening clears both, because a moderator's name on an undecided report reads as a decision. Once resolved, the reporter can no longer amend or withdraw it — the row is the record the decision is answered from.",
+		"step_3_body": "Resolving stamps the decision with your name and the time; reopening clears both, because a moderator's name on an undecided report reads as a decision. Once resolved, the reporter can no longer amend or withdraw it - the row is the record the decision is answered from.",
 		"step_4_title": "Watch the count, not the single report",
-		"step_4_body": "Three separate people reporting the same comment flag it automatically and take it out of the thread until someone looks. Reports on an article only ever land here — nothing is hidden on their account.",
+		"step_4_body": "Three separate people reporting the same comment flag it automatically and take it out of the thread until someone looks. Reports on an article only ever land here - nothing is hidden on their account.",
 		"step_5_title": "Work the queue",
 		"step_5_body": "Open reports are the default view. Filter by target, reason, reporter or the moderator who closed it; search matches the description only, so a report with no text is reachable by filter alone.",
-		"note": "Dismissing a report is a soft delete and can be restored, but it also frees that reader's slot on the target — so they may file a fresh one, and restoring the old one then collides with it. Reports on a comment disappear with the comment; reports on an article survive its deletion, because an article can come back.",
+		"note": "Dismissing a report is a soft delete and can be restored, but it also frees that reader's slot on the target - so they may file a fresh one, and restoring the old one then collides with it. Reports on a comment disappear with the comment; reports on an article survive its deletion, because an article can come back.",
 		"tab_info": "Info",
 		"tab_api": "API docs",
 		"tab_public": "Public API"

@@ -1,6 +1,6 @@
 /**
  * The documents that carry a human-facing reference. One series per document type, which is
- * what an allocation resolves on — mirrors `DocumentTypeEnum` on the backend entity.
+ * what an allocation resolves on - mirrors `DocumentTypeEnum` on the backend entity.
  */
 export const DocumentTypeEnum = {
 	INVOICE: 'invoice',
@@ -28,7 +28,7 @@ export const DOCUMENT_SERIES_DEFAULT_START_NUMBER = 1;
 export const DOCUMENT_SERIES_CODE_MAX_CHARS = 10;
 
 /**
- * A series carries only what is allocated — the code and the running number. How the two are
+ * A series carries only what is allocated - the code and the running number. How the two are
  * rendered into a reference is a display choice made by whatever shows it, so there is no
  * template or padding here.
  *

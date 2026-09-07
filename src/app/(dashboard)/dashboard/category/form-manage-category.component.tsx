@@ -47,7 +47,7 @@ export function FormManageCategory() {
 
 	/*
 	 * Type is create-only: the backend `update` schema accepts only `parent_id` and
-	 * `contents`, and re-parenting across types is rejected — so it is fixed once the row
+	 * `contents`, and re-parenting across types is rejected - so it is fixed once the row
 	 * exists. The parent itself is editable, which is why the type it scopes is not.
 	 */
 	const isCreate = formOperation === 'create';
@@ -79,7 +79,7 @@ export function FormManageCategory() {
 						 * (article: parent > category, product: parent > category >
 						 * sub-category). It answers for a single new child, so moving an
 						 * existing category that carries children of its own can still be
-						 * refused on save — the service is the gate, this only keeps the
+						 * refused on save - the service is the gate, this only keeps the
 						 * obvious dead ends out of the list.
 						 */
 						can_parent: true,

@@ -11,7 +11,7 @@ import { type Language, LanguageEnum } from '@/types/common.type';
 
 /**
  * Validation messages that are generic enough to be written once rather than copied into
- * every entity's locale file — constraint messages the helpers below produce themselves,
+ * every entity's locale file - constraint messages the helpers below produce themselves,
  * as opposed to the per-field `invalid_<field>` messages an entity owns.
  *
  *   const validatorMessages = [...sharedValidatorMessages, 'invalid_amount'] as const;
@@ -41,7 +41,7 @@ export async function resolveValidatorMessages<
 >(validatorMessages: T, entity: string): Promise<Record<T[number], string>> {
 	/*
 	 * Shared keys are kept out of the entity batch deliberately: asking for
-	 * `<entity>.validation.only_positive` resolves to the raw key — and, with app.debug on,
+	 * `<entity>.validation.only_positive` resolves to the raw key - and, with app.debug on,
 	 * logs a missing-translation warning for a key that was never meant to live there.
 	 */
 	const entityMessages = validatorMessages.filter(
@@ -68,7 +68,7 @@ export abstract class IsValidator {
 	protected isValidIBAN(iban: string): boolean {
 		const clean = iban.replace(/\s+/g, '').toUpperCase();
 
-		// ISO 13616 registers Romania as RO2!n4!a16!c — two check digits, a four-letter bank
+		// ISO 13616 registers Romania as RO2!n4!a16!c - two check digits, a four-letter bank
 		// code, then sixteen *alphanumeric* characters. This demanded `\d{16}`, so every IBAN
 		// whose account part contains a letter was rejected outright, including the ECBS
 		// reference value RO49AAAA1B31007593840000.
@@ -107,7 +107,7 @@ export abstract class IsValidator {
 	 * Deliberately an E.164 *shape* check rather than a per-country rule: these numbers
 	 * belong to clients, carriers and vendor contacts who are routinely outside Romania, so
 	 * anything narrower would reject legitimate counterparties. Optional leading `+` then
-	 * 7 to 15 digits — E.164 caps a number at 15, and 7 is the shortest plausible national
+	 * 7 to 15 digits - E.164 caps a number at 15, and 7 is the shortest plausible national
 	 * one. A leading trunk zero (0722…) is accepted because that is how numbers are written
 	 * locally.
 	 *
@@ -115,8 +115,8 @@ export abstract class IsValidator {
 	 * @returns {boolean}
 	 */
 	protected isValidPhoneNumber(phoneNumber: string): boolean {
-		// Separators are a presentation choice — numbers get pasted with spaces, dots,
-		// dashes or parentheses — so strip them before looking at the digits.
+		// Separators are a presentation choice - numbers get pasted with spaces, dots,
+		// dashes or parentheses - so strip them before looking at the digits.
 		const clean = phoneNumber.replace(/[\s.\-()]/g, '');
 
 		return /^\+?\d{7,15}$/.test(clean);
@@ -125,8 +125,8 @@ export abstract class IsValidator {
 	/**
 	 * Checks if the provided CNP is valid.
 	 *
-	 * Verifies the structure that is safe to assume for every CNP — 13 digits, a sex/century
-	 * digit of 1-9, and a real month — plus the control digit, which is what actually catches
+	 * Verifies the structure that is safe to assume for every CNP - 13 digits, a sex/century
+	 * digit of 1-9, and a real month - plus the control digit, which is what actually catches
 	 * a mistyped number.
 	 *
 	 * @param {string} cnp
@@ -149,7 +149,7 @@ export abstract class IsValidator {
 		}
 
 		// Control digit: weight the first twelve digits by the national constant, sum, then
-		// take mod 11 — a remainder of 10 stands for a control digit of 1.
+		// take mod 11 - a remainder of 10 stands for a control digit of 1.
 		const controlKey = '279146358279';
 
 		let sum = 0;

@@ -126,7 +126,7 @@ const DataTableArticleOrderContent = (): JSX.Element => {
 
 	/**
 	 * The category slot is only orderable once a category is chosen: the group is the subtree,
-	 * and without one the list would be every category-featured article at once — a set no
+	 * and without one the list would be every category-featured article at once - a set no
 	 * single running order describes.
 	 */
 	const isReady =

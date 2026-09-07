@@ -133,7 +133,7 @@ export default async function dataSourceConfig(): Promise<
 					is_deleted: { value: false, matchMode: 'equals' },
 				} satisfies CarrierDataTableFiltersType,
 			},
-			// Only `id`, `name`, `created_at` and `updated_at` are sortable — they are the
+			// Only `id`, `name`, `created_at` and `updated_at` are sortable - they are the
 			// columns the backend's `OrderByEnum` accepts.
 			columns: [
 				{

@@ -17,7 +17,7 @@ import type { FormErrorsType, FormSituationType } from '@/types/form.type';
 
 /**
  * The report widget is entity-agnostic: an article renders it today, a comment renders the same
- * one next. Everything that differs is a prop — the target and which reasons are offered — so the
+ * one next. Everything that differs is a prop - the target and which reasons are offered - so the
  * copy lives in the `complaint` namespace, beside the dashboard's, rather than in the host page's.
  */
 export const COMPLAINT_TRANSLATION_PREFIX = 'complaint';
@@ -66,7 +66,7 @@ export const complaintReasonLabelKey = (
 
 /**
  * What an article may be reported for. A subset of the backend enum on purpose: the other reasons
- * describe what somebody wrote *about* an article — spam, abuse — and belong to the comment target.
+ * describe what somebody wrote *about* an article - spam, abuse - and belong to the comment target.
  * Presentation only; the backend accepts any of its seven, and the validator below mirrors that.
  */
 export const COMPLAINT_ARTICLE_REASONS: readonly ComplaintReason[] = [
@@ -76,7 +76,7 @@ export const COMPLAINT_ARTICLE_REASONS: readonly ComplaintReason[] = [
 ];
 
 /**
- * What a comment may be reported for — the other half of the enum. These describe what somebody
+ * What a comment may be reported for - the other half of the enum. These describe what somebody
  * wrote rather than what an article claims, so `ai_slop` and `copyright` are left to the article:
  * a reader disputing a comment's honesty reports it as misinformation, which is the same charge.
  */
@@ -95,7 +95,7 @@ export const COMPLAINT_COMMENT_REASONS: readonly ComplaintReason[] = [
  * `FormData`.
  *
  * `has_own` says whether this reader already holds a live complaint on the target, which decides
- * whether the action files one or amends it — the backend refuses the wrong one (409 on a second
+ * whether the action files one or amends it - the backend refuses the wrong one (409 on a second
  * filing, 404 on amending nothing).
  */
 export type ComplaintFormValuesType = {

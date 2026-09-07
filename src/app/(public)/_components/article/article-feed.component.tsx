@@ -61,7 +61,7 @@ function resolveArticleView(entry: ArticleModel, language: Language) {
 	};
 }
 
-/** Date above, category inline with the heading — the shape every article block shares. */
+/** Date above, category inline with the heading - the shape every article block shares. */
 export function ArticleHeading({
 	entry,
 	language,
@@ -308,7 +308,7 @@ function SectionHeading({ children }: { children: string }) {
  *
  * The first page is rendered on the server and handed over as `initialEntries`, so the feed
  * is in the HTML a crawler reads and the first paint needs no fetch. Later pages are pulled
- * in as the reader reaches the end of the list — through the proxy, since this runs in the
+ * in as the reader reaches the end of the list - through the proxy, since this runs in the
  * browser and only the proxy may talk to the backend from there.
  */
 export function ArticleFeed({

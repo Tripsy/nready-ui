@@ -21,7 +21,7 @@ export function hasArticleSourceDetails(
 }
 
 /**
- * Attribution for an article this site did not write — a parsed article carries where it came
+ * Attribution for an article this site did not write - a parsed article carries where it came
  * from, a note about the publisher, and whatever disclaimer the license requires.
  *
  * The outbound link is `nofollow`: the target is a third party the editor named, not an

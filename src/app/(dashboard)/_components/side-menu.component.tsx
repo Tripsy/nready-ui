@@ -89,7 +89,7 @@ export function SideMenu() {
 					 * carries the search bar, and two inputs for one menu is one too many.
 					 *
 					 * The right gutter is the wider one because the scrollbar belongs to the
-					 * scrolling nav below, not to this row — matching the left padding here
+					 * scrolling nav below, not to this row - matching the left padding here
 					 * would leave the field running into it.
 					 */
 					<div className="hidden md:block pl-3 pr-5 pt-4">

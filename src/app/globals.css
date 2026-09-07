@@ -1,7 +1,7 @@
 /*
  * HeroUI v3 provides Tailwind CSS v4, the full color-token system (light + dark),
  * and tw-animate-css via this single import. Do NOT also `@import "tailwindcss"`
- * here — it is pulled in transitively and importing it twice breaks the cascade.
+ * here - it is pulled in transitively and importing it twice breaks the cascade.
  */
 @import "@heroui/react/styles";
 
@@ -137,7 +137,7 @@
 	}
 
 	/*
-	 * Backend-supplied page content (`template` entity, `/page/[label]`) — plain
+	 * Backend-supplied page content (`template` entity, `/page/[label]`) - plain
 	 * `<h1>`-`<h6>`/`<p>` HTML with no classes of its own, injected via
 	 * `dangerouslySetInnerHTML`. There's no typography plugin in this project, so the tags
 	 * need their own rules rather than a `prose` class.
@@ -265,8 +265,8 @@
 
 	/*
 	 * The drawer hangs off the bottom of the sticky band above it, so its offset is that
-	 * band's height. Below `md` the band is two rows — the header plus the menu search bar,
-	 * each `h-16` — which is why the two breakpoints disagree. A change to the search row's
+	 * band's height. Below `md` the band is two rows - the header plus the menu search bar,
+	 * each `h-16` - which is why the two breakpoints disagree. A change to the search row's
 	 * height has to be mirrored here.
 	 */
 	.dashboard-layout .main-section .side-menu-container {
@@ -294,7 +294,7 @@
 
 	/*
 	 * Columns carry hard pixel bounds and are user-resizable, so cell content has to stay
-	 * inside the column it belongs to — otherwise a status badge wider than its column
+	 * inside the column it belongs to - otherwise a status badge wider than its column
 	 * paints over the neighbouring one. Kept ahead of the striping rule below, which
 	 * targets the same cells more specifically.
 	 */
@@ -303,7 +303,7 @@
 	}
 
 	/*
-	 * Row striping — HeroUI's table ships hover, selected and focus states but no zebra
+	 * Row striping - HeroUI's table ships hover, selected and focus states but no zebra
 	 * pattern. The tint goes on the cells rather than the row because the cells carry the
 	 * background HeroUI sets, and a row-level colour would sit behind it.
 	 */
@@ -327,7 +327,7 @@
 
 	/*
 	 * HeroUI sizes column headers at `text-xs`, which reads as a caption rather than a
-	 * heading next to the `text-sm` body cells. `text-base` is Tailwind's medium step —
+	 * heading next to the `text-sm` body cells. `text-base` is Tailwind's medium step -
 	 * there is no `text-md` class, so naming one here would silently apply nothing.
 	 *
 	 * From `md` up the page is the scrollport (see the overflow rule below), so `top-16`
@@ -336,7 +336,7 @@
 	 * underneath that bar instead. `z-20` stays below the bar's `z-50` and above the rows.
 	 *
 	 * Below `md` the scrollport is the table's own container, which never scrolls
-	 * vertically — a 64px offset there only pushes the header down over the first row,
+	 * vertically - a 64px offset there only pushes the header down over the first row,
 	 * since sticky displaces an element that starts closer to the scrollport edge than its
 	 * offset. `top-0` keeps it at its natural position.
 	 */
@@ -348,7 +348,7 @@
 	 * A sticky element sticks to its nearest *scroll container*, so the header can only
 	 * follow the page while nothing between it and the document scrolls. Columns are
 	 * `1fr` shares of a fixed layout, so the table matches its container exactly and only
-	 * overflows once the viewport drops below the columns' combined minimum — which is why
+	 * overflows once the viewport drops below the columns' combined minimum - which is why
 	 * the containers can hand scrolling back to the page from `md` up. Below that the
 	 * table keeps its own horizontal scroll (and forfeits the sticky header) rather than
 	 * dragging the whole page sideways.
@@ -386,7 +386,7 @@
 	/*
 	 * Rendered article markdown (`renderMarkdown`). Tailwind's preflight resets headings,
 	 * lists and quotes to plain text, so HTML produced outside JSX has nothing to render
-	 * with — these rules are what give it back its structure.
+	 * with - these rules are what give it back its structure.
 	 */
 	.markdown-body {
 		line-height: 1.65;
@@ -634,8 +634,8 @@
 }
 
 /*
- * HeroUI draws the required marker itself — `.label--required::after`, `content: "*"`, 2px of
- * margin — close enough to the text to read as part of the word. Widened to match the marker
+ * HeroUI draws the required marker itself - `.label--required::after`, `content: "*"`, 2px of
+ * margin - close enough to the text to read as part of the word. Widened to match the marker
  * `FormElement` writes by hand for a group label (a radio set has no single control for
  * `<Label>` to point at, so that branch renders its own `<span class="ml-1">`), so the two
  * spellings of the same marker look alike.

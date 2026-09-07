@@ -14,7 +14,7 @@ export type AccountModel = UserModel<Date> & {
 	permissions: AccountModelPermissions;
 	/*
 	 * False for a social sign-in account that has never set a password. Supplied by the
-	 * backend's auth context — the password hash itself is deliberately never sent, so this
+	 * backend's auth context - the password hash itself is deliberately never sent, so this
 	 * boolean is the only signal the UI gets, and it is what decides whether the "change
 	 * password" and "confirm with password" affordances make sense at all.
 	 *
@@ -41,7 +41,7 @@ export function isMember(data: AccountModel | null): boolean {
  *
  * A missing `has_password` counts as `true`, not `false`. The field only arrives from a
  * backend new enough to send it, and reading its absence as "social account" misreports
- * every user whenever the two sides are out of step — a frontend deployed ahead of the API,
+ * every user whenever the two sides are out of step - a frontend deployed ahead of the API,
  * or a dev server still running pre-change code. That failure is not cosmetic: it hides the
  * change-password action and drops the confirmation step on account delete. Defaulting to
  * "has a password" keeps both guarded, and the backend rejects the request anyway if the

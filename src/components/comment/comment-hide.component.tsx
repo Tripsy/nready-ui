@@ -1,6 +1,6 @@
 /*
- * No `'use client'`: `comment-menu.component.tsx` — itself below the `comment-thread` boundary
- * and directive-free for the same reason — is what mounts this. Carrying the directive would
+ * No `'use client'`: `comment-menu.component.tsx` - itself below the `comment-thread` boundary
+ * and directive-free for the same reason - is what mounts this. Carrying the directive would
  * make Next's TS plugin treat the file as a client *entry* and reject the non-serializable
  * props below (TS71007); `onClose` and `onHidden` are plain callbacks, not server actions.
  */
@@ -28,7 +28,7 @@ const MODERATION_REASON_MAX = 255;
  * Taking a comment off the page from the page itself, with the reason recorded against it.
  *
  * Two outcomes rather than one, because they are read differently afterwards: `rejected` is a
- * decision about this comment, `spam` is a judgement about who wrote it — and the dashboard's
+ * decision about this comment, `spam` is a judgement about who wrote it - and the dashboard's
  * queues are filtered on exactly that difference. Neither is offered as a "delete": the row stays,
  * which is what makes the decision reversible from the dashboard.
  *
@@ -80,8 +80,8 @@ export function CommentHideDialog({
 			showToast({
 				severity: 'error',
 				summary: translations['thread.hide_failed'],
-				// Distinguishes a move the comment's current state does not allow — somebody else
-				// having moderated it in the meantime — from a permission this reader lacks.
+				// Distinguishes a move the comment's current state does not allow - somebody else
+				// having moderated it in the meantime - from a permission this reader lacks.
 				detail: getErrorMessage(error),
 			}),
 	});
@@ -99,7 +99,7 @@ export function CommentHideDialog({
 				</p>
 
 				{/*
-				 * Two mutually exclusive outcomes, so a radio group — segmented buttons would
+				 * Two mutually exclusive outcomes, so a radio group - segmented buttons would
 				 * read as two separate actions, each of which submits.
 				 */}
 				<fieldset className="flex flex-wrap gap-2">
@@ -149,7 +149,7 @@ export function CommentHideDialog({
 					/>
 
 					{/*
-					 * The reason is the state the comment is in *now*, not an entry in a log —
+					 * The reason is the state the comment is in *now*, not an entry in a log -
 					 * the next decision overwrites it. Worth saying, since "reason" reads like
 					 * something that accumulates.
 					 */}

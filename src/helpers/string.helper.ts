@@ -61,8 +61,8 @@ const NON_DECOMPOSING_PATTERN = new RegExp(
  * generated from user-entered names in a Romanian-first app, so this is the difference
  * between `braila` and a mangled `brila`.
  *
- * Both Romanian encodings fold the same way — comma-below (`ș`, U+0219) and cedilla (`ş`,
- * U+015F) — which they need to, since real data mixes them.
+ * Both Romanian encodings fold the same way - comma-below (`ș`, U+0219) and cedilla (`ş`,
+ * U+015F) - which they need to, since real data mixes them.
  *
  * Call it before the camelCase split so an accented capital still reads as a word boundary.
  */
@@ -132,7 +132,7 @@ export function toKebabCase(
 		result = result.replace(/[\s_]+/g, '-');
 	}
 
-	// Remove special characters but keep hyphens and alphanumeric — and underscores when
+	// Remove special characters but keep hyphens and alphanumeric - and underscores when
 	// they are being preserved, otherwise this strip would undo the branch above.
 	result = result.replace(
 		preserveUnderscores ? /[^a-zA-Z0-9\-_]/g : /[^a-zA-Z0-9-]/g,
@@ -214,7 +214,7 @@ export function replaceVars(
 	vars: Record<string, string | number> = {},
 ): string {
 	// Numbers are accepted because most interpolated values are numeric config
-	// (character minimums, counts) — stringifying at every call site was noise.
+	// (character minimums, counts) - stringifying at every call site was noise.
 	return content.replace(/{{\s*(\w+)\s*}}/g, (_, key) =>
 		Object.hasOwn(vars, key) ? String(vars[key]) : `{{${key}}}`,
 	);
@@ -242,7 +242,7 @@ export function parseJson(val: unknown) {
  * Mirrors `AMOUNT_DECIMALS` in the backend's `cash-flow.entity.ts`. Amounts are not stored
  * with a separator there: `cash-flow.service.ts` persists `Math.round(abs(amount) * 10 ** 4)`
  * as an integer and divides by the same factor on read, so 80.6452 is stored as 806452.
- * Anything past the fourth decimal is discarded by that round-trip regardless — rounding here
+ * Anything past the fourth decimal is discarded by that round-trip regardless - rounding here
  * means the value the app shows and the value the database holds are the same number.
  *
  * Keep in sync with the backend if its precision ever changes.
@@ -327,7 +327,7 @@ export function normalizePhoneNumber(
 		return digits;
 	}
 
-	// Local number — strip trunk prefix (leading 0) and add country code
+	// Local number - strip trunk prefix (leading 0) and add country code
 	if (digits.startsWith('0')) {
 		digits = digits.substring(1);
 	}
@@ -342,7 +342,7 @@ export function normalizePhoneNumber(
  */
 export function formatBytes(bytes?: number): string {
 	if (bytes == null) {
-		return '—';
+		return '-';
 	}
 
 	if (bytes < 1024) {
@@ -363,7 +363,7 @@ export function formatBytes(bytes?: number): string {
  */
 export function formatMime(mime?: ImageMime): string {
 	if (!mime) {
-		return '—';
+		return '-';
 	}
 
 	return mime.replace('image/', '').toUpperCase();

@@ -70,18 +70,18 @@
 		}
 	},
 	"help": {
-		"intro": "Adding a user is mostly about the role — it decides which of the other fields apply and what the account can do once it exists.",
+		"intro": "Adding a user is mostly about the role - it decides which of the other fields apply and what the account can do once it exists.",
 		"step_1_title": "Set the name, email and password",
 		"step_1_body": "The password needs at least 8 characters with a capital letter, a number and a special character, and must match the confirmation. On an update you can leave both password fields empty to keep the current one.",
 		"step_2_title": "Pick the role",
 		"step_2_body": "Member is an ordinary account, operator is staff, admin bypasses every permission check. Role is the field the rest of the form follows.",
-		"step_3_title": "Add an operator type — operators only",
+		"step_3_title": "Add an operator type - operators only",
 		"step_3_body": "An operator must have a type (seller, product manager or content editor), and any other role must not have one. Setting a type on a member is rejected, not ignored.",
 		"step_4_title": "Grant permissions",
 		"step_4_body": "\"Setup permissions\" appears only for an operator, and needs the permission entity's own update right. Members inherit nothing and admins need nothing, so neither offers it.",
 		"step_5_title": "Move the account through its statuses",
 		"step_5_body": "New accounts start pending. Enable moves pending or inactive to active; Disable moves pending or active to inactive. There is no route back to pending.",
-		"note": "Deleting a user is a soft delete — the row keeps its email, so creating a new account with that address fails until the old one is restored or purged.",
+		"note": "Deleting a user is a soft delete - the row keeps its email, so creating a new account with that address fails until the old one is restored or purged.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
 	}

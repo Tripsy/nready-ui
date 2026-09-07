@@ -169,7 +169,7 @@ function getFormValues(formData: FormData): CategoryFormValuesType {
 			...content,
 			// `toKebabCase` strips anything outside the latin alphabet, so a wholly
 			// non-latin label leaves the slug empty and the field reports itself as
-			// required — better than persisting a meaningless slug into a unique index.
+			// required - better than persisting a meaningless slug into a unique index.
 			slug: content.slug?.trim() || toKebabCase(content.label ?? ''),
 		})),
 	};
@@ -198,7 +198,7 @@ function getFormState(
 }
 
 /**
- * `parent` holds the autocomplete's display text and never belongs in a request — only the
+ * `parent` holds the autocomplete's display text and never belongs in a request - only the
  * resolved `parent_id` does.
  */
 function prepareCreateParams({
@@ -209,7 +209,7 @@ function prepareCreateParams({
 }
 
 /**
- * The backend's `update` schema accepts `parent_id` and `contents` only — `type` is fixed once
+ * The backend's `update` schema accepts `parent_id` and `contents` only - `type` is fixed once
  * the row exists. `parent_id` is always sent, including as `null`: the backend reads the key's
  * presence as the intent to re-parent and its emptiness as a promotion to root, and the form
  * prefills it from the entry, so an unchanged value is a no-op there.
@@ -463,7 +463,7 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['category', 'update'],
 				entriesSelection: 'single',
 				// `pending` is a valid source state too, so this is not the mirror of
-				// `disable` — anything not already active can be activated.
+				// `disable` - anything not already active can be activated.
 				customEntryCheck: (entry: CategoryModel) =>
 					!entry.deleted_at &&
 					entry.status !== CategoryStatusEnum.ACTIVE,
@@ -531,7 +531,7 @@ export default async function dataSourceConfig(): Promise<
 			/*
 			 * Only a product category declares attributes: the definitions describe what a
 			 * product in it must say about itself, and the article tree holds none. Gated on
-			 * `product` rather than `category`, matching the backend policy — the schema of a
+			 * `product` rather than `category`, matching the backend policy - the schema of a
 			 * catalog belongs to whoever may edit the catalog.
 			 */
 			attributes: {

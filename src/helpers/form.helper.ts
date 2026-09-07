@@ -25,7 +25,7 @@ export type ValidationIssueType = {
  * A key holds one or the other, never both. So when a validator raises an issue on an object
  * field *and* on a path beneath it, only one can be represented: the nested messages win,
  * because they name the individual field the user has to fix. The displaced parent-level
- * message is reported rather than dropped in silence — seeing it means the validator needs a
+ * message is reported rather than dropped in silence - seeing it means the validator needs a
  * leaf path (a dedicated sentinel field) for its group-level rule.
  */
 export function accumulateIssueErrors<T extends FormValuesType>(
@@ -55,7 +55,7 @@ export function accumulateIssueErrors<T extends FormValuesType>(
 			const existing = current[segment];
 
 			if (Array.isArray(existing)) {
-				// A group-level message got here first — nested fields take the key.
+				// A group-level message got here first - nested fields take the key.
 				warnUnrepresentable(
 					path.slice(0, index + 1),
 					(existing as string[]).join('; '),
@@ -162,7 +162,7 @@ export function getFormDataAsString(
 	return formValue ? String(formValue) : null;
 }
 
-/** Anything unparseable is `null`, not `NaN` — a missing number and a broken one read alike. */
+/** Anything unparseable is `null`, not `NaN` - a missing number and a broken one read alike. */
 export function getFormDataAsNumber(
 	formData: FormData,
 	key: string,
@@ -180,7 +180,7 @@ export function getFormDataAsNumber(
 
 /**
  * Values a form can submit for false. An unchecked checkbox sends nothing at all, but a hidden
- * input or a select carries a literal string — and every non-empty string is truthy, so
+ * input or a select carries a literal string - and every non-empty string is truthy, so
  * `"false"` would otherwise read as true.
  */
 const FALSE_FORM_VALUES = new Set(['', '0', 'false', 'off', 'no']);
@@ -216,12 +216,12 @@ export function getFormDataAsEnum<T extends Record<string, string>>(
 
 /**
  * A collection the form submits as one JSON field, because per-input names cannot express a
- * nested shape — a list of variants, each with its own list of prices, has no flat encoding.
+ * nested shape - a list of variants, each with its own list of prices, has no flat encoding.
  *
  * Built on `parseJson` rather than repeating its `try`/`catch`: what this adds is the array
  * check and an empty list as the fallback, so a missing, blank, malformed or object-valued
  * field all read the same. The field is written by the form's own `JSON.stringify`, so a parse
- * failure means the value was truncated in transit rather than mistyped — and an empty list
+ * failure means the value was truncated in transit rather than mistyped - and an empty list
  * lets the validator report the missing collection instead of the pipeline throwing.
  */
 export function getFormDataAsJsonList<T>(formData: FormData, key: string): T[] {
@@ -252,7 +252,7 @@ export function toOptionsFromEnum(
  *
  *  - the entity's own fields the tab owns (`tabFields`);
  *  - the same tab's translated fields, counted across **every** language rather than the open
- *    one — a missing Romanian label is the content tab's problem whichever translation happens
+ *    one - a missing Romanian label is the content tab's problem whichever translation happens
  *    to be selected (`tabContentFields` against `contentErrors`);
  *  - the list-level message for the translations themselves ("at least one translation"), which
  *    has no field of its own and belongs to the content tab, where an editor would go to fix it.
@@ -321,8 +321,8 @@ export function countTabErrors<TabId extends string>({
 /**
  * How many error messages are held anywhere inside an error value.
  *
- * `FormErrorsType` nests differently per field — a plain `string[]`, a record of them, or a
- * record of them keyed by index for a list field — and the count only has to be a total, so
+ * `FormErrorsType` nests differently per field - a plain `string[]`, a record of them, or a
+ * record of them keyed by index for a list field - and the count only has to be a total, so
  * this walks whatever shape it is handed rather than encoding each one. Used by every form that
  * groups its fields into tabs, to put a badge on the tab holding the problem.
  */
@@ -359,7 +359,7 @@ export function countErrorMessages(value: unknown): number {
  *  - a plain `string[]` when the message belongs to the list ("at least one category"), because
  *    `accumulateZodErrors` pushes messages into a list at the leaf;
  *  - an object keyed by the index as a **string** (`{ '0': { sku: [...] } }`) when the issues
- *    belong to individual entries — the accumulator builds every intermediate container with
+ *    belong to individual entries - the accumulator builds every intermediate container with
  *    `{}`, so a numeric path segment never produces a real array.
  *
  * Indexing by number still reads the per-entry value (`obj[0]` is `obj['0']`), which is why a
@@ -374,7 +374,7 @@ export function ownErrorMessages(value: unknown): string[] | undefined {
  * The errors belonging to one entry of a list field, by its position.
  *
  * The counterpart of `ownErrorMessages`: that one reads a list's own messages, this one reads a
- * single row's. `Row` only names the keys — every value stays `unknown`, because a field inside
+ * single row's. `Row` only names the keys - every value stays `unknown`, because a field inside
  * the row carries the same two shapes the list itself does and has to go back through
  * `ownErrorMessages` before it is read as messages.
  *
@@ -404,14 +404,14 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * The validated shape, folded back over the values the fields hold — but only where the schema
+ * The validated shape, folded back over the values the fields hold - but only where the schema
  * normalized a value rather than changed what it is.
  *
  * A validator may tidy what the user typed, and the form should show it: a slug lower-cased, a
  * currency upper-cased, a SKU trimmed. That is why the pipeline echoes the parse result back as
  * the form's values at all. What it may not do is hand a field a different *type* from the one
  * `FormValuesType` declares, because the field goes on rendering it and the next validation pass
- * goes on parsing it — an amount schema that reads `string` and emits `number` rejects its own
+ * goes on parsing it - an amount schema that reads `string` and emits `number` rejects its own
  * output on the following run, and the form ends up with an error it offers no way to clear.
  *
  * So a leaf is taken from the parse result only when its type still matches; otherwise the typed
@@ -419,7 +419,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
  * is untouched by this, so the request still carries the converted shape.
  */
 export function mergeNormalizedValues<T>(raw: T, validated: unknown): T {
-	// Nothing to preserve — a key the values never carried, or one a schema default filled in.
+	// Nothing to preserve - a key the values never carried, or one a schema default filled in.
 	if (raw === undefined) {
 		return validated as T;
 	}
@@ -440,7 +440,7 @@ export function mergeNormalizedValues<T>(raw: T, validated: unknown): T {
 	}
 
 	// `typeof null` is `'object'`, so an emptied optional folded to `null` reads as a type
-	// change against the `''` still in the field — which is exactly what it is.
+	// change against the `''` still in the field - which is exactly what it is.
 	return typeof validated === typeof raw &&
 		(validated === null) === (raw === null)
 		? (validated as T)

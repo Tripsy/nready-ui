@@ -42,7 +42,7 @@ export type CategoryModel<D = Date | string> = {
 	sort_order?: number;
 	details?: Record<string, string | number | boolean> | null;
 
-	// Hierarchy — `find` returns the parent as a stub (`id` + one content label);
+	// Hierarchy - `find` returns the parent as a stub (`id` + one content label);
 	// `read` returns the full row, plus `ancestors`/`children` when asked for them.
 	parent?: CategoryModel<D> | null;
 	ancestors?: CategoryModel<D>[];
@@ -100,7 +100,7 @@ export type CategoryTreeNode = {
 	children: CategoryTreeNode[];
 	/**
 	 * Its parent is missing from the set the tree was built from, so it is drawn as a root.
-	 * Happens on any partial listing — an active-only fetch whose parent is inactive, or a
+	 * Happens on any partial listing - an active-only fetch whose parent is inactive, or a
 	 * page of results that stops short of it.
 	 */
 	isDetached: boolean;

@@ -162,7 +162,7 @@ export function OAuthIdentityList({ hasPassword }: { hasPassword: boolean }) {
 									/*
 									 * No "Link" button on purpose: the backend's
 									 * `/account/oauth/:provider` is gated to signed-out
-									 * callers, and linking happens implicitly there — signing
+									 * callers, and linking happens implicitly there - signing
 									 * in with a provider whose verified email matches this
 									 * account attaches it. A button here would only ever 403.
 									 */
