@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import isEqual from 'fast-deep-equal';
+import { useEffect, useMemo, useState } from 'react';
+import { FormAttributesProduct } from '@/app/(dashboard)/dashboard/product/form-attributes-product.component';
 import {
 	FormAvailabilityProduct,
 	type ProductAvailabilityFormType,
@@ -13,6 +16,7 @@ import {
 	FormComponentSelect,
 } from '@/components/form/form-element.component';
 import { Icons } from '@/components/icon.component';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getLanguageClient } from '@/config/translate.setup';
 import {
@@ -24,6 +28,7 @@ import { requestFind } from '@/helpers/services.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { hasPermission } from '@/models/account.model';
 import { type BrandModel, displayBrandLabel } from '@/models/brand.model';
 import {
 	type CategoryModel,
@@ -44,11 +49,19 @@ import {
 	resolveProductUnit,
 } from '@/models/product.model';
 import {
+	type ProductAttributeFormType,
+	pruneAttributeValues,
+} from '@/models/product-category-attribute.model';
+import {
 	displayTermLabel,
 	type TermModel,
 	TermTypeEnum,
 } from '@/models/term.model';
+import { useAuth } from '@/providers/auth.provider';
 import { useWindowForm } from '@/providers/window-form.provider';
+import { requestResolvedAttributes } from '@/services/product.service';
+import { useModalStore } from '@/stores/window.store';
+import { DataSourceSectionEnum } from '@/types/data-source.type';
 
 export type ProductFormValuesType = {
 	type: ProductType;
@@ -71,6 +84,12 @@ export type ProductFormValuesType = {
 	categories: ProductRefType[];
 	tags: ProductRefType[];
 	variants: ProductVariantFormType[];
+	/**
+	 * The answers to the `product`-scoped definitions the product's categories declare. The
+	 * definitions themselves are not form state — they are fetched from `resolve` and change
+	 * with the categories; this holds only what the editor filled in.
+	 */
+	attributes: ProductAttributeFormType[];
 	/** Recurring ordering windows. Empty means unrestricted — see `FormAvailabilityProduct`. */
 	availabilities: ProductAvailabilityFormType[];
 
@@ -99,7 +118,14 @@ type FormTabId = (typeof FORM_TABS)[number]['id'];
 /** The product-level fields each tab owns, for the error counts on the tab strip. */
 const TAB_FIELDS: Record<FormTabId, readonly (keyof ProductFormValuesType)[]> =
 	{
-		details: ['type', 'unit', 'brand_id', 'categories', 'tags'],
+		details: [
+			'type',
+			'unit',
+			'brand_id',
+			'categories',
+			'tags',
+			'attributes',
+		],
 		variants: ['vat_category', 'variants', 'variants_rule'],
 		availability: [
 			'available_from',
@@ -141,6 +167,13 @@ const productVatCategories = toOptionsFromEnum(ProductVatCategoryEnum, {
 	formatter: formatEnumLabel,
 });
 
+/**
+ * Namespaces the brand suggestion cache. Declared once because the query and the invalidation
+ * that follows a create have to name the same key — a mismatch leaves the editor looking at the
+ * empty result that sent them to the create window in the first place.
+ */
+const BRAND_SUGGESTIONS_KEY = 's-product-brand';
+
 export function FormManageProduct() {
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<ProductFormValuesType>();
@@ -159,10 +192,20 @@ export function FormManageProduct() {
 	const [tab, setTab] = useState<FormTabId>('details');
 	const [searchBrand, setSearchBrand] = useState('');
 
+	const { open, focus, getCurrentWindow } = useModalStore();
+	const queryClient = useQueryClient();
+	const { auth } = useAuth();
+
+	// Offering a create the account may not perform would only defer the refusal to the submit
+	const canCreateBrand = hasPermission(auth, 'brand', 'create');
+
+	// A definition is gated on `product`, like the backend policy that writes it
+	const canCreateAttribute = hasPermission(auth, 'product', 'create');
+
 	const { suggestions: brandSuggestions, isFetching: isBrandFetching } =
 		useRemoteAutocomplete<BrandModel>({
 			query: searchBrand,
-			queryKey: ['s-product-brand'],
+			queryKey: [BRAND_SUGGESTIONS_KEY],
 			queryFn: async (term) => {
 				const response = await requestFind<BrandModel>('brand', {
 					filter: { term },
@@ -172,6 +215,179 @@ export function FormManageProduct() {
 				return response?.entries ?? [];
 			},
 		});
+
+	/**
+	 * Creates the brand from here once the search comes back empty, seeding its window with the
+	 * typed name. Reusing that window is what keeps the new brand a complete record — it has a
+	 * slug and per-language content the search box has nowhere to ask for.
+	 *
+	 * `open` minimizes this form to make room, so the parent is captured beforehand and focused
+	 * again on success; otherwise the editor lands on an empty desktop with a half-filled
+	 * product parked in the dock.
+	 */
+	const createBrand = (typedValue: string) => {
+		const parentWindow = getCurrentWindow();
+
+		open({
+			minimized: false,
+			section: DataSourceSectionEnum.DASHBOARD,
+			dataSource: 'brand',
+			action: 'create',
+			// `brand_type` is left to the form's own default — the enum holds `product` alone.
+			data: { prefillEntry: { name: typedValue } },
+			events: {
+				success: async (entry?: BrandModel) => {
+					if (parentWindow) {
+						focus(parentWindow.uid);
+					}
+
+					if (!entry) {
+						return;
+					}
+
+					handleChange(
+						'brand_label',
+						displayBrandLabel(entry, false),
+					);
+					handleChange('brand_id', entry.id);
+					setSearchBrand('');
+
+					// The searches already run are cached, and the term that sent the editor
+					// here is one of them — holding the empty result that prompted the create.
+					await queryClient.invalidateQueries({
+						queryKey: [BRAND_SUGGESTIONS_KEY],
+					});
+				},
+			},
+		});
+	};
+
+	/*
+	 * The form a product in these categories answers. Refetched whenever the selection changes,
+	 * because the resolved set is the union across them and their ancestors — adding a category
+	 * can bring a whole group of fields with it.
+	 */
+	const categoryIds = formValues.categories.map((ref) => ref.id);
+
+	/*
+	 * Defaulted for the same reason the variant rows do it: `WindowForm` persists these values
+	 * as a draft and restores them on reopen, so a draft written before this field existed comes
+	 * back a shape older than the type says.
+	 */
+	const attributeValues = formValues.attributes ?? [];
+
+	const { data: resolvedAttributes, refetch: refetchResolved } = useQuery({
+		queryKey: ['product', 'resolved-attributes', [...categoryIds].sort()],
+		queryFn: () => requestResolvedAttributes(categoryIds),
+		enabled: categoryIds.length > 0,
+	});
+
+	const productDefinitions = useMemo(
+		() => resolvedAttributes?.product ?? [],
+		[resolvedAttributes],
+	);
+	const variantDefinitions = useMemo(
+		() => resolvedAttributes?.variant ?? [],
+		[resolvedAttributes],
+	);
+
+	/*
+	 * The answers are reconciled against the resolved set the moment it changes: one entry per
+	 * definition, empties included, and nothing for a label the categories no longer declare.
+	 *
+	 * Both halves matter. An empty entry is what lets the validator see a required attribute
+	 * that was never filled in — it has no field of its own to report on otherwise. A leftover
+	 * one would be sent against a label the backend does not declare, which it refuses outright,
+	 * so removing a category on the Details tab would fail the whole save with nothing on
+	 * screen to explain it.
+	 */
+	// biome-ignore lint/correctness/useExhaustiveDependencies: keyed on the resolved set, not on the values it reconciles
+	useEffect(() => {
+		if (!resolvedAttributes) {
+			return;
+		}
+
+		const reconciled = pruneAttributeValues(
+			productDefinitions,
+			attributeValues,
+		);
+
+		if (!isEqual(reconciled, attributeValues)) {
+			handleChange('attributes', reconciled);
+		}
+
+		const variants = formValues.variants.map((variant) => ({
+			...variant,
+			attributes: pruneAttributeValues(
+				variantDefinitions,
+				variant.attributes ?? [],
+			),
+		}));
+
+		// Guarded, like the product's own: an unconditional write would mark `variants` touched
+		// on every resolve and surface its errors before the editor has been near the tab
+		if (!isEqual(variants, formValues.variants)) {
+			handleChange('variants', variants);
+		}
+	}, [productDefinitions, variantDefinitions, resolvedAttributes]);
+
+	/**
+	 * Declares a new attribute from here, against one of the product's own categories.
+	 *
+	 * The definition is not product state — it is a rule the category carries, and every product
+	 * under that category answers it from then on. Which of them should own it is the one call
+	 * this form cannot make, so the window is handed the product's categories and asks; with a
+	 * single category there is nothing to ask and it is seeded outright.
+	 */
+	const addAttribute = () => {
+		const parentWindow = getCurrentWindow();
+
+		open({
+			minimized: false,
+			section: DataSourceSectionEnum.DASHBOARD,
+			dataSource: 'product-category-attribute',
+			action: 'create',
+			data: {
+				prefillEntry: {
+					category_id:
+						formValues.categories.length === 1
+							? formValues.categories[0].id
+							: null,
+					category_options: formValues.categories.map((ref) => ({
+						id: ref.id,
+						label: ref.label,
+					})),
+				},
+			},
+			events: {
+				success: async () => {
+					if (parentWindow) {
+						focus(parentWindow.uid);
+					}
+
+					await refetchResolved();
+				},
+			},
+		});
+	};
+
+	/**
+	 * The validator reports on the entry, which is index-aligned with the fields the tab
+	 * renders; the field component addresses them by label, since an index is not stable across
+	 * a category change.
+	 */
+	const attributeErrors = useMemo(() => {
+		const list = Array.isArray(errors.attributes) ? [] : errors.attributes;
+
+		return Object.fromEntries(
+			attributeValues.map((value, index) => [
+				value.attribute_label_id,
+				(list as Record<number, string[] | undefined> | undefined)?.[
+					index
+				],
+			]),
+		);
+	}, [errors.attributes, attributeValues]);
 
 	const unitOptions = productUnitsByType[formValues.type];
 
@@ -343,13 +559,17 @@ export function FormManageProduct() {
 									onSelect: (entry) => {
 										handleChange(
 											'brand_label',
-											displayBrandLabel(entry),
+											displayBrandLabel(entry, false),
 										);
 										handleChange('brand_id', entry.id);
 									},
 									getOptionLabel: (entry) =>
-										displayBrandLabel(entry),
+										displayBrandLabel(entry, false),
 									getOptionKey: (entry) => entry.id,
+									allowCreate: canCreateBrand,
+									onCreate: createBrand,
+									createLabel: (value) =>
+										`Create brand "${value}"`,
 								}}
 								error={errors.brand_id}
 							/>
@@ -395,6 +615,65 @@ export function FormManageProduct() {
 							emptyMessage="No tags — optional."
 							error={ownErrorMessages(errors.tags)}
 						/>
+
+						{/*
+						 * On this tab rather than one of its own: what a product is asked about
+						 * follows directly from the categories picked just above, and the two
+						 * read as one decision.
+						 *
+						 * The answers ride to the backend as one JSON field, like every other
+						 * collection in this form — `processForm` rebuilds its values from
+						 * `FormData` on each submit, and a list of objects has no flat encoding.
+						 */}
+						<input
+							type="hidden"
+							name="attributes"
+							value={JSON.stringify(attributeValues)}
+						/>
+
+						{categoryIds.length > 0 && (
+							<div className="space-y-2">
+								<div className="flex items-center justify-between gap-3 border-b border-line pb-2">
+									<h3 className="font-bold">Attributes</h3>
+
+									<Button
+										type="button"
+										variant="ghost"
+										hover="success"
+										disabled={
+											pending || !canCreateAttribute
+										}
+										onClick={addAttribute}
+										className="p-2 opacity-80 hover:opacity-100"
+										title="Declare a new attribute for one of this product's categories"
+									>
+										<Icons.Action.Add className="h-4 w-4" />{' '}
+										Add attribute
+									</Button>
+								</div>
+
+								{productDefinitions.length === 0 ? (
+									<p className="text-sm text-muted">
+										These categories declare no product
+										attributes. They are added from the
+										category itself, through its Attributes
+										action.
+									</p>
+								) : (
+									<FormAttributesProduct
+										definitions={productDefinitions}
+										values={attributeValues}
+										onChange={(value) =>
+											handleChange('attributes', value)
+										}
+										errors={attributeErrors}
+										disabled={pending}
+										idPrefix="product"
+										onDefinitionsChanged={refetchResolved}
+									/>
+								)}
+							</div>
+						)}
 					</div>
 				</TabsContent>
 
@@ -459,6 +738,8 @@ export function FormManageProduct() {
 							onChange={(value) =>
 								handleChange('variants', value)
 							}
+							attributeDefinitions={variantDefinitions}
+							onDefinitionsChanged={refetchResolved}
 							disabled={pending}
 							errors={
 								Array.isArray(errors.variants)

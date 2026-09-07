@@ -74,6 +74,12 @@ import {
 	toCategoryRefs,
 	toTagRefs,
 } from '@/models/product.model';
+import {
+	groupStoredAttributes,
+	hasAttributeValue,
+	type ProductAttributeFormType,
+	toAttributePayload,
+} from '@/models/product-category-attribute.model';
 import { requestUpdateProductWorkflow } from '@/services/product.service';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type {
@@ -110,6 +116,7 @@ const validatorMessages = [
 	'availability_every_day_exclusive',
 	'variant_default_required',
 	'variant_sku_duplicate',
+	'attribute_required',
 	'invalid_currency',
 	'invalid_price',
 	'min_price_above_price',
@@ -190,6 +197,23 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 			{ message },
 		);
 
+	/**
+	 * One answer to a category-declared attribute, as the form holds it.
+	 *
+	 * Deliberately unshaped beyond the entry: what makes a *value* valid is the definition
+	 * governing its label — the option list, the bounds, the storage — and that lives in the
+	 * resolved form the component holds, which this file never sees. The backend re-checks all
+	 * of it on write. The one rule checkable here is the one the entry carries itself.
+	 */
+	private readonly attributeEntrySchema = z.object({
+		attribute_label_id: z.number(),
+		value_type: z.string(),
+		is_required: z.boolean(),
+		terms: z.array(z.object({ id: z.number() })),
+		text: z.string(),
+		boolean: z.boolean(),
+	});
+
 	private readonly variantSchema = z.object({
 		// Client-only row identity — see `ProductVariantFormType`. In the schema so a re-parse
 		// keeps it; stripped by `prepareParamsFromFormValues`.
@@ -220,6 +244,8 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 			},
 		),
 		prices: z.array(this.priceSchema),
+		// The variant's own axes, shaped like the product's — see the comment there.
+		attributes: this.attributeEntrySchema.array(),
 	});
 
 	/**
@@ -301,6 +327,14 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 			// No minimum: an empty list means the product can be ordered at any time, which is
 			// the common case and must not cost a row per weekday to express.
 			availabilities: this.availabilitiesSchema,
+			/*
+			 * The answers to the category-declared attributes. Not shaped here beyond the
+			 * entry itself: what makes a value valid is the definition governing its label,
+			 * which lives in the resolved form the component holds and this file never sees.
+			 * The required check runs there; everything else is the backend's, which re-checks
+			 * the label, the option list and the bounds on every write.
+			 */
+			attributes: this.attributeEntrySchema.array(),
 			// The sentinel the two set-wide variant rules report on — see the form values type.
 			variants_rule: z.string().nullable(),
 			// Display-only, carried so a re-parse does not blank the autocomplete inputs;
@@ -308,6 +342,41 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 			brand_label: z.string().nullable(),
 		})
 		.superRefine((data, ctx) => {
+			/*
+			 * A required attribute has to carry an answer. Reported on the entry rather than on
+			 * the list, so the Attributes tab can put the message under the field that is
+			 * missing one — the entries are index-aligned with the fields the form renders.
+			 */
+			data.attributes.forEach((attribute, index) => {
+				if (attribute.is_required && !hasAttributeValue(attribute)) {
+					ctx.addIssue({
+						code: 'custom',
+						path: ['attributes', index],
+						message: this.getMessage('attribute_required'),
+					});
+				}
+			});
+
+			data.variants.forEach((variant, variantIndex) => {
+				variant.attributes.forEach((attribute, index) => {
+					if (
+						attribute.is_required &&
+						!hasAttributeValue(attribute)
+					) {
+						ctx.addIssue({
+							code: 'custom',
+							path: [
+								'variants',
+								variantIndex,
+								'attributes',
+								index,
+							],
+							message: this.getMessage('attribute_required'),
+						});
+					}
+				});
+			});
+
 			if (
 				data.available_from &&
 				data.available_until &&
@@ -389,13 +458,26 @@ export function getFormValues(formData: FormData): ProductFormValuesType {
 			'category_id',
 		),
 		tags: getFormDataAsJsonList<ProductRefType>(formData, 'tag_id'),
+		/*
+		 * `attributes` is defaulted rather than trusted: the list is parsed back from a hidden
+		 * JSON field the form wrote, and a restored window draft can predate the key entirely.
+		 * The validator requires it, so an absent one would fail the submit on a field the
+		 * editor has no way to see.
+		 */
 		variants: getFormDataAsJsonList<ProductVariantFormType>(
 			formData,
 			'variants',
-		),
+		).map((variant) => ({
+			...variant,
+			attributes: variant.attributes ?? [],
+		})),
 		availabilities: getFormDataAsJsonList<ProductAvailabilityFormType>(
 			formData,
 			'availabilities',
+		),
+		attributes: getFormDataAsJsonList<ProductAttributeFormType>(
+			formData,
+			'attributes',
 		),
 		variants_rule: null,
 		brand_label: getFormDataAsString(formData, 'brand_label'),
@@ -435,6 +517,8 @@ export function getFormState(
 						...variant,
 						position,
 						key: nextVariantKey(),
+						// Same reason as the product's own, one level down
+						attributes: groupStoredAttributes(variant.attributes),
 					}))
 				: [emptyVariant(0, true)],
 			/*
@@ -455,6 +539,12 @@ export function getFormState(
 					key: nextAvailabilityKey(),
 				}),
 			),
+			/*
+			 * Grouped from the stored rows rather than built against the definitions: the form
+			 * is seeded the moment the window opens, and `resolve` — which the component asks
+			 * for once the categories are known — has not answered yet.
+			 */
+			attributes: groupStoredAttributes(data?.attributes),
 			variants_rule: null,
 			brand_label: data?.brand?.name ?? null,
 		},
@@ -482,6 +572,7 @@ export function prepareParamsFromFormValues(data: ProductManageOutput) {
 		brand_label: _brandLabel,
 		categories,
 		tags,
+		attributes,
 		...product
 	} = data;
 
@@ -489,8 +580,15 @@ export function prepareParamsFromFormValues(data: ProductManageOutput) {
 		...product,
 		categories: categories.map((ref) => ref.id),
 		tags: tags.map((ref) => ref.id),
+		// One row per recorded value — a term-backed answer may contribute several.
+		attributes: toAttributePayload(attributes),
 		// `key` is the form's own row identity and means nothing to the API.
-		variants: product.variants.map(({ key: _key, ...variant }) => variant),
+		variants: product.variants.map(
+			({ key: _key, attributes: variantAttributes, ...variant }) => ({
+				...variant,
+				attributes: toAttributePayload(variantAttributes ?? []),
+			}),
+		),
 		availabilities: product.availabilities.map(
 			({ key: _key, ...availability }) => availability,
 		),

@@ -1086,7 +1086,14 @@ export const FormComponentAutoComplete = <Fields, T>({
 				</FormElementWrapper>
 
 				{shouldShowDropdown && (
-					<ul className="absolute z-50 w-full mt-1 max-h-60 overflow-auto bg-overlay border border-border rounded-md shadow-lg">
+					/*
+					 * Above the field's own error tooltip, which is `z-50`, absolutely
+					 * positioned at `top-full` and — on a pointer device — revealed by
+					 * hovering the element. That is the same spot the suggestions occupy and
+					 * the same moment the user reaches for them, so at equal z-index the
+					 * later element wins and the tooltip swallows every click on the list.
+					 */
+					<ul className="absolute z-[60] w-full mt-1 max-h-60 overflow-auto bg-overlay border border-border rounded-md shadow-lg">
 						{/* Loading */}
 						{isLoading && (
 							<li className="px-3 py-2 text-sm text-muted">

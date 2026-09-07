@@ -51,6 +51,7 @@ public/uploads/
 /tsconfig.probe.json
 __probe-*.ts
 __probe-*.mjs
+
 # A route folder, for looking at a dashboard component without a session: the middleware lets an
 # unmatched path through, so `src/app/(public)/probe-*/page.tsx` renders publicly. Not
 # `__probe-*` like the files above — Next treats an underscore-prefixed folder as private and

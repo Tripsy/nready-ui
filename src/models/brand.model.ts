@@ -76,6 +76,10 @@ export function getBrandDescription(
 	return '[empty description]';
 }
 
-export const displayBrandLabel = (m: BrandModel) => {
+export const displayBrandLabel = (m: BrandModel, withType: boolean = true) => {
+	if (!withType) {
+		return m.name;
+	}
+
 	return `${capitalizeFirstLetter(m.brand_type)} / ${m.name}`;
 };

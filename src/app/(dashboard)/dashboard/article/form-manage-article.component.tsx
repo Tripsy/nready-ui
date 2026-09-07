@@ -17,6 +17,7 @@ import { countTabErrors, toOptionsFromEnum } from '@/helpers/form.helper';
 import { renderMarkdown } from '@/helpers/markdown.helper';
 import { formatEnumLabel, toKebabCase } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
+import { hasPermission } from '@/models/account.model';
 import {
 	type ArticleFeaturedStatus,
 	ArticleFeaturedStatusEnum,
@@ -34,6 +35,7 @@ import {
 	type TermModel,
 	TermTypeEnum,
 } from '@/models/term.model';
+import { useAuth } from '@/providers/auth.provider';
 import { useWindowForm } from '@/providers/window-form.provider';
 import { type Language, LanguageEnum } from '@/types/common.type';
 import type { PageMeta } from '@/types/page-meta.type';
@@ -202,6 +204,12 @@ const TAB_CONTENT_FIELDS: Record<FormTabId, readonly string[]> = {
 export function FormManageArticle() {
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<ArticleFormValuesType>();
+
+	const { auth } = useAuth();
+
+	// A tag is a `term`; offering to create one without the permission would only defer the
+	// refusal to the submit of the window it opens.
+	const canCreateTerm = hasPermission(auth, 'term', 'create');
 
 	const elementIds = useElementIds([
 		'layout',
@@ -941,16 +949,21 @@ export function FormManageArticle() {
 								error={linkError(errors.tags)}
 								// A tag is a term with one wording per language; the search box
 								// fills the language being edited and the create window handles
-								// the rest.
-								buildPrefillEntry={(typedValue) => ({
-									type: TermTypeEnum.TAG,
-									contents: [
-										{
-											language: language,
-											value: typedValue,
-										},
-									],
-								})}
+								// the rest. Omitted entirely without the permission, which is
+								// what takes the create option off the picker.
+								buildPrefillEntry={
+									canCreateTerm
+										? (typedValue) => ({
+												type: TermTypeEnum.TAG,
+												contents: [
+													{
+														language: language,
+														value: typedValue,
+													},
+												],
+											})
+										: undefined
+								}
 								createLabel={(typedValue) =>
 									`Create tag "${typedValue}"`
 								}

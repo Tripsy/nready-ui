@@ -4,6 +4,7 @@ import {
 	type CategoryFormValuesType,
 	FormManageCategory,
 } from '@/app/(dashboard)/dashboard/category/form-manage-category.component';
+import { ManagerAttributesCategory } from '@/app/(dashboard)/dashboard/category/manager-attributes-category.component';
 import { UsageGuideCategory } from '@/app/(dashboard)/dashboard/category/usage-guide-category.component';
 import { ViewCategory } from '@/app/(dashboard)/dashboard/category/view-category.component';
 import { Icons } from '@/components/icon.component';
@@ -246,6 +247,7 @@ export default async function dataSourceConfig(): Promise<
 			'disable.title',
 			'order.title',
 			'tree.title',
+			'attributes.title',
 			'guide.title',
 		] as const,
 		'category.action',
@@ -524,6 +526,31 @@ export default async function dataSourceConfig(): Promise<
 				buttonPosition: 'right',
 				button: {
 					variant: 'warning',
+				},
+			},
+			/*
+			 * Only a product category declares attributes: the definitions describe what a
+			 * product in it must say about itself, and the article tree holds none. Gated on
+			 * `product` rather than `category`, matching the backend policy — the schema of a
+			 * catalog belongs to whoever may edit the catalog.
+			 */
+			attributes: {
+				windowType: 'other',
+				windowTitle: translations['attributes.title'],
+				windowComponent: ManagerAttributesCategory,
+				windowConfigProps: {
+					size: 'xl',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['product', 'read'],
+				entriesSelection: 'single',
+				customEntryCheck: (entry: CategoryModel) =>
+					entry.type === CategoryTypeEnum.PRODUCT,
+				buttonPosition: 'left',
+				button: {
+					variant: 'outline',
+					hover: 'info',
 				},
 			},
 			guide: {

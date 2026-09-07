@@ -1,0 +1,39 @@
+{
+	"validation": {
+		"invalid_category_id": "The category could not be resolved",
+		"invalid_attribute_label_id": "Pick an attribute label from the list",
+		"invalid_scope": "Select a valid scope",
+		"invalid_value_type": "Select a valid storage",
+		"invalid_capture_type": "Select a valid capture",
+		"invalid_measure_unit": "Select a valid unit",
+		"invalid_affix": "Use at most 16 characters",
+		"invalid_bound": "Enter a number",
+		"invalid_sort_order": "Enter a whole number",
+		"type_value_type_mismatch": "This capture cannot store that kind of value",
+		"unit_requires_number": "A unit only applies to a number",
+		"unit_excludes_suffix": "A unit already renders after the value — drop the suffix",
+		"bounds_require_number": "Bounds only apply to a number",
+		"max_below_min": "The maximum cannot be below the minimum",
+		"options_require_term": "Only a list-backed attribute takes admissible values",
+		"options_required": "A list has to offer at least one value",
+		"option_duplicate": "The same value is listed twice"
+	},
+	"action": {
+		"create": {
+			"title": "Add attribute",
+			"label": "Add",
+			"success": "Attribute added successfully"
+		},
+		"update": {
+			"title": "Edit attribute - {{entry}}",
+			"label": "Update",
+			"success": "Attribute updated successfully"
+		},
+		"delete": {
+			"title": "Delete attribute - {{entry}}",
+			"label": "Delete",
+			"success": "Attribute deleted successfully",
+			"confirm": "Are you sure you want to delete this attribute? Products keep the values already recorded under its label."
+		}
+	}
+}

@@ -14,6 +14,7 @@ import { formatEnumLabel } from '@/helpers/string.helper';
 import { resolveWindowEntries } from '@/helpers/window.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { hasPermission } from '@/models/account.model';
 import {
 	type CashFlowCategory,
 	CashFlowCategoryEnum,
@@ -34,6 +35,7 @@ import {
 	type VendorModel,
 	VendorStatusEnum,
 } from '@/models/vendor.model';
+import { useAuth } from '@/providers/auth.provider';
 import { useWindowForm } from '@/providers/window-form.provider';
 import { requestOperationalRecords } from '@/services/cash-flow.service';
 import { useModalStore } from '@/stores/window.store';
@@ -98,6 +100,12 @@ export function FormManageCashFlow({ action }: { action: string }) {
 
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<CashFlowFormValuesType>();
+
+	const { auth } = useAuth();
+
+	// Offering the quick-create without the permission would only defer the refusal to the
+	// request the option fires.
+	const canCreateVendor = hasPermission(auth, 'vendor', 'create');
 
 	const operationalRecordErrors = errors.operational_records as
 		| FormErrorsType<
@@ -463,7 +471,7 @@ export function FormManageCashFlow({ action }: { action: string }) {
 							getOptionLabel: (m) => displayVendorLabel(m),
 							getOptionKey: (m) => m.id,
 
-							allowCreate: true,
+							allowCreate: canCreateVendor,
 
 							onCreate: async (value) => {
 								const newVendor =

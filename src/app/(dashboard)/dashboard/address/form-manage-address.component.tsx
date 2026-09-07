@@ -9,12 +9,14 @@ import { getLanguageClient } from '@/config/translate.setup';
 import { requestCreate, requestFind } from '@/helpers/services.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { hasPermission } from '@/models/account.model';
 import {
 	CITY_DEFAULT,
 	displayPlaceLabel,
 	type PlaceModel,
 	PlaceTypeEnum,
 } from '@/models/place.model';
+import { useAuth } from '@/providers/auth.provider';
 import { useWindowForm } from '@/providers/window-form.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { ApiResponseFetch } from '@/types/api.type';
@@ -31,6 +33,11 @@ export function FormManageAddress() {
 		useWindowForm<AddressFormValuesType>();
 
 	const queryClient = useQueryClient();
+	const { auth } = useAuth();
+
+	// A city is a `place`; `PlacePolicy` opens only the search to any signed-in account, so
+	// offering the create without the permission would defer the refusal to the request.
+	const canCreatePlace = hasPermission(auth, 'place', 'create');
 
 	const elementIds = useElementIds([
 		'city',
@@ -115,7 +122,7 @@ export function FormManageAddress() {
 					getOptionLabel: (c) => displayPlaceLabel(c, language),
 					getOptionKey: (c) => c.id,
 
-					allowCreate: true,
+					allowCreate: canCreatePlace,
 
 					onCreate: async (value) => {
 						const newCity =

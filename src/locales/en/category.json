@@ -64,6 +64,10 @@
 			"title": "Browse the category tree",
 			"label": "Tree"
 		},
+		"attributes": {
+			"title": "Attributes - {{entry}}",
+			"label": "Attributes"
+		},
 		"view": {
 			"title": "Category details - {{entry}}",
 			"label": "View details"

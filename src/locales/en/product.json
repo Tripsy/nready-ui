@@ -24,6 +24,7 @@
 		"variants_required": "A product needs at least one variant",
 		"variant_default_required": "Exactly one variant must be marked as the default",
 		"variant_sku_duplicate": "Two variants share a SKU",
+		"attribute_required": "This attribute is required for the selected categories",
 		"invalid_currency": "Invalid currency — use a three-letter code",
 		"invalid_price": "Invalid price",
 		"min_price_above_price": "Min price cannot be above the price",

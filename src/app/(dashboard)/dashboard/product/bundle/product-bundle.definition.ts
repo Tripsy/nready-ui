@@ -35,6 +35,12 @@ import {
 	toCategoryRefs,
 	toTagRefs,
 } from '@/models/product.model';
+import {
+	groupStoredAttributes,
+	hasAttributeValue,
+	type ProductAttributeFormType,
+	toAttributePayload,
+} from '@/models/product-category-attribute.model';
 import type { ProductVariantModel } from '@/models/product-variant.model';
 import type { FormStateType, ValidatorOutput } from '@/types/form.type';
 
@@ -60,6 +66,7 @@ const validatorMessages = [
 	'min_price_above_price',
 	'invalid_quantity',
 	'components_required',
+	'attribute_required',
 	'components_too_few',
 	'component_duplicate',
 	'invalid_availability',
@@ -142,6 +149,13 @@ export type ProductBundleFormValuesType = {
 		sale_price: string;
 		min_price: string;
 	}[];
+
+	/**
+	 * The answers to the `product`-scoped definitions the bundle's categories declare. The
+	 * `variant`-scoped ones are not asked: a bundle is one sellable line, so an axis meant to
+	 * tell siblings apart has nothing to distinguish, and its default variant carries none.
+	 */
+	attributes: ProductAttributeFormType[];
 
 	components: ProductBundleComponentFormType[];
 	/** Recurring ordering windows. Empty means unrestricted — see `FormAvailabilityProduct`. */
@@ -239,6 +253,16 @@ class ProductBundleValidator extends BaseValidator<typeof validatorMessages> {
 			},
 		);
 
+	/** One answer, shaped exactly as the product form's — see `product.definition.ts`. */
+	private readonly attributeEntrySchema = z.object({
+		attribute_label_id: z.number(),
+		value_type: z.string(),
+		is_required: z.boolean(),
+		terms: z.array(z.object({ id: z.number() })),
+		text: z.string(),
+		boolean: z.boolean(),
+	});
+
 	private readonly componentSchema = z.object({
 		key: z.string(),
 		variant_id: z
@@ -326,6 +350,7 @@ class ProductBundleValidator extends BaseValidator<typeof validatorMessages> {
 			prices: z.array(this.priceSchema).min(1, {
 				message: this.getMessage('invalid_price'),
 			}),
+			attributes: this.attributeEntrySchema.array(),
 			components: this.componentSchema
 				.array()
 				.min(1, this.getMessage('components_required')),
@@ -336,6 +361,16 @@ class ProductBundleValidator extends BaseValidator<typeof validatorMessages> {
 			brand_label: z.string().nullable(),
 		})
 		.superRefine((data, ctx) => {
+			data.attributes.forEach((attribute, index) => {
+				if (attribute.is_required && !hasAttributeValue(attribute)) {
+					ctx.addIssue({
+						code: 'custom',
+						path: ['attributes', index],
+						message: this.getMessage('attribute_required'),
+					});
+				}
+			});
+
 			if (
 				data.available_from &&
 				data.available_until &&
@@ -441,6 +476,10 @@ export function getProductBundleFormValues(
 		prices: getFormDataAsJsonList<
 			ProductBundleFormValuesType['prices'][number]
 		>(formData, 'prices'),
+		attributes: getFormDataAsJsonList<ProductAttributeFormType>(
+			formData,
+			'attributes',
+		),
 		components: getFormDataAsJsonList<ProductBundleComponentFormType>(
 			formData,
 			'components',
@@ -504,6 +543,7 @@ export function getProductBundleFormState(
 							min_price: '',
 						},
 					],
+			attributes: groupStoredAttributes(data?.attributes),
 			components: (data?.bundle_items ?? []).map((item) => ({
 				key: nextComponentKey(),
 				variant_id: item.variant_id,
@@ -545,6 +585,7 @@ export function getProductBundleFormState(
 export function prepareProductBundleParams(data: ProductBundleManageOutput) {
 	const {
 		components,
+		attributes,
 		availabilities,
 		components_rule: _componentsRule,
 		prices_rule: _pricesRule,
@@ -561,6 +602,7 @@ export function prepareProductBundleParams(data: ProductBundleManageOutput) {
 		composition: ProductCompositionEnum.BUNDLE,
 		categories: categories.map((ref) => ref.id),
 		tags: tags.map((ref) => ref.id),
+		attributes: toAttributePayload(attributes),
 		variants: [
 			{
 				sku,
@@ -568,6 +610,9 @@ export function prepareProductBundleParams(data: ProductBundleManageOutput) {
 				track_stock: false,
 				position: 0,
 				prices,
+				// A bundle's default variant answers nothing of its own — see `attributes`
+				// on the form values for why the `variant` scope is not asked here.
+				attributes: [],
 			},
 		],
 		availabilities: availabilities.map(

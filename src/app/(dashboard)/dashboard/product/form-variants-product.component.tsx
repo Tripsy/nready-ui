@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { type JSX, useMemo } from 'react';
+import { FormAttributesProduct } from '@/app/(dashboard)/dashboard/product/form-attributes-product.component';
 import {
 	FormComponentCheckbox,
 	FormComponentInput,
@@ -15,6 +16,10 @@ import type {
 	ProductPriceType,
 	ProductVariantType,
 } from '@/models/product.model';
+import type {
+	ProductAttributeFormType,
+	ProductCategoryAttributeModel,
+} from '@/models/product-category-attribute.model';
 import { requestLatestExchangeRates } from '@/services/exchange-rate.service';
 import { CurrencyEnum } from '@/types/common.type';
 import type { FormErrorsType } from '@/types/form.type';
@@ -25,7 +30,15 @@ import type { FormErrorsType } from '@/types/form.type';
  * index is exactly what a reorder changes, so keying by it would leave the moved rows' inputs
  * holding their old neighbor's state. Stripped before the payload is built.
  */
-export type ProductVariantFormType = ProductVariantType & { key: string };
+export type ProductVariantFormType = Omit<ProductVariantType, 'attributes'> & {
+	key: string;
+	/**
+	 * The axes that tell this variant from its siblings, as the form holds them. Always a list
+	 * — an omitted key would leave the stored values alone, and the editor showing no value for
+	 * an axis means it has none, not that it declines to say.
+	 */
+	attributes: ProductAttributeFormType[];
+};
 
 /*
  * Not `crypto.randomUUID()`: that needs a secure context, and the dev host is plain http, so it
@@ -107,6 +120,8 @@ export function emptyVariant(
 		allow_backorder: false,
 		cost_price: null,
 		prices: [emptyPrice()],
+		// Reconciled against the `variant`-scoped definitions as soon as `resolve` answers
+		attributes: [],
 	};
 }
 
@@ -206,9 +221,9 @@ type RowProps = {
 	variant: ProductVariantFormType;
 	index: number;
 	disabled: boolean;
-	errors?: FormErrorsType<ProductVariantType>;
+	errors?: FormErrorsType<ProductVariantFormType>;
 	idPrefix: string;
-	onUpdate: (index: number, patch: Partial<ProductVariantType>) => void;
+	onUpdate: (index: number, patch: Partial<ProductVariantFormType>) => void;
 	onMarkDefault: (index: number) => void;
 	onRemove: (index: number) => void;
 	/** `-1` / `+1`; the buttons are disabled at the ends, so there is no range to check. */
@@ -221,6 +236,9 @@ type RowProps = {
 	) => void;
 	/** Latest rate to base currency per currency code; absent while the lookup is in flight. */
 	rates?: Record<string, number>;
+	/** The `variant`-scoped definitions this product's categories declare. */
+	attributeDefinitions: ProductCategoryAttributeModel[];
+	onDefinitionsChanged?: () => void;
 };
 
 function VariantRow({
@@ -236,7 +254,28 @@ function VariantRow({
 	isLast,
 	onUpdatePrice,
 	rates,
+	attributeDefinitions,
+	onDefinitionsChanged,
 }: RowProps): JSX.Element {
+	/*
+	 * `?? []` because a variant can reach here without the key at all: `WindowForm` persists the
+	 * form's values as a draft and restores them on reopen, so a draft written before this field
+	 * existed comes back a shape older than the type says.
+	 */
+	const attributeValues = variant.attributes ?? [];
+
+	// The validator reports on the entry; the field component addresses them by label
+	const attributeErrors = Object.fromEntries(
+		attributeValues.map((value, position) => [
+			value.attribute_label_id,
+			(
+				variantErrors?.attributes as
+					| Record<number, string[] | undefined>
+					| undefined
+			)?.[position],
+		]),
+	);
+
 	return (
 		<li>
 			<fieldset className="rounded-md border border-line p-3 space-y-8">
@@ -710,6 +749,29 @@ function VariantRow({
 						</Button>
 					</div>
 				</div>
+
+				{/*
+				 * The axes that tell this variant from its siblings. Rendered per row rather
+				 * than once for the product because that is the whole point of the `variant`
+				 * scope — the same question, answered differently by each.
+				 */}
+				{attributeDefinitions.length > 0 && (
+					<div className="space-y-2">
+						<h4 className="font-bold">Attributes</h4>
+
+						<FormAttributesProduct
+							definitions={attributeDefinitions}
+							values={attributeValues}
+							onChange={(attributes) =>
+								onUpdate(index, { attributes })
+							}
+							errors={attributeErrors}
+							disabled={disabled}
+							idPrefix={`${idPrefix}-${index}`}
+							onDefinitionsChanged={onDefinitionsChanged}
+						/>
+					</div>
+				)}
 			</fieldset>
 		</li>
 	);
@@ -719,12 +781,19 @@ type Props = {
 	value: ProductVariantFormType[];
 	onChange: (value: ProductVariantFormType[]) => void;
 	disabled: boolean;
-	errors?: FormErrorsType<ProductVariantType>[];
+	errors?: FormErrorsType<ProductVariantFormType>[];
 	/**
 	 * The two set-wide rules — exactly one default, no repeated SKU. They arrive on their own
 	 * sentinel field rather than on `variants`, which already holds one error object per row.
 	 */
 	ruleError?: string[];
+	/**
+	 * The `variant`-scoped definitions, resolved once for the product and handed to every row:
+	 * an axis is declared by the product's categories, so it is the same question for each.
+	 */
+	attributeDefinitions: ProductCategoryAttributeModel[];
+	/** Passed straight through to every row — see `FormAttributesProduct`. */
+	onDefinitionsChanged?: () => void;
 };
 
 export function FormVariantsProduct({
@@ -733,6 +802,8 @@ export function FormVariantsProduct({
 	disabled,
 	errors,
 	ruleError,
+	attributeDefinitions,
+	onDefinitionsChanged,
 }: Props): JSX.Element {
 	const elementIds = useElementIds(['variant'] as const);
 
@@ -785,7 +856,7 @@ export function FormVariantsProduct({
 
 	const updateVariant = (
 		index: number,
-		patch: Partial<ProductVariantType>,
+		patch: Partial<ProductVariantFormType>,
 	) => {
 		onChange(
 			value.map((variant, current) =>
@@ -884,6 +955,8 @@ export function FormVariantsProduct({
 							isLast={index === value.length - 1}
 							onUpdatePrice={updatePrice}
 							rates={rates}
+							attributeDefinitions={attributeDefinitions}
+							onDefinitionsChanged={onDefinitionsChanged}
 						/>
 					))}
 				</ul>

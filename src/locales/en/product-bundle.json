@@ -20,6 +20,7 @@
 		"min_price_above_price": "The minimum price cannot be above the price",
 		"invalid_quantity": "Enter how many of this component the bundle includes",
 		"components_required": "A bundle needs at least one component",
+		"attribute_required": "This attribute is required for the selected categories",
 		"components_too_few": "A bundle must add up to at least two units — add another component or raise a quantity",
 		"component_duplicate": "Each component may appear only once — raise its quantity instead",
 		"invalid_availability": "Check the day and the hours for this window",

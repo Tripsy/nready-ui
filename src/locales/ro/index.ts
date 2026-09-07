@@ -40,6 +40,7 @@ import permission from '@/locales/ro/permission.json';
 import place from '@/locales/ro/place.json';
 import product from '@/locales/ro/product.json';
 import productBundle from '@/locales/ro/product-bundle.json';
+import productCategoryAttribute from '@/locales/ro/product-category-attribute.json';
 import products from '@/locales/ro/products.json';
 import rating from '@/locales/ro/rating.json';
 import register from '@/locales/ro/register.json';
@@ -93,6 +94,7 @@ const ro = {
 	place,
 	product,
 	'product-bundle': productBundle,
+	'product-category-attribute': productCategoryAttribute,
 	products,
 	rating,
 	register,

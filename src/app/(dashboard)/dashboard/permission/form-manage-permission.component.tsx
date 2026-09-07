@@ -6,8 +6,8 @@ import { useLocalAutocomplete } from '@/hooks/use-local-autocomplete';
 import {
 	PermissionEntitiesSuggestions,
 	type PermissionEntityType,
-	permissionOperationsFor,
 	type PermissionOperationType,
+	permissionOperationsFor,
 } from '@/models/permission.model';
 import { useWindowForm } from '@/providers/window-form.provider';
 

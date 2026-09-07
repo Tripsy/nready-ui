@@ -18,6 +18,7 @@ import type { MailQueueModel } from '@/models/mail-queue.model';
 import type { PermissionModel } from '@/models/permission.model';
 import type { PlaceModel } from '@/models/place.model';
 import type { ProductModel } from '@/models/product.model';
+import type { ProductCategoryAttributeModel } from '@/models/product-category-attribute.model';
 import type { ProductVariantModel } from '@/models/product-variant.model';
 import type { RatingModel } from '@/models/rating.model';
 import type { TemplateModel } from '@/models/template.model';
@@ -49,6 +50,12 @@ export type DatasourceModels = {
 	permission: PermissionModel;
 	place: PlaceModel;
 	product: ProductModel;
+	/*
+	 * What a product in a category must say about itself. Gated on `product` like the backend
+	 * policy, and it has no dashboard page of its own — the definitions are managed from the
+	 * category they belong to, through `ManagerAttributesCategory`.
+	 */
+	'product-category-attribute': ProductCategoryAttributeModel;
 	// The same catalog listed by the sellable unit — read-only, and gated on `product`.
 	'product-variant': ProductVariantModel;
 	rating: RatingModel;

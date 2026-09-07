@@ -9,7 +9,17 @@ import type {
 } from '@/types/form.type';
 
 /**
- * Flattens a `ZodError` into the shape `FormErrorsType` describes: `string[]` at a leaf, a
+ * One validation issue, in the only two properties this file reads. Narrower than `ZodIssue` on
+ * purpose: the backend serializes its own issues into the response envelope, and they arrive as
+ * plain JSON with no `ZodError` around them.
+ */
+export type ValidationIssueType = {
+	path: readonly PropertyKey[];
+	message: string;
+};
+
+/**
+ * Flattens validation issues into the shape `FormErrorsType` describes: `string[]` at a leaf, a
  * nested object at any field that has children.
  *
  * A key holds one or the other, never both. So when a validator raises an issue on an object
@@ -18,8 +28,8 @@ import type {
  * message is reported rather than dropped in silence — seeing it means the validator needs a
  * leaf path (a dedicated sentinel field) for its group-level rule.
  */
-export function accumulateZodErrors<T extends FormValuesType>(
-	zodError: z.ZodError,
+export function accumulateIssueErrors<T extends FormValuesType>(
+	issues: readonly ValidationIssueType[],
 ): FormErrorsType<T> {
 	const fieldErrors: FormErrorsType<T> = {};
 
@@ -31,7 +41,7 @@ export function accumulateZodErrors<T extends FormValuesType>(
 		);
 	};
 
-	for (const issue of zodError.issues) {
+	for (const issue of issues) {
 		if (issue.path.length === 0) continue;
 
 		// Array indices arrive as numbers; object keys are always strings.
@@ -85,6 +95,13 @@ export function accumulateZodErrors<T extends FormValuesType>(
 	}
 
 	return fieldErrors;
+}
+
+/** The same, for the client-side pass, where the issues still come wrapped in a `ZodError`. */
+export function accumulateZodErrors<T extends FormValuesType>(
+	zodError: z.ZodError,
+): FormErrorsType<T> {
+	return accumulateIssueErrors<T>(zodError.issues);
 }
 
 export function filterErrorsByTouched<FormValues extends FormValuesType>(
@@ -374,4 +391,58 @@ export function rowErrorsAt<Row>(
 	}
 
 	return (errors as Record<string, { [K in keyof Row]?: unknown }>)[index];
+}
+
+/** A value the merge below walks into rather than treating as a leaf. */
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+	return (
+		typeof value === 'object' &&
+		value !== null &&
+		!Array.isArray(value) &&
+		Object.getPrototypeOf(value) === Object.prototype
+	);
+}
+
+/**
+ * The validated shape, folded back over the values the fields hold — but only where the schema
+ * normalized a value rather than changed what it is.
+ *
+ * A validator may tidy what the user typed, and the form should show it: a slug lower-cased, a
+ * currency upper-cased, a SKU trimmed. That is why the pipeline echoes the parse result back as
+ * the form's values at all. What it may not do is hand a field a different *type* from the one
+ * `FormValuesType` declares, because the field goes on rendering it and the next validation pass
+ * goes on parsing it — an amount schema that reads `string` and emits `number` rejects its own
+ * output on the following run, and the form ends up with an error it offers no way to clear.
+ *
+ * So a leaf is taken from the parse result only when its type still matches; otherwise the typed
+ * value the user is editing stands. `operationValues` is read from the parse result directly and
+ * is untouched by this, so the request still carries the converted shape.
+ */
+export function mergeNormalizedValues<T>(raw: T, validated: unknown): T {
+	// Nothing to preserve — a key the values never carried, or one a schema default filled in.
+	if (raw === undefined) {
+		return validated as T;
+	}
+
+	if (Array.isArray(validated) && Array.isArray(raw)) {
+		return validated.map((entry, index) =>
+			mergeNormalizedValues(raw[index], entry),
+		) as T;
+	}
+
+	if (isPlainObject(validated) && isPlainObject(raw)) {
+		return Object.fromEntries(
+			Object.entries(validated).map(([key, entry]) => [
+				key,
+				mergeNormalizedValues(raw[key], entry),
+			]),
+		) as T;
+	}
+
+	// `typeof null` is `'object'`, so an emptied optional folded to `null` reads as a type
+	// change against the `''` still in the field — which is exactly what it is.
+	return typeof validated === typeof raw &&
+		(validated === null) === (raw === null)
+		? (validated as T)
+		: raw;
 }

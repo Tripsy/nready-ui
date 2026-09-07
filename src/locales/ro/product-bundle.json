@@ -20,6 +20,7 @@
 		"min_price_above_price": "Prețul minim nu poate depăși prețul",
 		"invalid_quantity": "Introdu câte bucăți din această componentă include pachetul",
 		"components_required": "Un pachet are nevoie de cel puțin o componentă",
+		"attribute_required": "Acest atribut este obligatoriu pentru categoriile selectate",
 		"components_too_few": "Un pachet trebuie să însumeze cel puțin două unități — adaugă altă componentă sau crește o cantitate",
 		"component_duplicate": "Fiecare componentă poate apărea o singură dată — crește cantitatea în schimb",
 		"invalid_availability": "Verifică ziua și orele pentru acest interval",

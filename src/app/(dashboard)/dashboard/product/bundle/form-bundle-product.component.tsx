@@ -1,8 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import isEqual from 'fast-deep-equal';
+import { useEffect, useMemo, useState } from 'react';
 import { FormComponentsBundle } from '@/app/(dashboard)/dashboard/product/bundle/form-components-bundle.component';
 import type { ProductBundleFormValuesType } from '@/app/(dashboard)/dashboard/product/bundle/product-bundle.definition';
+import { FormAttributesProduct } from '@/app/(dashboard)/dashboard/product/form-attributes-product.component';
 import { FormAvailabilityProduct } from '@/app/(dashboard)/dashboard/product/form-availability-product.component';
 import { FormContentsProduct } from '@/app/(dashboard)/dashboard/product/form-contents-product.component';
 import { FormPickerProduct } from '@/app/(dashboard)/dashboard/product/form-picker-product.component';
@@ -39,8 +42,10 @@ import {
 	ProductUnitEnum,
 	resolveProductUnit,
 } from '@/models/product.model';
+import { pruneAttributeValues } from '@/models/product-category-attribute.model';
 import { displayTermLabel, type TermModel } from '@/models/term.model';
 import { useWindowForm } from '@/providers/window-form.provider';
+import { requestResolvedAttributes } from '@/services/product.service';
 import { CurrencyEnum } from '@/types/common.type';
 
 /**
@@ -84,7 +89,7 @@ const TAB_FIELDS: Record<
 	FormTabId,
 	readonly (keyof ProductBundleFormValuesType)[]
 > = {
-	details: ['type', 'unit', 'brand_id', 'categories', 'tags'],
+	details: ['type', 'unit', 'brand_id', 'categories', 'tags', 'attributes'],
 	content: [],
 	price: ['sku', 'prices', 'prices_rule'],
 	components: ['components', 'components_rule'],
@@ -169,6 +174,59 @@ export function FormBundleProduct() {
 				return response?.entries ?? [];
 			},
 		});
+
+	/*
+	 * A bundle sits in categories like any product, so it answers the `product`-scoped
+	 * definitions its categories declare. The `variant`-scoped ones are not asked here: a
+	 * bundle is one sellable line with no siblings to be told apart from, so an axis like size
+	 * or color has nothing to distinguish. Its default variant is therefore submitted with no
+	 * attributes at all.
+	 */
+	const categoryIds = formValues.categories.map((ref) => ref.id);
+
+	const { data: resolvedAttributes, refetch: refetchResolved } = useQuery({
+		queryKey: ['product', 'resolved-attributes', [...categoryIds].sort()],
+		queryFn: () => requestResolvedAttributes(categoryIds),
+		enabled: categoryIds.length > 0,
+	});
+
+	const productDefinitions = useMemo(
+		() => resolvedAttributes?.product ?? [],
+		[resolvedAttributes],
+	);
+	const attributeValues = formValues.attributes ?? [];
+
+	// Reconciled on every change to the resolved set — see the product form for why both halves
+	// (filling the empties, dropping the undeclared) are needed
+	// biome-ignore lint/correctness/useExhaustiveDependencies: keyed on the resolved set, not on the values it reconciles
+	useEffect(() => {
+		if (!resolvedAttributes) {
+			return;
+		}
+
+		const reconciled = pruneAttributeValues(
+			productDefinitions,
+			formValues.attributes ?? [],
+		);
+
+		if (!isEqual(reconciled, formValues.attributes ?? [])) {
+			handleChange('attributes', reconciled);
+		}
+	}, [productDefinitions, resolvedAttributes]);
+
+	/** The validator reports on the entry; the field component addresses them by label. */
+	const attributeErrors = ((): Record<number, string[] | undefined> => {
+		const list = Array.isArray(errors.attributes) ? [] : errors.attributes;
+
+		return Object.fromEntries(
+			attributeValues.map((value, index) => [
+				value.attribute_label_id,
+				(list as Record<number, string[] | undefined> | undefined)?.[
+					index
+				],
+			]),
+		);
+	})();
 
 	const unitOptions = productUnitsByType[formValues.type];
 
@@ -350,12 +408,12 @@ export function FormBundleProduct() {
 									onSelect: (entry) => {
 										handleChange(
 											'brand_label',
-											displayBrandLabel(entry),
+											displayBrandLabel(entry, false),
 										);
 										handleChange('brand_id', entry.id);
 									},
 									getOptionLabel: (entry) =>
-										displayBrandLabel(entry),
+										displayBrandLabel(entry, false),
 									getOptionKey: (entry) => entry.id,
 								}}
 								error={errors.brand_id}
@@ -397,6 +455,44 @@ export function FormBundleProduct() {
 							error={ownErrorMessages(errors.tags)}
 							emptyMessage="No tags — optional."
 						/>
+
+						{/*
+						 * The answers ride to the backend as one JSON field, like every other
+						 * collection in this form — `processForm` rebuilds its values from
+						 * `FormData` on each submit, and a list of objects has no flat encoding.
+						 */}
+						<input
+							type="hidden"
+							name="attributes"
+							value={JSON.stringify(attributeValues)}
+						/>
+
+						{categoryIds.length > 0 && (
+							<div className="space-y-2">
+								<h3 className="font-bold border-b border-line pb-2">
+									Attributes
+								</h3>
+
+								{productDefinitions.length === 0 ? (
+									<p className="text-sm text-muted">
+										Selected categories declare no product
+										attributes.
+									</p>
+								) : (
+									<FormAttributesProduct
+										definitions={productDefinitions}
+										values={attributeValues}
+										onChange={(value) =>
+											handleChange('attributes', value)
+										}
+										errors={attributeErrors}
+										disabled={pending}
+										idPrefix="bundle"
+										onDefinitionsChanged={refetchResolved}
+									/>
+								)}
+							</div>
+						)}
 					</div>
 				</TabsContent>
 

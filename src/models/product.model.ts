@@ -1,5 +1,6 @@
 import { Configuration } from '@/config/settings.config';
 import type { ImageStorage } from '@/models/image.model';
+import type { ProductAttributeValueType } from '@/models/product-category-attribute.model';
 import type { Language, StatusTransitions } from '@/types/common.type';
 import type { ImagePropertiesType } from '@/types/image.type';
 import type { PageMeta } from '@/types/page-meta.type';
@@ -175,6 +176,12 @@ export type ProductVariantType = {
 	allow_backorder: boolean;
 	cost_price: number | null;
 	prices: ProductPriceType[];
+	/*
+	 * The axes that tell this variant from its siblings, against `variant`-scoped definitions.
+	 * Absent leaves the stored ones alone on a save; `[]` clears them — the same split the
+	 * product-level list carries, and the reason neither is defaulted.
+	 */
+	attributes?: ProductAttributeValueType[];
 };
 
 /**
@@ -260,6 +267,8 @@ export type ProductModel<D = Date | string> = {
 	 */
 	contents?: ProductContentType[];
 	variants?: ProductVariantType[];
+	/** What the product says about itself, against the `product`-scoped definitions. */
+	attributes?: ProductAttributeValueType[];
 	availabilities?: ProductAvailabilityType[];
 	brand?: { id: number; name: string } | null;
 	categories?: {

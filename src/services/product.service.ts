@@ -1,11 +1,13 @@
 import {
 	ApiRequest,
 	buildQueryString,
+	getResponseData,
 	resolveRequestPath,
 } from '@/helpers/api.helper';
 import { requestFind } from '@/helpers/services.helper';
 import type { ProductModel, ProductWorkflow } from '@/models/product.model';
 import { ProductCompositionEnum } from '@/models/product.model';
+import type { ResolvedAttributeFormType } from '@/models/product-category-attribute.model';
 import type { ProductVariantModel } from '@/models/product-variant.model';
 import type { ApiResponseFetch } from '@/types/api.type';
 import type { Language } from '@/types/common.type';
@@ -98,6 +100,55 @@ export async function requestUpdateProductWorkflow(
 		`/${resolveRequestPath('product')}/${id}/workflow/${workflow}`,
 		{
 			method: 'PATCH',
+		},
+	);
+}
+
+/**
+ * The attribute form a product in these categories renders from
+ * (`GET /product-category-attributes/resolve`).
+ *
+ * Takes the categories rather than a product id: a product being created has none yet, and the
+ * form has to be drawn the moment its categories are picked. The answer is the union across
+ * them and their ancestors, deduped by label with the deepest category winning, split by scope
+ * — the walk `.claude/rules/product.md` §12.6 describes, done server-side.
+ *
+ * An empty list of categories short-circuits: the endpoint requires at least one, and a product
+ * with none has no form to draw.
+ */
+export async function requestResolvedAttributes(
+	categoryIds: number[],
+): Promise<ResolvedAttributeFormType> {
+	if (categoryIds.length === 0) {
+		return { product: [], variant: [] };
+	}
+
+	const query = buildQueryString({ category_id: categoryIds });
+
+	const response: ApiResponseFetch<ResolvedAttributeFormType> =
+		await new ApiRequest().doFetch(
+			`/${resolveRequestPath('product-category-attribute')}/resolve?${query}`,
+		);
+
+	return getResponseData(response) ?? { product: [], variant: [] };
+}
+
+/**
+ * Reorders one category's attribute definitions (`PATCH /product-category-attributes/order`).
+ *
+ * `positions` is that category's definition ids in the order they should be offered — the whole
+ * set, because a position only means anything relative to its siblings and the backend refuses
+ * anything short of it.
+ */
+export async function requestAttributeOrderUpdate(
+	category_id: number,
+	positions: number[],
+): Promise<ApiResponseFetch<null>> {
+	return await new ApiRequest().doFetch(
+		`/${resolveRequestPath('product-category-attribute')}/order`,
+		{
+			method: 'PATCH',
+			body: JSON.stringify({ category_id, positions }),
 		},
 	);
 }

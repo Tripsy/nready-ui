@@ -40,6 +40,7 @@ import permission from '@/locales/en/permission.json';
 import place from '@/locales/en/place.json';
 import product from '@/locales/en/product.json';
 import productBundle from '@/locales/en/product-bundle.json';
+import productCategoryAttribute from '@/locales/en/product-category-attribute.json';
 import products from '@/locales/en/products.json';
 import rating from '@/locales/en/rating.json';
 import register from '@/locales/en/register.json';
@@ -93,6 +94,7 @@ const en = {
 	place,
 	product,
 	'product-bundle': productBundle,
+	'product-category-attribute': productCategoryAttribute,
 	products,
 	rating,
 	register,

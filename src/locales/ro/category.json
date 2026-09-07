@@ -64,6 +64,10 @@
 			"title": "Vezi arborele de categorii",
 			"label": "Arbore"
 		},
+		"attributes": {
+			"title": "Atribute - {{entry}}",
+			"label": "Atribute"
+		},
 		"view": {
 			"title": "Detalii categorie - {{entry}}",
 			"label": "Vezi detalii"

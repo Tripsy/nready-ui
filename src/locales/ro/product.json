@@ -24,6 +24,7 @@
 		"variants_required": "Un produs are nevoie de cel puțin o variantă",
 		"variant_default_required": "Exact o variantă trebuie marcată ca implicită",
 		"variant_sku_duplicate": "Două variante au același SKU",
+		"attribute_required": "Acest atribut este obligatoriu pentru categoriile selectate",
 		"invalid_currency": "Monedă invalidă — folosește un cod din trei litere",
 		"invalid_price": "Preț invalid",
 		"min_price_above_price": "Prețul minim nu poate depăși prețul",

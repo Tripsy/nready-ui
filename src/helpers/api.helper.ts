@@ -388,6 +388,7 @@ const PLURAL_ENDPOINT_KEYS: ReadonlySet<DataSourceKey> = new Set([
 	'permission',
 	'place',
 	'product',
+	'product-category-attribute',
 	'product-variant',
 	'rating',
 	'template',

@@ -633,6 +633,17 @@
 	}
 }
 
+/*
+ * HeroUI draws the required marker itself — `.label--required::after`, `content: "*"`, 2px of
+ * margin — close enough to the text to read as part of the word. Widened to match the marker
+ * `FormElement` writes by hand for a group label (a radio set has no single control for
+ * `<Label>` to point at, so that branch renders its own `<span class="ml-1">`), so the two
+ * spellings of the same marker look alike.
+ */
+.label--required::after {
+	margin-left: 0.25rem;
+}
+
 @media print {
 	.no-print {
 		display: none;

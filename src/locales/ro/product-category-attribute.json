@@ -1,0 +1,39 @@
+{
+	"validation": {
+		"invalid_category_id": "Categoria nu a putut fi identificată",
+		"invalid_attribute_label_id": "Alege o etichetă de atribut din listă",
+		"invalid_scope": "Alege un domeniu valid",
+		"invalid_value_type": "Alege un mod de stocare valid",
+		"invalid_capture_type": "Alege un mod de completare valid",
+		"invalid_measure_unit": "Alege o unitate de măsură validă",
+		"invalid_affix": "Folosește cel mult 16 caractere",
+		"invalid_bound": "Introdu un număr",
+		"invalid_sort_order": "Introdu un număr întreg",
+		"type_value_type_mismatch": "Acest mod de completare nu poate stoca acest tip de valoare",
+		"unit_requires_number": "Unitatea de măsură se aplică doar unui număr",
+		"unit_excludes_suffix": "Unitatea se afișează deja după valoare — renunță la sufix",
+		"bounds_require_number": "Limitele se aplică doar unui număr",
+		"max_below_min": "Maximul nu poate fi sub minim",
+		"options_require_term": "Doar un atribut cu listă acceptă valori admise",
+		"options_required": "O listă trebuie să ofere cel puțin o valoare",
+		"option_duplicate": "Aceeași valoare apare de două ori"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă atribut",
+			"label": "Adaugă",
+			"success": "Atributul a fost adăugat cu succes"
+		},
+		"update": {
+			"title": "Editează atributul - {{entry}}",
+			"label": "Actualizează",
+			"success": "Atributul a fost actualizat cu succes"
+		},
+		"delete": {
+			"title": "Șterge atributul - {{entry}}",
+			"label": "Șterge",
+			"success": "Atributul a fost șters cu succes",
+			"confirm": "Sigur vrei să ștergi acest atribut? Produsele păstrează valorile deja înregistrate pe eticheta lui."
+		}
+	}
+}
