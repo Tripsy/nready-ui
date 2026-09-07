@@ -3,7 +3,7 @@ import { useState } from 'react';
 import {
 	emptyComponent,
 	type ProductBundleComponentFormType,
-} from '@/app/(dashboard)/dashboard/product/bundle/product-bundle.definition';
+} from '@/app/(dashboard)/dashboard/product/product-bundle.definition';
 import {
 	FormComponentAutoComplete,
 	FormComponentInput,

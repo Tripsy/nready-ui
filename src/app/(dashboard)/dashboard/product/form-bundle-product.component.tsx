@@ -3,12 +3,12 @@
 import { useQuery } from '@tanstack/react-query';
 import isEqual from 'fast-deep-equal';
 import { useEffect, useMemo, useState } from 'react';
-import { FormComponentsBundle } from '@/app/(dashboard)/dashboard/product/bundle/form-components-bundle.component';
-import type { ProductBundleFormValuesType } from '@/app/(dashboard)/dashboard/product/bundle/product-bundle.definition';
 import { FormAttributesProduct } from '@/app/(dashboard)/dashboard/product/form-attributes-product.component';
 import { FormAvailabilityProduct } from '@/app/(dashboard)/dashboard/product/form-availability-product.component';
+import { FormComponentsBundle } from '@/app/(dashboard)/dashboard/product/form-components-bundle.component';
 import { FormContentsProduct } from '@/app/(dashboard)/dashboard/product/form-contents-product.component';
 import { FormPickerProduct } from '@/app/(dashboard)/dashboard/product/form-picker-product.component';
+import type { ProductBundleFormValuesType } from '@/app/(dashboard)/dashboard/product/product-bundle.definition';
 import {
 	FormComponentAutoComplete,
 	FormComponentCalendar,
@@ -29,6 +29,7 @@ import { requestFind } from '@/helpers/services.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { hasPermission } from '@/models/account.model';
 import { type BrandModel, displayBrandLabel } from '@/models/brand.model';
 import {
 	type CategoryModel,
@@ -44,9 +45,12 @@ import {
 } from '@/models/product.model';
 import { pruneAttributeValues } from '@/models/product-category-attribute.model';
 import { displayTermLabel, type TermModel } from '@/models/term.model';
+import { useAuth } from '@/providers/auth.provider';
 import { useWindowForm } from '@/providers/window-form.provider';
 import { requestResolvedAttributes } from '@/services/product.service';
+import { useModalStore } from '@/stores/window.store';
 import { CurrencyEnum } from '@/types/common.type';
+import { DataSourceSectionEnum } from '@/types/data-source.type';
 
 /**
  * The markets a bundle may be priced in. A closed list rather than free text: the column is
@@ -150,6 +154,12 @@ export function FormBundleProduct() {
 	const [tab, setTab] = useState<FormTabId>('details');
 	const [searchBrand, setSearchBrand] = useState('');
 
+	const { open, focus, getCurrentWindow } = useModalStore();
+	const { auth } = useAuth();
+
+	// A definition is gated on `product`, like the backend policy that writes it
+	const canCreateAttribute = hasPermission(auth, 'product', 'create');
+
 	const elementIds = useElementIds([
 		'type',
 		'unit',
@@ -227,6 +237,49 @@ export function FormBundleProduct() {
 			]),
 		);
 	})();
+
+	/**
+	 * Declares a new attribute from here, against one of the bundle's own categories.
+	 *
+	 * The definition is not bundle state — it is a rule the category carries, and every product
+	 * under that category answers it from then on. Which of them should own it is the one call
+	 * this form cannot make, so the window is handed the bundle's categories and asks; with a
+	 * single category there is nothing to ask and it is seeded outright.
+	 */
+	const addAttribute = () => {
+		const parentWindow = getCurrentWindow();
+
+		open({
+			minimized: false,
+			section: DataSourceSectionEnum.DASHBOARD,
+			dataSource: 'product-category-attribute',
+			action: 'create',
+			data: {
+				prefillEntry: {
+					category_id:
+						formValues.categories.length === 1
+							? formValues.categories[0].id
+							: null,
+					category_options: formValues.categories.map((ref) => ({
+						id: ref.id,
+						label: ref.label,
+					})),
+				},
+			},
+			events: {
+				success: async () => {
+					// `open` minimizes this form to make room, so the parent is focused again
+					// on success; otherwise the editor lands on an empty desktop with a
+					// half-filled bundle parked in the dock.
+					if (parentWindow) {
+						focus(parentWindow.uid);
+					}
+
+					await refetchResolved();
+				},
+			},
+		});
+	};
 
 	const unitOptions = productUnitsByType[formValues.type];
 
@@ -467,13 +520,30 @@ export function FormBundleProduct() {
 							value={JSON.stringify(attributeValues)}
 						/>
 
-						{categoryIds.length > 0 && (
-							<div className="space-y-2">
-								<h3 className="font-bold border-b border-line pb-2">
-									Attributes
-								</h3>
+						<div className="space-y-2">
+							<div className="flex items-center justify-between gap-3 border-b border-line pb-2">
+								<h3 className="font-bold">Attributes</h3>
+								{categoryIds.length > 0 && (
+									<Button
+										type="button"
+										variant="ghost"
+										hover="success"
+										disabled={
+											pending || !canCreateAttribute
+										}
+										onClick={addAttribute}
+										className="p-2 opacity-80 hover:opacity-100"
+										title="Declare a new attribute for one of this bundle's categories"
+									>
+										<Icons.Action.Add className="h-4 w-4" />{' '}
+										Add attribute
+									</Button>
+								)}
+							</div>
 
-								{productDefinitions.length === 0 ? (
+							{categoryIds.length > 0 ? (
+								// Categories selected - check if they have definitions
+								productDefinitions.length === 0 ? (
 									<p className="text-sm text-muted">
 										Selected categories declare no product
 										attributes.
@@ -490,9 +560,15 @@ export function FormBundleProduct() {
 										idPrefix="bundle"
 										onDefinitionsChanged={refetchResolved}
 									/>
-								)}
-							</div>
-						)}
+								)
+							) : (
+								// No categories selected - show error message
+								<p className="text-sm text-muted">
+									Please select at least one category to view
+									product attributes.
+								</p>
+							)}
+						</div>
 					</div>
 				</TabsContent>
 

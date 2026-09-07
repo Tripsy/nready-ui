@@ -4,18 +4,11 @@ import {
 	buildAvailabilitiesSchema,
 	toClockValue,
 } from '@/app/(dashboard)/dashboard/product/availability.schema';
-import { FormBundleProduct } from '@/app/(dashboard)/dashboard/product/bundle/form-bundle-product.component';
-import {
-	getProductBundleFormState,
-	getProductBundleFormValues,
-	type ProductBundleManageOutput,
-	prepareProductBundleParams,
-	validateProductBundleForm,
-} from '@/app/(dashboard)/dashboard/product/bundle/product-bundle.definition';
 import {
 	nextAvailabilityKey,
 	type ProductAvailabilityFormType,
 } from '@/app/(dashboard)/dashboard/product/form-availability-product.component';
+import { FormBundleProduct } from '@/app/(dashboard)/dashboard/product/form-bundle-product.component';
 import {
 	FormManageProduct,
 	type ProductFormValuesType,
@@ -26,6 +19,13 @@ import {
 	type ProductVariantFormType,
 } from '@/app/(dashboard)/dashboard/product/form-variants-product.component';
 import { ManagerImagesProduct } from '@/app/(dashboard)/dashboard/product/manager-images-product.component';
+import {
+	getProductBundleFormState,
+	getProductBundleFormValues,
+	type ProductBundleManageOutput,
+	prepareProductBundleParams,
+	validateProductBundleForm,
+} from '@/app/(dashboard)/dashboard/product/product-bundle.definition';
 import { UsageGuideProduct } from '@/app/(dashboard)/dashboard/product/usage-guide-product.component';
 import { ViewProduct } from '@/app/(dashboard)/dashboard/product/view-product.component';
 import { Icons } from '@/components/icon.component';

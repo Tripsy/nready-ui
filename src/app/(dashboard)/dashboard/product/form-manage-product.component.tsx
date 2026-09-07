@@ -631,11 +631,10 @@ export function FormManageProduct() {
 							value={JSON.stringify(attributeValues)}
 						/>
 
-						{categoryIds.length > 0 && (
-							<div className="space-y-2">
-								<div className="flex items-center justify-between gap-3 border-b border-line pb-2">
-									<h3 className="font-bold">Attributes</h3>
-
+						<div className="space-y-2">
+							<div className="flex items-center justify-between gap-3 border-b border-line pb-2">
+								<h3 className="font-bold">Attributes</h3>
+								{categoryIds.length > 0 && (
 									<Button
 										type="button"
 										variant="ghost"
@@ -650,14 +649,15 @@ export function FormManageProduct() {
 										<Icons.Action.Add className="h-4 w-4" />{' '}
 										Add attribute
 									</Button>
-								</div>
+								)}
+							</div>
 
-								{productDefinitions.length === 0 ? (
+							{categoryIds.length > 0 ? (
+								// Categories selected - check if they have definitions
+								productDefinitions.length === 0 ? (
 									<p className="text-sm text-muted">
-										These categories declare no product
-										attributes. They are added from the
-										category itself, through its Attributes
-										action.
+										Selected categories declare no product
+										attributes.
 									</p>
 								) : (
 									<FormAttributesProduct
@@ -671,9 +671,15 @@ export function FormManageProduct() {
 										idPrefix="product"
 										onDefinitionsChanged={refetchResolved}
 									/>
-								)}
-							</div>
-						)}
+								)
+							) : (
+								// No categories selected - show error message
+								<p className="text-sm text-muted">
+									Please select at least one category to view
+									product attributes.
+								</p>
+							)}
+						</div>
 					</div>
 				</TabsContent>
 

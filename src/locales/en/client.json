@@ -67,6 +67,7 @@
 		}
 	},
 	"field": {
+		"client_type": "Client type",
 		"company_name": "Company - Name",
 		"company_cui": "Company - CUI",
 		"company_reg_com": "Company - Reg. Com",

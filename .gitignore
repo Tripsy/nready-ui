@@ -50,6 +50,7 @@ public/uploads/
 # so a probe has to sit here rather than in a temp dir outside it.
 /tsconfig.probe.json
 __probe-*.ts
+__probe-*.tsx
 __probe-*.mjs
 
 # A route folder, for looking at a dashboard component without a session: the middleware lets an

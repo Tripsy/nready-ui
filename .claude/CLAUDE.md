@@ -219,6 +219,23 @@ middleware is `src/proxy.ts`, and Sentry wiring lives in `src/instrumentation*.t
   `<entity>.definition.ts` filename must both equal the `DataSourceKey` exactly.
   Adding a whole entity is a checklist of its own — run `/add-dashboard-feature <entity>`, which
   carries the backend-reading order and the full registration list.
+- **Creating a related record from inside a form**: a form that picks a foreign entity also offers
+  to create it, by opening that entity's own window rather than collecting a name inline — that
+  window is what makes the new row complete (slug, per-language content, the fields the picker has
+  nowhere to ask for). The pattern is three parts, and it is broken if any one is missing:
+  1. capture `getCurrentWindow()` *before* `open()`, and `focus(parentWindow.uid)` in the `success`
+     event — `open` minimizes the caller, so without it the editor lands on an empty desktop with a
+     half-filled form parked in the dock;
+  2. seed the child through `data.prefillEntry`, passing the caller's own context so the child can
+     ask what the caller cannot decide (`form-manage-product`/`form-bundle-product` hand
+     `product-category-attribute` a `category_id` when there is exactly one category and always a
+     `category_options` list for when there are several);
+  3. refresh whatever the new row feeds — `refetchResolved()` for attributes, an
+     `invalidateQueries` on the picker's suggestion key for a brand, whose cache still holds the
+     empty result that prompted the create.
+  Gate the button on the permission the *backend* policy checks, not the one the current form needs:
+  a product-category-attribute is written under `product`/`create`. Offering a create the account
+  cannot perform only defers the refusal to the submit.
 - **Data tables**: list views use a shared `data-table` abstraction backed by `src/stores/data-table.store.ts`
   (Zustand); windows/dialogs are backed by `src/stores/window.store.ts` and `src/components/window`. The two
   stores differ in middleware and write style — read `.claude/rules/state.md` before editing either.

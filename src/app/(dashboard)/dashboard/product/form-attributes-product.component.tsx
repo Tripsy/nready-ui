@@ -9,6 +9,7 @@ import {
 import { Icons } from '@/components/icon.component';
 import { Button } from '@/components/ui/button';
 import { getLanguageClient } from '@/config/translate.setup';
+import { cn } from '@/helpers/css.helper';
 import { requestUpdate } from '@/helpers/services.helper';
 import { hasPermission } from '@/models/account.model';
 import {
@@ -67,6 +68,29 @@ function displayValueSuffix(
 
 /** How far apart the offer order places consecutive options. */
 const OPTION_SORT_STEP = 10;
+
+/**
+ * The three columns every attribute row occupies: the question, the answer, and the control that
+ * widens the answer list.
+ *
+ * Declared here rather than per row, with each row a `subgrid` of it, so the fields and the "Add
+ * value" buttons line up down the whole panel — a row whose definition has no button leaves that
+ * cell empty instead of reclaiming the width and pulling its own field out of line with the rest.
+ *
+ * `grid` overrides the `flex flex-col` that `.form-section` carries: that rule sits in the
+ * components layer and this is a utility, so ordering settles it. The class is kept because the
+ * error tooltips are positioned by `.form-section .form-element .form-element-error` — drop it
+ * and every error renders as a static block instead.
+ *
+ * One column below `sm`, where a three-way split leaves the field nothing usable. Stated
+ * explicitly rather than left implicit: a `subgrid` row inherits only the tracks its parent
+ * *declares*, and with none to inherit it would open implicit columns of its own and lay the
+ * three cells out side by side — the opposite of the stack the narrow width needs.
+ */
+const ATTRIBUTE_GRID =
+	'form-section grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-[minmax(0,10rem)_minmax(0,1fr)_auto]';
+
+const ATTRIBUTE_ROW = 'grid grid-cols-subgrid col-span-full gap-x-4 gap-y-1';
 
 /** The admissible values as select/radio options, in the order the definition offers them. */
 function toOptions(
@@ -207,7 +231,7 @@ export function FormAttributesProduct({
 	};
 
 	return (
-		<div className="form-section">
+		<div className={ATTRIBUTE_GRID}>
 			{definitions.map((definition) => {
 				const labelId = definition.attribute_label_id;
 				const value =
@@ -217,201 +241,242 @@ export function FormAttributesProduct({
 				const labelText = displayAttributeLabel(definition, language);
 				const suffix = displayValueSuffix(definition);
 
+				const isBoolean =
+					definition.value_type ===
+					ProductCategoryAttributeValueTypeEnum.BOOLEAN;
+
+				const isTerm =
+					definition.value_type ===
+					ProductCategoryAttributeValueTypeEnum.TERM;
+
+				/*
+				 * Number and string, the pairing the two above leave — and the only one whose
+				 * value a unit or an affix trails. The table lets a term-backed or boolean
+				 * definition carry a `suffix` too (it only forbids pairing one with a `unit`),
+				 * but there is no figure for it to follow there.
+				 */
+				const isTextual = !isBoolean && !isTerm;
+
+				// The one capture that admits several answers: each ticked term becomes its own
+				// row, which is what the `(product, label, value_term_id)` unique index is for
+				// and what keeps every choice filterable on its own.
+				const isMultiple =
+					isTerm &&
+					definition.type ===
+						ProductCategoryAttributeTypeEnum.CHECKBOX;
+
+				const options = isTerm ? toOptions(definition, language) : [];
+
 				// The unit reads as part of the question rather than as decoration on the
 				// answer — the input holds a bare number, which is what keeps it filterable
-				const withSuffix = suffix
-					? `${labelText} (${suffix})`
-					: labelText;
+				const questionText =
+					suffix && isTextual
+						? `${labelText} (${suffix})`
+						: labelText;
 
-				if (
-					definition.value_type ===
-					ProductCategoryAttributeValueTypeEnum.BOOLEAN
-				) {
-					return (
-						<FormComponentCheckbox<ProductAttributeFormType>
-							key={labelId}
-							id={id}
-							fieldName="boolean"
-							checked={value.boolean}
-							disabled={disabled}
-							error={error}
-							onCheckedChange={(checked) =>
-								update(definition, { boolean: checked })
-							}
-						>
-							{labelText}
-						</FormComponentCheckbox>
-					);
-				}
-
-				if (
-					definition.value_type ===
-					ProductCategoryAttributeValueTypeEnum.TERM
-				) {
-					const options = toOptions(definition, language);
-
-					/*
-					 * Offered under every term-backed field: the admissible values are a list
-					 * someone curated in advance, and the moment it is short the editor is stuck
-					 * with no way forward from here. Adding one widens the definition, so it
-					 * shows for every product under that category from then on.
-					 */
-					const addValueControl = canAddValue ? (
+				/*
+				 * Offered under every term-backed field: the admissible values are a list someone
+				 * curated in advance, and the moment it is short the editor is stuck with no way
+				 * forward from here. Adding one widens the definition, so it shows for every
+				 * product under that category from then on.
+				 */
+				const addValueControl =
+					isTerm && canAddValue ? (
 						<Button
 							type="button"
 							variant="ghost"
 							hover="success"
 							disabled={disabled}
 							onClick={() => addValue(definition)}
-							className="p-1 text-xs opacity-70 hover:opacity-100"
+							className="whitespace-nowrap p-2 text-xs opacity-70 hover:opacity-100"
 							title={`Add a value to "${labelText}"`}
 						>
-							<Icons.Action.Add className="h-3.5 w-3.5" /> Add
-							value
+							<Icons.Action.Add className="h-3.5 w-3.5" />
+							Add value
 						</Button>
 					) : null;
 
-					if (
-						definition.type ===
-						ProductCategoryAttributeTypeEnum.CHECKBOX
-					) {
-						/*
-						 * The one capture that admits several answers: each ticked term becomes
-						 * its own row, which is what the `(product, label, value_term_id)`
-						 * unique index is for and what keeps every choice filterable on its own.
-						 */
-						return (
-							<fieldset key={labelId} className="space-y-1">
-								<legend className="label-placeholder">
-									{labelText}
-									{definition.is_required && (
-										<span className="text-danger ml-1">
-											*
-										</span>
-									)}
-								</legend>
+				/*
+				 * The label is rendered here rather than by the field, which is what puts it
+				 * beside the answer instead of above it. Every field is then named by
+				 * `ariaLabel` — a native `<label for>` would give the text input click-to-focus,
+				 * but it names only that one control: the select is a react-aria trigger and the
+				 * option lists have no single control to point at, so they would still need
+				 * `ariaLabel` and the two branches would drift.
+				 */
+				let control: JSX.Element;
 
-								{options.map((option) => {
-									const termId = Number(option.value);
-									const checked = value.terms.some(
-										(term) => term.id === termId,
-									);
+				if (isBoolean) {
+					control = (
+						<FormComponentCheckbox<ProductAttributeFormType>
+							id={id}
+							fieldName="boolean"
+							checked={value.boolean}
+							disabled={disabled}
+							error={error}
+							ariaLabel={labelText}
+							onCheckedChange={(checked) =>
+								update(definition, { boolean: checked })
+							}
+						/>
+					);
+				} else if (isMultiple) {
+					control = (
+						<div>
+							{/*
+							 * A `<fieldset>` carrying `aria-label` rather than a `<legend>`:
+							 * the question is rendered in the row's own label column, and a
+							 * legend cannot be lifted out of the element it names.
+							 *
+							 * Kept as a bare wrapper with the row on the div inside it. The
+							 * preflight reset strips a fieldset's default margin, padding and
+							 * border, so it costs no space — but it is left a block, clear of
+							 * the `display: flex` a fieldset has a long history of mishandling.
+							 */}
+							<fieldset aria-label={labelText}>
+								<div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+									{options.map((option) => {
+										const termId = Number(option.value);
+										const checked = value.terms.some(
+											(term) => term.id === termId,
+										);
 
-									return (
-										<FormComponentCheckbox<ProductAttributeFormType>
-											key={option.value}
-											id={`${id}-${option.value}`}
-											fieldName="terms"
-											checked={checked}
-											disabled={disabled}
-											onCheckedChange={(next) =>
-												update(definition, {
-													terms: next
-														? [
-																...value.terms,
-																{ id: termId },
-															]
-														: value.terms.filter(
-																(term) =>
-																	term.id !==
-																	termId,
-															),
-												})
-											}
-										>
-											{option.label}
-										</FormComponentCheckbox>
-									);
-								})}
-
-								{addValueControl}
-
-								{error?.length ? (
-									<p className="text-sm text-danger">
-										{error.join(' ')}
-									</p>
-								) : null}
+										return (
+											<FormComponentCheckbox<ProductAttributeFormType>
+												key={option.value}
+												id={`${id}-${option.value}`}
+												fieldName="terms"
+												checked={checked}
+												disabled={disabled}
+												onCheckedChange={(next) =>
+													update(definition, {
+														terms: next
+															? [
+																	...value.terms,
+																	{
+																		id: termId,
+																	},
+																]
+															: value.terms.filter(
+																	(term) =>
+																		term.id !==
+																		termId,
+																),
+													})
+												}
+											>
+												{option.label}
+											</FormComponentCheckbox>
+										);
+									})}
+								</div>
 							</fieldset>
-						);
-					}
 
-					if (
-						definition.type ===
-						ProductCategoryAttributeTypeEnum.RADIO
-					) {
-						return (
-							<div key={labelId} className="space-y-1">
-								<FormComponentRadio<ProductAttributeFormType>
-									labelText={labelText}
-									id={id}
-									fieldName="terms"
-									fieldValue={
-										value.terms[0]
-											? String(value.terms[0].id)
-											: null
-									}
-									isRequired={definition.is_required}
-									disabled={disabled}
-									error={error}
-									options={options}
-									onChange={(next) =>
-										update(definition, {
-											terms: next
-												? [{ id: Number(next) }]
-												: [],
-										})
-									}
-								/>
-								{addValueControl}
-							</div>
-						);
-					}
-
-					return (
-						<div key={labelId} className="space-y-1">
-							<FormComponentSelect<ProductAttributeFormType>
-								labelText={labelText}
-								id={id}
-								fieldName="terms"
-								fieldValue={
-									value.terms[0]
-										? String(value.terms[0].id)
-										: ''
-								}
-								isRequired={definition.is_required}
-								disabled={disabled}
-								error={error}
-								options={options}
-								onChange={(next) =>
-									update(definition, {
-										terms: next
-											? [{ id: Number(next) }]
-											: [],
-									})
-								}
-							/>
-							{addValueControl}
+							{/*
+							 * Reported here rather than through the field's own tooltip: the
+							 * error belongs to the set, and there is no single `.form-element`
+							 * for it to hang off.
+							 */}
+							{error?.length ? (
+								<p className="mt-1 text-sm text-danger">
+									{error.join(' ')}
+								</p>
+							) : null}
 						</div>
+					);
+				} else if (
+					isTerm &&
+					definition.type === ProductCategoryAttributeTypeEnum.RADIO
+				) {
+					control = (
+						<FormComponentRadio<ProductAttributeFormType>
+							id={id}
+							fieldName="terms"
+							fieldValue={
+								value.terms[0]
+									? String(value.terms[0].id)
+									: null
+							}
+							disabled={disabled}
+							error={error}
+							options={options}
+							ariaLabel={labelText}
+							onChange={(next) =>
+								update(definition, {
+									terms: next ? [{ id: Number(next) }] : [],
+								})
+							}
+						/>
+					);
+				} else if (isTerm) {
+					control = (
+						<FormComponentSelect<ProductAttributeFormType>
+							id={id}
+							fieldName="terms"
+							fieldValue={
+								value.terms[0] ? String(value.terms[0].id) : ''
+							}
+							disabled={disabled}
+							error={error}
+							options={options}
+							ariaLabel={labelText}
+							onChange={(next) =>
+								update(definition, {
+									terms: next ? [{ id: Number(next) }] : [],
+								})
+							}
+						/>
+					);
+				} else {
+					control = (
+						<FormComponentInput<ProductAttributeFormType>
+							id={id}
+							fieldName="text"
+							fieldValue={value.text}
+							disabled={disabled}
+							error={error}
+							ariaLabel={questionText}
+							placeholderText={
+								definition.prefix
+									? `${definition.prefix} …`
+									: ''
+							}
+							onChange={(event) =>
+								update(definition, { text: event.target.value })
+							}
+						/>
 					);
 				}
 
+				const question = (
+					<span className="text-sm font-semibold">
+						{questionText}
+						{definition.is_required && (
+							<span className="ml-1 text-danger">*</span>
+						)}
+					</span>
+				);
+
 				return (
-					<FormComponentInput<ProductAttributeFormType>
+					<div
 						key={labelId}
-						labelText={withSuffix}
-						id={id}
-						fieldName="text"
-						fieldValue={value.text}
-						isRequired={definition.is_required}
-						disabled={disabled}
-						error={error}
-						placeholderText={
-							definition.prefix ? `${definition.prefix} …` : ''
-						}
-						onChange={(event) =>
-							update(definition, { text: event.target.value })
-						}
-					/>
+						className={cn(
+							ATTRIBUTE_ROW,
+							// A wrapping option list grows downwards, so its question stays at
+							// the top of the row; every other answer is one line and centres
+							isMultiple ? 'items-start' : 'items-center',
+						)}
+					>
+						{question}
+
+						<div>{control}</div>
+
+						{addValueControl ? (
+							<div className="justify-self-start sm:justify-self-end">
+								{addValueControl}
+							</div>
+						) : null}
+					</div>
 				);
 			})}
 		</div>

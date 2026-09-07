@@ -55,6 +55,7 @@ export function FormManageClient() {
 	return (
 		<>
 			<FormComponentRadio<ClientFormValuesType>
+				labelText="Type"
 				id={elementIds.clientType}
 				fieldName="client_type"
 				fieldValue={formValues.client_type}

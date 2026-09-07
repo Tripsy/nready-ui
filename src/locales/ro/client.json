@@ -67,6 +67,7 @@
 		}
 	},
 	"field": {
+		"client_type": "Tip client",
 		"company_name": "Firmă - Nume",
 		"company_cui": "Firmă - CUI",
 		"company_reg_com": "Firmă - Nr. reg. com.",

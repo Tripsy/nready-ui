@@ -32,6 +32,7 @@ const clientTypes = Object.values(ClientTypeEnum).map((v) => ({
 }));
 
 const TRANSLATION_KEYS = [
+	'client.field.client_type',
 	'client.field.company_name',
 	'client.field.company_cui',
 	'client.field.company_reg_com',
@@ -65,6 +66,7 @@ export function FormManageClient() {
 	return (
 		<>
 			<FormComponentRadio<ClientFormValuesType>
+				labelText={translations['client.field.client_type']}
 				id={elementIds.clientType}
 				fieldName="client_type"
 				fieldValue={formValues.client_type}
