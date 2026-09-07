@@ -333,10 +333,6 @@ function VariantRow({
 				</div>
 
 				<div className="space-y-4">
-					<h3 className="text-sm font-semibold border-b border-line pb-2">
-						Identification
-					</h3>
-
 					<div className="flex flex-wrap gap-2">
 						<FormComponentInput<ProductVariantType>
 							id={`${idPrefix}-${index}-sku`}
@@ -398,12 +394,13 @@ function VariantRow({
 					</div>
 				</div>
 
-				<div className="space-y-2">
+				<div className="space-y-4">
 					<h3 className="text-sm font-semibold border-b border-line pb-2">
 						Stock management
 					</h3>
 
-					<p className="text-xs text-muted">
+					<p className="flex items-start gap-1 text-xs text-muted">
+						<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
 						Off for anything not counted — a dish, a download. The
 						two settings beside it apply only while it is on, and
 						are cleared when it is turned off.
@@ -492,8 +489,7 @@ function VariantRow({
 								<strong className="font-semibold">
 									Sale price
 								</strong>{' '}
-								is what the customer is charged in, excluding
-								VAT.
+								is what the customer is charged, excluding VAT.
 							</span>
 						</p>
 
@@ -504,9 +500,8 @@ function VariantRow({
 								<strong className="font-semibold">
 									Reference price
 								</strong>{' '}
-								is the usual price the sale is measured against,
-								a manufacturer's RRP or a list price - shown to
-								signal a saving.
+								is the usual price the sale is measured against
+								- shown to signal a saving.
 							</span>
 						</p>
 

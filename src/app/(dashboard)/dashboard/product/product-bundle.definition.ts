@@ -147,6 +147,7 @@ export type ProductBundleFormValuesType = {
 	prices: {
 		currency: string;
 		sale_price: string;
+		reference_price: string;
 		min_price: string;
 	}[];
 
@@ -231,13 +232,18 @@ class ProductBundleValidator extends BaseValidator<typeof validatorMessages> {
 			.transform((value) => (value.trim() === '' ? null : Number(value)));
 
 	/**
-	 * The bundle's own headline price. No `reference_price` — a kit is not compared to a list
-	 * price.
+	 * The bundle's own headline price, shaped exactly as a variant's — it is stored as one, on
+	 * the single default variant the bundle carries. `reference_price` is what the kit would
+	 * cost bought piece by piece, which is the saving the bundle is sold on; it is display only
+	 * and never charged.
 	 */
 	private readonly priceSchema = z
 		.object({
 			currency: this.currencySchema,
 			sale_price: this.amountSchema(this.getMessage('invalid_price')),
+			reference_price: this.optionalAmountSchema(
+				this.getMessage('invalid_price'),
+			),
 			min_price: this.optionalAmountSchema(
 				this.getMessage('invalid_price'),
 			),
@@ -531,6 +537,10 @@ export function getProductBundleFormState(
 							price.sale_price === null
 								? ''
 								: String(price.sale_price),
+						reference_price:
+							price.reference_price === null
+								? ''
+								: String(price.reference_price),
 						min_price:
 							price.min_price === null
 								? ''
@@ -540,6 +550,7 @@ export function getProductBundleFormState(
 						{
 							currency: Configuration.get('app.currency'),
 							sale_price: '',
+							reference_price: '',
 							min_price: '',
 						},
 					],

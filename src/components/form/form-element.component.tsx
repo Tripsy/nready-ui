@@ -956,6 +956,7 @@ export const FormComponentCalendar = <Fields,>({
 
 export const FormComponentAutoComplete = <Fields, T>({
 	labelText,
+	ariaLabel,
 	id,
 	fieldName,
 	fieldValue,
@@ -969,28 +970,29 @@ export const FormComponentAutoComplete = <Fields, T>({
 	autoCompleteProps,
 }: Omit<
 	FormComponentProps<Fields, InputValueType>,
-	'fieldType' | 'autoComplete' | 'onChange' | 'icons'
-> & {
-	icons?: { left?: JSX.Element };
-	onInputChange?: (value: string) => void;
-	autoCompleteProps: {
-		suggestions: readonly T[];
-		onSelect?: (item: T) => void;
+	'fieldType' | 'autoComplete' | 'onChange' | 'icons' | 'labelText'
+> &
+	NamedByLabelOrAria & {
+		icons?: { left?: JSX.Element };
+		onInputChange?: (value: string) => void;
+		autoCompleteProps: {
+			suggestions: readonly T[];
+			onSelect?: (item: T) => void;
 
-		getOptionLabel: (item: T) => string;
-		getOptionKey?: (item: T) => string | number;
+			getOptionLabel: (item: T) => string;
+			getOptionKey?: (item: T) => string | number;
 
-		maxSuggestions?: number;
+			maxSuggestions?: number;
 
-		isLoading?: boolean;
-		emptyMessage?: string;
-		loadingMessage?: string;
+			isLoading?: boolean;
+			emptyMessage?: string;
+			loadingMessage?: string;
 
-		allowCreate?: boolean;
-		onCreate?: (value: string) => void;
-		createLabel?: (value: string) => string;
-	};
-}) => {
+			allowCreate?: boolean;
+			onCreate?: (value: string) => void;
+			createLabel?: (value: string) => string;
+		};
+	}) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [inputValue, setInputValue] = useState(fieldValue ?? '');
 	const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -1112,7 +1114,13 @@ export const FormComponentAutoComplete = <Fields, T>({
 
 	return (
 		<FormElement
-			label={{ for: id, text: labelText, required: isRequired }}
+			// No `labelText`, no label element — an empty one still renders its required
+			// asterisk, which reads as a name that failed to load.
+			label={
+				labelText
+					? { for: id, text: labelText, required: isRequired }
+					: undefined
+			}
 			error={error}
 		>
 			<div ref={wrapperRef} className="relative w-full">
@@ -1134,6 +1142,7 @@ export const FormComponentAutoComplete = <Fields, T>({
 							placeholder={placeholderText}
 							disabled={disabled}
 							aria-invalid={!!error}
+							aria-label={labelText ? undefined : ariaLabel}
 							onChange={handleOnChange}
 							onKeyDown={handleKeyDown}
 						/>

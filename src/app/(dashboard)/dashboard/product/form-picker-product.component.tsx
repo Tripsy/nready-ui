@@ -15,7 +15,7 @@ type Props = {
 	onChange: (value: ProductRefType[]) => void;
 	isRequired?: boolean;
 	disabled?: boolean;
-	emptyMessage: string;
+	emptyText?: string;
 	error?: string[];
 };
 
@@ -37,7 +37,7 @@ export function FormPickerProduct({
 	onChange,
 	isRequired = false,
 	disabled = false,
-	emptyMessage,
+	emptyText,
 	error,
 }: Props): JSX.Element {
 	return (
@@ -65,7 +65,7 @@ export function FormPickerProduct({
 				/>
 			}
 			queryKeyPrefix="s-product-ref"
-			emptyText={emptyMessage}
+			emptyText={emptyText}
 			error={error}
 			isRequired={isRequired}
 			disabled={disabled}

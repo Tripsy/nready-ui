@@ -12,7 +12,9 @@ import { DisplayStatus } from '@/helpers/display.helper';
 import { renderMarkdown } from '@/helpers/markdown.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import {
+	displayOptionLabel,
 	type ProductModel,
+	type ProductOptionPriceType,
 	toCategoryRefs,
 	toTagRefs,
 } from '@/models/product.model';
@@ -33,6 +35,40 @@ function displayHours(startsAt: string | null, endsAt: string | null): string {
 /** `null` means every day, which is a value rather than a missing one. */
 function displayWeekday(dayOfWeek: number | null): string {
 	return dayOfWeek === null ? 'Every day' : isoWeekdayName(dayOfWeek);
+}
+
+/**
+ * How many answers a question accepts. Restated in words because `min_select` / `max_select` are
+ * its only expression — there is no required flag to read instead — and `null` as the maximum is
+ * a value ("no upper bound") rather than a missing one.
+ */
+function displayCardinality(
+	minSelect: number | null,
+	maxSelect: number | null,
+): string {
+	const min = minSelect ?? 0;
+	const max = maxSelect === null ? 'any' : String(maxSelect);
+
+	return `${min === 0 ? 'optional' : 'required'}, ${min}–${max}`;
+}
+
+/**
+ * What one answer does to the price, per market. Signed on purpose — an answer that declines
+ * something the price already includes carries a negative delta, and a bare number would read
+ * as a surcharge.
+ */
+function displayDeltas(prices: ProductOptionPriceType[]): string {
+	if (prices.length === 0) {
+		return 'no price effect';
+	}
+
+	return prices
+		.map((price) => {
+			const delta = price.price_delta ?? 0;
+
+			return `${delta > 0 ? '+' : ''}${delta} ${price.currency}`;
+		})
+		.join(' · ');
 }
 
 export function ViewProduct({ entry }: { entry: ProductModel }) {
@@ -57,6 +93,7 @@ export function ViewProduct({ entry }: { entry: ProductModel }) {
 	const tags = toTagRefs(entry, language);
 	const variants = entry.variants ?? [];
 	const availabilities = entry.availabilities ?? [];
+	const optionGroups = entry.option_groups ?? [];
 
 	return (
 		<div className="space-y-6">
@@ -212,6 +249,59 @@ export function ViewProduct({ entry }: { entry: ProductModel }) {
 							}
 						/>
 					))
+				)}
+			</ViewSection>
+
+			{/*
+			 * Below the variants because a delta is measured against a variant's price, and
+			 * reading the two in that order is what makes the figures mean anything.
+			 */}
+			<ViewSection
+				title={`Options (${optionGroups.length})`}
+				layout="rows"
+			>
+				{optionGroups.length === 0 ? (
+					<span className="text-sm text-muted">
+						No questions — ordered as it is.
+					</span>
+				) : (
+					<ul className="space-y-3 text-sm">
+						{optionGroups.map((group) => (
+							<li key={group.label_id}>
+								<span className="font-medium">
+									{displayOptionLabel(
+										group.label,
+										language,
+										group.label_id,
+									)}
+								</span>{' '}
+								<span className="text-muted">
+									{displayCardinality(
+										group.min_select,
+										group.max_select,
+									)}
+								</span>
+								<ul className="mt-1 space-y-0.5 pl-4">
+									{group.options.map((option) => (
+										<li key={option.label_id}>
+											{displayOptionLabel(
+												option.label,
+												language,
+												option.label_id,
+											)}
+											{option.is_default
+												? ' (preselected)'
+												: ''}
+											<span className="text-muted">
+												{' — '}
+												{displayDeltas(option.prices)}
+											</span>
+										</li>
+									))}
+								</ul>
+							</li>
+						))}
+					</ul>
 				)}
 			</ViewSection>
 

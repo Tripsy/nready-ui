@@ -161,8 +161,8 @@ export function FormComponentsBundle({
 				{ component_search: string },
 				ProductVariantModel
 			>
-				labelText="Add a component"
 				id={elementIds['component-search']}
+				ariaLabel="Add a component"
 				fieldName="component_search"
 				fieldValue={search}
 				className="pl-8"
@@ -192,7 +192,8 @@ export function FormComponentsBundle({
 				}}
 			/>
 
-			<p className="text-xs text-muted">
+			<p className="flex items-start gap-1 text-xs text-muted">
+				<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
 				Only simple products are offered — a bundle cannot contain
 				another bundle.
 			</p>

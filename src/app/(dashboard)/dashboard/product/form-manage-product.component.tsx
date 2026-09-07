@@ -7,6 +7,10 @@ import {
 	type ProductAvailabilityFormType,
 } from '@/app/(dashboard)/dashboard/product/form-availability-product.component';
 import { FormContentsProduct } from '@/app/(dashboard)/dashboard/product/form-contents-product.component';
+import {
+	FormOptionsProduct,
+	type ProductOptionGroupFormType,
+} from '@/app/(dashboard)/dashboard/product/form-options-product.component';
 import { FormPickerProduct } from '@/app/(dashboard)/dashboard/product/form-picker-product.component';
 import type { ProductVariantFormType } from '@/app/(dashboard)/dashboard/product/form-variants-product.component';
 import { FormVariantsProduct } from '@/app/(dashboard)/dashboard/product/form-variants-product.component';
@@ -92,6 +96,11 @@ export type ProductFormValuesType = {
 	attributes: ProductAttributeFormType[];
 	/** Recurring ordering windows. Empty means unrestricted — see `FormAvailabilityProduct`. */
 	availabilities: ProductAvailabilityFormType[];
+	/**
+	 * The questions asked at order time and what each answer does to the price. Empty means the
+	 * product is ordered as it is — see `FormOptionsProduct`.
+	 */
+	option_groups: ProductOptionGroupFormType[];
 
 	/*
 	 * The two set-wide variant rules — exactly one default, no repeated SKU — report here rather
@@ -110,6 +119,9 @@ const FORM_TABS = [
 	{ id: 'details', label: 'Details' },
 	{ id: 'content', label: 'Content' },
 	{ id: 'variants', label: 'Variants' },
+	// After Variants because a delta is measured against a variant's price — the thing being
+	// modified has to be priced before modifying it means anything.
+	{ id: 'options', label: 'Options' },
 	{ id: 'availability', label: 'Availability' },
 ] as const;
 
@@ -121,12 +133,14 @@ const TAB_FIELDS: Record<FormTabId, readonly (keyof ProductFormValuesType)[]> =
 		details: [
 			'type',
 			'unit',
+			'vat_category',
 			'brand_id',
 			'categories',
 			'tags',
 			'attributes',
 		],
-		variants: ['vat_category', 'variants', 'variants_rule'],
+		variants: ['variants', 'variants_rule'],
+		options: ['option_groups'],
 		availability: [
 			'available_from',
 			'available_until',
@@ -140,6 +154,7 @@ const TAB_FIELDS: Record<FormTabId, readonly (keyof ProductFormValuesType)[]> =
 const TAB_CONTENT_FIELDS: Record<FormTabId, readonly string[]> = {
 	details: [],
 	variants: [],
+	options: [],
 	availability: [],
 	content: ['label', 'slug', 'description', 'meta'],
 };
@@ -201,6 +216,9 @@ export function FormManageProduct() {
 
 	// A definition is gated on `product`, like the backend policy that writes it
 	const canCreateAttribute = hasPermission(auth, 'product', 'create');
+
+	// Both option pickers name a `term`, and creating one is written under `term`
+	const canCreateTerm = hasPermission(auth, 'term', 'create');
 
 	const { suggestions: brandSuggestions, isFetching: isBrandFetching } =
 		useRemoteAutocomplete<BrandModel>({
@@ -372,6 +390,57 @@ export function FormManageProduct() {
 	};
 
 	/**
+	 * Names a question or an answer the picker could not find, by creating the `term` behind it.
+	 *
+	 * The term window rather than a name typed inline, for the same reason the brand picker uses
+	 * it: a term is a row per language, and one created from a single typed string would be
+	 * translated nowhere. `apply` is the picker that asked — the editor writes back into it
+	 * rather than into a field this component can name, since either level of either row may
+	 * have opened the window.
+	 *
+	 * `open` minimizes this form, so the parent is captured beforehand and focused again on
+	 * success; without it the editor lands on an empty desktop with a half-filled product parked
+	 * in the dock.
+	 */
+	const createOptionTerm = (
+		typedValue: string,
+		apply: (entry: TermModel) => void,
+	) => {
+		const parentWindow = getCurrentWindow();
+
+		open({
+			minimized: false,
+			section: DataSourceSectionEnum.DASHBOARD,
+			dataSource: 'term',
+			action: 'create',
+			data: {
+				prefillEntry: {
+					type: TermTypeEnum.TEXT,
+					contents: [
+						{
+							language: getLanguageClient(),
+							value: typedValue,
+						},
+					],
+				},
+			},
+			events: {
+				success: (entry?: TermModel) => {
+					if (parentWindow) {
+						focus(parentWindow.uid);
+					}
+
+					if (!entry) {
+						return;
+					}
+
+					apply(entry);
+				},
+			},
+		});
+	};
+
+	/**
 	 * The validator reports on the entry, which is index-aligned with the fields the tab
 	 * renders; the field component addresses them by label, since an index is not stable across
 	 * a category change.
@@ -459,7 +528,13 @@ export function FormManageProduct() {
 				</TabsList>
 
 				<TabsContent id="details">
-					<div className="space-y-6 pt-4">
+					<div className="space-y-4">
+						<p className="flex items-start gap-1 text-xs text-muted">
+							<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+							Common details for all the product variants.
+							Specific attributes are set on the Variants tab.
+						</p>
+
 						<div className="flex flex-wrap gap-2">
 							<FormComponentSelect<ProductFormValuesType>
 								labelText="Type"
@@ -522,6 +597,37 @@ export function FormManageProduct() {
 								on the bundle page.
 							</p>
 						)}
+
+						{/*
+						 * A row of its own rather than beside the type and unit: it is a tax
+						 * classification, not a description of the goods, and the note under it
+						 * needs the width. The rate applies to the whole product — a `product`
+						 * column, not a per-variant one — which is a costly thing to misread.
+						 */}
+						<div>
+							<FormComponentSelect<ProductFormValuesType>
+								labelText="VAT Category"
+								id={elementIds.vatCategory}
+								fieldName="vat_category"
+								fieldValue={formValues.vat_category}
+								options={productVatCategories}
+								disabled={pending}
+								onChange={(value) =>
+									handleChange(
+										'vat_category',
+										value as ProductVatCategory,
+									)
+								}
+								error={errors.vat_category}
+								className="max-w-48"
+							/>
+
+							<p className="mt-1 flex items-start gap-1 text-xs text-muted">
+								<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+								Applies to the whole product — every variant is
+								taxed at this rate.
+							</p>
+						</div>
 
 						<div className="flex flex-wrap gap-2">
 							<input
@@ -593,7 +699,6 @@ export function FormManageProduct() {
 							}
 							isRequired={true}
 							disabled={pending}
-							emptyMessage="A product's attribute form is resolved from its categories, so at least one is required."
 							error={ownErrorMessages(errors.categories)}
 						/>
 
@@ -612,7 +717,6 @@ export function FormManageProduct() {
 							value={formValues.tags}
 							onChange={(value) => handleChange('tags', value)}
 							disabled={pending}
-							emptyMessage="No tags — optional."
 							error={ownErrorMessages(errors.tags)}
 						/>
 
@@ -684,6 +788,14 @@ export function FormManageProduct() {
 				</TabsContent>
 
 				<TabsContent id="content">
+					<p className="flex items-start gap-1 text-xs text-muted">
+						<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+						The wording, one set per language — name, slug,
+						description and the SEO meta. The slug is the whole
+						public address (eg: /products/my-slug), so changing it
+						moves the page.
+					</p>
+
 					<FormContentsProduct
 						contents={formValues.contents ?? []}
 						pending={pending}
@@ -705,39 +817,16 @@ export function FormManageProduct() {
 				</TabsContent>
 
 				<TabsContent id="variants">
-					<div className="space-y-4 pt-4">
-						{/*
-						 * On this tab because it is a pricing decision, and price lives on the
-						 * variants — but it is a column on `product`, not on each variant, so it
-						 * sits above the list rather than inside a row. The note says so: a tax
-						 * rate that looked per-variant would be a costly thing to misread.
-						 */}
-						<div>
-							<FormComponentSelect<ProductFormValuesType>
-								labelText="VAT Category"
-								id={elementIds.vatCategory}
-								fieldName="vat_category"
-								fieldValue={formValues.vat_category}
-								options={productVatCategories}
-								disabled={pending}
-								onChange={(value) =>
-									handleChange(
-										'vat_category',
-										value as ProductVatCategory,
-									)
-								}
-								error={errors.vat_category}
-								className="max-w-48"
-							/>
-							<p className="mt-1 flex items-center gap-1 text-xs text-muted">
-								<Icons.Info className="h-3.5 w-3.5 shrink-0" />
-
-								<span>
-									Applies to the whole product - every variant
-									below is taxed at this rate.
-								</span>
-							</p>
-						</div>
+					<div className="space-y-4">
+						<p className="flex items-start gap-1 text-xs text-muted">
+							<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+							Pricing and inventory are managed at the variant
+							level, not the product level. Define a separate
+							variant for each distinct configuration (e.g.,
+							different size, color, etc). Products that have no
+							variations must still have exactly one default
+							variant.
+						</p>
 
 						<FormVariantsProduct
 							value={formValues.variants}
@@ -761,24 +850,39 @@ export function FormManageProduct() {
 					</div>
 				</TabsContent>
 
-				<TabsContent id="availability">
-					{/*
-					 * Two sections, kept apart on purpose: the dates are absolute and describe
-					 * the product's life in the catalog — they alone drive `sale_status` — while
-					 * the windows below repeat within that life and leave it untouched. Same tab
-					 * because both answer "when can this be bought", separate headings because
-					 * merging them is what `.claude/rules/product.md` §9 warns against.
-					 */}
-					<div className="space-y-6 pt-4">
-						<div className="space-y-2">
-							<h3 className="text-sm font-semibold">
-								Catalog window
-							</h3>
-							<p className="text-xs text-muted">
-								When the product enters and leaves the catalog.
-								These decide whether it is listed at all.
-							</p>
+				<TabsContent id="options">
+					<div className="space-y-4">
+						<p className="flex items-start gap-1 text-xs text-muted">
+							<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+							A question asked at order time, and what each answer
+							does to the price (eg: Extra bacon, a choice of
+							crust, etc).
+						</p>
 
+						<FormOptionsProduct
+							value={formValues.option_groups}
+							onChange={(value) =>
+								handleChange('option_groups', value)
+							}
+							disabled={pending}
+							errors={errors.option_groups}
+							canCreateTerm={canCreateTerm}
+							onCreateTerm={createOptionTerm}
+						/>
+					</div>
+				</TabsContent>
+
+				<TabsContent id="availability">
+					<div className="space-y-6">
+						<p className="flex items-start gap-1 text-xs text-muted">
+							<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+							The dates below decide whether the product is listed
+							at all; the intervals under them decide when a
+							listed product can be ordered (eg: a lunch menu,
+							weekdays 12:00–15:00).
+						</p>
+
+						<div className="space-y-2">
 							<div className="flex flex-wrap gap-2">
 								<FormComponentCalendar<ProductFormValuesType>
 									labelText="Available From"
@@ -834,7 +938,7 @@ export function FormManageProduct() {
 							</div>
 						</div>
 
-						<div className="space-y-2 border-t border-line pt-4">
+						<div className="space-y-2">
 							<h3 className="text-sm font-semibold">
 								Ordering interval
 							</h3>

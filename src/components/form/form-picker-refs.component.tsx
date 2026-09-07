@@ -55,7 +55,12 @@ type Props<Model extends { id: number }> = {
 	 * categories and a product's — would otherwise share cached searches under one key.
 	 */
 	queryKeyPrefix: string;
-	emptyText: string;
+	/**
+	 * The line shown while nothing is selected. Omit it where an empty selection needs no
+	 * explanation — the row then collapses to the search box, and a validation error still
+	 * takes its place.
+	 */
+	emptyText?: string;
 	/** Validation messages for the selection as a whole, not for any one entry. */
 	error?: string[];
 	isRequired?: boolean;
@@ -96,6 +101,10 @@ export function FormPickerRefs<Model extends { id: number }>({
 }: Props<Model>): JSX.Element {
 	const elementKey = `picker-${fieldName}`;
 	const suggestionsKey = `${queryKeyPrefix}-${fieldName}`;
+
+	// One line for both states: an error is what the empty selection has to say once the form
+	// has been submitted, so it replaces `emptyText` rather than stacking under it.
+	const emptyLine = error?.length ? error.join(' ') : emptyText;
 
 	const { open, focus, getCurrentWindow } = useModalStore();
 	const queryClient = useQueryClient();
@@ -199,15 +208,17 @@ export function FormPickerRefs<Model extends { id: number }>({
 			{hiddenFields}
 
 			{entries.length === 0 ? (
-				<p
-					className={
-						error?.length
-							? 'text-sm text-danger'
-							: 'text-sm text-muted'
-					}
-				>
-					{error?.length ? error.join(' ') : emptyText}
-				</p>
+				emptyLine ? (
+					<p
+						className={
+							error?.length
+								? 'text-sm text-danger'
+								: 'text-sm text-muted'
+						}
+					>
+						{emptyLine}
+					</p>
+				) : null
 			) : (
 				<ul className="flex flex-wrap gap-2">
 					{entries.map((entry) => (

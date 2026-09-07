@@ -13,7 +13,7 @@ type Props<Model extends { id: number }> = {
 	/** Selected ids. The only thing that reaches the API. */
 	value: readonly number[];
 	onChange: (ids: number[]) => void;
-	emptyText: string;
+	emptyText?: string;
 	disabled?: boolean;
 	/** Validation messages for the selection as a whole, not for any one entry. */
 	error?: string[];

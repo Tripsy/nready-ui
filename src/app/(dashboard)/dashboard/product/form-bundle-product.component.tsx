@@ -75,6 +75,7 @@ const PRICE_COLUMN = {
 const emptyPrice = (): ProductBundleFormValuesType['prices'][number] => ({
 	currency: '',
 	sale_price: '',
+	reference_price: '',
 	min_price: '',
 });
 
@@ -377,7 +378,7 @@ export function FormBundleProduct() {
 				</TabsList>
 
 				<TabsContent id="details">
-					<div className="space-y-6 pt-4">
+					<div className="space-y-6">
 						<div className="flex flex-wrap gap-2">
 							<FormComponentSelect<ProductBundleFormValuesType>
 								labelText="Type"
@@ -418,12 +419,6 @@ export function FormBundleProduct() {
 								error={errors.unit}
 							/>
 						</div>
-
-						<p className="text-xs text-muted">
-							No VAT category: a bundle does not carry one — each
-							component is taxed at its own rate, and the order
-							line is split per component to keep that correct.
-						</p>
 
 						<div>
 							<input
@@ -491,7 +486,6 @@ export function FormBundleProduct() {
 							}
 							disabled={pending}
 							error={ownErrorMessages(errors.categories)}
-							emptyMessage="A bundle's attribute form is resolved from its categories, so at least one is required."
 						/>
 
 						<FormPickerProduct
@@ -506,7 +500,6 @@ export function FormBundleProduct() {
 							onChange={(value) => handleChange('tags', value)}
 							disabled={pending}
 							error={ownErrorMessages(errors.tags)}
-							emptyMessage="No tags — optional."
 						/>
 
 						{/*
@@ -564,8 +557,8 @@ export function FormBundleProduct() {
 							) : (
 								// No categories selected - show error message
 								<p className="text-sm text-muted">
-									Please select at least one category to view
-									product attributes.
+									Please select at least one category to add
+									bundle attributes.
 								</p>
 							)}
 						</div>
@@ -573,6 +566,14 @@ export function FormBundleProduct() {
 				</TabsContent>
 
 				<TabsContent id="content">
+					<p className="flex items-start gap-1 text-xs text-muted">
+						<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+						The wording, one set per language — name, slug,
+						description and the SEO meta. The slug is the whole
+						public address (eg: /products/my-slug), so changing it
+						moves the page.
+					</p>
+
 					<FormContentsProduct
 						contents={formValues.contents ?? []}
 						pending={pending}
@@ -594,24 +595,56 @@ export function FormBundleProduct() {
 				</TabsContent>
 
 				<TabsContent id="components">
-					<div className="pt-4">
-						<FormComponentsBundle
-							value={formValues.components}
-							pending={pending}
-							errors={errors.components}
-							setError={
-								componentRuleError.length
-									? componentRuleError
-									: undefined
-							}
-							onChange={(value) =>
-								handleChange('components', value)
-							}
-						/>
-					</div>
+					<FormComponentsBundle
+						value={formValues.components}
+						pending={pending}
+						errors={errors.components}
+						setError={
+							componentRuleError.length
+								? componentRuleError
+								: undefined
+						}
+						onChange={(value) => handleChange('components', value)}
+					/>
 				</TabsContent>
 
 				<TabsContent id="price">
+					<div>
+						<p className="mt-1 flex items-center gap-1 text-xs text-muted">
+							<Icons.Info className="h-3.5 w-3.5 shrink-0" />
+
+							<span>
+								<strong className="font-semibold">
+									Sale price
+								</strong>{' '}
+								is what the customer is charged, excluding VAT.
+							</span>
+						</p>
+
+						<p className="mt-1 flex items-center gap-1 text-xs text-muted">
+							<Icons.Info className="h-3.5 w-3.5 shrink-0" />
+
+							<span>
+								<strong className="font-semibold">
+									Reference price
+								</strong>{' '}
+								is the usual price the sale is measured against
+								- shown to signal a saving.
+							</span>
+						</p>
+
+						<p className="mt-1 flex items-center gap-1 text-xs text-muted">
+							<Icons.Info className="h-3.5 w-3.5 shrink-0" />
+
+							<span>
+								The discounted price cannot drop below the set{' '}
+								<strong className="font-semibold">
+									minimum price
+								</strong>
+							</span>
+						</p>
+					</div>
+
 					<div className="space-y-4 pt-4">
 						<FormComponentInput<ProductBundleFormValuesType>
 							labelText="Bundle SKU"
@@ -642,6 +675,9 @@ export function FormBundleProduct() {
 								<span className="ml-1 text-danger">*</span>
 							</span>
 							<span className={PRICE_COLUMN.amount}>
+								Reference price
+							</span>
+							<span className={PRICE_COLUMN.amount}>
 								Minimum price
 							</span>
 						</div>
@@ -659,97 +695,148 @@ export function FormBundleProduct() {
 								ProductBundleFormValuesType['prices'][number]
 							>(errors.prices, index);
 
+							/*
+							 * A warning, not a rule — the same one the variants grid carries.
+							 * `reference_price` means "what this would otherwise cost", so one
+							 * below the sale price advertises an increase as a saving. Nothing
+							 * downstream catches it: the table checks only `reference_price > 0`
+							 * and no pricing path reads the column, so a transposed pair reaches
+							 * the storefront unchallenged. Both figures are in the row's own
+							 * currency, so no conversion is involved. Equal is not flagged — it
+							 * advertises no saving rather than a false one.
+							 */
+							const referenceBelowSale =
+								Number.isFinite(Number(row.reference_price)) &&
+								row.reference_price.trim() !== '' &&
+								row.sale_price.trim() !== '' &&
+								Number(row.reference_price) <
+									Number(row.sale_price);
+
 							return (
 								// Keyed by position, as the variants grid is: a price row has no
 								// identity of its own, and its currency is empty until the editor
 								// picks one.
-								<div
-									// biome-ignore lint/suspicious/noArrayIndexKey: no stable id on a price row
-									key={index}
-									className="flex flex-nowrap items-start gap-2"
-								>
-									{/* The width is on the cell, not the control — see PRICE_COLUMN. */}
-									<div className={PRICE_COLUMN.currency}>
-										<FormComponentSelect<{
-											currency: string;
-										}>
-											id={`${elementIds.sku}-currency-${index}`}
-											fieldName="currency"
-											fieldValue={row.currency}
-											isRequired={true}
-											ariaLabel="Currency"
-											className="w-full"
-											options={CURRENCY_OPTIONS}
-											disabled={pending}
-											onChange={(value) =>
-												updatePrice(index, {
-													currency: value,
-												})
-											}
-											error={ownErrorMessages(
-												rowErrors?.currency,
-											)}
-										/>
+								// biome-ignore lint/suspicious/noArrayIndexKey: no stable id on a price row
+								<div key={index}>
+									<div className="flex flex-nowrap items-start gap-2">
+										{/* The width is on the cell, not the control — see PRICE_COLUMN. */}
+										<div className={PRICE_COLUMN.currency}>
+											<FormComponentSelect<{
+												currency: string;
+											}>
+												id={`${elementIds.sku}-currency-${index}`}
+												fieldName="currency"
+												fieldValue={row.currency}
+												isRequired={true}
+												ariaLabel="Currency"
+												className="w-full"
+												options={CURRENCY_OPTIONS}
+												disabled={pending}
+												onChange={(value) =>
+													updatePrice(index, {
+														currency: value,
+													})
+												}
+												error={ownErrorMessages(
+													rowErrors?.currency,
+												)}
+											/>
+										</div>
+
+										<div className={PRICE_COLUMN.amount}>
+											<FormComponentInput<{
+												sale_price: string;
+											}>
+												id={`${elementIds.sku}-sale-price-${index}`}
+												fieldName="sale_price"
+												fieldValue={row.sale_price}
+												isRequired={true}
+												ariaLabel="Sale price"
+												className="w-full"
+												disabled={pending}
+												onChange={(event) =>
+													updatePrice(index, {
+														sale_price:
+															event.target.value,
+													})
+												}
+												error={ownErrorMessages(
+													rowErrors?.sale_price,
+												)}
+											/>
+										</div>
+
+										<div className={PRICE_COLUMN.amount}>
+											<FormComponentInput<{
+												reference_price: string;
+											}>
+												id={`${elementIds.sku}-reference-price-${index}`}
+												fieldName="reference_price"
+												fieldValue={row.reference_price}
+												ariaLabel="Reference price"
+												className="w-full"
+												disabled={pending}
+												onChange={(event) =>
+													updatePrice(index, {
+														reference_price:
+															event.target.value,
+													})
+												}
+												error={ownErrorMessages(
+													rowErrors?.reference_price,
+												)}
+											/>
+										</div>
+
+										<div className={PRICE_COLUMN.amount}>
+											<FormComponentInput<{
+												min_price: string;
+											}>
+												id={`${elementIds.sku}-min-price-${index}`}
+												fieldName="min_price"
+												fieldValue={row.min_price}
+												ariaLabel="Minimum price"
+												className="w-full"
+												disabled={pending}
+												onChange={(event) =>
+													updatePrice(index, {
+														min_price:
+															event.target.value,
+													})
+												}
+												error={ownErrorMessages(
+													rowErrors?.min_price,
+												)}
+											/>
+										</div>
+
+										{/* The last market cannot go: a bundle has to carry a price. */}
+										{formValues.prices.length > 1 ? (
+											<Button
+												type="button"
+												variant="ghost"
+												hover="error"
+												disabled={pending}
+												onClick={() =>
+													removePrice(index)
+												}
+												className="mt-1 p-2 opacity-60 hover:opacity-100"
+												title={`Remove ${row.currency || 'this market'}`}
+											>
+												<Icons.Close className="h-4 w-4" />
+											</Button>
+										) : null}
 									</div>
 
-									<div className={PRICE_COLUMN.amount}>
-										<FormComponentInput<{
-											sale_price: string;
-										}>
-											id={`${elementIds.sku}-sale-price-${index}`}
-											fieldName="sale_price"
-											fieldValue={row.sale_price}
-											isRequired={true}
-											ariaLabel="Sale price"
-											className="w-full"
-											disabled={pending}
-											onChange={(event) =>
-												updatePrice(index, {
-													sale_price:
-														event.target.value,
-												})
-											}
-											error={ownErrorMessages(
-												rowErrors?.sale_price,
-											)}
-										/>
-									</div>
-
-									<div className={PRICE_COLUMN.amount}>
-										<FormComponentInput<{
-											min_price: string;
-										}>
-											id={`${elementIds.sku}-min-price-${index}`}
-											fieldName="min_price"
-											fieldValue={row.min_price}
-											ariaLabel="Minimum price"
-											className="w-full"
-											disabled={pending}
-											onChange={(event) =>
-												updatePrice(index, {
-													min_price:
-														event.target.value,
-												})
-											}
-											error={ownErrorMessages(
-												rowErrors?.min_price,
-											)}
-										/>
-									</div>
-
-									{/* The last market cannot go: a bundle has to carry a price. */}
-									{formValues.prices.length > 1 ? (
-										<Button
-											type="button"
-											variant="ghost"
-											hover="error"
-											disabled={pending}
-											onClick={() => removePrice(index)}
-											className="mt-1 p-2 opacity-60 hover:opacity-100"
-											title={`Remove ${row.currency || 'this market'}`}
-										>
-											<Icons.Close className="h-4 w-4" />
-										</Button>
+									{referenceBelowSale ? (
+										<p className="mt-1 flex items-start gap-1 text-xs text-warning">
+											<Icons.Status.Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+											<span>
+												The reference price is below the
+												sale price, so it advertises an
+												increase rather than a saving.
+											</span>
+										</p>
 									) : null}
 								</div>
 							);
@@ -785,23 +872,16 @@ export function FormBundleProduct() {
 				</TabsContent>
 
 				<TabsContent id="availability">
-					{/*
-					 * Two sections, kept apart on purpose — the same split the product form
-					 * makes. The dates are absolute and decide whether the bundle is listed at
-					 * all; the windows repeat within that life and leave `sale_status` untouched.
-					 * Both are the *bundle's* own: a component that is itself out of hours is a
-					 * separate question the storefront resolves per line.
-					 */}
-					<div className="space-y-6 pt-4">
-						<div className="space-y-2">
-							<h3 className="text-sm font-semibold">
-								Catalog window
-							</h3>
-							<p className="text-xs text-muted">
-								When the bundle enters and leaves the catalog.
-								These decide whether it is listed at all.
-							</p>
+					<div className="space-y-6">
+						<p className="flex items-start gap-1 text-xs text-muted">
+							<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+							The dates below decide whether the bundle is listed
+							at all; the intervals under them decide when a
+							listed bundle can be ordered (eg: a lunch menu,
+							weekdays 12:00–15:00).
+						</p>
 
+						<div className="space-y-2">
 							<div className="flex flex-wrap gap-2">
 								<FormComponentCalendar<ProductBundleFormValuesType>
 									labelText="Available From"
@@ -841,7 +921,7 @@ export function FormBundleProduct() {
 							</div>
 						</div>
 
-						<div className="space-y-2 border-t border-line pt-4">
+						<div className="space-y-2">
 							<h3 className="text-sm font-semibold">
 								Ordering interval
 							</h3>

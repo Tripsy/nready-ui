@@ -14,6 +14,10 @@ import {
 	type ProductFormValuesType,
 } from '@/app/(dashboard)/dashboard/product/form-manage-product.component';
 import {
+	nextOptionKey,
+	type ProductOptionGroupFormType,
+} from '@/app/(dashboard)/dashboard/product/form-options-product.component';
+import {
 	emptyVariant,
 	nextVariantKey,
 	type ProductVariantFormType,
@@ -53,6 +57,7 @@ import {
 } from '@/helpers/validator.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
+	displayOptionLabel,
 	displayProductLabel,
 	getProductLabel,
 	PRODUCT_DEFAULT_COMPOSITION,
@@ -116,10 +121,20 @@ const validatorMessages = [
 	'availability_every_day_exclusive',
 	'variant_default_required',
 	'variant_sku_duplicate',
+	'variant_currency_duplicate',
 	'attribute_required',
 	'invalid_currency',
 	'invalid_price',
 	'min_price_above_price',
+	'invalid_option_label',
+	'invalid_option_bounds',
+	'option_max_below_min',
+	'option_min_above_options',
+	'option_answer_required',
+	'option_group_duplicate',
+	'option_answer_duplicate',
+	'invalid_price_delta',
+	'option_currency_duplicate',
 ] as const;
 
 class ProductValidator extends BaseValidator<typeof validatorMessages> {
@@ -143,19 +158,27 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	});
 
 	/**
+	 * The market a figure is quoted in.
+	 *
+	 * Upper-cased so `ron` and `RON` reach the same `(variant_id, currency)` — or
+	 * `(option_id, currency)` — unique index rather than passing as two prices for one market.
+	 */
+	private readonly currencySchema = this.validateString(
+		this.getMessage('invalid_currency'),
+	)
+		.refine((value) => value.trim().length === 3, {
+			message: this.getMessage('invalid_currency'),
+		})
+		.transform((value) => value.trim().toUpperCase());
+
+	/**
 	 * Prices exclude VAT, matching the column they feed. `min_price` is the floor a stacked
 	 * discount may not resolve below, which is why it is checked against `price` here as well
 	 * as by the backend — a table `@Check` violation would reach the client as a masked 500.
 	 */
 	private readonly priceSchema = z
 		.object({
-			// Upper-cased so `ron` and `RON` reach the same `(variant_id, currency)` unique
-			// index rather than passing as two prices for one market.
-			currency: this.validateString(this.getMessage('invalid_currency'))
-				.refine((value) => value.trim().length === 3, {
-					message: this.getMessage('invalid_currency'),
-				})
-				.transform((value) => value.trim().toUpperCase()),
+			currency: this.currencySchema,
 			sale_price: this.validateNumber(this.getMessage('invalid_price'), {
 				required: true,
 				allowDecimals: 2,
@@ -260,6 +283,91 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 		everyDayExclusive: this.getMessage('availability_every_day_exclusive'),
 	});
 
+	/**
+	 * Signed, unlike `priceSchema` — a delta of −5.00 is an answer ("no side"), not a discount,
+	 * and the column carries no positivity check for exactly that reason.
+	 */
+	private readonly optionDeltaSchema = z.object({
+		currency: this.currencySchema,
+		price_delta: this.validateNumber(
+			this.getMessage('invalid_price_delta'),
+			{
+				required: true,
+				onlyPositive: false,
+				allowDecimals: 2,
+			},
+		),
+	});
+
+	/**
+	 * One answer within a group.
+	 *
+	 * `prices` carries no minimum, matching the backend: an answer with no delta row states
+	 * nothing about price in any market, which is a legitimate thing to store. The editor still
+	 * keeps one row, because a zero delta says the same thing where an operator can see it.
+	 */
+	private readonly optionSchema = z.object({
+		// Client-only row identity — see `ProductOptionFormType`. In the schema so a re-parse
+		// keeps it; stripped by `prepareParamsFromFormValues`.
+		key: z.string(),
+		label_id: this.validateId(this.getMessage('invalid_option_label')),
+		// The wording the picker shows, carried so a re-parse does not blank the input; stripped
+		// with `key`, since the payload names the term by id.
+		label: z.string(),
+		position: this.nonNegative(this.getMessage('invalid_option_bounds')),
+		is_default: z.boolean(),
+		prices: z.array(this.optionDeltaSchema),
+	});
+
+	/**
+	 * Cardinality is the `min_select` / `max_select` pair and nothing else — there is no
+	 * `is_required` flag to keep in agreement with it.
+	 *
+	 * Both bounds are re-checked here rather than left to the backend: `max >= min` is a table
+	 * `@Check`, which would reach the client as a masked 500, and `min <= options.length` spans
+	 * the group and its answers, so no row-level constraint can see it. A group demanding two
+	 * answers from a list of one can never be satisfied at checkout.
+	 */
+	private readonly optionGroupSchema = z
+		.object({
+			key: z.string(),
+			label_id: this.validateId(this.getMessage('invalid_option_label')),
+			label: z.string(),
+			// Zero is what makes a group optional, so the bound is `>= 0` rather than `> 0`.
+			min_select: this.nonNegative(
+				this.getMessage('invalid_option_bounds'),
+			),
+			/*
+			 * Empty means no upper bound, which is why this is optional rather than defaulted.
+			 * A maximum of zero would admit no answer at all and is refused by the positivity
+			 * check `validateNumber` applies by default.
+			 */
+			max_select: this.validateNumber(
+				this.getMessage('invalid_option_bounds'),
+				{ required: false },
+			),
+			position: this.nonNegative(
+				this.getMessage('invalid_option_bounds'),
+			),
+			options: z
+				.array(this.optionSchema)
+				.min(1, this.getMessage('option_answer_required')),
+		})
+		.refine(
+			(data) =>
+				data.max_select === null ||
+				data.max_select === undefined ||
+				data.max_select >= (data.min_select ?? 0),
+			{
+				message: this.getMessage('option_max_below_min'),
+				path: ['max_select'],
+			},
+		)
+		.refine((data) => (data.min_select ?? 0) <= data.options.length, {
+			message: this.getMessage('option_min_above_options'),
+			path: ['min_select'],
+		});
+
 	private readonly refSchema = z.object({
 		id: this.validateId(this.getMessage('invalid_reference')),
 		// Carried through validation so the picker's chips survive a re-parse; stripped by
@@ -328,6 +436,11 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 			// the common case and must not cost a row per weekday to express.
 			availabilities: this.availabilitiesSchema,
 			/*
+			 * The questions asked at order time. No minimum either — most products ask none,
+			 * and a group is what a customization *is*, not something every product owes.
+			 */
+			option_groups: this.optionGroupSchema.array(),
+			/*
 			 * The answers to the category-declared attributes. Not shaped here beyond the
 			 * entry itself: what makes a value valid is the definition governing its label,
 			 * which lives in the resolved form the component holds and this file never sees.
@@ -375,6 +488,43 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 						});
 					}
 				});
+
+				/*
+				 * `ProductVariantRepository.syncPrices` keys the rows by currency, so a market
+				 * quoted twice does not fail — it collapses into one row carrying the last
+				 * figure, and the price the editor typed first is gone with no sign of it. The
+				 * `(variant_id, currency)` unique index never sees the second row either, so
+				 * the server is not a backstop here.
+				 *
+				 * Reported on the offending select rather than on a set-wide sentinel, which is
+				 * what the bundle form has to use: a variant price row has a field of its own to
+				 * carry the message, and `accumulateZodErrors` addresses it by path.
+				 *
+				 * Already trimmed and upper-cased by `currencySchema`, so `ron` and `RON` have
+				 * collapsed into one value by the time they are compared — which is the pair
+				 * that reaches the same index and so the pair worth catching.
+				 */
+				const seenCurrencies = new Set<string>();
+
+				variant.prices.forEach((price, priceIndex) => {
+					if (seenCurrencies.has(price.currency)) {
+						ctx.addIssue({
+							code: 'custom',
+							path: [
+								'variants',
+								variantIndex,
+								'prices',
+								priceIndex,
+								'currency',
+							],
+							message: this.getMessage(
+								'variant_currency_duplicate',
+							),
+						});
+					}
+
+					seenCurrencies.add(price.currency);
+				});
 			});
 
 			if (
@@ -409,6 +559,83 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 					message: this.getMessage('variant_sku_duplicate'),
 				});
 			}
+
+			/*
+			 * The label term is the natural key of a group and of an answer: `syncGroups` keys
+			 * a product's groups by it, `syncOptions` keys a group's answers by it, and
+			 * `syncPrices` keys the deltas by currency. So a repeat does not fail on save — it
+			 * collapses into the row it duplicates, and the editor's second copy silently
+			 * disappears along with whatever was typed into it.
+			 *
+			 * Each message lands on the offending picker rather than on the list holding it. A
+			 * message addressed to the array collides with the per-row errors already under
+			 * that key, and `accumulateZodErrors` has to discard one of the two.
+			 */
+			const seenGroupLabels = new Set<number>();
+
+			data.option_groups.forEach((group, groupIndex) => {
+				if (typeof group.label_id === 'number') {
+					if (seenGroupLabels.has(group.label_id)) {
+						ctx.addIssue({
+							code: 'custom',
+							path: ['option_groups', groupIndex, 'label_id'],
+							message: this.getMessage('option_group_duplicate'),
+						});
+					}
+
+					seenGroupLabels.add(group.label_id);
+				}
+
+				const seenAnswerLabels = new Set<number>();
+
+				group.options.forEach((option, optionIndex) => {
+					if (typeof option.label_id === 'number') {
+						if (seenAnswerLabels.has(option.label_id)) {
+							ctx.addIssue({
+								code: 'custom',
+								path: [
+									'option_groups',
+									groupIndex,
+									'options',
+									optionIndex,
+									'label_id',
+								],
+								message: this.getMessage(
+									'option_answer_duplicate',
+								),
+							});
+						}
+
+						seenAnswerLabels.add(option.label_id);
+					}
+
+					// Already trimmed and upper-cased by `currencySchema`, so two spellings of
+					// one market have collapsed into one value by the time they are compared.
+					const seenCurrencies = new Set<string>();
+
+					option.prices.forEach((price, priceIndex) => {
+						if (seenCurrencies.has(price.currency)) {
+							ctx.addIssue({
+								code: 'custom',
+								path: [
+									'option_groups',
+									groupIndex,
+									'options',
+									optionIndex,
+									'prices',
+									priceIndex,
+									'currency',
+								],
+								message: this.getMessage(
+									'option_currency_duplicate',
+								),
+							});
+						}
+
+						seenCurrencies.add(price.currency);
+					});
+				});
+			});
 		});
 }
 
@@ -475,6 +702,22 @@ export function getFormValues(formData: FormData): ProductFormValuesType {
 			formData,
 			'availabilities',
 		),
+		/*
+		 * Both nested lists are defaulted for the same reason `variants.attributes` is: the
+		 * tree is parsed back from a hidden JSON field, and a restored window draft can predate
+		 * either key. The validator requires them, so an absent one would fail the submit on a
+		 * row the editor has no way to see.
+		 */
+		option_groups: getFormDataAsJsonList<ProductOptionGroupFormType>(
+			formData,
+			'option_groups',
+		).map((group) => ({
+			...group,
+			options: (group.options ?? []).map((option) => ({
+				...option,
+				prices: option.prices ?? [],
+			})),
+		})),
 		attributes: getFormDataAsJsonList<ProductAttributeFormType>(
 			formData,
 			'attributes',
@@ -540,6 +783,46 @@ export function getFormState(
 				}),
 			),
 			/*
+			 * Listed explicitly rather than spread: the read hands back whole rows — ids,
+			 * timestamps, the joined label term — and `label` here is the wording rather than
+			 * that term. Nothing outside this list belongs in the form.
+			 *
+			 * No group is seeded on create, unlike the first variant: a product that asks
+			 * nothing is the common case, and an empty question would have to be noticed and
+			 * removed rather than simply left alone.
+			 */
+			option_groups: (data?.option_groups ?? []).map(
+				(group, position) => ({
+					key: nextOptionKey('group'),
+					label_id: group.label_id,
+					label: displayOptionLabel(
+						group.label,
+						language,
+						group.label_id,
+					),
+					min_select: group.min_select,
+					max_select: group.max_select,
+					position,
+					options: (group.options ?? []).map(
+						(option, optionPosition) => ({
+							key: nextOptionKey('option'),
+							label_id: option.label_id,
+							label: displayOptionLabel(
+								option.label,
+								language,
+								option.label_id,
+							),
+							position: optionPosition,
+							is_default: option.is_default,
+							prices: (option.prices ?? []).map((price) => ({
+								currency: price.currency,
+								price_delta: price.price_delta,
+							})),
+						}),
+					),
+				}),
+			),
+			/*
 			 * Grouped from the stored rows rather than built against the definitions: the form
 			 * is seeded the moment the window opens, and `resolve` — which the component asks
 			 * for once the categories are known — has not answered yet.
@@ -591,6 +874,20 @@ export function prepareParamsFromFormValues(data: ProductManageOutput) {
 		),
 		availabilities: product.availabilities.map(
 			({ key: _key, ...availability }) => availability,
+		),
+		/*
+		 * `key` and `label` are the editor's own — row identity and the wording the picker
+		 * shows. The payload names both levels by their label term's id, which is what the
+		 * sync keys on.
+		 */
+		option_groups: product.option_groups.map(
+			({ key: _key, label: _label, options, ...group }) => ({
+				...group,
+				options: options.map(
+					({ key: _optionKey, label: _optionLabel, ...option }) =>
+						option,
+				),
+			}),
 		),
 	};
 }

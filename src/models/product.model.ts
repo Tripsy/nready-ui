@@ -236,6 +236,63 @@ export type ProductBundleItemType = {
 	position: number;
 };
 
+/**
+ * A `term` reference as a product read hands it back — the id it stores, and every translation
+ * the term carries. The same shape the category and tag links use, since it is the same problem:
+ * a row holding an id alone cannot be drawn.
+ */
+export type ProductTermRefType = {
+	id: number;
+	contents?: { language: Language; value: string }[];
+};
+
+/**
+ * What one answer does to the price, in one market. Signed, unlike `ProductPriceType` — "no
+ * side, −5.00" is an answer rather than a discount — and per currency for the same reason
+ * variant prices are: adding 3 to a figure quoted in EUR is only right if the 3 is EUR.
+ */
+export type ProductOptionPriceType = {
+	currency: string;
+	price_delta: number | null;
+};
+
+/**
+ * One answer to the question its group asks, priced as a delta against the variant price.
+ *
+ * At most one answer per group carries `is_default`, the same rule the default variant follows
+ * and held by the same kind of partial unique index.
+ */
+export type ProductOptionType = {
+	label_id: number;
+	position: number | null;
+	is_default: boolean;
+	prices: ProductOptionPriceType[];
+	/** Joined by the read so the answer renders as wording rather than an id. */
+	label?: ProductTermRefType | null;
+};
+
+/**
+ * A question asked at order time — "choose a side", "extras" — whose answers are its `options`.
+ *
+ * Distinct from a variant: a variant is a different thing to sell, with its own SKU and price
+ * row, while an option modifies the thing being sold by a delta. Large vs small is a variant;
+ * extra bacon is an option.
+ *
+ * How many answers are accepted is `min_select` / `max_select` and nothing else. There is no
+ * `is_required` flag and no single/multiple enum, because either would have to agree with the
+ * bounds forever: required means `min_select >= 1`, single-choice means `max_select = 1`, and
+ * `max_select` null means no upper bound.
+ */
+export type ProductOptionGroupType = {
+	label_id: number;
+	min_select: number | null;
+	max_select: number | null;
+	position: number | null;
+	options: ProductOptionType[];
+	/** Joined by the read, like the answers' own. */
+	label?: ProductTermRefType | null;
+};
+
 export type ProductModel<D = Date | string> = {
 	id: number;
 
@@ -286,6 +343,11 @@ export type ProductModel<D = Date | string> = {
 			contents?: { language: Language; value: string }[];
 		} | null;
 	}[];
+	/**
+	 * The questions asked at order time, present only on `GET /products/:id` and the public
+	 * read. Both levels arrive with their label term joined — see `ProductTermRefType`.
+	 */
+	option_groups?: ProductOptionGroupType[];
 	/*
 	 * The bundle's components, present only on `GET /products/:id` — the whole of what the
 	 * bundle form edits.
@@ -343,6 +405,20 @@ export function toTagRefs(
 		id: link.tag_id,
 		label: refLabel(link.tag?.contents, language, link.tag_id),
 	}));
+}
+
+/**
+ * The wording of an option group's prompt or of one of its answers.
+ *
+ * `fallbackId` rather than a blank: a group whose label term arrived without the read's language
+ * still has to name itself in the editor, and `#12` is something an operator can act on.
+ */
+export function displayOptionLabel(
+	label: ProductTermRefType | null | undefined,
+	language: Language,
+	fallbackId: number,
+): string {
+	return refLabel(label?.contents, language, fallbackId);
 }
 
 /**
