@@ -13,7 +13,6 @@ import { toCalendarValue } from '@/helpers/date.helper';
 import {
 	getFormDataAsEnum,
 	getFormDataAsJsonList,
-	getFormDataAsNumber,
 	getFormDataAsString,
 } from '@/helpers/form.helper';
 import {
@@ -22,6 +21,7 @@ import {
 	sharedValidatorMessages,
 } from '@/helpers/validator.helper';
 import {
+	displayOptionLabel,
 	PRODUCT_DEFAULT_TYPE,
 	PRODUCT_DEFAULT_UNIT,
 	ProductCompositionEnum,
@@ -32,6 +32,7 @@ import {
 	ProductTypeEnum,
 	type ProductUnit,
 	ProductUnitEnum,
+	resolveProductUnit,
 	toCategoryRefs,
 	toTagRefs,
 } from '@/models/product.model';
@@ -57,14 +58,21 @@ const validatorMessages = [
 	'invalid_meta_description',
 	'invalid_meta_keywords',
 	'invalid_reference',
-	'invalid_brand_id',
 	'invalid_date',
 	'available_until_before_from',
 	'categories_required',
 	'invalid_currency',
 	'invalid_price',
+	'invalid_price_delta',
 	'min_price_above_price',
 	'invalid_quantity',
+	'component_delta_not_chosen',
+	'component_default_not_chosen',
+	'component_optional_in_group',
+	'invalid_group_label',
+	'group_too_few_candidates',
+	'group_default_duplicate',
+	'group_label_duplicate',
 	'components_required',
 	'attribute_required',
 	'components_too_few',
@@ -83,6 +91,14 @@ const validatorMessages = [
  * the row can name what it points at without a second round trip on every re-parse. `key` is
  * client-only row identity, the same device `ProductVariantFormType` uses - a component has no
  * id until it is saved, and the array index is not stable across a reorder.
+ *
+ * A row is one of three things. With no `group_key` it is part of the kit, or a tick box the
+ * customer answers when `is_optional`. With one it is a candidate for that group, which decides
+ * how many of its candidates are taken - so `is_optional` is refused there. Only a row the
+ * customer chooses either way may carry `is_default` or a delta.
+ *
+ * The panel clears whatever a row stops offering in the same change, so the matching validator
+ * rules are a backstop rather than something the editor can walk into.
  */
 export type ProductBundleComponentFormType = {
 	key: string;
@@ -97,7 +113,99 @@ export type ProductBundleComponentFormType = {
 	 * ("149.90" became 14990). The string is the truth until the validator coerces it.
 	 */
 	quantity: string;
+	/*
+	 * The group this row is a candidate for, by the group's own client-only `key` rather than by
+	 * its label term: a group has no `label_id` until its picker is filled, and two half-filled
+	 * groups would collide on null. Resolved to `group_label_id` on the way to the API.
+	 */
+	group_key: string | null;
+	/*
+	 * What `quantity` above means changes with this flag: how many the bundle contains when the
+	 * component is always included, and the most the customer may take when it is optional. A
+	 * candidate reads it the same way as an optional row, and carries this flag as false.
+	 */
+	is_optional: boolean;
+	is_default: boolean;
+	/*
+	 * The signed adjustment to this component's own price, per market. Kept as a whole list
+	 * rather than a figure per bundle currency, because the currencies live on another tab: a row
+	 * whose market is dropped there simply stops rendering, and `prepareProductBundleParams`
+	 * filters it out on the way to the API rather than the editor having to find and clear it.
+	 */
+	prices: { currency: string; price_delta: string }[];
 };
+
+/**
+ * A choice group as the form holds it: a prompt, and nothing else.
+ *
+ * `label_id` is what the payload carries and `label` the wording the picker shows, the same split
+ * `ProductOptionGroupFormType` makes. `key` is client-only row identity and what a component names
+ * in `group_key`, so a group can be referred to before it has a label at all.
+ *
+ * No bounds, unlike an option group. Exactly one candidate is taken, which is the whole of what a
+ * bundle choice means - see `ProductBundleGroupType` for why a bound over candidate rows could not
+ * express the one case that would want it.
+ */
+export type ProductBundleGroupFormType = {
+	key: string;
+	label_id: number | null;
+	// display-only, carried so the picker can name the term without a second round trip
+	label: string;
+};
+
+let groupKeySequence = 0;
+
+export function nextGroupKey(): string {
+	groupKeySequence += 1;
+
+	return `group-${groupKeySequence}`;
+}
+
+export function emptyGroup(): ProductBundleGroupFormType {
+	return {
+		key: nextGroupKey(),
+		label_id: null,
+		label: '',
+	};
+}
+
+/** Whether the customer decides on this component at all - by its own tick box, or by a group. */
+export function isComponentChosen(
+	component: ProductBundleComponentFormType,
+): boolean {
+	return component.is_optional || component.group_key !== null;
+}
+
+/** The delta this component carries in one market, as text - blank when it carries none. */
+export function componentDeltaFor(
+	component: ProductBundleComponentFormType,
+	currency: string,
+): string {
+	return (
+		component.prices.find((price) => price.currency === currency)
+			?.price_delta ?? ''
+	);
+}
+
+/** The same row with one market's delta replaced, adding the market if it had none. */
+export function withComponentDelta(
+	component: ProductBundleComponentFormType,
+	currency: string,
+	price_delta: string,
+): ProductBundleComponentFormType {
+	const known = component.prices.some((price) => price.currency === currency);
+
+	return {
+		...component,
+		prices: known
+			? component.prices.map((price) =>
+					price.currency === currency
+						? { ...price, price_delta }
+						: price,
+				)
+			: [...component.prices, { currency, price_delta }],
+	};
+}
 
 /**
  * Row keys only have to be unique within one form, so a counter is enough - and unlike
@@ -120,6 +228,10 @@ export function emptyComponent(
 		sku: variant.sku,
 		label: variant.product?.contents?.[0]?.label ?? '',
 		quantity: '1',
+		group_key: null,
+		is_optional: false,
+		is_default: false,
+		prices: [],
 	};
 }
 
@@ -130,8 +242,6 @@ export type ProductBundleFormValuesType = {
 	available_from: string | null;
 	available_until: string | null;
 	discontinued_at: string | null;
-
-	brand_id: number | null;
 
 	contents: ProductContentType[];
 	categories: ProductRefType[];
@@ -158,6 +268,12 @@ export type ProductBundleFormValuesType = {
 	 */
 	attributes: ProductAttributeFormType[];
 
+	/*
+	 * Flat and side by side, the shape both the API and the tables take: a component belongs to a
+	 * group or to none, and one list beats two places to read it from. `components[].group_key`
+	 * is the tie.
+	 */
+	groups: ProductBundleGroupFormType[];
 	components: ProductBundleComponentFormType[];
 	/** Recurring ordering windows. Empty means unrestricted - see `FormAvailabilityProduct`. */
 	availabilities: ProductAvailabilityFormType[];
@@ -168,9 +284,8 @@ export type ProductBundleFormValuesType = {
 	 * given a plain field of its own.
 	 */
 	components_rule: string | null;
+	groups_rule: string | null;
 	prices_rule: string | null;
-	// display-only fields, not part of validation
-	brand_label: string | null;
 };
 
 class ProductBundleValidator extends BaseValidator<typeof validatorMessages> {
@@ -269,20 +384,82 @@ class ProductBundleValidator extends BaseValidator<typeof validatorMessages> {
 		boolean: z.boolean(),
 	});
 
-	private readonly componentSchema = z.object({
-		key: z.string(),
-		variant_id: z
-			.number({ message: this.getMessage('invalid_reference') })
-			.positive({ message: this.getMessage('invalid_reference') }),
-		sku: z.string(),
-		label: z.string(),
-		quantity: this.amountSchema(this.getMessage('invalid_quantity')).refine(
-			(value) => value > 0,
-			{
-				message: this.getMessage('invalid_quantity'),
-			},
+	/**
+	 * One market's adjustment to the component's own price. Signed, unlike `priceSchema` - the
+	 * usual case is negative, the discount for taking the component inside the kit.
+	 *
+	 * Blank means "no delta in this market" rather than zero, so a market the editor never filled
+	 * in is dropped by `prepareProductBundleParams` instead of writing a row worth nothing.
+	 */
+	private readonly deltaSchema = z.object({
+		currency: this.currencySchema,
+		price_delta: this.optionalAmountSchema(
+			this.getMessage('invalid_price_delta'),
 		),
 	});
+
+	/**
+	 * One choice group: its prompt, and nothing else. Exactly one candidate is taken, so there are
+	 * no bounds to check here.
+	 *
+	 * How many candidates the group has spans this list and `components`, so it lives in the
+	 * `superRefine` below, as it does in `assertBundleGroupsAreUsable` on the API.
+	 */
+	private readonly groupSchema = z.object({
+		key: z.string(),
+		label_id: this.validateId(this.getMessage('invalid_group_label')),
+		label: z.string(),
+	});
+
+	private readonly componentSchema = z
+		.object({
+			key: z.string(),
+			variant_id: z
+				.number({ message: this.getMessage('invalid_reference') })
+				.positive({ message: this.getMessage('invalid_reference') }),
+			sku: z.string(),
+			label: z.string(),
+			quantity: this.amountSchema(
+				this.getMessage('invalid_quantity'),
+			).refine((value) => value > 0, {
+				message: this.getMessage('invalid_quantity'),
+			}),
+			group_key: z.string().nullable(),
+			is_optional: z.boolean(),
+			is_default: z.boolean(),
+			prices: z.array(this.deltaSchema),
+		})
+		/*
+		 * The three guard one idea from three sides, and each mirrors a rule the API enforces. A
+		 * component that is always included is covered by the bundle's own price, so a delta has
+		 * nothing to adjust and preselecting something the customer cannot untick says nothing.
+		 * A candidate is decided by its group, so claiming to be optional as well is a second
+		 * answer to a question already answered. The panel clears whatever a row stops offering
+		 * in the same change, so reaching any of the three means the values arrived from
+		 * somewhere other than the editor.
+		 */
+		.refine((data) => !data.is_optional || data.group_key === null, {
+			message: this.getMessage('component_optional_in_group'),
+			path: ['is_optional'],
+		})
+		.refine(
+			(data) =>
+				data.is_optional || data.group_key !== null || !data.is_default,
+			{
+				message: this.getMessage('component_default_not_chosen'),
+				path: ['is_default'],
+			},
+		)
+		.refine(
+			(data) =>
+				data.is_optional ||
+				data.group_key !== null ||
+				data.prices.every((price) => price.price_delta === null),
+			{
+				message: this.getMessage('component_delta_not_chosen'),
+				path: ['prices'],
+			},
+		);
 
 	/**
 	 * Shared with the product form, which writes the same `availabilities` array to the same
@@ -327,9 +504,6 @@ class ProductBundleValidator extends BaseValidator<typeof validatorMessages> {
 				this.getMessage('invalid_date'),
 				{ required: false },
 			),
-			brand_id: this.validateId(this.getMessage('invalid_brand_id'), {
-				required: false,
-			}),
 			contents: this.contentSchema
 				.array()
 				.min(1, this.getMessage('invalid_contents'))
@@ -357,14 +531,15 @@ class ProductBundleValidator extends BaseValidator<typeof validatorMessages> {
 				message: this.getMessage('invalid_price'),
 			}),
 			attributes: this.attributeEntrySchema.array(),
+			groups: this.groupSchema.array(),
 			components: this.componentSchema
 				.array()
 				.min(1, this.getMessage('components_required')),
 			// No minimum, unlike components: an empty list means orderable at any time.
 			availabilities: this.availabilitiesSchema,
 			components_rule: z.string().nullable(),
+			groups_rule: z.string().nullable(),
 			prices_rule: z.string().nullable(),
-			brand_label: z.string().nullable(),
 		})
 		.superRefine((data, ctx) => {
 			data.attributes.forEach((attribute, index) => {
@@ -411,9 +586,16 @@ class ProductBundleValidator extends BaseValidator<typeof validatorMessages> {
 			 * clothes. Counted in units rather than rows, so one component taken twice is a
 			 * bundle and two components taken once each is too - the same figure
 			 * `assertBundleIsComposed` sums on the backend.
+			 *
+			 * Neither optional components nor candidates count, there or here: the floor has to
+			 * hold for the least the customer can take. An optional one can be left unticked,
+			 * and a group with a minimum of one guarantees *a* candidate rather than that one.
 			 */
 			const componentUnits = data.components.reduce(
-				(total, component) => total + Number(component.quantity),
+				(total, component) =>
+					component.is_optional || component.group_key !== null
+						? total
+						: total + Number(component.quantity),
 				0,
 			);
 
@@ -424,6 +606,62 @@ class ProductBundleValidator extends BaseValidator<typeof validatorMessages> {
 					message: this.getMessage('components_too_few'),
 				});
 			}
+
+			/*
+			 * Two groups on one label term would be one question asked twice - and the API keys
+			 * `syncGroups` on `label_id`, so the second would silently overwrite the first.
+			 */
+			const groupLabels = data.groups.map((group) => group.label_id);
+
+			if (new Set(groupLabels).size !== groupLabels.length) {
+				ctx.addIssue({
+					code: 'custom',
+					path: ['groups_rule'],
+					message: this.getMessage('group_label_duplicate'),
+				});
+			}
+
+			/*
+			 * The rules that span a group and its candidates, the pair
+			 * `assertBundleGroupsAreUsable` reads back on the API. Reported per group rather than
+			 * on the sentinel, since a bundle offering three choices otherwise says which rule
+			 * broke without saying where.
+			 */
+			data.groups.forEach((group, index) => {
+				const candidates = data.components.filter(
+					(component) => component.group_key === group.key,
+				);
+
+				/*
+				 * A choice takes exactly one candidate, so it needs two to be a choice: with one
+				 * it is a component that is always included wearing a prompt.
+				 */
+				if (candidates.length < 2) {
+					ctx.addIssue({
+						code: 'custom',
+						path: ['groups', index],
+						message: this.getMessage('group_too_few_candidates'),
+					});
+
+					return;
+				}
+
+				/*
+				 * A partial unique index on the API, so a second preselect arrives as a masked
+				 * 500 rather than a message. Ungrouped tick boxes are outside the rule - they
+				 * are not alternatives to each other - so this counts within the group alone.
+				 */
+				if (
+					candidates.filter((candidate) => candidate.is_default)
+						.length > 1
+				) {
+					ctx.addIssue({
+						code: 'custom',
+						path: ['groups', index],
+						message: this.getMessage('group_default_duplicate'),
+					});
+				}
+			});
 
 			const currencies = data.prices.map((price) => price.currency);
 
@@ -458,17 +696,23 @@ export async function validateProductBundleForm(
 export function getProductBundleFormValues(
 	formData: FormData,
 ): ProductBundleFormValuesType {
+	const type =
+		getFormDataAsEnum(formData, 'type', ProductTypeEnum) ||
+		PRODUCT_DEFAULT_TYPE;
+
 	return {
-		type:
-			getFormDataAsEnum(formData, 'type', ProductTypeEnum) ||
-			PRODUCT_DEFAULT_TYPE,
-		unit:
-			getFormDataAsEnum(formData, 'unit', ProductUnitEnum) ||
-			PRODUCT_DEFAULT_UNIT,
+		type,
+		/*
+		 * Derived rather than read from an input: a bundle is one kit sold as a single line, so
+		 * the only unit that means anything is the type's own - a kit priced by weight or by the
+		 * metre is not a thing. The column is not nullable, so it still has to carry a value, and
+		 * `resolveProductUnit` picks the one the API's type/unit pairing accepts (piece, or hour
+		 * for a service kit).
+		 */
+		unit: resolveProductUnit(type, PRODUCT_DEFAULT_UNIT),
 		available_from: getFormDataAsString(formData, 'available_from'),
 		available_until: getFormDataAsString(formData, 'available_until'),
 		discontinued_at: getFormDataAsString(formData, 'discontinued_at'),
-		brand_id: getFormDataAsNumber(formData, 'brand_id'),
 		contents: getFormDataAsJsonList<ProductContentType>(
 			formData,
 			'contents',
@@ -486,6 +730,10 @@ export function getProductBundleFormValues(
 			formData,
 			'attributes',
 		),
+		groups: getFormDataAsJsonList<ProductBundleGroupFormType>(
+			formData,
+			'groups',
+		),
 		components: getFormDataAsJsonList<ProductBundleComponentFormType>(
 			formData,
 			'components',
@@ -495,8 +743,8 @@ export function getProductBundleFormValues(
 			'availabilities',
 		),
 		components_rule: null,
+		groups_rule: null,
 		prices_rule: null,
-		brand_label: getFormDataAsString(formData, 'brand_label'),
 	};
 }
 
@@ -515,17 +763,40 @@ export function getProductBundleFormState(
 
 	const variant = data?.variants?.find((entry) => entry.is_default);
 
+	/*
+	 * Seeded before the components, which is the only ordering that works: a component names its
+	 * group by the client-only key assigned here, so the keys have to exist before the rows that
+	 * point at them are built.
+	 */
+	const storedGroups: ProductBundleGroupFormType[] = (
+		data?.bundle_groups ?? []
+	).map((group) => ({
+		key: nextGroupKey(),
+		label_id: group.label_id,
+		label: displayOptionLabel(group.label, language, group.label_id),
+	}));
+
+	const groupKeyById = new Map(
+		(data?.bundle_groups ?? []).map((group, index) => [
+			group.id,
+			storedGroups[index].key,
+		]),
+	);
+
 	return {
 		errors: {},
 		message: null,
 		situation: null,
 		values: {
 			type: data?.type ?? PRODUCT_DEFAULT_TYPE,
-			unit: data?.unit ?? PRODUCT_DEFAULT_UNIT,
+			// Derived from the type, not seeded from the row - see `getProductBundleFormValues`.
+			unit: resolveProductUnit(
+				data?.type ?? PRODUCT_DEFAULT_TYPE,
+				PRODUCT_DEFAULT_UNIT,
+			),
 			available_from: toCalendarValue(data?.available_from ?? null),
 			available_until: toCalendarValue(data?.available_until ?? null),
 			discontinued_at: toCalendarValue(data?.discontinued_at ?? null),
-			brand_id: data?.brand_id ?? null,
 			contents: data?.contents ?? [],
 			categories: toCategoryRefs(data, language),
 			tags: toTagRefs(data, language),
@@ -555,6 +826,7 @@ export function getProductBundleFormState(
 						},
 					],
 			attributes: groupStoredAttributes(data?.attributes),
+			groups: storedGroups,
 			components: (data?.bundle_items ?? []).map((item) => ({
 				key: nextComponentKey(),
 				variant_id: item.variant_id,
@@ -562,6 +834,27 @@ export function getProductBundleFormState(
 				sku: '',
 				label: '',
 				quantity: String(Number(item.quantity)),
+				/*
+				 * Back from the stored `group_id` to the client-only key the form ties rows by.
+				 * A component whose group did not come back with the read lands ungrouped rather
+				 * than holding a key nothing answers to - which the panel would then render as a
+				 * blank selection and the validator refuse on save.
+				 */
+				group_key: groupKeyById.get(item.group_id ?? 0) ?? null,
+				is_optional: item.is_optional,
+				is_default: item.is_default,
+				/*
+				 * `Number()` before `String()` for the same reason `quantity` needs it: a
+				 * `numeric` column arrives as a number here, but a null delta has to become the
+				 * blank the input holds rather than the string "null".
+				 */
+				prices: (item.prices ?? []).map((price) => ({
+					currency: price.currency,
+					price_delta:
+						price.price_delta === null
+							? ''
+							: String(Number(price.price_delta)),
+				})),
 			})),
 			/*
 			 * Trimmed to `HH:MM` for the same reason the product form does it: Postgres returns
@@ -576,8 +869,8 @@ export function getProductBundleFormState(
 				}),
 			),
 			components_rule: null,
+			groups_rule: null,
 			prices_rule: null,
-			brand_label: data?.brand?.name ?? null,
 		},
 	};
 }
@@ -595,12 +888,13 @@ export function getProductBundleFormState(
  */
 export function prepareProductBundleParams(data: ProductBundleManageOutput) {
 	const {
+		groups,
 		components,
 		attributes,
 		availabilities,
 		components_rule: _componentsRule,
+		groups_rule: _groupsRule,
 		prices_rule: _pricesRule,
-		brand_label: _brandLabel,
 		categories,
 		tags,
 		sku,
@@ -608,9 +902,31 @@ export function prepareProductBundleParams(data: ProductBundleManageOutput) {
 		...product
 	} = data;
 
+	/*
+	 * The markets the bundle is actually sold in. A component's deltas are filtered to these on
+	 * the way out: the currencies are edited on another tab, and dropping one there would
+	 * otherwise leave every component holding a delta for a market with no price - rows the API
+	 * would accept and nothing would ever read.
+	 */
+	const currencies = new Set(prices.map((price) => price.currency));
+
+	/*
+	 * The form ties a component to its group by the client-only key; the API ties them by the
+	 * group's label term, which is the one name a group created in this same request already has.
+	 */
+	const groupLabelByKey = new Map(
+		groups.map((group) => [group.key, group.label_id]),
+	);
+
 	return {
 		...product,
 		composition: ProductCompositionEnum.BUNDLE,
+		/*
+		 * `brand_id` is absent on purpose: a bundle names no brand, since what it contains comes
+		 * from several of them and the header line is the kit rather than any one maker's
+		 * product. Sending `null` would not clear one either - the API's optional-id schema
+		 * reads null as "not provided" and leaves the column at its stored value.
+		 */
 		categories: categories.map((ref) => ref.id),
 		tags: tags.map((ref) => ref.id),
 		attributes: toAttributePayload(attributes),
@@ -629,10 +945,34 @@ export function prepareProductBundleParams(data: ProductBundleManageOutput) {
 		availabilities: availabilities.map(
 			({ key: _key, ...availability }) => availability,
 		),
+		/*
+		 * Groups go out beside the components, not around them, and before them in the object for
+		 * the same reason the service syncs them first: a component names a group the request may
+		 * be creating. `key` is client-only and dropped here, `position` comes from array order.
+		 */
+		bundle_groups: groups.map(
+			({ key: _key, label: _label, ...group }, position) => ({
+				...group,
+				position,
+			}),
+		),
 		bundle_items: components.map((component, position) => ({
 			variant_id: component.variant_id,
 			quantity: component.quantity,
 			position,
+			group_label_id:
+				component.group_key === null
+					? null
+					: (groupLabelByKey.get(component.group_key) ?? null),
+			is_optional: component.is_optional,
+			is_default: component.is_default,
+			// A blank delta is not a zero one: the market simply carries no adjustment, and a
+			// row saying so would be written and read back for nothing
+			prices: component.prices.filter(
+				(price) =>
+					price.price_delta !== null &&
+					currencies.has(price.currency),
+			),
 		})),
 	};
 }

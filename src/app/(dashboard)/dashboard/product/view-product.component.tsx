@@ -13,6 +13,7 @@ import { renderMarkdown } from '@/helpers/markdown.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import {
 	displayOptionLabel,
+	ProductCompositionEnum,
 	type ProductModel,
 	type ProductOptionPriceType,
 	toCategoryRefs,
@@ -133,7 +134,10 @@ export function ViewProduct({ entry }: { entry: ProductModel }) {
 					label="VAT Category"
 					value={formatEnumLabel(entry.vat_category)}
 				/>
-				<ViewField label="Brand" value={entry.brand?.name ?? '-'} />
+				{/* A bundle names no brand - see `prepareProductBundleParams`. */}
+				{entry.composition !== ProductCompositionEnum.BUNDLE && (
+					<ViewField label="Brand" value={entry.brand?.name ?? '-'} />
+				)}
 				<ViewField
 					label="Categories"
 					value={

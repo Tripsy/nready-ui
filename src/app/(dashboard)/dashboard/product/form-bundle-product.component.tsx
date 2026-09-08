@@ -10,7 +10,6 @@ import { FormContentsProduct } from '@/app/(dashboard)/dashboard/product/form-co
 import { FormPickerProduct } from '@/app/(dashboard)/dashboard/product/form-picker-product.component';
 import type { ProductBundleFormValuesType } from '@/app/(dashboard)/dashboard/product/product-bundle.definition';
 import {
-	FormComponentAutoComplete,
 	FormComponentCalendar,
 	FormComponentInput,
 	FormComponentSelect,
@@ -25,26 +24,25 @@ import {
 	rowErrorsAt,
 	toOptionsFromEnum,
 } from '@/helpers/form.helper';
-import { requestFind } from '@/helpers/services.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
-import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
 import { hasPermission } from '@/models/account.model';
-import { type BrandModel, displayBrandLabel } from '@/models/brand.model';
 import {
 	type CategoryModel,
 	displayCategoryLabel,
 } from '@/models/category.model';
 import {
-	PRODUCT_UNITS_BY_TYPE,
+	PRODUCT_DEFAULT_UNIT,
 	type ProductType,
 	ProductTypeEnum,
-	type ProductUnit,
-	ProductUnitEnum,
 	resolveProductUnit,
 } from '@/models/product.model';
 import { pruneAttributeValues } from '@/models/product-category-attribute.model';
-import { displayTermLabel, type TermModel } from '@/models/term.model';
+import {
+	displayTermLabel,
+	type TermModel,
+	TermTypeEnum,
+} from '@/models/term.model';
 import { useAuth } from '@/providers/auth.provider';
 import { useWindowForm } from '@/providers/window-form.provider';
 import { requestResolvedAttributes } from '@/services/product.service';
@@ -79,11 +77,15 @@ const emptyPrice = (): ProductBundleFormValuesType['prices'][number] => ({
 	min_price: '',
 });
 
+/*
+ * Price comes before Components: a component's price delta is quoted per market, and the markets
+ * are chosen here - so the tab that has nothing to offer until the other is filled in comes second.
+ */
 const FORM_TABS = [
 	{ id: 'details', label: 'Details' },
 	{ id: 'content', label: 'Content' },
-	{ id: 'components', label: 'Components' },
 	{ id: 'price', label: 'Price' },
+	{ id: 'components', label: 'Components' },
 	{ id: 'availability', label: 'Availability' },
 ] as const;
 
@@ -94,7 +96,8 @@ const TAB_FIELDS: Record<
 	FormTabId,
 	readonly (keyof ProductBundleFormValuesType)[]
 > = {
-	details: ['type', 'unit', 'brand_id', 'categories', 'tags', 'attributes'],
+	// No `unit`: it is derived from the type rather than edited, so it has nothing to report.
+	details: ['type', 'categories', 'tags', 'attributes'],
 	content: [],
 	price: ['sku', 'prices', 'prices_rule'],
 	components: ['components', 'components_rule'],
@@ -119,21 +122,6 @@ const productTypes = toOptionsFromEnum(ProductTypeEnum, {
 	formatter: formatEnumLabel,
 });
 
-/*
- * One option list per type rather than one for the enum: `toOptionsFromEnum` cannot subset, so
- * the narrowing happens here. Built once at module scope - the map is static.
- */
-const productUnitsByType = Object.fromEntries(
-	Object.values(ProductTypeEnum).map((type) => [
-		type,
-		toOptionsFromEnum(ProductUnitEnum, {
-			formatter: formatEnumLabel,
-		}).filter((option) =>
-			PRODUCT_UNITS_BY_TYPE[type].includes(option.value as ProductUnit),
-		),
-	]),
-) as Record<ProductType, ReturnType<typeof toOptionsFromEnum>>;
-
 /**
  * The bundle editor, hosted in a window like every other entity form.
  *
@@ -153,38 +141,22 @@ export function FormBundleProduct() {
 		useWindowForm<ProductBundleFormValuesType>();
 
 	const [tab, setTab] = useState<FormTabId>('details');
-	const [searchBrand, setSearchBrand] = useState('');
 
 	const { open, focus, getCurrentWindow } = useModalStore();
 	const { auth } = useAuth();
 
 	// A definition is gated on `product`, like the backend policy that writes it
 	const canCreateAttribute = hasPermission(auth, 'product', 'create');
+	const canCreateTerm = hasPermission(auth, 'term', 'create');
 
 	const elementIds = useElementIds([
 		'type',
-		'unit',
-		'brand',
 		'sku',
 		'availableFrom',
 		'availableUntil',
 		'discontinuedAt',
 		'contents',
 	] as const);
-
-	const { suggestions: brandSuggestions, isFetching: isBrandFetching } =
-		useRemoteAutocomplete<BrandModel>({
-			query: searchBrand,
-			queryKey: ['s-bundle-brand'],
-			queryFn: async (term) => {
-				const response = await requestFind<BrandModel>('brand', {
-					filter: { term },
-					limit: 10,
-				});
-
-				return response?.entries ?? [];
-			},
-		});
 
 	/*
 	 * A bundle sits in categories like any product, so it answers the `product`-scoped
@@ -282,7 +254,55 @@ export function FormBundleProduct() {
 		});
 	};
 
-	const unitOptions = productUnitsByType[formValues.type];
+	/**
+	 * Writes the prompt term a choice names, from inside this form, once the search comes back
+	 * empty. Reusing the term window is what keeps the new term a complete record - it has
+	 * per-language content the search box has nowhere to ask for.
+	 *
+	 * Seeded as `bundle_choice` rather than `text`, which is what the picker searches: a prompt
+	 * created here has to come back in that list, and a `text` one never would.
+	 *
+	 * `open` minimizes this form, so the parent is captured beforehand and focused again on
+	 * success; without it the editor lands on an empty desktop with a half-filled bundle parked
+	 * in the dock.
+	 */
+	const createGroupTerm = (
+		typedValue: string,
+		apply: (entry: TermModel) => void,
+	) => {
+		const parentWindow = getCurrentWindow();
+
+		open({
+			minimized: false,
+			section: DataSourceSectionEnum.DASHBOARD,
+			dataSource: 'term',
+			action: 'create',
+			data: {
+				prefillEntry: {
+					type: TermTypeEnum.BUNDLE_CHOICE,
+					contents: [
+						{
+							language: getLanguageClient(),
+							value: typedValue,
+						},
+					],
+				},
+			},
+			events: {
+				success: (entry?: TermModel) => {
+					if (parentWindow) {
+						focus(parentWindow.uid);
+					}
+
+					if (!entry) {
+						return;
+					}
+
+					apply(entry);
+				},
+			},
+		});
+	};
 
 	const contentsError = ownErrorMessages(errors.contents);
 
@@ -290,12 +310,23 @@ export function FormBundleProduct() {
 		? []
 		: Object.values(errors.contents ?? {});
 
+	/*
+	 * The markets a component's delta may be quoted in: the bundle's own, with a blank row
+	 * ignored so a currency the editor has not chosen yet does not render a nameless delta field.
+	 */
+	const componentCurrencies = formValues.prices
+		.map((price) => price.currency)
+		.filter((currency) => currency.trim() !== '');
+
 	// The list-level "at least one component" message joins the duplicate-variant rule, which
 	// reports on its own sentinel field - both describe the set rather than any one row.
 	const componentRuleError = [
 		...(ownErrorMessages(errors.components) ?? []),
 		...(errors.components_rule ?? []),
 	];
+
+	// The duplicate-prompt rule describes the set of choices, so it reports on its own sentinel
+	const groupsRuleError = errors.groups_rule ?? [];
 
 	/*
 	 * The whole set reaches the payload, because `syncPrices` reads it as the whole set: a row
@@ -387,84 +418,25 @@ export function FormBundleProduct() {
 								fieldValue={formValues.type}
 								options={productTypes}
 								disabled={pending}
+								/*
+								 * The unit follows: a kit is sold as one line, so it is the
+								 * type's own unit and never a choice - see
+								 * `getProductBundleFormValues`, which derives the value that
+								 * actually goes out.
+								 */
 								onChange={(value) => {
 									const type = value as ProductType;
 
 									handleChange('type', type);
-									// A service priced per kilogram is not a thing the API
-									// accepts, so the unit follows the type rather than being
-									// left to fail validation later.
 									handleChange(
 										'unit',
 										resolveProductUnit(
 											type,
-											formValues.unit,
+											PRODUCT_DEFAULT_UNIT,
 										),
 									);
 								}}
 								error={errors.type}
-							/>
-
-							<FormComponentSelect<ProductBundleFormValuesType>
-								labelText="Unit"
-								id={elementIds.unit}
-								fieldName="unit"
-								fieldValue={formValues.unit}
-								options={unitOptions}
-								// Nothing to choose when the type allows exactly one unit.
-								disabled={pending || unitOptions.length < 2}
-								onChange={(value) =>
-									handleChange('unit', value as ProductUnit)
-								}
-								error={errors.unit}
-							/>
-						</div>
-
-						<div>
-							<input
-								type="hidden"
-								name="brand_id"
-								value={formValues.brand_id ?? ''}
-							/>
-
-							<FormComponentAutoComplete<
-								ProductBundleFormValuesType,
-								BrandModel
-							>
-								labelText="Brand"
-								id={elementIds.brand}
-								fieldName="brand_label"
-								fieldValue={formValues.brand_label ?? ''}
-								className="pl-8"
-								disabled={pending}
-								icons={{
-									left: (
-										<Icons.Brand className="opacity-40 h-4.5 w-4.5" />
-									),
-								}}
-								onInputChange={(value) => {
-									handleChange('brand_label', value);
-									// Typing past a chosen brand clears the id: the label alone
-									// is not a selection, and leaving the old id would save a
-									// brand the field no longer shows.
-									handleChange('brand_id', null);
-									setSearchBrand(value);
-								}}
-								autoCompleteProps={{
-									suggestions: brandSuggestions,
-									isLoading: isBrandFetching,
-									onSelect: (entry) => {
-										handleChange(
-											'brand_label',
-											displayBrandLabel(entry, false),
-										);
-										handleChange('brand_id', entry.id);
-									},
-									getOptionLabel: (entry) =>
-										displayBrandLabel(entry, false),
-									getOptionKey: (entry) => entry.id,
-								}}
-								error={errors.brand_id}
 							/>
 						</div>
 
@@ -591,20 +563,6 @@ export function FormBundleProduct() {
 						onChange={(contents) =>
 							handleChange('contents', contents)
 						}
-					/>
-				</TabsContent>
-
-				<TabsContent id="components">
-					<FormComponentsBundle
-						value={formValues.components}
-						pending={pending}
-						errors={errors.components}
-						setError={
-							componentRuleError.length
-								? componentRuleError
-								: undefined
-						}
-						onChange={(value) => handleChange('components', value)}
 					/>
 				</TabsContent>
 
@@ -869,6 +827,35 @@ export function FormBundleProduct() {
 							</p>
 						) : null}
 					</div>
+				</TabsContent>
+
+				<TabsContent id="components">
+					<FormComponentsBundle
+						value={formValues.components}
+						groups={formValues.groups}
+						pending={pending}
+						errors={errors.components}
+						groupErrors={errors.groups}
+						setError={
+							componentRuleError.length
+								? componentRuleError
+								: undefined
+						}
+						groupsSetError={
+							groupsRuleError.length ? groupsRuleError : undefined
+						}
+						/*
+						 * The markets come from the Price tab, which is the only place they are
+						 * edited - a delta is quoted in one of them or in none.
+						 */
+						currencies={componentCurrencies}
+						canCreateTerm={canCreateTerm}
+						onChange={(value) => handleChange('components', value)}
+						onGroupsChange={(value) =>
+							handleChange('groups', value)
+						}
+						onCreateTerm={createGroupTerm}
+					/>
 				</TabsContent>
 
 				<TabsContent id="availability">

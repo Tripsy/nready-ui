@@ -224,8 +224,70 @@ export type ProductAvailabilityType = {
 };
 
 /**
- * One component of a bundle: which variant, and how many. Every component is always included -
- * a bundle is a flat list, with nothing for the customer to choose between.
+ * What taking an optional component does to the bundle's total, in one market.
+ *
+ * Signed, and per currency for the same reason `ProductPriceType` is: adding 3 to a figure quoted
+ * in EUR is only right if the 3 is EUR.
+ *
+ * The figure adjusts the **component's own** sale price, not the bundle's - which is what makes it
+ * read differently from `ProductOptionPriceType`, where the delta is the whole of what the answer
+ * costs because there is nothing behind the label. A 120.00 accessory at -20.00 charges 100.00.
+ */
+export type ProductBundleItemPriceType = {
+	currency: string;
+	price_delta: number | null;
+};
+
+/**
+ * A choice offered inside a bundle - "choose your fries" - whose candidates are the components
+ * carrying its `group_id`.
+ *
+ * This is the only thing that says **exactly one of these**. Two optional components are
+ * independent tick boxes: the customer can take both or neither.
+ *
+ * No `min_select` / `max_select`, unlike `ProductOptionGroupType` - a bound counting candidate
+ * rows cannot state the one case that would want it, since a bundle is measured in units and each
+ * candidate carries its own `quantity` ceiling. Exactly one is the whole of what a bundle choice
+ * means, and a group needs two candidates to be one at all.
+ *
+ * Distinct from `ProductOptionGroupType` in what a candidate is, too: an option's answer is a term
+ * with a delta and nothing behind it, where a candidate here is a variant, so the choice decides
+ * what leaves stock and at which VAT rate.
+ */
+export type ProductBundleGroupType = {
+	/*
+	 * The row id, unlike `ProductOptionGroupType`, which has no need of one: a bundle's
+	 * components are held flat beside its groups rather than nested inside them, so this is what
+	 * `ProductBundleItemType.group_id` names.
+	 */
+	id: number;
+	label_id: number;
+	position: number | null;
+	/** Joined by the read, like the option group's own. */
+	label?: ProductTermRefType | null;
+};
+
+/**
+ * One component of a bundle: which variant, and how many.
+ *
+ * A component is one of three things, and the flags read against `group_id` rather than on their
+ * own. With no group it is either part of the kit - the bundle's own price covers it - or
+ * `is_optional`, an independent tick box. With a group it is a **candidate**, and the group
+ * decides how many candidates are taken, so `is_optional` is refused there.
+ *
+ * Taking a component either way adds `variant.sale_price + price_delta` to the total per unit. The
+ * delta is usually negative - the discount for taking the component inside the kit rather than
+ * buying it alone - and it always adjusts the component's own price, candidate or not, so making a
+ * candidate free means a delta of its whole price rather than zero. `is_default` preselects one,
+ * and inside a group at most one.
+ *
+ * `quantity` is a ceiling on an optional component alone - the most the customer may take of it.
+ * On a component that is always included, candidate or not, it is a plain count: a group decides
+ * *which* candidate is taken, never how many of it. Nothing bounds the optional set as a whole -
+ * each carries its own ceiling - which is exactly what a group adds for candidates.
+ *
+ * A component that is always included carries neither flag's baggage: the backend refuses a delta
+ * it has nothing to adjust, and a preselect the customer cannot untick.
  *
  * The answer is a **variant**, not a product: a component is a real sellable thing that consumes
  * stock and carries its own VAT class.
@@ -234,6 +296,11 @@ export type ProductBundleItemType = {
 	variant_id: number;
 	quantity: number;
 	position: number;
+	/** The group this component is a candidate for; `null` when it belongs to none. */
+	group_id: number | null;
+	is_optional: boolean;
+	is_default: boolean;
+	prices: ProductBundleItemPriceType[];
 };
 
 /**
@@ -349,9 +416,14 @@ export type ProductModel<D = Date | string> = {
 	 */
 	option_groups?: ProductOptionGroupType[];
 	/*
-	 * The bundle's components, present only on `GET /products/:id` - the whole of what the
-	 * bundle form edits.
+	 * The bundle's components and the choices they may be candidates for, present only on
+	 * `GET /products/:id` - the whole of what the bundle form edits. Flat and side by side, the
+	 * shape the payload takes too: a component belongs to a group or to none, and one list beats
+	 * two places to read it from. Each component arrives with its per-currency deltas joined and
+	 * each group with its label term, unlike the variant a component names, which the editor
+	 * resolves itself through `GET /product-variants`.
 	 */
+	bundle_groups?: ProductBundleGroupType[];
 	bundle_items?: ProductBundleItemType[];
 	/** Public endpoints only; `null` when the product has no gallery image. */
 	cover_image?: ProductCoverImageType | null;

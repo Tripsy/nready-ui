@@ -1,14 +1,50 @@
 import { Configuration } from '@/config/settings.config';
 import type { Language } from '@/types/common.type';
 
+/**
+ * Mirrors the backend's own `TermTypeEnum` - keep the two in sync when it gains a type.
+ *
+ * The type is what every picker filters on, which is the only thing keeping one list from
+ * offering another's terms. `bundle_choice` exists for that reason rather than reusing `text`:
+ * a bundle's choice prompts are a small curated set, and drawing them from the general-purpose
+ * pool would make both lists too broad to pick from.
+ */
 export const TermTypeEnum = {
 	TAG: 'tag',
 	ATTRIBUTE_LABEL: 'attribute_label',
 	ATTRIBUTE_VALUE: 'attribute_value',
 	TEXT: 'text',
+	BUNDLE_CHOICE: 'bundle_choice',
 } as const;
 
 export type TermType = (typeof TermTypeEnum)[keyof typeof TermTypeEnum];
+
+/**
+ * The types whose wording is stored as it was typed. Mirrors `CASE_PRESERVING_TYPES` in the
+ * backend's `TermService` - keep the two in sync.
+ */
+const CASE_PRESERVING_TYPES: readonly TermType[] = [
+	TermTypeEnum.ATTRIBUTE_LABEL,
+	TermTypeEnum.TEXT,
+	TermTypeEnum.BUNDLE_CHOICE,
+];
+
+/**
+ * What a term's wording is stored as, which the backend applies again on the way in.
+ *
+ * Most types are folded: a term is a label reused across articles and products, and "Summer" and
+ * "summer" rendering as two tags is the defect the rule exists for. `bundle_choice` is exempt
+ * because it is not a label but the question a bundle asks the customer - folding "Choose your
+ * fries" would put it on the storefront in lower case.
+ *
+ * Applied here as well as server-side so the editor sees the wording it will get back, rather than
+ * typing one string and reading another after the next fetch.
+ */
+export function storedTermValue(type: TermType, value: string): string {
+	return CASE_PRESERVING_TYPES.includes(type)
+		? value.trim()
+		: value.trim().toLowerCase();
+}
 
 export type TermContentType = {
 	language: Language;

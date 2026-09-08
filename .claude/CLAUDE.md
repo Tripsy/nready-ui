@@ -3,15 +3,7 @@ Next.js app with codename `nready-ui` consuming the `nready-api` API. Public sit
 
 Started as a copy of `../star-ui` (the frontend for `star-api`) with the fleet/CMR/driver features stripped out. `star-ui` is still the closest reference for anything not covered here.
 
-## Tech Stack
-
-- Runtime: Node.js v24 (Active LTS)
-- Framework: Next.js v16.2
-- Language: TypeScript v6.0.3
-- Containerization: Docker
-
-Versions above are current as of 2026-07. If a suggestion depends on version-specific
-behavior, check pnpm-lock.yaml for the resolved version before assuming it applies.
+## TypeScript version
 
 **TypeScript stays on 6.x.** Next 16 rejects TS 7 at startup ("does not provide the compiler
 API required by Next.js") and the dev server never comes up - the failure looks like a
@@ -42,6 +34,10 @@ context yet. Read the relevant one *before* proposing an approach in that area, 
 | `typescript.md` | TS/React conventions, linting rules, type-checking | every `.ts`/`.tsx` |
 | `oauth.md` | The two-leg social-login flow, the `state`/`oauth-state` CSRF contract, adding a provider | `src/app/api/oauth/**`, `src/app/(public)/account/oauth/**`, `oauth.type.ts` |
 | `observability.md` | `logger` internals, the Sentry init/mapping layer, the tunnel route | `sentry.setup.ts`, `sentry.*.config.ts`, `instrumentation*.ts`, `logger.helper.ts` |
+| `locales.md` | Translation files, the shared vs. entity-specific validation-message split | `src/locales/**`, `validator.helper.ts` |
+| `images.md` | The upload/list/delete services and the `local`/`s3` storage backends | `src/services/image*.ts`, `manager-images.component.tsx` |
+| `money.md` | The scaled-integer amount format the backend stores, and `roundAmount()` | `cash-flow.service.ts`, `string.helper.ts` |
+| `redis.md` | Key namespacing in a Redis instance shared with `nready-api` | `cache.provider.ts`, `auth-cache.helper.ts`, `init-redis.config.ts` |
 
 Backend behaviour has its own set in `../nready-api/.claude/rules/` (`api.md`, `auth.md`,
 `database.md`, `error-handling.md`, `validation.md`, ...) - consult those rather than inferring
@@ -156,14 +152,6 @@ entities/operations, DB schema, business rules read the code in `../nready-api`
 - `src/models/permission.model.ts` (`PermissionEntityType` / `PermissionOperationType`) mirrors the
   backend's permission entities - keep the two in sync when the backend adds/renames an entity.
 
-## Project Structure
-
-`src/app` splits into the `(public)` and `(dashboard)` route groups (each with its own layout)
-plus `api/` route handlers; alongside it sit `src/components`, `config`, `exceptions`, `helpers`,
-`hooks`, `locales`, `models`, `providers`, `services`, `stores`, `types`. The Next.js
-middleware is `src/proxy.ts`, and Sentry wiring lives in `src/instrumentation*.ts` /
-`src/sentry.*.config.ts`.
-
 ## Restrictions
 
 - This project has no tests at the moment.
@@ -243,14 +231,6 @@ middleware is `src/proxy.ts`, and Sentry wiring lives in `src/instrumentation*.t
   typed by dotted path so a typo is a compile error), `routes.setup.ts` (route table + auth),
   `data-source.config.ts` (maps `DataSourceKey` values to backend list/filter endpoints for data tables),
   `translate.setup.ts` (i18n), `init-redis.config.ts`.
-- **Images**: `src/services/image.service.ts` / `image-storage.service.ts` handle upload/list/delete against
-  the backend's `image` feature; storage backend is `local` or `s3` (`IMAGE_STORAGE` env var, `@aws-sdk/client-s3`).
-- **Locales**: `src/locales/<lang>/*.json`, registered per-language in `src/locales/<lang>/index.ts`;
-  `NEXT_PUBLIC_LANGUAGE_SUPPORTED` in `.env` controls which languages are active. Validation messages
-  common to several entities live in `shared.json` (`shared.validation`); an entity spreads
-  `sharedValidatorMessages` into its own key list and calls `resolveValidatorMessages()`
-  (`src/helpers/validator.helper.ts`), which pulls the shared keys from `shared.validation` and the
-  rest from `<entity>.validation`. Only genuinely entity-specific wording belongs in the latter.
 - **CSRF**: enforced in `src/proxy.ts` for every mutating request under `/api/*`, by comparing the
   `x-csrf-token` header against the `x-csrf-secret` httpOnly cookie. `ApiRequest` attaches the header
   automatically (`src/helpers/csrf.helper.ts` owns the token and retries once on a `403` carrying the
@@ -258,15 +238,6 @@ middleware is `src/proxy.ts`, and Sentry wiring lives in `src/instrumentation*.t
   anything - the form pipeline runs client-side - so keep the gate in the middleware. Server actions
   bypass it by design and rely on Next's own origin verification. This is the mechanism; what it means
   at the form layer (nothing to do, per-form CSRF options are wrong) is in `.claude/rules/forms.md` §1.
-- **Money**: the backend stores amounts as separator-less integers scaled by `10 ** AMOUNT_DECIMALS`
-  (4) - `cash-flow.service.ts` persists `Math.round(abs(amount) * 10000)` and divides back on read, so
-  80.6452 is row value 806452. Forms accept 2 decimals; anything past the 4th is discarded by that
-  round-trip. The VAT helpers in `src/helpers/string.helper.ts` round to the same precision - keep any
-  new amount maths on `roundAmount()` rather than returning raw float.
-- **Redis is shared with nready-api** (one instance, one database), so every key is namespaced by
-  `redis.keyPrefix` (`nready-ui` here, `nready-api` there) inside `CacheProvider.buildKey`. Not via
-  ioredis's own `keyPrefix` option: that one does not reach the MATCH argument of SCAN, so
-  `deleteByPattern` would scan the other app's keys. Build every key through `buildKey`.
 - **Logging** - never call `console.*` directly; use `logger` / `logRejection` from
   `src/helpers/logger.helper.ts` (the only file allowed to touch `console`); signature is
   `(message, error?, context?)`, message first at every level. The third argument is shipped to

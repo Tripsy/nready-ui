@@ -28,6 +28,7 @@ import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	displayTermLabel,
 	displayTermValue,
+	storedTermValue,
 	type TermContentType,
 	type TermModel,
 	type TermType,
@@ -57,8 +58,11 @@ class TermValidator extends BaseValidator<typeof validatorMessages> {
 			language: this.validateLanguage(
 				this.getMessage('invalid_language'),
 			),
-			// Mirrors the backend rule: every term is stored lower-cased, so what the editor
-			// typed and what comes back on the next read are the same string.
+			/*
+			 * Trimmed here and case-folded on the object below, where `type` is in reach - the
+			 * rule depends on it, and a content row on its own cannot see which type it belongs
+			 * to. The backend splits it the same way, and for the same reason.
+			 */
 			value: this.validateString(
 				{
 					invalid: this.getMessage('invalid_value'),
@@ -67,30 +71,43 @@ class TermValidator extends BaseValidator<typeof validatorMessages> {
 					}),
 				},
 				{ maxChars: VALUE_MAX_CHARS },
-			).transform((value) => value.trim().toLowerCase()),
+			).transform((value) => value.trim()),
 		});
 	}
 
 	manage = () =>
-		z.object({
-			type: this.validateEnum(
-				TermTypeEnum,
-				this.getMessage('invalid_type'),
-			),
-			contents: this.contentsSchema()
-				.array()
-				.min(1, this.getMessage('invalid_contents'))
-				.refine(
-					(contents) => {
-						const languages = contents.map(
-							(content) => content.language,
-						);
-
-						return new Set(languages).size === languages.length;
-					},
-					{ message: this.getMessage('duplicate_contents') },
+		z
+			.object({
+				type: this.validateEnum(
+					TermTypeEnum,
+					this.getMessage('invalid_type'),
 				),
-		});
+				contents: this.contentsSchema()
+					.array()
+					.min(1, this.getMessage('invalid_contents'))
+					.refine(
+						(contents) => {
+							const languages = contents.map(
+								(content) => content.language,
+							);
+
+							return new Set(languages).size === languages.length;
+						},
+						{ message: this.getMessage('duplicate_contents') },
+					),
+			})
+			/*
+			 * Folded against the term's own type, mirroring `TermService.normalizeContents`.
+			 * Applied client-side as well so the editor sees the wording it will read back
+			 * rather than typing one string and being handed another on the next fetch.
+			 */
+			.transform((data) => ({
+				...data,
+				contents: data.contents.map((content) => ({
+					...content,
+					value: storedTermValue(data.type, content.value),
+				})),
+			}));
 }
 
 async function validateForm(values: TermFormValuesType) {
