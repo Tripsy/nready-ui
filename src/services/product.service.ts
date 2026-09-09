@@ -5,12 +5,106 @@ import {
 	resolveRequestPath,
 } from '@/helpers/api.helper';
 import { requestFind } from '@/helpers/services.helper';
-import type { ProductModel, ProductWorkflow } from '@/models/product.model';
+import type {
+	ProductListEntryType,
+	ProductPublicModel,
+	ProductWorkflow,
+} from '@/models/product.model';
 import { ProductCompositionEnum } from '@/models/product.model';
 import type { ResolvedAttributeFormType } from '@/models/product-category-attribute.model';
 import type { ProductVariantModel } from '@/models/product-variant.model';
+import type { FindFunctionResponseType } from '@/types/action.type';
 import type { ApiResponseFetch } from '@/types/api.type';
 import type { Language } from '@/types/common.type';
+
+export type PublicProductsParams = {
+	language?: Language;
+	term?: string;
+	category_id?: number;
+	brand_id?: number;
+	/** Any of these tags. */
+	tag_id?: number[];
+	/** Product to leave out, so a "related" rail never recommends the page it sits on. */
+	exclude_id?: number;
+	page?: number;
+	limit?: number;
+};
+
+function buildPublicProductsQuery(params: PublicProductsParams): string {
+	const {
+		page,
+		limit,
+		language,
+		term,
+		category_id,
+		brand_id,
+		tag_id,
+		exclude_id,
+	} = params;
+
+	return buildQueryString({
+		order_by: 'created_at',
+		direction: 'DESC',
+		page,
+		limit,
+		filter: {
+			language,
+			term,
+			category_id,
+			brand_id,
+			tag_id,
+			exclude_id,
+		},
+	});
+}
+
+/**
+ * The anonymous catalog listing (`GET /public/products`), which reaches only the sellable window
+ * and accepts none of the dashboard filters that could widen it.
+ *
+ * Server-side only, via `remote-api`: the `/api/proxy` route the dashboard uses attaches the
+ * session cookie, and this page has no visitor to attach. Going straight to the backend also lets
+ * the response participate in Next's data cache - `revalidate` is the caller's to set, since only
+ * it knows how fresh the listing has to be.
+ *
+ * Each row carries every live variant with its prices and its axis wording, not just the default
+ * one - which is what lets a card price itself from a range and, under the `expanded` display,
+ * become one card per variant.
+ */
+export async function requestPublicProducts(
+	params: PublicProductsParams & { revalidate?: number },
+): Promise<ApiResponseFetch<FindFunctionResponseType<ProductListEntryType>>> {
+	const { revalidate, ...filters } = params;
+
+	const query = buildPublicProductsQuery(filters);
+
+	return await new ApiRequest()
+		.setRequestMode('remote-api')
+		.doFetch(`/public/products${query ? `?${query}` : ''}`, {
+			method: 'GET',
+			next: { revalidate },
+		});
+}
+
+/**
+ * The same listing, for a **client** component - the infinite-scroll feed asking for page two and
+ * beyond.
+ *
+ * Goes through `/api/proxy` (the default request mode) rather than `remote-api`: a browser cannot
+ * reach the backend directly, and the proxy is the only sanctioned path from there. No
+ * `revalidate` either - a client fetch does not participate in Next's data cache, and TanStack
+ * Query is what holds the pages already loaded.
+ */
+export async function requestPublicProductsPage(
+	params: PublicProductsParams,
+): Promise<ApiResponseFetch<FindFunctionResponseType<ProductListEntryType>>> {
+	const query = buildPublicProductsQuery(params);
+
+	return await new ApiRequest().doFetch(
+		`/public/products${query ? `?${query}` : ''}`,
+		{ method: 'GET' },
+	);
+}
 
 /**
  * One sellable product by slug (`GET /public/products/:slug`), description and variants
@@ -26,7 +120,7 @@ export async function requestPublicProduct(params: {
 	slug: string;
 	language?: Language;
 	revalidate?: number;
-}): Promise<ApiResponseFetch<ProductModel>> {
+}): Promise<ApiResponseFetch<ProductPublicModel>> {
 	const { slug, language, revalidate } = params;
 
 	const query = buildQueryString({ language });

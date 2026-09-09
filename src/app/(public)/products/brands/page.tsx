@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
-import { CategoryListing } from '@/app/(public)/_components/category/category-listing.component';
+import { BrandListing } from '@/app/(public)/_components/brand/brand-listing.component';
 import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
 import { translate } from '@/config/translate.setup';
-import { CategoryTypeEnum } from '@/models/category.model';
+import { BrandTypeEnum } from '@/models/brand.model';
 
-const TRANSLATION_PREFIX = 'categories';
+const TRANSLATION_PREFIX = 'brands';
 
 export async function generateMetadata(): Promise<Metadata> {
 	const [title, description] = await Promise.all([
@@ -20,12 +20,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function Page() {
 	return (
-		<CategoryListing
-			type={CategoryTypeEnum.PRODUCT}
+		<BrandListing
+			type={BrandTypeEnum.PRODUCT}
 			translationPrefix={TRANSLATION_PREFIX}
-			buildCategoryHref={(category) =>
-				Routes.get('products-category', { slug: category })
-			}
+			buildBrandHref={(slug) => Routes.get('products-brand', { slug })}
 		/>
 	);
 }

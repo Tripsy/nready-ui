@@ -1,3 +1,4 @@
+import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
 import type { ImageStorage } from '@/models/image.model';
 import type { ProductAttributeValueType } from '@/models/product-category-attribute.model';
@@ -183,6 +184,66 @@ export type ProductVariantType = {
 	 */
 	attributes?: ProductAttributeValueType[];
 };
+
+/**
+ * An axis value as the public listing joins it: the stored ids, plus the term wording that turns
+ * `43 -> 50` into "Storage: 512 gb". Only the requested language is joined, so `contents` holds
+ * at most one row.
+ */
+export type ProductVariantAxisType = ProductAttributeValueType & {
+	attribute_label?: ProductTermRefType | null;
+	attribute_value?: ProductTermRefType | null;
+};
+
+/**
+ * A variant as the public listing returns it (`attachVariants` on the backend).
+ *
+ * Narrower than `ProductVariantType` on purpose - the anonymous surface projects away
+ * `cost_price`, `min_price` and the stock knobs, which describe the business rather than the
+ * offer. The `id` is here because a card keys on it; the dashboard's variant rows key on a
+ * client-side `key` instead, since an unsaved row has no id yet.
+ */
+export type ProductListVariantType = {
+	id: number;
+	sku: string;
+	position: number | null;
+	is_default: boolean;
+	prices: Pick<
+		ProductPriceType,
+		'currency' | 'sale_price' | 'reference_price'
+	>[];
+	attributes?: ProductVariantAxisType[];
+	/*
+	 * The variant's own gallery cover, filed under the `product_variant` image section - the blue
+	 * jacket rather than the jacket. `null` when it has a gallery of its own but nothing in it,
+	 * which is the ordinary case: most variants differ by a number, not a picture.
+	 */
+	cover_image?: ProductCoverImageType | null;
+};
+
+/**
+ * `GET /public/products/:slug` - the anonymous read.
+ *
+ * Same as `ProductModel` but for its variants, which the storefront surface projects down to
+ * `ProductListVariantType` and hands over with their axis wording resolved. Nothing anonymous
+ * ever sees `cost_price` or `min_price`.
+ */
+export type ProductPublicModel = Omit<ProductModel<string>, 'variants'> & {
+	variants?: ProductListVariantType[];
+};
+
+/**
+ * One row of `GET /public/products`.
+ *
+ * `contents` holds a single translation (the listing joins one language), `variants` holds every
+ * live variant rather than only the default - which is what lets a card price itself from a range
+ * and, under `expanded`, become one card per variant. The editorial and scheduling columns are
+ * absent: the listing only ever reaches the sellable window, so nothing is left for them to say.
+ */
+export type ProductListEntryType = Omit<
+	ProductPublicModel,
+	'workflow' | 'sale_status' | 'details' | 'deleted_at'
+>;
 
 /**
  * The product's gallery image, attached by the public endpoints only - the dashboard manages
@@ -394,7 +455,8 @@ export type ProductModel<D = Date | string> = {
 	/** What the product says about itself, against the `product`-scoped definitions. */
 	attributes?: ProductAttributeValueType[];
 	availabilities?: ProductAvailabilityType[];
-	brand?: { id: number; name: string } | null;
+	/** `slug` comes from the public listing only, which is the surface that links a brand. */
+	brand?: { id: number; name: string; slug?: string } | null;
 	categories?: {
 		category_id: number;
 		category?: {
@@ -537,3 +599,186 @@ export const displayProductLabel = (entry: ProductModel) => {
 
 	return slug ?? `#${entry.id}`;
 };
+
+/**
+ * The single translation a public listing row carries. The backend joins one language, so this is
+ * whatever came back rather than a lookup across languages - the same rule the product page
+ * follows.
+ */
+export function getListContent(
+	entry: ProductListEntryType,
+): ProductContentType | undefined {
+	return entry.contents?.[0];
+}
+
+/** `/products/<slug>`, or null for a row that arrived without its content. */
+export function buildProductPath(entry: ProductListEntryType): string | null {
+	const slug = getListContent(entry)?.slug;
+
+	return slug ? Routes.get('product-view', { slug }) : null;
+}
+
+/**
+ * `/products/<slug>?variant=<sku>` - how an `expanded` card addresses a variant.
+ *
+ * The query string rather than a path segment: a variant has no slug and no page of its own, so
+ * the product page stays the canonical URL and the SKU only says which variant to open on.
+ */
+export function buildProductVariantPath(
+	entry: ProductListEntryType,
+	variant: ProductListVariantType,
+): string | null {
+	const path = buildProductPath(entry);
+
+	return path ? `${path}?variant=${encodeURIComponent(variant.sku)}` : null;
+}
+
+/**
+ * One axis value as words: the term's wording when it is term-backed, the literal otherwise.
+ *
+ * A boolean axis reads as its *label* ("Waterproof") when true and contributes nothing when
+ * false - "Jacket false" is not a name. Returns null when the row carries no value the language
+ * can render, so the caller drops it rather than printing a blank.
+ */
+function axisValueLabel(axis: ProductVariantAxisType): string | null {
+	if (axis.value_term_id) {
+		return axis.attribute_value?.contents?.[0]?.value ?? null;
+	}
+
+	if (axis.value_numeric !== null && axis.value_numeric !== undefined) {
+		return String(axis.value_numeric);
+	}
+
+	if (axis.value_text) {
+		return axis.value_text;
+	}
+
+	if (axis.value_boolean) {
+		return axis.attribute_label?.contents?.[0]?.value ?? null;
+	}
+
+	return null;
+}
+
+/**
+ * What a variant is called - the one thing the schema does not store.
+ *
+ * A variant has no label column: what tells it from its siblings is its axis values, so the name
+ * is the product's label followed by those values in the order the backend resolved them (the
+ * axis definition's `sort_order`). A product with a single variant and nothing to vary comes back
+ * as the bare product label, which is what most of a catalog is.
+ */
+export function buildVariantLabel(
+	entry: ProductListEntryType,
+	variant: ProductListVariantType,
+): string {
+	const label = getListContent(entry)?.label ?? `#${entry.id}`;
+	const axes = buildVariantAxisLabel(variant);
+
+	return axes ? `${label} ${axes}` : label;
+}
+
+/**
+ * Just the axis values ("512 gb", "Blue Large") - what tells this variant from its siblings,
+ * without the product name.
+ *
+ * What a chooser on the product page wants: the heading above it already names the product, and
+ * repeating it on every option is noise. A card uses `buildVariantLabel` instead, because there
+ * the product name is the only thing identifying it. `null` when the variant carries no axis
+ * value the language can render, which is the caller's cue to fall back to something that does.
+ */
+export function buildVariantAxisLabel(
+	variant: ProductListVariantType,
+): string | null {
+	const axes = (variant.attributes ?? [])
+		.map(axisValueLabel)
+		.filter((value): value is string => !!value);
+
+	return axes.length > 0 ? axes.join(' ') : null;
+}
+
+/**
+ * The price span across a product's variants, in one currency.
+ *
+ * Prefers the deployment's own currency and falls back to whatever the first variant quotes, so a
+ * catalog priced only in EUR still shows a figure under a RON deployment. `min !== max` is what
+ * tells a card to say "from" - the reason the listing returns every variant rather than only the
+ * default one, which cannot answer the question.
+ */
+export function resolvePriceRange(
+	variants: ProductListVariantType[] | undefined,
+): { currency: string; min: number; max: number } | null {
+	const prices = (variants ?? []).flatMap((variant) => variant.prices ?? []);
+
+	if (prices.length === 0) {
+		return null;
+	}
+
+	const preferred = Configuration.get('app.currency');
+	const currency = prices.some((price) => price.currency === preferred)
+		? preferred
+		: prices[0].currency;
+
+	const amounts = prices
+		.filter((price) => price.currency === currency)
+		.map((price) => price.sale_price)
+		.filter((amount): amount is number => amount !== null);
+
+	if (amounts.length === 0) {
+		return null;
+	}
+
+	return {
+		currency,
+		min: Math.min(...amounts),
+		max: Math.max(...amounts),
+	};
+}
+
+/**
+ * The picture a catalog card shows, which of the two galleries it comes from depending on what
+ * the card stands for.
+ *
+ * Listing variants, the variant's own photograph is the specific one and the product's is the
+ * generic fallback. Listing products, that runs the other way: the product's photograph is the
+ * one chosen to represent the whole set, and a variant's is a last resort so a product shot only
+ * per-variant is not rendered blank beside neighbours that have pictures.
+ *
+ * The default variant, not the first, supplies that last resort - it is the variant a product
+ * with nothing to choose is bought through, and the one whose price the card already quotes.
+ */
+export function resolveCardImage(
+	entry: ProductListEntryType,
+	variant: ProductListVariantType | null,
+): ProductCoverImageType | null {
+	if (variant) {
+		return variant.cover_image ?? entry.cover_image ?? null;
+	}
+
+	if (entry.cover_image) {
+		return entry.cover_image;
+	}
+
+	const fallback = (entry.variants ?? []).find(
+		(candidate) => candidate.is_default,
+	);
+
+	return fallback?.cover_image ?? null;
+}
+
+/**
+ * Formats server-side, unlike `formatAmount` - a catalog page is rendered for a crawler, so the
+ * figure has to be in the HTML rather than filled in on hydration. Safe because the language
+ * comes from the request: only a *date* would pick up the container's zone.
+ */
+export function formatProductPrice(
+	amount: number,
+	currency: string,
+	language: Language,
+): string {
+	return new Intl.NumberFormat(language, {
+		style: 'currency',
+		currency,
+		currencyDisplay: 'narrowSymbol',
+	}).format(amount);
+}

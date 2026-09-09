@@ -9,6 +9,7 @@ import articles_categories from '@/locales/en/articles-categories.json';
 import auth from '@/locales/en/auth.json';
 import brand from '@/locales/en/brand.json';
 import brand_order from '@/locales/en/brand-order.json';
+import brands from '@/locales/en/brands.json';
 import carrier from '@/locales/en/carrier.json';
 import cash_flow from '@/locales/en/cash-flow.json';
 import categories from '@/locales/en/categories.json';
@@ -64,6 +65,7 @@ const en = {
 	auth,
 	brand,
 	'brand-order': brand_order,
+	brands,
 	carrier,
 	'cash-flow': cash_flow,
 	categories,

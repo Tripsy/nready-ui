@@ -16,6 +16,7 @@ const footerLinkSections: FooterLinkSection[] = [
 		name: 'Shopping',
 		links: [
 			{ label: 'Categories', href: Routes.get('products-categories') },
+			{ label: 'Brands', href: Routes.get('products-brands') },
 			{ label: 'Products', href: Routes.get('products') },
 		],
 	},

@@ -102,7 +102,9 @@
 		},
 		"managerImages": {
 			"title": "Imagini produs - {{entry}}",
-			"label": "Imagini"
+			"label": "Imagini",
+			"target_product": "Produs",
+			"target_variants": "Galerie pentru"
 		},
 		"guide": {
 			"title": "Cum funcționează produsele",

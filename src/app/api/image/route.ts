@@ -2,11 +2,14 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { Configuration } from '@/config/settings.config';
 import { logger } from '@/helpers/logger.helper';
 import { hasPermission } from '@/models/account.model';
-import { type ImageStorage, ImageStorageEnum } from '@/models/image.model';
 import {
-	PermissionEntitiesSuggestions,
-	type PermissionEntityType,
-	type PermissionOperationType,
+	type ImageStorage,
+	ImageStorageEnum,
+	imagePermissionEntity,
+} from '@/models/image.model';
+import type {
+	PermissionEntityType,
+	PermissionOperationType,
 } from '@/models/permission.model';
 import { getAuth } from '@/services/auth.service';
 import { imageStorage } from '@/services/image-storage.service';
@@ -20,15 +23,6 @@ function isValidStorage(value: unknown): value is ImageStorage {
 	return (
 		typeof value === 'string' &&
 		Object.values(ImageStorageEnum).includes(value as ImageStorage)
-	);
-}
-
-function isValidSection(value: unknown): value is PermissionEntityType {
-	return (
-		typeof value === 'string' &&
-		Object.values(PermissionEntitiesSuggestions).includes(
-			value as PermissionEntityType,
-		)
 	);
 }
 
@@ -53,7 +47,15 @@ export async function POST(request: NextRequest) {
 		return NextResponse.json({ error: 'Missing file' }, { status: 400 });
 	}
 
-	if (!isValidSection(section)) {
+	/*
+	 * The section names the gallery's owner; the permission it is gated by is a separate
+	 * question, because a variant's images are written under its product's - see
+	 * `imagePermissionEntity`. `null` covers both an unknown section and a non-string one, so
+	 * nothing unrecognized reaches the permission call or the storage key.
+	 */
+	const permissionEntity = imagePermissionEntity(section);
+
+	if (typeof section !== 'string' || !permissionEntity) {
 		return NextResponse.json({ error: 'Invalid section' }, { status: 400 });
 	}
 
@@ -65,7 +67,7 @@ export async function POST(request: NextRequest) {
 	}
 
 	// Check permissions
-	if (!(await requirePermission(section, 'update'))) {
+	if (!(await requirePermission(permissionEntity, 'update'))) {
 		return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 	}
 
@@ -111,11 +113,13 @@ export async function DELETE(request: NextRequest) {
 		);
 	}
 
-	if (!isValidSection(section)) {
+	const permissionEntity = imagePermissionEntity(section);
+
+	if (!permissionEntity) {
 		return NextResponse.json({ error: 'Invalid section' }, { status: 400 });
 	}
 
-	if (!(await requirePermission(section, 'update'))) {
+	if (!(await requirePermission(permissionEntity, 'update'))) {
 		return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 	}
 

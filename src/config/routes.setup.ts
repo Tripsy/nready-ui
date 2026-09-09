@@ -163,9 +163,12 @@ Routes.add('api-docs-feature', '/api-docs/:feature');
 Routes.add('page', '/page/:label');
 Routes.add('products', '/products');
 Routes.add('products-categories', '/products/categories');
-// Added after `products-categories` on purpose: `match` returns the first pattern that fits,
-// and `/products/:slug` fits that path too. Next resolves the file-system routes by the
-// same precedence, static segment before dynamic.
+Routes.add('products-brands', '/products/brands');
+Routes.add('products-category', '/products/category/:slug');
+Routes.add('products-brand', '/products/brand/:slug');
+// Added after the static siblings on purpose: `match` returns the first pattern that fits,
+// and `/products/:slug` fits every one of those paths too. Next resolves the file-system
+// routes by the same precedence, static segment before dynamic.
 Routes.add('product-view', '/products/:slug');
 Routes.add('articles', '/articles');
 Routes.add('articles-categories', '/articles/categories');

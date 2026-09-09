@@ -1,5 +1,9 @@
 import { logger } from '@/helpers/logger.helper';
 import { getObjectValue, type ObjectValue } from '@/helpers/objects.helper';
+import {
+	type ProductVariantDisplay,
+	ProductVariantDisplayEnum,
+} from '@/models/product-display.model';
 import type { Currency, Language } from '@/types/common.type';
 
 function loadSettings() {
@@ -13,6 +17,21 @@ function loadSettings() {
 			currency: (process.env.NEXT_PUBLIC_APP_CURRENCY ||
 				'RON') as Currency,
 			vatRate: Number(process.env.NEXT_PUBLIC_APP_VAT_RATE || 24),
+		},
+		product: {
+			/*
+			 * Whether the catalog grid shows one card per product or one per variant.
+			 *
+			 * A variant has no name and no slug of its own - it is a SKU plus its axis values - so
+			 * `expanded` derives the wording from those axes and points every card at the product
+			 * page with `?variant=<sku>`. `collapsed` is the safe default: it is the only shape that
+			 * reads well for a catalog whose products mostly have a single variant.
+			 *
+			 * `NEXT_PUBLIC_` because the feed renders page two onward in the browser and has to make
+			 * the same choice the server made for page one.
+			 */
+			variantDisplay: (process.env.NEXT_PUBLIC_PRODUCT_VARIANT_DISPLAY ||
+				ProductVariantDisplayEnum.COLLAPSED) as ProductVariantDisplay,
 		},
 		apiDocs: {
 			/*

@@ -1,13 +1,11 @@
 {
 	"meta": {
 		"title": "Produse | {{app_name}}",
-		"description": "Catalogul de produse pe care îl pregătim."
+		"description": "Tot ce avem acum la vânzare."
 	},
 	"text": {
 		"heading": "Produse",
-		"subheading": "Catalogul este pe drum.",
-		"placeholder": "Momentan nu avem nimic de afișat aici. Lista de produse este încă în lucru.",
-		"browse_categories": "Vezi categoriile",
+		"subheading": "Tot ce avem acum la vânzare.",
 		"back_to_list": "Toate produsele",
 		"unavailable": "Acest produs este temporar indisponibil. Încearcă din nou mai târziu.",
 		"not_found_heading": "Produsul nu a fost găsit",
@@ -15,6 +13,12 @@
 		"brand": "Marcă",
 		"categories": "Categorii",
 		"no_description": "Acest produs nu are încă o descriere.",
-		"price_from": "de la"
+		"price_from": "de la",
+		"no_entries": "Nu avem încă produse la vânzare. Revino în curând.",
+		"loading_more": "Se încarcă mai multe produse…",
+		"category_subheading": "Tot ce avem la vânzare în această categorie.",
+		"brand_subheading": "Tot ce avem la vânzare de la această marcă.",
+		"list_unavailable": "Lista de produse este temporar indisponibilă. Încearcă din nou mai târziu.",
+		"variants": "Opțiuni"
 	}
 }

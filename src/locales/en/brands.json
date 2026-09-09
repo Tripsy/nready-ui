@@ -1,0 +1,12 @@
+{
+	"meta": {
+		"title": "Product brands | {{app_name}}",
+		"description": "Browse the brands available in our product catalog."
+	},
+	"text": {
+		"heading": "Product brands",
+		"subheading": "The names behind the products we carry.",
+		"no_entries": "There are no brands to show yet.",
+		"unavailable": "The brand list is temporarily unavailable. Please try again later."
+	}
+}

@@ -1,11 +1,12 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/helpers/logger.helper';
 import { hasPermission } from '@/models/account.model';
-import { type ImageStorage, ImageStorageEnum } from '@/models/image.model';
 import {
-	PermissionEntitiesSuggestions,
-	type PermissionEntityType,
-} from '@/models/permission.model';
+	type ImageStorage,
+	ImageStorageEnum,
+	imagePermissionEntity,
+} from '@/models/image.model';
+import type { PermissionEntityType } from '@/models/permission.model';
 import { getAuth } from '@/services/auth.service';
 import { imageStorage } from '@/services/image-storage.service';
 
@@ -26,16 +27,11 @@ export const runtime = 'nodejs';
  */
 
 // The upload key is built as `<section>/<entity_id>/<uuid>.<ext>` by
-// `S3StorageService.generateKey`, so the section - and therefore the permission to check -
-// is recoverable from the path itself.
+// `S3StorageService.generateKey`, so the section - and therefore the permission to check - is
+// recoverable from the path itself. The two are not always the same word: a `product_variant`
+// key is gated by `product`, which is what `imagePermissionEntity` resolves.
 function sectionFromKey(key: string): PermissionEntityType | null {
-	const candidate = key.split('/')[0];
-
-	return PermissionEntitiesSuggestions.includes(
-		candidate as PermissionEntityType,
-	)
-		? (candidate as PermissionEntityType)
-		: null;
+	return imagePermissionEntity(key.split('/')[0]);
 }
 
 function isValidStorage(value: unknown): value is ImageStorage {

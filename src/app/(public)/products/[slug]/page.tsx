@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Fragment } from 'react';
 import { Breadcrumb } from '@/app/(public)/_components/breadcrumb.component';
 import { Icons } from '@/components/icon.component';
 import Routes from '@/config/routes.setup';
@@ -13,14 +14,18 @@ import {
 } from '@/config/translate.setup';
 import { ApiError } from '@/exceptions/api.error';
 import { getResponseData } from '@/helpers/api.helper';
+import { cn } from '@/helpers/css.helper';
 import { logger } from '@/helpers/logger.helper';
 import { renderMarkdownServer } from '@/helpers/markdown-server.helper';
 import { showImage } from '@/models/image.model';
 import {
+	buildVariantAxisLabel,
+	formatProductPrice,
 	type ProductContentType,
-	type ProductModel,
-	type ProductPriceType,
-	toCategoryRefs,
+	type ProductListVariantType,
+	type ProductPublicModel,
+	resolveCardImage,
+	resolvePriceRange,
 } from '@/models/product.model';
 import { requestPublicProduct } from '@/services/product.service';
 import type { Language } from '@/types/common.type';
@@ -40,6 +45,7 @@ const TRANSLATION_KEYS = [
 	'text.categories',
 	'text.no_description',
 	'text.price_from',
+	'text.variants',
 ] as const;
 
 /**
@@ -49,11 +55,17 @@ const TRANSLATION_KEYS = [
  * to rather than revealing through a different status.
  */
 type ProductResult =
-	| { status: 'ok'; entry: ProductModel }
+	| { status: 'ok'; entry: ProductPublicModel }
 	| { status: 'unavailable' };
 
 type Props = {
 	params: Promise<{ slug: string }>;
+	/*
+	 * `?variant=<sku>` says which variant to open on - what an `expanded` catalog card links to.
+	 * Reading it keeps this page dynamic per query string while the fetch behind it stays in
+	 * Next's data cache, so the SKU costs a render rather than a request.
+	 */
+	searchParams: Promise<{ variant?: string }>;
 };
 
 async function getProduct(
@@ -89,40 +101,26 @@ async function getProduct(
  * The public read returns a single translation (the language is an INNER join), so the wording
  * is whatever came back rather than a lookup across languages.
  */
-function getContent(entry: ProductModel): ProductContentType | undefined {
+function getContent(entry: ProductPublicModel): ProductContentType | undefined {
 	return entry.contents?.[0];
 }
 
 /**
- * The prices a visitor is quoted: those of the default variant, which is the one a product
- * with nothing to vary still reaches its price through. Falls back to the first variant so a
- * set that somehow carries no default still shows a figure rather than nothing.
+ * Which variant the page opens on: the one `?variant=<sku>` names, since that is how a card in
+ * an `expanded` catalog grid addresses one. Falls back to the default, then to the first, so a
+ * direct visit and a stale SKU both land somewhere real rather than on nothing.
  */
-function getDisplayPrices(entry: ProductModel): ProductPriceType[] {
+function resolveSelectedVariant(
+	entry: ProductPublicModel,
+	sku: string | undefined,
+): ProductListVariantType | undefined {
 	const variants = entry.variants ?? [];
-	const variant = variants.find((entry) => entry.is_default) ?? variants[0];
 
-	return variant?.prices ?? [];
-}
-
-/**
- * Formats server-side, unlike `formatAmount` - this page is rendered for a crawler, so the
- * figure has to be in the HTML rather than filled in on hydration. Safe to do here because
- * the language comes from the request: only a *date* would pick up the container's zone.
- */
-function formatPrice(
-	price: ProductPriceType,
-	language: Language,
-): string | null {
-	if (price.sale_price === null) {
-		return null;
-	}
-
-	return new Intl.NumberFormat(language, {
-		style: 'currency',
-		currency: price.currency,
-		currencyDisplay: 'narrowSymbol',
-	}).format(price.sale_price);
+	return (
+		(sku ? variants.find((variant) => variant.sku === sku) : undefined) ??
+		variants.find((variant) => variant.is_default) ??
+		variants[0]
+	);
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
@@ -161,6 +159,7 @@ function BackToList({ label }: { label: string }) {
 
 export default async function Page(props: Props) {
 	const { slug } = await props.params;
+	const { variant: variantSku } = await props.searchParams;
 	const language = await getLanguage();
 
 	const [translations, result] = await Promise.all([
@@ -191,28 +190,50 @@ export default async function Page(props: Props) {
 	}
 
 	/*
-	 * Wording only: the categories are not links. There is no per-category storefront listing
-	 * to point at yet, and the address does not carry them either.
+	 * Each category links to its own storefront listing. The label and the slug have to travel
+	 * together, which is why this is not `toCategoryRefs` - that returns `{ id, label }`, and the
+	 * address is built from the slug.
 	 *
 	 * Categories without wording are dropped rather than shown. The public read joins
 	 * `category_content` on the served language alone, so an untranslated category arrives
-	 * carrying no contents, and `toCategoryRefs` then labels it `#<id>` - a fallback meant for
-	 * an operator reading the dashboard, where a bare id is something to act on. It is noise
-	 * on a storefront.
+	 * carrying no contents, and there is nothing to name it by - a bare `#<id>` is a fallback
+	 * meant for an operator reading the dashboard. It is noise on a storefront.
 	 */
-	const categories = toCategoryRefs(
-		{
-			...entry,
-			categories: (entry.categories ?? []).filter(
-				(link) => link.category?.contents?.length,
-			),
-		},
-		language,
-	);
+	const categories = (entry.categories ?? []).flatMap((link) => {
+		const content = link.category?.contents?.[0];
 
-	const prices = getDisplayPrices(entry)
-		.map((price) => formatPrice(price, language))
-		.filter((price): price is string => price !== null);
+		return content?.label && content.slug
+			? [
+					{
+						id: link.category_id,
+						label: content.label,
+						slug: content.slug,
+					},
+				]
+			: [];
+	});
+
+	const variants = entry.variants ?? [];
+	const selected = resolveSelectedVariant(entry, variantSku);
+
+	// The headline figure is the selected variant's own; the span across the set is what adds the
+	// "from", and only when the variants genuinely differ.
+	const selectedRange = resolvePriceRange(selected ? [selected] : []);
+	const fullRange = resolvePriceRange(variants);
+	const hasRange = !!fullRange && fullRange.min !== fullRange.max;
+
+	/*
+	 * The picture follows the choice, the same way the price does - and only once a choice has
+	 * been made. Reached with `?variant=`, the hero is that variant's own photograph falling back
+	 * to the product's, so a page opened from an `expanded` card shows what the card showed.
+	 * Reached bare, no variant has been chosen yet and the product's own photograph is the one
+	 * picked to represent the whole set; `resolveCardImage` answers both from the same rule the
+	 * catalog grid uses, which is why the two can never disagree.
+	 */
+	const hero = resolveCardImage(
+		entry,
+		variantSku ? (selected ?? null) : null,
+	);
 
 	return (
 		<div className="container-default py-12 md:py-16">
@@ -234,37 +255,130 @@ export default async function Page(props: Props) {
 				<div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted">
 					{entry.brand?.name && (
 						<span>
-							{translations['text.brand']}: {entry.brand.name}
+							{translations['text.brand']}:{' '}
+							{entry.brand.slug ? (
+								<Link
+									href={Routes.get('products-brand', {
+										slug: entry.brand.slug,
+									})}
+									className="hover:underline"
+								>
+									{entry.brand.name}
+								</Link>
+							) : (
+								entry.brand.name
+							)}
 						</span>
 					)}
 
 					{categories.length > 0 && (
 						<span>
 							{translations['text.categories']}:{' '}
-							{categories.map((ref) => ref.label).join(', ')}
+							{categories.map((ref, index) => (
+								<Fragment key={ref.id}>
+									{index > 0 && ', '}
+									<Link
+										href={Routes.get('products-category', {
+											slug: ref.slug,
+										})}
+										className="hover:underline"
+									>
+										{ref.label}
+									</Link>
+								</Fragment>
+							))}
 						</span>
 					)}
 				</div>
 
-				{prices.length > 0 && (
+				{selectedRange && (
 					<p className="mt-6 text-2xl font-semibold">
-						{prices.length > 1 && (
+						{/*
+						 * "from" belongs to the *set*, not to the figure beside it: it says the
+						 * price moves with the choice below, which is only true when the variants
+						 * actually differ.
+						 */}
+						{hasRange && !variantSku && (
 							<span className="mr-1.5 text-base font-normal text-muted">
 								{translations['text.price_from']}
 							</span>
 						)}
-						{prices.join(' · ')}
+						{formatProductPrice(
+							selectedRange.min,
+							selectedRange.currency,
+							language,
+						)}
 					</p>
 				)}
 
-				{entry.cover_image && (
+				{/*
+				 * The choice itself. Only worth drawing when there is one to make - a product with
+				 * a single variant has nothing to say here, and that is most of a catalog.
+				 *
+				 * Links rather than a control: a variant has no page of its own, so the SKU rides
+				 * in the query string and the product URL stays canonical. That also keeps this a
+				 * server component, so a crawler sees every variant and its price.
+				 */}
+				{variants.length > 1 && (
+					<div className="mt-6">
+						<h2 className="text-xs uppercase tracking-wide text-muted">
+							{translations['text.variants']}
+						</h2>
+
+						<ul className="mt-3 flex flex-wrap gap-2">
+							{variants.map((variant) => {
+								const isSelected =
+									variant.sku === selected?.sku;
+								const range = resolvePriceRange([variant]);
+
+								return (
+									<li key={variant.id}>
+										<Link
+											href={`${Routes.get('product-view', { slug: content.slug })}?variant=${encodeURIComponent(variant.sku)}`}
+											aria-current={
+												isSelected ? 'true' : undefined
+											}
+											className={cn(
+												'block rounded-2xl border px-4 py-2 text-sm transition-colors',
+												isSelected
+													? 'border-accent bg-accent-soft text-accent-soft-foreground'
+													: 'border-border hover:border-accent',
+											)}
+										>
+											<span className="font-medium">
+												{/*
+												 * Axis values alone - the heading above already
+												 * names the product. The SKU stands in for a
+												 * variant carrying no axis wording, which is the
+												 * only thing left that tells it apart.
+												 */}
+												{buildVariantAxisLabel(
+													variant,
+												) ?? variant.sku}
+											</span>
+
+											{range && (
+												<span className="ml-2 text-muted">
+													{formatProductPrice(
+														range.min,
+														range.currency,
+														language,
+													)}
+												</span>
+											)}
+										</Link>
+									</li>
+								);
+							})}
+						</ul>
+					</div>
+				)}
+
+				{hero && (
 					<Image
-						src={showImage(
-							entry.cover_image.path,
-							entry.cover_image.storage,
-						)}
-						width={entry.cover_image.properties?.width ?? 1200}
-						height={entry.cover_image.properties?.height ?? 675}
+						src={showImage(hero.path, hero.storage)}
+						width={hero.properties?.width ?? 1200}
+						height={hero.properties?.height ?? 675}
 						alt=""
 						priority
 						className="mt-8 aspect-video w-full rounded-2xl object-cover"

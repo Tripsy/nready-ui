@@ -102,7 +102,9 @@
 		},
 		"managerImages": {
 			"title": "Product images - {{entry}}",
-			"label": "Images"
+			"label": "Images",
+			"target_product": "Product",
+			"target_variants": "Gallery for"
 		},
 		"guide": {
 			"title": "How products work",

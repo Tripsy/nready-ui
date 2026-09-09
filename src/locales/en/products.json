@@ -1,13 +1,11 @@
 {
 	"meta": {
 		"title": "Products | {{app_name}}",
-		"description": "The product catalog we are getting ready."
+		"description": "Everything we currently have on sale."
 	},
 	"text": {
 		"heading": "Products",
-		"subheading": "The catalog is on its way.",
-		"placeholder": "There is nothing to show here yet. The product listing is still being built.",
-		"browse_categories": "Browse categories",
+		"subheading": "Everything we currently have on sale.",
 		"back_to_list": "All products",
 		"unavailable": "This product is temporarily unavailable. Please try again later.",
 		"not_found_heading": "Product not found",
@@ -15,6 +13,12 @@
 		"brand": "Brand",
 		"categories": "Categories",
 		"no_description": "This product has no description yet.",
-		"price_from": "from"
+		"price_from": "from",
+		"no_entries": "There are no products on sale yet. Check back soon.",
+		"loading_more": "Loading more products…",
+		"category_subheading": "Everything we have on sale under this category.",
+		"brand_subheading": "Everything we have on sale from this brand.",
+		"list_unavailable": "The product list is temporarily unavailable. Please try again later.",
+		"variants": "Options"
 	}
 }
