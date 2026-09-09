@@ -74,6 +74,9 @@ reference both a future reader and a future session work from.
 - Note any performance implications or trade-offs
 - **Write prose in en-US** - `authorize`, `normalize`, `serialize`, `behavior`, `organization`,
   `canceled`. This covers comments, commit messages and user-facing copy.
+- **No em dashes (U+2014) anywhere in the repo** - use a plain hyphen `-` instead, spaced
+  as ` - `. Applies to comments, doc blocks, markdown, commit messages and user-facing
+  copy.
 
 ## Commands
 
