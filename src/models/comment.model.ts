@@ -7,6 +7,12 @@ import type { StatusTransitions } from '@/types/common.type';
  * There is no create either: a comment is written by a reader through `/public/comments`.
  */
 
+/**
+ * What a comment hangs from, mirroring the backend enum. `article` is the only one in use: a review
+ * takes no comments - it is one buyer's statement about a product, moderated and scored on its own,
+ * not a thread. `review` is carried here only because the backend's Postgres enum still holds it,
+ * and nothing writes it on either side.
+ */
 export const CommentEntityTypeEnum = {
 	ARTICLE: 'article',
 	REVIEW: 'review',

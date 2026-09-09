@@ -124,7 +124,7 @@ export function Footer() {
 						</div>
 					</div>
 
-					<div className="flex justify-around md:gap-20">
+					<div className="grid grid-cols-3 gap-8 md:flex md:justify-around md:gap-20">
 						{footerLinkSections.map((section) => (
 							<div key={section.name}>
 								<h3 className="text-sm font-semibold text-foreground mb-4">

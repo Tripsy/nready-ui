@@ -313,6 +313,9 @@ Routes.group('dashboard')
 	})
 	.add('complaint', '/dashboard/complaint', {
 		permissionEntity: 'complaint',
+	})
+	.add('review', '/dashboard/review', {
+		permissionEntity: 'review',
 	});
 
 /**

@@ -45,6 +45,7 @@ import productCategoryAttribute from '@/locales/en/product-category-attribute.js
 import products from '@/locales/en/products.json';
 import rating from '@/locales/en/rating.json';
 import register from '@/locales/en/register.json';
+import review from '@/locales/en/review.json';
 import shared from '@/locales/en/shared.json';
 import status from '@/locales/en/status.json';
 import template from '@/locales/en/template.json';
@@ -99,6 +100,7 @@ const en = {
 	'product-category-attribute': productCategoryAttribute,
 	products,
 	rating,
+	review,
 	register,
 	shared,
 	template,

@@ -5,6 +5,11 @@ import { notFound } from 'next/navigation';
 import { Fragment } from 'react';
 import { Breadcrumb } from '@/app/(public)/_components/breadcrumb.component';
 import { Icons } from '@/components/icon.component';
+import {
+	REVIEW_TRANSLATION_KEYS,
+	REVIEW_TRANSLATION_PREFIX,
+} from '@/components/review/review.definition';
+import { ReviewSection } from '@/components/review/review-section.component';
 import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
 import {
@@ -162,8 +167,14 @@ export default async function Page(props: Props) {
 	const { variant: variantSku } = await props.searchParams;
 	const language = await getLanguage();
 
-	const [translations, result] = await Promise.all([
+	/*
+	 * Each namespace is batched separately, and the review section's copy is passed down as
+	 * values: its definition module is not `'use client'` precisely so this key tuple can be
+	 * spread here - see `.claude/rules/comment.md` §2.
+	 */
+	const [translations, reviewTranslations, result] = await Promise.all([
 		translateBatch(TRANSLATION_KEYS, TRANSLATION_PREFIX),
+		translateBatch(REVIEW_TRANSLATION_KEYS, REVIEW_TRANSLATION_PREFIX),
 		getProduct(slug, language),
 	]);
 
@@ -404,6 +415,17 @@ export default async function Page(props: Props) {
 						{translations['text.no_description']}
 					</p>
 				)}
+
+				{/*
+				 * `variantId` is the variant the reader *chose*, which is why it is conditional
+				 * on `?variant=`: `selected` also holds the default one on a bare visit, and
+				 * recording that as the thing bought would be putting words in the buyer's mouth.
+				 */}
+				<ReviewSection
+					productId={entry.id}
+					variantId={variantSku ? (selected?.id ?? null) : null}
+					translations={reviewTranslations}
+				/>
 
 				<div className="mt-10 border-t border-line pt-6">
 					<BackToList label={translations['text.back_to_list']} />

@@ -21,6 +21,7 @@ import type { ProductModel } from '@/models/product.model';
 import type { ProductCategoryAttributeModel } from '@/models/product-category-attribute.model';
 import type { ProductVariantModel } from '@/models/product-variant.model';
 import type { RatingModel } from '@/models/rating.model';
+import type { ReviewModel } from '@/models/review.model';
 import type { TemplateModel } from '@/models/template.model';
 import type { TermModel } from '@/models/term.model';
 import type { UserModel } from '@/models/user.model';
@@ -59,6 +60,7 @@ export type DatasourceModels = {
 	// The same catalog listed by the sellable unit - read-only, and gated on `product`.
 	'product-variant': ProductVariantModel;
 	rating: RatingModel;
+	review: ReviewModel;
 	template: TemplateModel;
 	term: TermModel;
 	user: UserModel;

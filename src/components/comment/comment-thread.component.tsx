@@ -450,8 +450,8 @@ function CommentEntry({
 
 /**
  * A target's discussion: the approved root comments, their replies on demand, and the box to add
- * one. Nothing here knows what it is attached to beyond `entityType` / `entityId`, so an article
- * and a review render the same section.
+ * one. Nothing here knows what it is attached to beyond `entityType` / `entityId`, so any host that
+ * takes comments renders the same section - articles being the only one.
  *
  * Client-rendered against the public endpoint rather than fetched with the host page: those pages
  * are served from a data cache, and a comment approved in the meantime would not appear until that

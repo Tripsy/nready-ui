@@ -29,6 +29,7 @@ export const LogHistoryEntities = [
 	'permission',
 	'place',
 	'product',
+	'review',
 	'subscription',
 	'template',
 	'term',

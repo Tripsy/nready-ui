@@ -45,6 +45,7 @@ import productCategoryAttribute from '@/locales/ro/product-category-attribute.js
 import products from '@/locales/ro/products.json';
 import rating from '@/locales/ro/rating.json';
 import register from '@/locales/ro/register.json';
+import review from '@/locales/ro/review.json';
 import shared from '@/locales/ro/shared.json';
 import status from '@/locales/ro/status.json';
 import template from '@/locales/ro/template.json';
@@ -99,6 +100,7 @@ const ro = {
 	'product-category-attribute': productCategoryAttribute,
 	products,
 	rating,
+	review,
 	register,
 	shared,
 	template,

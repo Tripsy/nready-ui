@@ -1,0 +1,118 @@
+{
+	"meta": {
+		"title": "Reviews - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_content": "The review must be between 10 and 5000 characters",
+		"invalid_is_pinned": "Invalid pinned value",
+		"invalid_is_verified": "Invalid verified buyer value",
+		"invalid_rating": "Each score must be a whole number between 1 and 5",
+		"invalid_rating_empty": "Score at least one of quality, price, service or delivery"
+	},
+	"action": {
+		"update": {
+			"title": "Edit review - {{entry}}",
+			"label": "Edit",
+			"success": "Review updated"
+		},
+		"delete": {
+			"title": "Delete review",
+			"label": "Delete",
+			"success": "Review deleted",
+			"confirm": "Are you sure you want to delete the selected review? It leaves the product page and can be restored, unless the buyer writes a new one in the meantime."
+		},
+		"restore": {
+			"title": "Restore review",
+			"label": "Restore",
+			"success": "Review restored",
+			"confirm": "Are you sure you want to restore the selected review?"
+		},
+		"statusTransition": {
+			"title": "Update status - {{entry}}",
+			"label": "Status",
+			"success": "Review status updated successfully"
+		},
+		"view": {
+			"title": "Review details - {{entry}}",
+			"label": "View"
+		},
+		"viewUser": {
+			"title": "View user"
+		},
+		"guide": {
+			"title": "How reviews work",
+			"label": "Usage guide"
+		}
+	},
+	"status": {
+		"pending": "Pending",
+		"approved": "Approved",
+		"rejected": "Rejected",
+		"spam": "Spam"
+	},
+	"error": {
+		"cannot_update_status": "This review cannot change status from its current state"
+	},
+	"help": {
+		"intro": "Reviews are written by buyers on the storefront - nothing here creates one. This screen is the moderation queue: what to publish, what to take down, and what the score beside a product is made of.",
+		"step_1_title": "Everything arrives pending",
+		"step_1_body": "Unlike a comment, no review is published unread, whoever wrote it. A review is a lasting claim about something being sold and it is averaged into the product's score, so the one thing that could not be undone afterwards - publishing it - is not done first.",
+		"step_2_title": "Read what the score is made of",
+		"step_2_body": "A buyer scores any of quality, price, service and delivery, and at least one of them. The average is over the ones they gave, never over the four that exist, so a review scored on two is not penalized against one scored on four. The list shows that average; the detail window shows each score behind it.",
+		"step_3_title": "Know which variant was bought",
+		"step_3_body": "A review can name the variant it is about - the 32 cm, the black M - or none at all when it was written from the product page. Filtering by variant returns only the reviews that name it, which is what the storefront shows beside that variant.",
+		"step_4_title": "Take a decision",
+		"step_4_body": "The status window offers only the moves allowed from where the review is now, and nothing returns it to pending. Approving is what publishes it - and also what lets readers comment on, rate or report it, since all three are refused against a review that is not approved.",
+		"step_5_title": "Edit, pin and verify",
+		"step_5_body": "Update changes the text, the pin and the verified-buyer badge. The scores are the buyer's and are not editable here at all. Nothing sets the badge on its own: it is a claim the dashboard stands behind, so it is checked by hand once the purchase has been confirmed.",
+		"step_6_title": "Find your way through the queue",
+		"step_6_body": "Filter by status for the queue itself, or by product, variant, author, rating floor, pin and badge. Search matches the review text. Deleting is soft, so 'Show deleted' is what a restore reaches a row through.",
+		"note": "Deleting a review frees the slot: one live review per buyer per product, so the author may write a new one straight away - and restoring the old one then answers 409, because the slot is taken. There is one review per buyer per product however many variants they bought.",
+		"tab_info": "Info",
+		"tab_api": "API docs",
+		"tab_public": "Public API"
+	},
+	"section": {
+		"heading": "Reviews",
+		"empty": "No reviews yet. Be the first to write one.",
+		"unavailable": "Reviews are temporarily unavailable. Please try again later.",
+		"load_more": "Load more reviews",
+		"loading": "Loading…",
+		"count": "{{total}} review(s)",
+		"verified": "Verified buyer",
+		"pinned": "Pinned",
+		"variant": "Bought",
+		"no_score": "Not scored",
+		"average_of": "Average per criterion",
+		"your_review": "Your review",
+		"pending_note": "Your review is awaiting moderation, so it is not in the list or the score above yet.",
+		"approved_note": "Your review is recorded.",
+		"rejected_note": "A moderator has taken this review down, so it can no longer be edited. What you wrote is kept below."
+	},
+	"form": {
+		"heading": "Write a review",
+		"heading_edit": "Your review",
+		"rating": "Your scores",
+		"rating_note": "Score at least one criterion. Leave the ones you cannot judge blank - the average is over what you give.",
+		"content": "Your review",
+		"content_placeholder": "What was good, what was not, and what somebody buying this should know…",
+		"submit": "Submit review",
+		"submit_edit": "Save changes",
+		"withdraw": "Withdraw review",
+		"withdraw_confirm": "Withdraw your review of this product? You can write a new one afterwards.",
+		"withdraw_success": "Your review has been withdrawn",
+		"withdraw_failed": "Your review could not be withdrawn",
+		"success": "Thank you, your review has been submitted and is awaiting moderation.",
+		"success_edit": "Your review has been updated",
+		"failed": "Your review could not be submitted",
+		"guest": "Reviews are written by buyers with an account, so we know who stands behind them.",
+		"sign_in": "Sign in to write a review",
+		"clear": "Clear"
+	},
+	"dimension": {
+		"quality": "Quality",
+		"price": "Price",
+		"service": "Service",
+		"delivery": "Delivery"
+	}
+}

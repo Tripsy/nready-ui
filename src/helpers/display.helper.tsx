@@ -95,6 +95,20 @@ export const statusList: Record<
 		variant: 'error',
 		icon: Icons.Status.Rejected,
 	},
+	// The moderation states `comment` and `review` share. Without an entry a badge falls back to
+	// a plain grey chip with no icon, which renders a queue of distinct states identically.
+	approved: {
+		variant: 'success',
+		icon: Icons.Status.Ok,
+	},
+	spam: {
+		variant: 'error',
+		icon: Icons.Status.Failed,
+	},
+	flagged: {
+		variant: 'warning',
+		icon: Icons.Status.Warning,
+	},
 	scheduled: {
 		variant: 'default',
 		icon: Icons.Status.Scheduled,

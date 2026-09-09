@@ -49,6 +49,7 @@ const TRANSLATION_KEYS = [
 	'dashboard.labels.rating',
 	'dashboard.labels.comment',
 	'dashboard.labels.complaint',
+	'dashboard.labels.review',
 
 	'dashboard.labels.settings',
 	'dashboard.labels.template',
@@ -245,6 +246,13 @@ export function useSideMenuSections(): {
 						text: translations['dashboard.labels.complaint'],
 						icon: Icons.Complaint,
 						permission: hasPermission(auth, 'complaint'),
+					},
+					{
+						page: 'review',
+						href: Routes.get('review'),
+						text: translations['dashboard.labels.review'],
+						icon: Icons.Review,
+						permission: hasPermission(auth, 'review'),
 					},
 				],
 			},
