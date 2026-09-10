@@ -53,6 +53,7 @@ import template from '@/locales/en/template.json';
 import term from '@/locales/en/term.json';
 import user from '@/locales/en/user.json';
 import vendor from '@/locales/en/vendor.json';
+import warehouse from '@/locales/en/warehouse.json';
 
 const en = {
 	// BE
@@ -110,6 +111,7 @@ const en = {
 	user,
 	status,
 	vendor,
+	warehouse,
 
 	// FE
 	layout,

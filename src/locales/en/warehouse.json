@@ -1,0 +1,75 @@
+{
+	"meta": {
+		"title": "Warehouses - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_name": "Invalid name",
+		"invalid_code": "Invalid code",
+		"invalid_address_id": "Select an address"
+	},
+	"status": {
+		"active": "Active",
+		"inactive": "Inactive",
+		"deleted": "Deleted"
+	},
+	"action": {
+		"create": {
+			"title": "Add new warehouse",
+			"label": "Add",
+			"success": "New warehouse added successfully"
+		},
+		"update": {
+			"title": "Update warehouse - {{entry}}",
+			"label": "Update",
+			"success": "Warehouse updated successfully"
+		},
+		"delete": {
+			"title": "Delete warehouse - {{entry}}",
+			"label": "Delete",
+			"success": "Warehouse deleted successfully",
+			"confirm": "Are you sure you want to delete this warehouse?"
+		},
+		"restore": {
+			"title": "Restore warehouse - {{entry}}",
+			"label": "Restore",
+			"success": "Warehouse restored successfully",
+			"confirm": "Are you sure you want to restore this warehouse?"
+		},
+		"enable": {
+			"title": "Enable warehouse - {{entry}}",
+			"label": "Enable",
+			"success": "Warehouse status marked as active",
+			"confirm": "Are you sure you want to activate this warehouse?"
+		},
+		"disable": {
+			"title": "Disable warehouse - {{entry}}",
+			"label": "Disable",
+			"success": "Warehouse status marked as inactive",
+			"confirm": "Are you sure you want to mark this warehouse as inactive?"
+		},
+		"view": {
+			"title": "Warehouse details - {{entry}}",
+			"label": "View details"
+		},
+		"guide": {
+			"title": "How warehouses work",
+			"label": "Usage guide"
+		}
+	},
+	"help": {
+		"intro": "A warehouse is where stock is held and, just as importantly, the place an order ships from. That second job is why a business tracking no stock at all still needs one: a kitchen sending out food owns no inventory, but the order still left from somewhere.",
+		"step_1_title": "Give it an address",
+		"step_1_body": "The address is required and is picked from the addresses that already exist - search from three characters. It cannot be one that has been deleted, and it is refused rather than silently accepted, so create the address first if it is missing.",
+		"step_2_title": "Choose a code",
+		"step_2_body": "The code is the short name a warehouse is called by day to day, up to 16 characters. It is unique among warehouses that are not deleted, and a taken one is refused - so the code is the field worth agreeing on before anyone types it.",
+		"step_3_title": "Decide whether it is the default",
+		"step_3_body": "At most one warehouse is the default, and ticking it here takes the flag off whichever one held it before - there is no error to resolve, the previous default is simply no longer default. It exists so a single-site business never has to pick a warehouse at all.",
+		"step_4_title": "Move it through its statuses",
+		"step_4_body": "A warehouse is active or inactive, and moves freely between the two. Status is a flag rather than a lock: nothing here stops an inactive warehouse being referenced, and deactivating the default one leaves it the default. Treat inactive as \"no longer in use\".",
+		"step_5_title": "Find it again",
+		"step_5_body": "Search matches the name and the code from three characters, except for an all-digit term, which is treated as an id and matched exactly. Filter by status and by whether a warehouse is the default, and order by id, code or name.",
+		"note": "Deleting a warehouse is a soft delete, and it releases both the code and the default flag - another warehouse can claim either while this one is gone. That is also why a restore can be refused: if the code was taken in the meantime, the row cannot come back until the conflict is resolved.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
+	}
+}

@@ -12,6 +12,11 @@ import {
 	toRelatedCategories,
 } from '@/app/(public)/_components/product/product-related.component';
 import { ProductTags } from '@/app/(public)/_components/product/product-tags.component';
+import {
+	PRODUCT_VARIANT_CHOOSER_TRANSLATION_KEYS,
+	ProductVariantChooser,
+	VARIANT_CHOOSER_MIN_VARIANTS,
+} from '@/app/(public)/_components/product/product-variant-chooser.component';
 import { AddToCart } from '@/components/cart/add-to-cart.component';
 import { Icons } from '@/components/icon.component';
 import {
@@ -37,6 +42,7 @@ import { replaceVars } from '@/helpers/string.helper';
 import {
 	buildProductGallery,
 	buildProductSpecifications,
+	buildVariantAxisGroups,
 	buildVariantAxisLabel,
 	formatProductPrice,
 	type ProductContentType,
@@ -68,6 +74,7 @@ const TRANSLATION_KEYS = [
 	'text.price_from',
 	'text.variants',
 	...PRODUCT_ATTRIBUTE_TRANSLATION_KEYS,
+	...PRODUCT_VARIANT_CHOOSER_TRANSLATION_KEYS,
 ] as const;
 
 /**
@@ -271,6 +278,25 @@ export default async function Page(props: Props) {
 	 * price to strike through when there is a saving to show. The span across the set is what
 	 * adds the "from", and only when the variants genuinely differ.
 	 */
+	/*
+	 * The set folded into one row per axis, once there are enough combinations for the flat list
+	 * to stop being readable. `null` whenever the fold cannot represent the set faithfully - the
+	 * variants carry no axes, or not the same ones - and the list below is what renders.
+	 */
+	const axisGroups =
+		variants.length >= VARIANT_CHOOSER_MIN_VARIANTS
+			? buildVariantAxisGroups(variants, selected)
+			: null;
+
+	/*
+	 * Folded only when the axes actually multiply out. A single axis is already a flat list of
+	 * itself, and the flat list prices every entry, which the fold cannot: with one axis a value
+	 * *is* a variant, so there is a price to put beside it and dropping it would take away the
+	 * comparison the visitor came to make.
+	 */
+	const chooserGroups =
+		axisGroups && axisGroups.length > 1 ? axisGroups : null;
+
 	const selectedPrice = resolveVariantPrice(selected);
 	const fullRange = resolvePriceRange(variants);
 	const hasRange = !!fullRange && fullRange.min !== fullRange.max;
@@ -356,14 +382,28 @@ export default async function Page(props: Props) {
 					)}
 
 					{/*
-					 * The choice itself. Only worth drawing when there is one to make - a product with
-					 * a single variant has nothing to say here, and that is most of a catalog.
+					 * The choice itself, drawn one of two ways. A grid of combinations - four sizes
+					 * in five colors - is folded into a row per axis, since twenty links spelling
+					 * out every pairing is a list to read rather than a choice to make. A handful
+					 * of variants is listed whole instead, with the price beside each: that is the
+					 * comparison the visitor is making, and no axis heading makes it clearer.
 					 *
-					 * Links rather than a control: a variant has no page of its own, so the SKU rides
-					 * in the query string and the product URL stays canonical. That also keeps this a
-					 * server component, so a crawler sees every variant and its price.
+					 * The price is what the fold gives up - it belongs to a combination, not to a
+					 * value, so it stays in the buying column where the selection resolves it.
+					 *
+					 * Either way, links rather than a control: a variant has no page of its own, so
+					 * the SKU rides in the query string and the product URL stays canonical. That
+					 * also keeps this a server component, so a crawler sees every variant.
 					 */}
-					{variants.length > 1 && (
+					{chooserGroups && (
+						<ProductVariantChooser
+							groups={chooserGroups}
+							slug={content.slug}
+							translations={translations}
+						/>
+					)}
+
+					{!chooserGroups && variants.length > 1 && (
 						<div className="mt-6">
 							<h2 className="text-xs uppercase tracking-wide text-muted">
 								{translations['text.variants']}

@@ -297,6 +297,9 @@ Routes.group('dashboard')
 	.add('carrier', '/dashboard/carrier', {
 		permissionEntity: 'carrier',
 	})
+	.add('warehouse', '/dashboard/warehouse', {
+		permissionEntity: 'warehouse',
+	})
 	.add('term', '/dashboard/term', {
 		permissionEntity: 'term',
 	})

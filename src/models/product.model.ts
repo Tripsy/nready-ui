@@ -755,6 +755,230 @@ export function buildVariantAxisLabel(
 }
 
 /**
+ * One value an axis offers, and where picking it goes.
+ *
+ * `sku` is the variant the choice opens - the current selection with this one axis swapped. It
+ * is always a real variant, so every choice stays clickable; `is_exact` is what says whether it
+ * kept the rest of the selection intact.
+ */
+export type ProductVariantChoiceType = {
+	/** Identifies the value across variants - the term id, or the literal it was stored as. */
+	key: string;
+	label: string;
+	sku: string;
+	is_selected: boolean;
+	/**
+	 * False when the grid holds no variant with this value *and* the rest of the current
+	 * selection - a color the size in hand does not come in. `sku` then points at the closest
+	 * variant carrying the value, so the choice still leads somewhere, and the caller warns that
+	 * taking it moves the other axes.
+	 */
+	is_exact: boolean;
+};
+
+/** One axis of the grid - the question, and the values the variants answer it with. */
+export type ProductVariantAxisGroupType = {
+	label_id: number;
+	label: string;
+	choices: ProductVariantChoiceType[];
+};
+
+/** An axis value reduced to what identifies it across variants, whichever column holds it. */
+function axisValueKey(axis: ProductVariantAxisType): string | null {
+	if (axis.value_term_id) {
+		return `term:${axis.value_term_id}`;
+	}
+
+	if (axis.value_numeric !== null && axis.value_numeric !== undefined) {
+		return `number:${axis.value_numeric}`;
+	}
+
+	if (axis.value_text) {
+		return `text:${axis.value_text}`;
+	}
+
+	if (axis.value_boolean !== null && axis.value_boolean !== undefined) {
+		return `boolean:${axis.value_boolean}`;
+	}
+
+	return null;
+}
+
+/**
+ * A variant's axes as a lookup, or `null` when one of them cannot be read.
+ *
+ * Everything the grid does compares values across variants, so a row missing its wording or its
+ * value is not a row that can be quietly skipped - it would silently merge two variants into one
+ * cell. The whole product falls back to the flat list instead.
+ */
+function readVariantAxes(
+	variant: ProductListVariantType,
+): Map<
+	number,
+	{ label: string; value_key: string; value_label: string }
+> | null {
+	const axes = variant.attributes ?? [];
+
+	if (axes.length === 0) {
+		return null;
+	}
+
+	const result = new Map<
+		number,
+		{ label: string; value_key: string; value_label: string }
+	>();
+
+	for (const axis of axes) {
+		const label = buildAttributeLabel(axis);
+		const value_key = axisValueKey(axis);
+		const value_label = axisValueLabel(axis);
+
+		if (!label || !value_key || !value_label) {
+			return null;
+		}
+
+		result.set(axis.attribute_label_id, {
+			label,
+			value_key,
+			value_label: displayTermValue(value_label),
+		});
+	}
+
+	return result;
+}
+
+/**
+ * The variant set folded into one row per axis - "Size: S M L XL" beside "Color: ...", instead
+ * of the twenty combinations they multiply out to.
+ *
+ * Returns `null` whenever the fold would misrepresent the set, and the caller lists the variants
+ * whole: a variant carrying no axes at all, or carrying a different set of them from its
+ * siblings. A cell in this grid means "this value, everything else as it stands", which only
+ * holds while every variant answers every axis.
+ *
+ * The axis order is the backend's - `attachVariants` sorts each variant's rows by the category
+ * definition's `sort_order`, so the first variant's order is the whole grid's. The values inside
+ * an axis are ordered by the first variant that carries them, which is variant `position`.
+ *
+ * No combination is computed that the catalog does not hold: a choice always names a variant
+ * that exists, and says whether reaching it costs a change elsewhere.
+ */
+export function buildVariantAxisGroups(
+	variants: readonly ProductListVariantType[],
+	selected: ProductListVariantType | undefined,
+): ProductVariantAxisGroupType[] | null {
+	if (variants.length === 0) {
+		return null;
+	}
+
+	const axesByVariant: Map<
+		number,
+		{ label: string; value_key: string; value_label: string }
+	>[] = [];
+
+	for (const variant of variants) {
+		const axes = readVariantAxes(variant);
+
+		if (!axes) {
+			return null;
+		}
+
+		axesByVariant.push(axes);
+	}
+
+	const reference = axesByVariant[0];
+
+	/** The axes in the order the backend resolved them, each with the wording it is asked by. */
+	const axisOrder = [...reference.entries()].map(([label_id, axis]) => ({
+		label_id,
+		label: axis.label,
+	}));
+
+	const labelIds = axisOrder.map((axis) => axis.label_id);
+
+	const isRectangular = axesByVariant.every(
+		(axes) =>
+			axes.size === labelIds.length &&
+			labelIds.every((label_id) => axes.has(label_id)),
+	);
+
+	if (!isRectangular) {
+		return null;
+	}
+
+	const selectedIndex = variants.findIndex(
+		(variant) => variant.sku === selected?.sku,
+	);
+
+	const selection = axesByVariant[selectedIndex === -1 ? 0 : selectedIndex];
+
+	return axisOrder.map(({ label_id, label }) => {
+		/*
+		 * Keyed by value, so a value appearing on four variants is one choice. The best variant
+		 * for it is the one agreeing with the current selection on the most *other* axes -
+		 * which, for the value already selected, is the selected variant itself.
+		 */
+		const choices = new Map<
+			string,
+			ProductVariantChoiceType & { agreement: number }
+		>();
+
+		for (const [index, axes] of axesByVariant.entries()) {
+			const axis = axes.get(label_id);
+
+			if (!axis) {
+				continue;
+			}
+
+			const agreement = labelIds.filter(
+				(other) =>
+					other !== label_id &&
+					axes.get(other)?.value_key ===
+						selection.get(other)?.value_key,
+			).length;
+
+			const existing = choices.get(axis.value_key);
+
+			if (existing && existing.agreement >= agreement) {
+				continue;
+			}
+
+			choices.set(axis.value_key, {
+				key: axis.value_key,
+				label: axis.value_label,
+				sku: variants[index].sku,
+				is_selected:
+					axis.value_key === selection.get(label_id)?.value_key,
+				is_exact: agreement === labelIds.length - 1,
+				agreement,
+			});
+		}
+
+		return {
+			label_id,
+			label,
+			choices: [...choices.values()].map(
+				({ agreement: _agreement, ...choice }) => choice,
+			),
+		};
+	});
+}
+
+/**
+ * A term's wording as it is shown.
+ *
+ * Wording is stored folded - `TermValidator` lower-cases it so "Colour" and "colour" cannot
+ * become two records - which leaves the display side to decide how it reads. One or two
+ * characters is an abbreviation rather than a word, the size printed on a garment label, so it
+ * is uppercased whole: capitalizing the first letter alone would read "Xl".
+ */
+function displayTermValue(value: string): string {
+	return value.length <= 2
+		? value.toUpperCase()
+		: capitalizeFirstLetter(value);
+}
+
+/**
  * What a spec table calls an attribute.
  *
  * Capitalised here rather than stored that way, the same as `displayAttributeLabel` in the
@@ -801,7 +1025,7 @@ export function buildAttributeValue(
 	if (attribute.value_term_id) {
 		const value = attribute.attribute_value?.contents?.[0]?.value;
 
-		return value ? capitalizeFirstLetter(value) : null;
+		return value ? displayTermValue(value) : null;
 	}
 
 	if (

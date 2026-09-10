@@ -1,0 +1,75 @@
+{
+	"meta": {
+		"title": "Depozite - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_name": "Nume invalid",
+		"invalid_code": "Cod invalid",
+		"invalid_address_id": "Selectează o adresă"
+	},
+	"status": {
+		"active": "Activ",
+		"inactive": "Inactiv",
+		"deleted": "Șters"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă depozit nou",
+			"label": "Adaugă",
+			"success": "Depozitul nou a fost adăugat cu succes"
+		},
+		"update": {
+			"title": "Actualizează depozitul - {{entry}}",
+			"label": "Actualizează",
+			"success": "Depozitul a fost actualizat cu succes"
+		},
+		"delete": {
+			"title": "Șterge depozitul - {{entry}}",
+			"label": "Șterge",
+			"success": "Depozitul a fost șters cu succes",
+			"confirm": "Sigur vrei să ștergi acest depozit?"
+		},
+		"restore": {
+			"title": "Restaurează depozitul - {{entry}}",
+			"label": "Restaurează",
+			"success": "Depozitul a fost restaurat cu succes",
+			"confirm": "Sigur vrei să restaurezi acest depozit?"
+		},
+		"enable": {
+			"title": "Activează depozitul - {{entry}}",
+			"label": "Activează",
+			"success": "Statusul depozitului a fost marcat ca activ",
+			"confirm": "Sigur vrei să activezi acest depozit?"
+		},
+		"disable": {
+			"title": "Dezactivează depozitul - {{entry}}",
+			"label": "Dezactivează",
+			"success": "Statusul depozitului a fost marcat ca inactiv",
+			"confirm": "Sigur vrei să marchezi acest depozit ca inactiv?"
+		},
+		"view": {
+			"title": "Detalii depozit - {{entry}}",
+			"label": "Vezi detalii"
+		},
+		"guide": {
+			"title": "Cum funcționează depozitele",
+			"label": "Ghid de utilizare"
+		}
+	},
+	"help": {
+		"intro": "Un depozit este locul unde se ține stocul și, la fel de important, locul din care pleacă o comandă. Al doilea rol este motivul pentru care și o afacere care nu ține deloc stoc are nevoie de unul: o bucătărie care trimite mâncare nu are inventar, dar comanda tot a plecat de undeva.",
+		"step_1_title": "Alege-i o adresă",
+		"step_1_body": "Adresa este obligatorie și se alege dintre adresele care există deja - caută de la trei caractere. Nu poate fi una ștearsă, iar cererea este refuzată, nu acceptată în tăcere - deci creează întâi adresa dacă lipsește.",
+		"step_2_title": "Alege un cod",
+		"step_2_body": "Codul este numele scurt sub care este cunoscut depozitul, de maximum 16 caractere. Este unic între depozitele neșterse, iar unul deja folosit este refuzat - deci este câmpul asupra căruia merită să cădeți de acord înainte să îl scrie cineva.",
+		"step_3_title": "Decide dacă este cel implicit",
+		"step_3_body": "Cel mult un depozit este cel implicit, iar bifarea aici ia marcajul de la cel care îl avea înainte - nu apare nicio eroare de rezolvat, pur și simplu cel anterior nu mai este implicit. Există pentru ca o afacere cu un singur punct de lucru să nu fie nevoită să aleagă niciodată un depozit.",
+		"step_4_title": "Mută-l între statusuri",
+		"step_4_body": "Un depozit este activ sau inactiv și trece liber dintr-unul în altul. Statusul este un marcaj, nu o blocare: nimic nu împiedică referirea unui depozit inactiv, iar dezactivarea celui implicit îl lasă tot implicit. Tratează inactiv ca \"nu mai este în uz\".",
+		"step_5_title": "Găsește-l din nou",
+		"step_5_body": "Căutarea potrivește numele și codul de la trei caractere, cu excepția unui termen format doar din cifre, care este tratat ca id și potrivit exact. Filtrează după status și după cel implicit și ordonează după id, cod sau nume.",
+		"note": "Ștergerea unui depozit este o ștergere logică și eliberează atât codul, cât și marcajul de implicit - alt depozit le poate prelua cât timp acesta lipsește. De aceea o restaurare poate fi refuzată: dacă între timp codul a fost luat, rândul nu poate reveni până nu se rezolvă conflictul.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API"
+	}
+}

@@ -27,6 +27,7 @@ import type { TemplateModel } from '@/models/template.model';
 import type { TermModel } from '@/models/term.model';
 import type { UserModel } from '@/models/user.model';
 import type { VendorModel } from '@/models/vendor.model';
+import type { WarehouseModel } from '@/models/warehouse.model';
 
 export type DatasourceModels = {
 	// `account` is a virtual data source (no list endpoint) - its entry is the
@@ -67,6 +68,7 @@ export type DatasourceModels = {
 	term: TermModel;
 	user: UserModel;
 	vendor: VendorModel;
+	warehouse: WarehouseModel;
 };
 
 export type DataSourceKey = keyof DatasourceModels;
