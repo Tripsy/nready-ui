@@ -1,0 +1,88 @@
+{
+	"meta": {
+		"title": "Coșuri - Panou | {{app_name}}"
+	},
+	"action": {
+		"delete": {
+			"title": "Șterge coșul",
+			"label": "Șterge",
+			"success": "Coș șters",
+			"confirm": "Sigur ștergi coșul selectat? Cumpărătorul pierde ce alesese, iar la următoarea vizită începe unul nou."
+		},
+		"restore": {
+			"title": "Restaurează coșul",
+			"label": "Restaurează",
+			"success": "Coș restaurat",
+			"confirm": "Sigur restaurezi coșul selectat?"
+		},
+		"view": {
+			"title": "Detalii coș - {{entry}}",
+			"label": "Vezi"
+		},
+		"viewUser": {
+			"title": "Vezi utilizatorul"
+		},
+		"guide": {
+			"title": "Cum funcționează coșurile",
+			"label": "Ghid de utilizare"
+		}
+	},
+	"status": {
+		"active": "Activ",
+		"converted": "Convertit",
+		"abandoned": "Abandonat"
+	},
+	"issue": {
+		"variant_gone": "Produs scos din catalog",
+		"not_sellable": "În afara perioadei de disponibilitate",
+		"no_price": "Fără preț în această monedă",
+		"option_gone": "O opțiune aleasă nu mai există"
+	},
+	"help": {
+		"intro": "Coșurile sunt completate de cumpărători în magazin - nimic de aici nu creează și nu modifică unul. Ecranul acesta este pentru consultare: ce au oamenii în coș, ce au lăsat în urmă și din ce coș a venit o comandă.",
+		"step_1_title": "Prețurile de aici nu sunt stocate",
+		"step_1_body": "O linie de coș reține ce a fost ales - varianta, cantitatea, opțiunile - și nicio sumă. Tot ce apare la Prețuri este calculat pe baza catalogului în momentul în care deschizi fereastra, așa că un coș de acum trei săptămâni arată cât ar costa astăzi, nu cât costa atunci.",
+		"step_2_title": "Și vizitatorii au coșuri",
+		"step_2_body": "Un coș fără utilizator aparține unui vizitator anonim, identificat printr-un token păstrat de browserul lui. Acel token este singura lui credențială, deci nu este afișat aici și nu se poate căuta după el. La autentificare, coșul de vizitator este contopit cu cel al contului, adunând cantitățile pe liniile comune.",
+		"step_3_title": "Linii care nu mai pot fi cumpărate",
+		"step_3_body": "O linie al cărei produs a fost retras, a ieșit din perioada de disponibilitate sau nu are preț în moneda coșului este marcată, nu eliminată în tăcere - cumpărătorul trebuie să vadă ce s-a întâmplat. Orice astfel de linie blochează finalizarea până este scoasă.",
+		"step_4_title": "Cum se încheie un coș",
+		"step_4_body": "Finalizarea îl face convertit și reține ce comandă a devenit. Lipsa de activitate după data de expirare îl face abandonat, iar o sarcină programată le șterge definitiv pe cele abandonate de mult. Ambele stări sunt finale: un cumpărător care revine primește un coș nou, niciodată pe cel vechi.",
+		"step_5_title": "Cum te orientezi",
+		"step_5_body": "Filtrează după status pentru raportul de abandon, după utilizator pentru o solicitare de suport sau după comandă ca să vezi din ce coș a venit o vânzare. Ștergerea este reversibilă, așa că „Arată șterse” este calea prin care o restaurare ajunge la o linie.",
+		"note": "Ștergerea unui coș de aici este o acțiune de suport, nu un instrument de curățenie - sarcina programată retrage deja coșurile singură. Ștergerea unuia ia ce alesese cumpărătorul, posibil chiar în timp ce se uită la el.",
+		"tab_info": "Informații",
+		"tab_api": "Documentație API",
+		"tab_public": "API public"
+	},
+	"storefront": {
+		"heading": "Coșul tău",
+		"empty": "Coșul tău este gol.",
+		"empty_hint": "Răsfoiește catalogul și adaugă ceva în el.",
+		"add": "Adaugă în coș",
+		"adding": "Se adaugă…",
+		"added": "Adăugat în coș",
+		"add_failed": "Produsul nu a putut fi adăugat în coș",
+		"unavailable": "Indisponibil",
+		"quantity": "Cantitate",
+		"increase": "Crește cantitatea",
+		"decrease": "Scade cantitatea",
+		"remove": "Elimină",
+		"remove_failed": "Linia nu a putut fi eliminată",
+		"update_failed": "Cantitatea nu a putut fi modificată",
+		"open": "Deschide coșul",
+		"items_one": "1 produs",
+		"items_other": "{{count}} produse",
+		"subtotal": "Subtotal",
+		"discount": "Reducere",
+		"vat": "TVA",
+		"total": "Total",
+		"go_to_cart": "Vezi coșul",
+		"go_to_checkout": "Finalizează comanda",
+		"continue_shopping": "Continuă cumpărăturile",
+		"has_issues": "Unele linii nu mai pot fi cumpărate. Elimină-le ca să continui.",
+		"loading": "Se încarcă…",
+		"checkout_unavailable": "Finalizarea nu este încă disponibilă - o comandă trebuie facturată unui client, iar din magazin nu se poate alege unul.",
+		"meta_title": "Coșul tău | {{app_name}}"
+	}
+}

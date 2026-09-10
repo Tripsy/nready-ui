@@ -2,6 +2,7 @@ import type { AddressModel } from '@/models/address.model';
 import type { ArticleModel } from '@/models/article.model';
 import type { BrandModel } from '@/models/brand.model';
 import type { CarrierModel } from '@/models/carrier.model';
+import type { CartModel } from '@/models/cart.model';
 import type { CashFlowModel } from '@/models/cash-flow.model';
 import type { CategoryModel } from '@/models/category.model';
 import type { ClientModel } from '@/models/client.model';
@@ -35,6 +36,7 @@ export type DatasourceModels = {
 	article: ArticleModel;
 	brand: BrandModel;
 	carrier: CarrierModel;
+	cart: CartModel;
 	'cash-flow': CashFlowModel;
 	category: CategoryModel;
 	client: ClientModel;

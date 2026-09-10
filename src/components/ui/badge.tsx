@@ -3,7 +3,7 @@ import type * as React from 'react';
 import { cn } from '@/helpers/css.helper';
 
 const badgeVariants = cva(
-	'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md h-fit font-semibold' +
+	'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md h-fit font-semibold ' +
 		'transition-colors focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2',
 	{
 		variants: {
@@ -17,6 +17,22 @@ const badgeVariants = cva(
 				error: 'bg-danger text-danger-foreground',
 				warning: 'bg-warning text-warning-foreground',
 				info: 'bg-info text-info-foreground',
+
+				/*
+				 * The tinted half of the same palette - a wash of the color rather than the color
+				 * itself, and each with the foreground it was tuned against.
+				 *
+				 * For labels that describe rather than warn. A row of solid badges reads as a row
+				 * of alerts, all of them shouting at once; these tell one label from the next
+				 * without any of them claiming to be urgent. `info` has no soft pair because it
+				 * is this app's own addition to the HeroUI palette rather than one of its
+				 * families.
+				 */
+				softAccent: 'bg-accent-soft text-accent-soft-foreground',
+				softDefault: 'bg-default-soft text-default-soft-foreground',
+				softSuccess: 'bg-success-soft text-success-soft-foreground',
+				softWarning: 'bg-warning-soft text-warning-soft-foreground',
+				softDanger: 'bg-danger-soft text-danger-soft-foreground',
 			},
 			size: {
 				md: 'px-4 py-2',

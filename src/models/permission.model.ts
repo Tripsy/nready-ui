@@ -5,6 +5,7 @@ export const PermissionEntitiesSuggestions = [
 	'article',
 	'brand',
 	'carrier',
+	'cart',
 	'cash-flow',
 	'category',
 	'client',

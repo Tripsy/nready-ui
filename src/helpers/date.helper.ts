@@ -1,7 +1,23 @@
 import dayjs from '@/config/dayjs.config';
 import { Configuration } from '@/config/settings.config';
+import type { Language } from '@/types/common.type';
 
 const DEFAULT_DATE_FORMAT = 'YYYY-MM-DD';
+
+/**
+ * The language a month or a relative phrase renders in.
+ *
+ * Applied to the dayjs *instance* rather than through `dayjs.locale()`, which would mutate the
+ * shared module - see `dayjs.config.ts`. Callers that know the reader's language pass it; the
+ * rest fall back to the deployment default, which is what a numeric format renders in anyway.
+ *
+ * Never resolve this from ambient state (`document.documentElement.lang`, a request header):
+ * a client component renders on the server first, and a language that differs between the two
+ * passes produces exactly the hydration mismatch `formatRelativeDate` documents below.
+ */
+function resolveLocale(language?: Language): Language {
+	return language ?? Configuration.defaultLanguage();
+}
 
 /**
  * Create a current date
@@ -171,10 +187,11 @@ export function stringToDate(date: string, startOfDay: boolean = false): Date {
  */
 export function formatDate(
 	value: string | number | Date | null | undefined,
-	format?: 'default' | 'date-time' | 'time',
+	format?: 'default' | 'date-time' | 'time' | 'month-year',
 	options?: {
 		customFormat?: string;
 		strict?: boolean;
+		language?: Language;
 	},
 ): string | null {
 	// Handle empty values
@@ -190,7 +207,7 @@ export function formatDate(
 		return null;
 	}
 
-	const date = dayjs(value);
+	const date = dayjs(value).locale(resolveLocale(options?.language));
 
 	// Validate date
 	if (!date.isValid()) {
@@ -208,6 +225,10 @@ export function formatDate(
 			return date.format('DD-MM-YYYY, HH:mm');
 		case 'time':
 			return date.format('HH:mm');
+		case 'month-year':
+			// The only preset whose output is language-dependent - `options.language`
+			// decides whether this reads "September" or "septembrie".
+			return date.format('MMMM, YYYY');
 		default:
 			// No `if (format)` fallback here: the cases above cover every member of the
 			// union, so this branch is only reached when `format` is undefined.
@@ -340,18 +361,25 @@ export function timeAgo(date: string | Date): string {
  * value near a boundary still disagrees. Callers render it inside a `<time>` carrying
  * `suppressHydrationWarning` for that reason.
  *
+ * Both halves are language-dependent - `fromNow()` reads its phrasing from the locale just as
+ * `MMMM` reads the month name - so `language` has to be the reader's, and it has to be the same
+ * value on the server pass and in the browser. Pass it down from wherever the language was
+ * resolved for the page rather than reading it from the DOM in the client half.
+ *
  * @param value - the instant to describe
  * @param relativeWithinDays - how recent still reads as relative
+ * @param language - the reader's language; defaults to the deployment's
  */
 export function formatRelativeDate(
 	value: string | number | Date | null | undefined,
 	relativeWithinDays: number = 14,
+	language?: Language,
 ): string | null {
 	if (value === null || value === undefined || value === '') {
 		return null;
 	}
 
-	const date = dayjs(value);
+	const date = dayjs(value).locale(resolveLocale(language));
 
 	if (!date.isValid()) {
 		return null;

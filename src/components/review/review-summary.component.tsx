@@ -34,7 +34,7 @@ export function ReviewSummary({
 		<div>
 			<div className="flex items-baseline gap-2">
 				<span className="text-3xl font-semibold">
-					{summary.average}
+					{summary.average.toFixed(1)}
 				</span>
 				<span className="text-muted">/ {REVIEW_RATING_MAX}</span>
 			</div>

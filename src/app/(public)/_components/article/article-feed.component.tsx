@@ -57,7 +57,7 @@ function resolveArticleView(entry: ArticleModel, language: Language) {
 		brief: getArticleContentProp(entry, language, 'brief', ''),
 		category: getArticlePrimaryCategory(entry, language),
 		href: buildArticlePath(entry, language),
-		publishedAt: formatRelativeDate(entry.publish_at),
+		publishedAt: formatRelativeDate(entry.publish_at, 14, language),
 	};
 }
 

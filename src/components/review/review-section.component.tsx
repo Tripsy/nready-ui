@@ -5,7 +5,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import { Icons } from '@/components/icon.component';
-import type { ReviewTranslations } from '@/components/review/review.definition';
+import {
+	REVIEW_SECTION_ANCHOR,
+	type ReviewTranslations,
+} from '@/components/review/review.definition';
 import { ReviewForm } from '@/components/review/review-form.component';
 import { ReviewStars } from '@/components/review/review-stars.component';
 import { ReviewSummary } from '@/components/review/review-summary.component';
@@ -33,6 +36,7 @@ import {
 	requestProductReviewSummary,
 	requestProductReviews,
 } from '@/services/review.service';
+import type { Language } from '@/types/common.type';
 
 const PAGE_SIZE = 5;
 
@@ -47,6 +51,7 @@ const PAGE_SIZE = 5;
 export function ReviewSection({
 	productId,
 	variantId,
+	language,
 	translations,
 }: {
 	productId: number;
@@ -56,6 +61,8 @@ export function ReviewSection({
 	 * saying which they bought, so it is not passed here.
 	 */
 	variantId: number | null;
+	/** The reader's language, for the posted-at date - see `formatDate`. */
+	language: Language;
 	translations: ReviewTranslations;
 }) {
 	const { auth } = useAuth();
@@ -186,7 +193,10 @@ export function ReviewSection({
 
 	if (summaryQuery.isError || listQuery.isError) {
 		return (
-			<section className="mt-12 border-t border-line pt-8">
+			<section
+				id={REVIEW_SECTION_ANCHOR}
+				className="mt-12 scroll-mt-24 border-t border-line pt-8"
+			>
 				<h2 className="text-xl font-semibold">
 					{translations['section.heading']}
 				</h2>
@@ -199,7 +209,10 @@ export function ReviewSection({
 	}
 
 	return (
-		<section className="mt-12 border-t border-line pt-8">
+		<section
+			id={REVIEW_SECTION_ANCHOR}
+			className="mt-12 scroll-mt-24 border-t border-line pt-8"
+		>
 			<h2 className="text-xl font-semibold">
 				{translations['section.heading']}
 			</h2>
@@ -225,6 +238,7 @@ export function ReviewSection({
 						<ReviewEntry
 							key={entry.id}
 							entry={entry}
+							language={language}
 							translations={translations}
 						/>
 					))}
@@ -340,9 +354,12 @@ export function ReviewSection({
 /** One review as a reader sees it: who wrote it, when, its score and its text. */
 function ReviewEntry({
 	entry,
+	language,
 	translations,
 }: {
 	entry: ReviewPublicModel;
+	/** The reader's language, for the posted-at date - see `formatDate`. */
+	language: Language;
 	translations: ReviewTranslations;
 }) {
 	return (
@@ -369,7 +386,7 @@ function ReviewEntry({
 				)}
 
 				<span className="text-xs text-muted">
-					{formatDate(entry.created_at, 'default')}
+					{formatDate(entry.created_at, 'month-year', { language })}
 				</span>
 			</div>
 

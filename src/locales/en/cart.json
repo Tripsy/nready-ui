@@ -1,0 +1,88 @@
+{
+	"meta": {
+		"title": "Carts - Dashboard | {{app_name}}"
+	},
+	"action": {
+		"delete": {
+			"title": "Delete cart",
+			"label": "Delete",
+			"success": "Cart deleted",
+			"confirm": "Are you sure you want to delete the selected cart? The shopper loses what they had picked out, and the next visit starts a new one."
+		},
+		"restore": {
+			"title": "Restore cart",
+			"label": "Restore",
+			"success": "Cart restored",
+			"confirm": "Are you sure you want to restore the selected cart?"
+		},
+		"view": {
+			"title": "Cart details - {{entry}}",
+			"label": "View"
+		},
+		"viewUser": {
+			"title": "View user"
+		},
+		"guide": {
+			"title": "How carts work",
+			"label": "Usage guide"
+		}
+	},
+	"status": {
+		"active": "Active",
+		"converted": "Converted",
+		"abandoned": "Abandoned"
+	},
+	"issue": {
+		"variant_gone": "Product removed from the catalog",
+		"not_sellable": "Outside its availability window",
+		"no_price": "No price in this currency",
+		"option_gone": "A chosen option no longer exists"
+	},
+	"help": {
+		"intro": "Carts are filled by shoppers on the storefront - nothing here creates or edits one. This screen is for looking: what people are carrying, what they left behind, and which cart an order came from.",
+		"step_1_title": "The prices here are not stored",
+		"step_1_body": "A cart line records what was picked - the variant, the quantity, the options chosen - and no money at all. Everything under Pricing is worked out against the catalog at the moment you open this window, so a cart from three weeks ago shows what it would cost today, not what it cost then.",
+		"step_2_title": "Guests have carts too",
+		"step_2_body": "A cart with no user is an anonymous visitor, identified by a handle their browser holds. That handle is their whole credential, so it is never shown here and you cannot search by it. Signing in folds the guest cart into the account's own, summing the quantities on lines both held.",
+		"step_3_title": "Lines that can no longer be bought",
+		"step_3_body": "A line whose product was withdrawn, fell outside its availability window, or has no price in the cart's currency comes back marked rather than silently dropped - the shopper has to see what happened. Any such line blocks checkout until it is removed.",
+		"step_4_title": "How a cart ends",
+		"step_4_body": "Checking out makes it converted and records which order it became. Going quiet past its expiry makes it abandoned, and a cleanup job removes long-abandoned ones for good. Both states are final: a shopper coming back gets a new cart, never the old one.",
+		"step_5_title": "Find your way around",
+		"step_5_body": "Filter by status for the abandonment report, by user to answer a support question, or by order to see which cart a sale came from. Deleting is soft, so 'Show deleted' is what a restore reaches a row through.",
+		"note": "Deleting a cart here is a support action, not a cleanup tool - the cleanup job already retires carts on its own. Removing one takes away what a shopper had picked out while they may still be looking at it.",
+		"tab_info": "Info",
+		"tab_api": "API docs",
+		"tab_public": "Public API"
+	},
+	"storefront": {
+		"heading": "Your cart",
+		"empty": "Your cart is empty.",
+		"empty_hint": "Browse the catalog and add something to it.",
+		"add": "Add to cart",
+		"adding": "Adding…",
+		"added": "Added to your cart",
+		"add_failed": "That could not be added to your cart",
+		"unavailable": "Not available",
+		"quantity": "Quantity",
+		"increase": "Increase quantity",
+		"decrease": "Decrease quantity",
+		"remove": "Remove",
+		"remove_failed": "That line could not be removed",
+		"update_failed": "The quantity could not be changed",
+		"open": "Open cart",
+		"items_one": "1 item",
+		"items_other": "{{count}} items",
+		"subtotal": "Subtotal",
+		"discount": "Discount",
+		"vat": "VAT",
+		"total": "Total",
+		"go_to_cart": "Go to cart",
+		"go_to_checkout": "Go to checkout",
+		"continue_shopping": "Continue shopping",
+		"has_issues": "Some lines can no longer be bought. Remove them to continue.",
+		"loading": "Loading…",
+		"checkout_unavailable": "Checkout is not available yet - an order has to be billed to a client, and there is no way to choose one from the storefront.",
+		"meta_title": "Your cart | {{app_name}}"
+	}
+}

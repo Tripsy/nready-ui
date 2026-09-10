@@ -44,7 +44,11 @@ function ArticleSidebarBox({
 						language,
 						'title',
 					);
-					const publishedAt = formatRelativeDate(entry.publish_at);
+					const publishedAt = formatRelativeDate(
+						entry.publish_at,
+						14,
+						language,
+					);
 
 					return (
 						<li key={entry.id}>

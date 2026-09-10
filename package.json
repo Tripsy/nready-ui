@@ -36,6 +36,7 @@
 		"sanitize-html": "^2.17.7",
 		"tailwind-merge": "^3.6.0",
 		"uuid": "14.0.1",
+		"yet-another-react-lightbox": "^3.32.2",
 		"zod": "^4.4.3",
 		"zustand": "^5.0.14"
 	},

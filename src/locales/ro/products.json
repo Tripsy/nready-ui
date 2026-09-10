@@ -10,8 +10,6 @@
 		"unavailable": "Acest produs este temporar indisponibil. Încearcă din nou mai târziu.",
 		"not_found_heading": "Produsul nu a fost găsit",
 		"not_found_message": "Produsul căutat nu există sau nu mai este la vânzare.",
-		"brand": "Marcă",
-		"categories": "Categorii",
 		"no_description": "Acest produs nu are încă o descriere.",
 		"price_from": "de la",
 		"no_entries": "Nu avem încă produse la vânzare. Revino în curând.",
@@ -19,6 +17,11 @@
 		"category_subheading": "Tot ce avem la vânzare în această categorie.",
 		"brand_subheading": "Tot ce avem la vânzare de la această marcă.",
 		"list_unavailable": "Lista de produse este temporar indisponibilă. Încearcă din nou mai târziu.",
-		"variants": "Opțiuni"
+		"variants": "Opțiuni",
+		"attributes": "Specificații",
+		"attribute_yes": "Da",
+		"attribute_no": "Nu",
+		"related_heading": "Mai multe din {{category}}",
+		"related_more": "Vezi mai multe produse din {{category}}"
 	}
 }

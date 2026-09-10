@@ -1,7 +1,12 @@
 import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
+import { capitalizeFirstLetter } from '@/helpers/string.helper';
 import type { ImageStorage } from '@/models/image.model';
-import type { ProductAttributeValueType } from '@/models/product-category-attribute.model';
+import type {
+	MeasureUnit,
+	ProductAttributeValueType,
+} from '@/models/product-category-attribute.model';
+import { MEASURE_UNIT_SYMBOLS } from '@/models/product-category-attribute.model';
 import type { Language, StatusTransitions } from '@/types/common.type';
 import type { ImagePropertiesType } from '@/types/image.type';
 import type { PageMeta } from '@/types/page-meta.type';
@@ -189,11 +194,13 @@ export type ProductVariantType = {
  * An axis value as the public listing joins it: the stored ids, plus the term wording that turns
  * `43 -> 50` into "Storage: 512 gb". Only the requested language is joined, so `contents` holds
  * at most one row.
+ *
+ * The same shape a product's own attribute arrives in, and deliberately so - the two tables differ
+ * in what they mean (an axis tells siblings apart; an attribute describes the product) but not in
+ * how a value is stored or rendered, and the specification table on the product page lists both
+ * through one formatter.
  */
-export type ProductVariantAxisType = ProductAttributeValueType & {
-	attribute_label?: ProductTermRefType | null;
-	attribute_value?: ProductTermRefType | null;
-};
+export type ProductVariantAxisType = ProductAttributeDisplayType;
 
 /**
  * A variant as the public listing returns it (`attachVariants` on the backend).
@@ -219,6 +226,12 @@ export type ProductListVariantType = {
 	 * which is the ordinary case: most variants differ by a number, not a picture.
 	 */
 	cover_image?: ProductCoverImageType | null;
+	/*
+	 * The whole of that gallery, present on the single-product read alone - a listing is handed
+	 * the cover and nothing else, so a page of twelve products does not carry a hundred pictures.
+	 * `cover_image` is its first entry whenever there is one.
+	 */
+	images?: ProductCoverImageType[];
 };
 
 /**
@@ -228,8 +241,35 @@ export type ProductListVariantType = {
  * `ProductListVariantType` and hands over with their axis wording resolved. Nothing anonymous
  * ever sees `cost_price` or `min_price`.
  */
-export type ProductPublicModel = Omit<ProductModel<string>, 'variants'> & {
+export type ProductPublicModel = Omit<
+	ProductModel<string>,
+	'variants' | 'attributes'
+> & {
 	variants?: ProductListVariantType[];
+	/*
+	 * Named, unlike the dashboard read's bare ids: `attachPublicAttributes` resolves both terms
+	 * through `term_content` and copies the definition's quoting onto each row, because a visitor
+	 * has no resolved form to look either up in.
+	 */
+	attributes?: ProductAttributeDisplayType[];
+	/** The product's own gallery, of which `cover_image` is the first entry. */
+	images?: ProductCoverImageType[];
+};
+
+/**
+ * One of the product's own attributes as the public read hands it back - the stored row, its
+ * label and value terms resolved into the served language, and the quoting its definition fixes.
+ *
+ * `unit` and `suffix` are the definition's, not the row's: a bare `330` is not a value, and
+ * without them the page would have to fetch the resolved form of every category the product sits
+ * in to render one line of a spec table. They are mutually exclusive - the backend's `@Check`
+ * refuses a definition carrying both.
+ */
+export type ProductAttributeDisplayType = ProductAttributeValueType & {
+	unit?: MeasureUnit | null;
+	suffix?: string | null;
+	attribute_label?: ProductTermRefType | null;
+	attribute_value?: ProductTermRefType | null;
 };
 
 /**
@@ -531,6 +571,23 @@ export function toCategoryRefs(
 	}));
 }
 
+/**
+ * The product's tags as a storefront can render them: the wording the public read joined, and the
+ * id the badge colors itself from.
+ *
+ * Its own function rather than `toTagRefs`, which is the dashboard's and falls back to `#<id>` -
+ * a bare id is something an operator can act on and noise on a storefront. The read joins
+ * `term_content` on the served language alone, so a tag with no wording in it arrives carrying
+ * none, and there is nothing to name it by.
+ */
+export function toPublicTagRefs(entry: ProductPublicModel): ProductRefType[] {
+	return (entry.tags ?? []).flatMap((link) => {
+		const value = link.tag?.contents?.[0]?.value;
+
+		return value ? [{ id: link.tag_id, label: value }] : [];
+	});
+}
+
 export function toTagRefs(
 	entry: ProductModel | undefined,
 	language: Language,
@@ -695,6 +752,185 @@ export function buildVariantAxisLabel(
 		.filter((value): value is string => !!value);
 
 	return axes.length > 0 ? axes.join(' ') : null;
+}
+
+/**
+ * What a spec table calls an attribute.
+ *
+ * Capitalised here rather than stored that way, the same as `displayAttributeLabel` in the
+ * dashboard: `TermValidator` lower-cases every wording on the way in, deliberately - a term is a
+ * record many products point at, and "Colour" and "colour" being two of them is exactly what that
+ * avoids. Which leaves the display side to decide how it reads.
+ *
+ * `null` when the label term carries no wording in the served language, which is the caller's cue
+ * to drop the row: a value with nothing naming it is not a spec line.
+ */
+export function buildAttributeLabel(
+	attribute: ProductAttributeDisplayType,
+): string | null {
+	const value = attribute.attribute_label?.contents?.[0]?.value;
+
+	return value ? capitalizeFirstLetter(value) : null;
+}
+
+/**
+ * The attribute's value as words, quoted the way its definition fixes.
+ *
+ * Four value columns, exactly one of them filled - the shape a `@Check` on `product_attribute`
+ * enforces - so this reads as a chain of guards rather than a switch on a discriminator the row
+ * does not carry.
+ *
+ * A number renders with its unit's symbol, or with the definition's free-text `suffix` when it
+ * names something `MeasureUnitEnum` does not cover (`pcs`, `%`); the two never appear together.
+ * The figure goes through `Intl` for the request's language, so a thousand separator matches the
+ * price beside it - and this is a server render, so it has to, rather than being filled in on
+ * hydration.
+ *
+ * A boolean reads as yes/no. `buildVariantAxisLabel` renders one as its *label* instead, because
+ * an axis value stands alone ("Waterproof"); here the label is already the row's key, so the
+ * value has to answer the question it asks.
+ *
+ * `null` when nothing renders - a term with no wording in the served language, or an empty
+ * literal - and the caller drops the row rather than printing a blank.
+ */
+export function buildAttributeValue(
+	attribute: ProductAttributeDisplayType,
+	language: Language,
+	booleanLabels: { yes: string; no: string },
+): string | null {
+	if (attribute.value_term_id) {
+		const value = attribute.attribute_value?.contents?.[0]?.value;
+
+		return value ? capitalizeFirstLetter(value) : null;
+	}
+
+	if (
+		attribute.value_numeric !== null &&
+		attribute.value_numeric !== undefined
+	) {
+		const figure = new Intl.NumberFormat(language).format(
+			attribute.value_numeric,
+		);
+
+		const quoting = attribute.unit
+			? MEASURE_UNIT_SYMBOLS[attribute.unit]
+			: attribute.suffix;
+
+		return quoting ? `${figure} ${quoting}` : figure;
+	}
+
+	if (attribute.value_text) {
+		return attribute.value_text;
+	}
+
+	if (
+		attribute.value_boolean !== null &&
+		attribute.value_boolean !== undefined
+	) {
+		return attribute.value_boolean ? booleanLabels.yes : booleanLabels.no;
+	}
+
+	return null;
+}
+
+/**
+ * Every picture the product page can show, in the order it shows them: the hero first, then the
+ * product's own gallery, then each variant's.
+ *
+ * Both galleries, because a variant's photographs are photographs *of this product* - the blue one
+ * rather than the jacket - and a reader looking at the pictures wants to see them whichever row
+ * they were filed against. The chooser is what selects a variant; the strip only shows what there
+ * is.
+ *
+ * Deduped by id, which is what puts the hero at the front rather than twice: `resolveCardImage`
+ * picks it out of one of these same two galleries.
+ */
+export function buildProductGallery(
+	entry: ProductPublicModel,
+	hero: ProductCoverImageType | null,
+): ProductCoverImageType[] {
+	const candidates = [
+		...(hero ? [hero] : []),
+		...(entry.images ?? []),
+		...(entry.variants ?? []).flatMap((variant) => variant.images ?? []),
+	];
+
+	const seen = new Set<number>();
+
+	return candidates.filter((image) => {
+		if (seen.has(image.id)) {
+			return false;
+		}
+
+		seen.add(image.id);
+
+		return true;
+	});
+}
+
+/**
+ * The rows of the product page's specification table: what the product says about itself, then
+ * what tells the variant on show apart from its siblings.
+ *
+ * One table rather than two, because a reader comparing products does not care which of two tables
+ * a figure was stored in - "Color: Silver" and "Storage: 512 gb" are both specifications. The
+ * product's own come first: they hold for every variant, where the axes describe only the one
+ * currently selected.
+ *
+ * The axes are the *selected* variant's, so the table moves with the chooser the same way the
+ * price does. A product with a single variant still contributes its axes, which is usually
+ * nothing - a variant that varies in nothing carries no axis rows.
+ */
+export function buildProductSpecifications(
+	entry: ProductPublicModel,
+	variant: ProductListVariantType | undefined,
+): ProductAttributeDisplayType[] {
+	return [...(entry.attributes ?? []), ...(variant?.attributes ?? [])];
+}
+
+/**
+ * The figures a product page quotes for one variant, in one currency.
+ *
+ * Two of them, unlike `resolvePriceRange`, which answers a span across the set and so can only
+ * carry what is charged. `reference_price` is display only - the usual price a saving is measured
+ * against, read by no pricing path - and it is kept only when it is *above* what is charged.
+ * Below or equal it is not a saving, and a strikethrough under the sale price would read as a
+ * price rise.
+ *
+ * Currency picked the way the range picks it, so the headline and the variant list beside it can
+ * never quote two different markets.
+ */
+export function resolveVariantPrice(
+	variant: ProductListVariantType | undefined,
+): {
+	currency: string;
+	sale_price: number;
+	reference_price: number | null;
+} | null {
+	const prices = variant?.prices ?? [];
+
+	if (prices.length === 0) {
+		return null;
+	}
+
+	const preferred = Configuration.get('app.currency');
+	const price =
+		prices.find((entry) => entry.currency === preferred) ?? prices[0];
+
+	if (price.sale_price === null) {
+		return null;
+	}
+
+	const reference = price.reference_price;
+
+	return {
+		currency: price.currency,
+		sale_price: price.sale_price,
+		reference_price:
+			reference !== null && reference > price.sale_price
+				? reference
+				: null,
+	};
 }
 
 /**

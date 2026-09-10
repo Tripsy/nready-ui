@@ -11,6 +11,7 @@ import brand from '@/locales/ro/brand.json';
 import brand_order from '@/locales/ro/brand-order.json';
 import brands from '@/locales/ro/brands.json';
 import carrier from '@/locales/ro/carrier.json';
+import cart from '@/locales/ro/cart.json';
 import cash_flow from '@/locales/ro/cash-flow.json';
 import categories from '@/locales/ro/categories.json';
 import category from '@/locales/ro/category.json';
@@ -68,6 +69,7 @@ const ro = {
 	'brand-order': brand_order,
 	brands,
 	carrier,
+	cart,
 	'cash-flow': cash_flow,
 	categories,
 	category,

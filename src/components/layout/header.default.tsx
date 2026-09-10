@@ -4,6 +4,7 @@ import { Menu, X } from 'lucide-react';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { CartMenu } from '@/components/cart/cart-menu.component';
 import { LanguageSwitcher } from '@/components/layout/language-switcher.component';
 import { LogoComponent } from '@/components/layout/logo.default';
 import { ToggleTheme } from '@/components/layout/toggle-theme';
@@ -176,6 +177,9 @@ export function Header({
 							translations={translations}
 						/>
 						<ToggleTheme translations={translations} />
+						{/* Renders nothing until the basket has something in it, so a visitor
+						    who has never added anything sees no empty icon. */}
+						<CartMenu />
 						<UserMenu translations={translations} />
 					</div>
 				</div>

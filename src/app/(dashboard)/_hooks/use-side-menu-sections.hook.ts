@@ -50,6 +50,7 @@ const TRANSLATION_KEYS = [
 	'dashboard.labels.comment',
 	'dashboard.labels.complaint',
 	'dashboard.labels.review',
+	'dashboard.labels.cart',
 
 	'dashboard.labels.settings',
 	'dashboard.labels.template',
@@ -188,6 +189,13 @@ export function useSideMenuSections(): {
 						text: translations['dashboard.labels.product'],
 						icon: Icons.Product,
 						permission: hasPermission(auth, 'product'),
+					},
+					{
+						page: 'cart',
+						href: Routes.get('cart'),
+						text: translations['dashboard.labels.cart'],
+						icon: Icons.Cart,
+						permission: hasPermission(auth, 'cart'),
 					},
 				],
 			},

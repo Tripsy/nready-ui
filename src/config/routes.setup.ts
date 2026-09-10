@@ -170,6 +170,8 @@ Routes.add('products-brand', '/products/brand/:slug');
 // and `/products/:slug` fits every one of those paths too. Next resolves the file-system
 // routes by the same precedence, static segment before dynamic.
 Routes.add('product-view', '/products/:slug');
+// The shopper's own basket. Public: a guest has a cart before they have an account.
+Routes.add('cart-view', '/cart');
 Routes.add('articles', '/articles');
 Routes.add('articles-categories', '/articles/categories');
 Routes.add('articles-category', '/articles/category/:slug');
@@ -316,6 +318,9 @@ Routes.group('dashboard')
 	})
 	.add('review', '/dashboard/review', {
 		permissionEntity: 'review',
+	})
+	.add('cart', '/dashboard/cart', {
+		permissionEntity: 'cart',
 	});
 
 /**

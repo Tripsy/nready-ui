@@ -70,6 +70,19 @@ function loadSettings() {
 			nameMinChars: 3,
 			passwordMinChars: 8,
 			sessionToken: process.env.SESSION_TOKEN || 'session',
+			/*
+			 * The guest cart handle. Kept as an httpOnly cookie and attached by the proxy in
+			 * the `X-Cart-Token` header, exactly as the session token is - the backend
+			 * returns it in the body, but nothing in the page ever needs to read it, and a
+			 * handle a script can read is a basket any script can take over.
+			 *
+			 * Long-lived by design: it is not a credential for an account, only for a
+			 * basket, and the backend expires the cart itself after 30 days of silence.
+			 */
+			cartToken: process.env.CART_TOKEN || 'cart_token',
+			cartTokenMaxAge: Number(
+				process.env.CART_TOKEN_MAX_AGE || 60 * 60 * 24 * 30,
+			),
 			// Seconds, and it has to track the backend's AUTH_JWT_EXPIRES_IN (86400).
 			// The backend signs its JWT without an `exp` claim - a token's lifetime lives in
 			// `account_token.expire_at` (`now + authExpiresIn`), which auth.middleware slides

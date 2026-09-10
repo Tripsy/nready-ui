@@ -27,6 +27,17 @@ import type { FormErrorsType, FormSituationType } from '@/types/form.type';
  */
 export const REVIEW_TRANSLATION_PREFIX = 'review';
 
+/**
+ * The id the review section carries, so anything above it on the page can link down to it - the
+ * score under a product's heading does.
+ *
+ * Here rather than in either component: the section renders it and the page links to it, and a
+ * string repeated in two files is a broken link waiting for one of them to be renamed. The
+ * section also carries `scroll-mt-*`, without which the sticky header lands on top of its
+ * heading.
+ */
+export const REVIEW_SECTION_ANCHOR = 'reviews';
+
 export const REVIEW_TRANSLATION_KEYS = [
 	'section.heading',
 	'section.empty',

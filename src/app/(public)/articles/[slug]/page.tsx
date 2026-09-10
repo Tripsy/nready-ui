@@ -242,7 +242,7 @@ export default async function Page(props: Props) {
 			? { name: entry.author.name }
 			: null;
 
-	const publishedAt = formatRelativeDate(entry.publish_at);
+	const publishedAt = formatRelativeDate(entry.publish_at, 14, language);
 
 	// `read` returns the tag links without the term itself, so ids are all there is - which
 	// is exactly what the listing filter takes.
@@ -400,6 +400,7 @@ export default async function Page(props: Props) {
 						<CommentThread
 							entityType={CommentEntityTypeEnum.ARTICLE}
 							entityId={entry.id}
+							language={language}
 							translations={commentTranslations}
 							ratingTranslations={ratingTranslations}
 							complaintTranslations={complaintTranslations}

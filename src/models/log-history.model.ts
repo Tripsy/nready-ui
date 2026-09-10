@@ -14,6 +14,8 @@ export const LogHistoryEntities = [
 	'article',
 	'brand',
 	'carrier',
+	'cart',
+	'cart_item',
 	'cash_flow',
 	'category',
 	'client',

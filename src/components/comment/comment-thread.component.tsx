@@ -37,6 +37,7 @@ import {
 	type CommentThreadType,
 	requestCommentThread,
 } from '@/services/comment.service';
+import type { Language } from '@/types/common.type';
 
 const PAGE_SIZE = 10;
 
@@ -110,6 +111,7 @@ function CommentEntry({
 	entry,
 	entityType,
 	entityId,
+	language,
 	previewReply,
 	translations,
 	ratingTranslations,
@@ -123,6 +125,8 @@ function CommentEntry({
 	entry: CommentModel;
 	entityType: CommentEntityType;
 	entityId: number;
+	/** The reader's language, for the posted-at date - see `formatRelativeDate`. */
+	language: Language;
 	/** Shown under this comment while its thread is collapsed; absent when it has no replies. */
 	previewReply?: CommentModel;
 	translations: CommentTranslations;
@@ -249,7 +253,7 @@ function CommentEntry({
 							dateTime={String(entry.created_at)}
 							className="text-muted"
 						>
-							{formatRelativeDate(entry.created_at)}
+							{formatRelativeDate(entry.created_at, 14, language)}
 						</time>
 
 						{/*
@@ -384,6 +388,7 @@ function CommentEntry({
 											entry={reply}
 											entityType={entityType}
 											entityId={entityId}
+											language={language}
 											translations={translations}
 											ratingTranslations={
 												ratingTranslations
@@ -426,6 +431,7 @@ function CommentEntry({
 									entry={previewReply}
 									entityType={entityType}
 									entityId={entityId}
+									language={language}
 									translations={translations}
 									ratingTranslations={ratingTranslations}
 									complaintTranslations={
@@ -460,12 +466,15 @@ function CommentEntry({
 export function CommentThread({
 	entityType,
 	entityId,
+	language,
 	translations,
 	ratingTranslations,
 	complaintTranslations,
 }: {
 	entityType: CommentEntityType;
 	entityId: number;
+	/** The reader's language, for the posted-at date - see `formatRelativeDate`. */
+	language: Language;
 	translations: CommentTranslations;
 	ratingTranslations: RatingTranslations;
 	complaintTranslations: ComplaintTranslations;
@@ -644,6 +653,7 @@ export function CommentThread({
 							entry={entry}
 							entityType={entityType}
 							entityId={entityId}
+							language={language}
 							previewReply={firstReplies[entry.id]}
 							translations={translations}
 							ratingTranslations={ratingTranslations}

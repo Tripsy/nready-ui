@@ -42,7 +42,8 @@
 		"rating": "Ratings",
 		"review": "Reviews",
 		"comment": "Comments",
-		"complaint": "Complaints"
+		"complaint": "Complaints",
+		"cart": "Carts"
 	},
 	"text": {
 		"showing_entries": "Showing {{first}} to {{last}} of {{total}} entries",

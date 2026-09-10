@@ -12,9 +12,12 @@ import type { ApiResponseFetch } from '@/types/api.type';
  * `NOT NULL` on the table, so every write answers 401 without a session and the widget asks for a
  * sign-in rather than sending the request. The two reads are open to anyone.
  *
- * All of them go through `/api/proxy` (the default request mode): the backend reads *whose* review
- * a write speaks for from the session the proxy attaches, and the list carries this reader's own
- * row alongside the public ones - so none of it is cacheable anywhere shared.
+ * They go through `/api/proxy` (the default request mode): the backend reads *whose* review a
+ * write speaks for from the session the proxy attaches, and the list carries this reader's own
+ * row alongside the public ones - so none of that is cacheable anywhere shared.
+ *
+ * `requestPublicProductReviewSummary` is the one exception, and it is the one read that carries
+ * nothing personal - see its own note.
  */
 
 /**
@@ -63,6 +66,30 @@ export async function requestProductReviewSummary(
 		`/public/reviews/${productId}/summary`,
 		{ method: 'GET' },
 	);
+}
+
+/**
+ * The same numbers, read **server-side** for the score beside the product's name.
+ *
+ * `remote-api` rather than the proxy: this runs during the page's own render, where there is no
+ * browser to carry a session cookie, and going straight to the backend is what lets the response
+ * join Next's data cache. Safe to share that cache precisely because the summary is over approved
+ * reviews only - it is the same figure for every visitor, unlike the list, which carries `own`.
+ *
+ * The client section fetches the summary again through TanStack Query and owns it from there: a
+ * reader who posts a review has to see the count move without a reload. This read is only what
+ * puts the score in the HTML a crawler receives.
+ */
+export async function requestPublicProductReviewSummary(params: {
+	productId: number;
+	revalidate?: number;
+}): Promise<ApiResponseFetch<ReviewSummaryType>> {
+	return await new ApiRequest()
+		.setRequestMode('remote-api')
+		.doFetch(`/public/reviews/${params.productId}/summary`, {
+			method: 'GET',
+			next: { revalidate: params.revalidate },
+		});
 }
 
 /**

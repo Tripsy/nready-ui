@@ -42,7 +42,8 @@
 		"rating": "Evaluări",
 		"review": "Recenzii",
 		"comment": "Comentarii",
-		"complaint": "Reclamații"
+		"complaint": "Reclamații",
+		"cart": "Coșuri"
 	},
 	"text": {
 		"showing_entries": "Se afișează {{first}} - {{last}} din {{total}} înregistrări",

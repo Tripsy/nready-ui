@@ -10,8 +10,6 @@
 		"unavailable": "This product is temporarily unavailable. Please try again later.",
 		"not_found_heading": "Product not found",
 		"not_found_message": "The product you are looking for does not exist, or is no longer on sale.",
-		"brand": "Brand",
-		"categories": "Categories",
 		"no_description": "This product has no description yet.",
 		"price_from": "from",
 		"no_entries": "There are no products on sale yet. Check back soon.",
@@ -19,6 +17,11 @@
 		"category_subheading": "Everything we have on sale under this category.",
 		"brand_subheading": "Everything we have on sale from this brand.",
 		"list_unavailable": "The product list is temporarily unavailable. Please try again later.",
-		"variants": "Options"
+		"variants": "Options",
+		"attributes": "Specifications",
+		"attribute_yes": "Yes",
+		"attribute_no": "No",
+		"related_heading": "More from {{category}}",
+		"related_more": "See more products from {{category}}"
 	}
 }
