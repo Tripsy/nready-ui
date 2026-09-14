@@ -1,0 +1,28 @@
+{
+	"validation": {
+		"invalid_client_id": "The client could not be resolved",
+		"invalid_address_id": "Pick an address from the list, or create it",
+		"invalid_address": "Invalid address",
+		"invalid_type": "Select billing or delivery",
+		"invalid_details": "Invalid details",
+		"invalid_notes": "Invalid notes"
+	},
+	"action": {
+		"create": {
+			"title": "Add client address",
+			"label": "Add",
+			"success": "Client address added successfully"
+		},
+		"update": {
+			"title": "Edit client address - {{entry}}",
+			"label": "Update",
+			"success": "Client address updated successfully"
+		},
+		"delete": {
+			"title": "Delete client address - {{entry}}",
+			"label": "Delete",
+			"success": "Client address deleted successfully",
+			"confirm": "Are you sure you want to remove this address from the client? It cannot be restored. The address itself is kept."
+		}
+	}
+}

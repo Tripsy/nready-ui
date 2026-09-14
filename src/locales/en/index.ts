@@ -18,6 +18,7 @@ import category from '@/locales/en/category.json';
 import category_order from '@/locales/en/category-order.json';
 import category_tree from '@/locales/en/category-tree.json';
 import client from '@/locales/en/client.json';
+import client_address from '@/locales/en/client-address.json';
 import comment from '@/locales/en/comment.json';
 import complaint from '@/locales/en/complaint.json';
 import cron_history from '@/locales/en/cron-history.json';
@@ -77,6 +78,7 @@ const en = {
 	'category-order': category_order,
 	'category-tree': category_tree,
 	client,
+	'client-address': client_address,
 	comment,
 	complaint,
 	'cron-history': cron_history,

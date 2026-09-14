@@ -14,7 +14,8 @@
 		"invalid_company_cui": "Invalid CUI",
 		"invalid_company_reg_com": "Invalid reg com",
 		"invalid_person_name": "Invalid person name",
-		"invalid_person_identification_number": "Invalid CNP (it must contain 13 digits)"
+		"invalid_person_identification_number": "Invalid CNP (it must contain 13 digits)",
+		"invalid_user_id": "Pick an account from the list"
 	},
 	"status": {
 		"active": "Active",
@@ -60,6 +61,24 @@
 		"view": {
 			"title": "Client details - {{entry}}",
 			"label": "View details"
+		},
+		"viewUser": {
+			"title": "View user"
+		},
+		"linkAccount": {
+			"title": "Link client to account - {{entry}}",
+			"label": "Link account",
+			"success": "Client linked to account successfully"
+		},
+		"unlinkAccount": {
+			"title": "Unlink client from account - {{entry}}",
+			"label": "Unlink account",
+			"success": "Client unlinked from account successfully",
+			"confirm": "Are you sure you want to unlink this client from its account? The account will no longer be able to bill orders to it."
+		},
+		"addresses": {
+			"title": "Client addresses - {{entry}}",
+			"label": "Addresses"
 		},
 		"guide": {
 			"title": "How clients work",

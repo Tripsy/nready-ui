@@ -47,6 +47,19 @@ export function ViewClient({ entry }: { entry: ClientModel }) {
 				)}
 			</ViewSection>
 
+			<ViewSection title="Account">
+				<ViewField
+					label="Linked To"
+					value={
+						entry.user
+							? `${entry.user.name} (#${entry.user.id}) - ${entry.user.email}`
+							: entry.user_id
+								? `#${entry.user_id}`
+								: 'Not linked'
+					}
+				/>
+			</ViewSection>
+
 			<ViewSection title="Contact Details">
 				<ViewField label="Name" value={entry.contact_name} />
 				<ViewField label="Email" value={entry.contact_email} />

@@ -19,6 +19,7 @@ export const LogHistoryEntities = [
 	'cash_flow',
 	'category',
 	'client',
+	'client_address',
 	'complaint',
 	'discount',
 	'document_series',

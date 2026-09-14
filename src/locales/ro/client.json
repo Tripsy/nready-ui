@@ -14,7 +14,8 @@
 		"invalid_company_cui": "CUI invalid",
 		"invalid_company_reg_com": "Nr. reg. com. invalid",
 		"invalid_person_name": "Nume persoană invalid",
-		"invalid_person_identification_number": "CNP invalid (trebuie să conțină 13 cifre)"
+		"invalid_person_identification_number": "CNP invalid (trebuie să conțină 13 cifre)",
+		"invalid_user_id": "Alege un cont din listă"
 	},
 	"status": {
 		"active": "Activ",
@@ -60,6 +61,24 @@
 		"view": {
 			"title": "Detalii client - {{entry}}",
 			"label": "Vezi detalii"
+		},
+		"viewUser": {
+			"title": "Vezi utilizatorul"
+		},
+		"linkAccount": {
+			"title": "Asociază clientul unui cont - {{entry}}",
+			"label": "Asociază cont",
+			"success": "Clientul a fost asociat contului cu succes"
+		},
+		"unlinkAccount": {
+			"title": "Dezasociază clientul de cont - {{entry}}",
+			"label": "Dezasociază cont",
+			"success": "Clientul a fost dezasociat de cont cu succes",
+			"confirm": "Sigur vrei să dezasociezi acest client de contul său? Contul nu va mai putea factura comenzi pe acest client."
+		},
+		"addresses": {
+			"title": "Adresele clientului - {{entry}}",
+			"label": "Adrese"
 		},
 		"guide": {
 			"title": "Cum funcționează clienții",

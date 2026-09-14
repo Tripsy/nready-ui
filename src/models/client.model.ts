@@ -52,6 +52,14 @@ type ClientBase<D = Date | string> = {
 
 	status: ClientStatus;
 
+	/**
+	 * The account the client belongs to, or null for one typed in from the back office. One account
+	 * may hold several clients; checkout accepts only the caller's own.
+	 */
+	user_id: number | null;
+	/** Joined by the dashboard read and listing, so both can name the account. */
+	user?: { id: number; name: string; email: string } | null;
+
 	notes: string | null;
 
 	created_at: D;
@@ -63,6 +71,20 @@ export type ClientModel<D = Date | string> = ClientBase<D> &
 	ClientIdentity &
 	ClientFinancial &
 	ClientContact;
+
+/**
+ * The account a client belongs to, for a listing cell. A client whose account was soft-deleted
+ * keeps its `user_id` while the join answers null, so the id is all there is left to name it by.
+ */
+export function displayClientAccount(client: ClientModel): string {
+	if (!client.user_id) {
+		return '-';
+	}
+
+	return client.user
+		? `${client.user.name} (#${client.user_id})`
+		: `#${client.user_id}`;
+}
 
 export function displayClientLabel(client: ClientModel): string {
 	if (client.client_type === ClientTypeEnum.COMPANY) {

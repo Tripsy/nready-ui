@@ -6,6 +6,7 @@ import type { CartModel } from '@/models/cart.model';
 import type { CashFlowModel } from '@/models/cash-flow.model';
 import type { CategoryModel } from '@/models/category.model';
 import type { ClientModel } from '@/models/client.model';
+import type { ClientAddressModel } from '@/models/client-address.model';
 import type { CommentModel } from '@/models/comment.model';
 import type { ComplaintModel } from '@/models/complaint.model';
 import type { CronHistoryModel } from '@/models/cron-history.model';
@@ -41,6 +42,11 @@ export type DatasourceModels = {
 	'cash-flow': CashFlowModel;
 	category: CategoryModel;
 	client: ClientModel;
+	/*
+	 * A client's billing and delivery addresses. No dashboard page of its own - they are managed
+	 * from the client they belong to, through `ManagerAddressesClient`.
+	 */
+	'client-address': ClientAddressModel;
 	comment: CommentModel;
 	complaint: ComplaintModel;
 	'cron-history': CronHistoryModel;
