@@ -92,10 +92,13 @@ export function useCart() {
 		 * Units, not lines: three of one thing and one of another reads as 4 on the badge, which
 		 * is what a shopper counts. Quantities are decimal on the backend - a product may be sold
 		 * by weight - so this is rounded up rather than truncated, and half a kilo still shows the
-		 * badge rather than a 0.
+		 * badge rather than a 0. A bundle's components are left out: they are what one bundle
+		 * contains, and the shopper added the bundle.
 		 */
 		itemCount: Math.ceil(
-			lines.reduce((sum, line) => sum + line.quantity, 0),
+			lines
+				.filter((line) => line.parent_id === null)
+				.reduce((sum, line) => sum + line.quantity, 0),
 		),
 		addItem: addItem,
 		updateItem: updateItem,

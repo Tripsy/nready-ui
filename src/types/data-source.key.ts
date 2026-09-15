@@ -17,6 +17,7 @@ import type { ImageModel } from '@/models/image.model';
 import type { LogDataModel } from '@/models/log-data.model';
 import type { LogHistoryModel } from '@/models/log-history.model';
 import type { MailQueueModel } from '@/models/mail-queue.model';
+import type { OrderModel } from '@/models/order.model';
 import type { PermissionModel } from '@/models/permission.model';
 import type { PlaceModel } from '@/models/place.model';
 import type { ProductModel } from '@/models/product.model';
@@ -57,6 +58,7 @@ export type DatasourceModels = {
 	'log-data': LogDataModel;
 	'log-history': LogHistoryModel;
 	'mail-queue': MailQueueModel;
+	order: OrderModel;
 	permission: PermissionModel;
 	place: PlaceModel;
 	product: ProductModel;

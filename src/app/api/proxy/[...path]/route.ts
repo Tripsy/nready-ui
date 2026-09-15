@@ -61,8 +61,9 @@ async function handler(request: NextRequest, path: string[]) {
 		 * needs to read it.
 		 *
 		 * Rewritten on every cart response, not only the first: the handle changes when a
-		 * guest cart is merged into an account's at sign-in, and when a converted cart is
-		 * replaced by a fresh one after checkout.
+		 * guest cart is merged into an account's at sign-in, and again after checkout, which
+		 * deletes the cart - the next read finds nothing for the old handle and starts a fresh
+		 * cart whose token arrives here.
 		 */
 		const nextCartToken = (data as { data?: { token?: unknown } })?.data
 			?.token;

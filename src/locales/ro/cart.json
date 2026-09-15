@@ -9,12 +9,6 @@
 			"success": "Coș șters",
 			"confirm": "Sigur ștergi coșul selectat? Cumpărătorul pierde ce alesese, iar la următoarea vizită începe unul nou."
 		},
-		"restore": {
-			"title": "Restaurează coșul",
-			"label": "Restaurează",
-			"success": "Coș restaurat",
-			"confirm": "Sigur restaurezi coșul selectat?"
-		},
 		"view": {
 			"title": "Detalii coș - {{entry}}",
 			"label": "Vezi"
@@ -27,30 +21,27 @@
 			"label": "Ghid de utilizare"
 		}
 	},
-	"status": {
-		"active": "Activ",
-		"converted": "Convertit",
-		"abandoned": "Abandonat"
-	},
 	"issue": {
 		"variant_gone": "Produs scos din catalog",
 		"not_sellable": "În afara perioadei de disponibilitate",
 		"no_price": "Fără preț în această monedă",
-		"option_gone": "O opțiune aleasă nu mai există"
+		"option_gone": "O opțiune aleasă nu mai există",
+		"option_selection": "Opțiunile alese nu mai corespund cu ce cere acest produs",
+		"bundle_changed": "Acest pachet s-a modificat de când a fost adăugat"
 	},
 	"help": {
-		"intro": "Coșurile sunt completate de cumpărători în magazin - nimic de aici nu creează și nu modifică unul. Ecranul acesta este pentru consultare: ce au oamenii în coș, ce au lăsat în urmă și din ce coș a venit o comandă.",
+		"intro": "Coșurile sunt completate de cumpărători în magazin - nimic de aici nu creează și nu modifică unul. Ecranul acesta este pentru consultare: ce au oamenii în coș chiar acum și cât i-ar costa.",
 		"step_1_title": "Prețurile de aici nu sunt stocate",
 		"step_1_body": "O linie de coș reține ce a fost ales - varianta, cantitatea, opțiunile - și nicio sumă. Tot ce apare la Prețuri este calculat pe baza catalogului în momentul în care deschizi fereastra, așa că un coș de acum trei săptămâni arată cât ar costa astăzi, nu cât costa atunci.",
 		"step_2_title": "Și vizitatorii au coșuri",
-		"step_2_body": "Un coș fără utilizator aparține unui vizitator anonim, identificat printr-un token păstrat de browserul lui. Acel token este singura lui credențială, deci nu este afișat aici și nu se poate căuta după el. La autentificare, coșul de vizitator este contopit cu cel al contului, adunând cantitățile pe liniile comune.",
+		"step_2_body": "Un coș fără utilizator aparține unui vizitator anonim, identificat printr-un token păstrat de browserul lui. Acel token este singura lui credențială, deci nu este afișat aici și nu se poate căuta după el. La autentificare, coșul de vizitator este contopit cu cel al contului, adunând cantitățile pe liniile comune, iar coșul de vizitator este apoi șters.",
 		"step_3_title": "Linii care nu mai pot fi cumpărate",
 		"step_3_body": "O linie al cărei produs a fost retras, a ieșit din perioada de disponibilitate sau nu are preț în moneda coșului este marcată, nu eliminată în tăcere - cumpărătorul trebuie să vadă ce s-a întâmplat. Orice astfel de linie blochează finalizarea până este scoasă.",
 		"step_4_title": "Cum se încheie un coș",
-		"step_4_body": "Finalizarea îl face convertit și reține ce comandă a devenit. Lipsa de activitate după data de expirare îl face abandonat, iar o sarcină programată le șterge definitiv pe cele abandonate de mult. Ambele stări sunt finale: un cumpărător care revine primește un coș nou, niciodată pe cel vechi.",
+		"step_4_body": "Un coș nu are status: există cât timp cineva îl completează și este șters în momentul în care nu mai este asta. Finalizarea scrie comanda și șterge coșul în același pas, iar o sarcină programată șterge orice coș rămas neatins după data de expirare. Oricum ar fi, un cumpărător care revine primește un coș nou, niciodată pe cel vechi - comanda este documentul care reține ce s-a cumpărat.",
 		"step_5_title": "Cum te orientezi",
-		"step_5_body": "Filtrează după status pentru raportul de abandon, după utilizator pentru o solicitare de suport sau după comandă ca să vezi din ce coș a venit o vânzare. Ștergerea este reversibilă, așa că „Arată șterse” este calea prin care o restaurare ajunge la o linie.",
-		"note": "Ștergerea unui coș de aici este o acțiune de suport, nu un instrument de curățenie - sarcina programată retrage deja coșurile singură. Ștergerea unuia ia ce alesese cumpărătorul, posibil chiar în timp ce se uită la el.",
+		"step_5_body": "Fiecare rând de aici este un coș viu, deci nu există status după care să filtrezi și nimic șters de readus. Restrânge după utilizator pentru o solicitare de suport sau după monedă pentru o singură piață. Ca să urmărești o vânzare, pornește de la comandă - coșul din care a venit nu mai există.",
+		"note": "Ștergerea unui coș de aici este o acțiune de suport, nu un instrument de curățenie - sarcina programată șterge deja coșurile expirate singură. Este definitivă și ia ce alesese cumpărătorul, posibil chiar în timp ce se uită la el.",
 		"tab_info": "Informații",
 		"tab_api": "Documentație API",
 		"tab_public": "API public"
@@ -74,15 +65,19 @@
 		"items_one": "1 produs",
 		"items_other": "{{count}} produse",
 		"subtotal": "Subtotal",
+		"products_cost": "Cost produse",
 		"discount": "Reducere",
+		"delivery_cost": "Cost livrare",
 		"vat": "TVA",
+		"vat_included": "TVA inclus:",
 		"total": "Total",
 		"go_to_cart": "Vezi coșul",
 		"go_to_checkout": "Finalizează comanda",
 		"continue_shopping": "Continuă cumpărăturile",
 		"has_issues": "Unele linii nu mai pot fi cumpărate. Elimină-le ca să continui.",
+		"bundle_changed": "Acest pachet s-a schimbat de când l-ai adăugat - elimină-l și adaugă-l din nou.",
 		"loading": "Se încarcă…",
-		"checkout_unavailable": "Finalizarea nu este încă disponibilă - o comandă trebuie facturată unui client, iar din magazin nu se poate alege unul.",
+		"checkout_sign_in_hint": "Vei fi rugat să te autentifici sau să îți creezi un cont - coșul tău rămâne cu tine.",
 		"meta_title": "Coșul tău | {{app_name}}"
 	}
 }

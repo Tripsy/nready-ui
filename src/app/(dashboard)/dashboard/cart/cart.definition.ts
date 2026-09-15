@@ -7,13 +7,11 @@ import { formatDate } from '@/helpers/date.helper';
 import {
 	requestDelete,
 	requestFind,
-	requestRestore,
 	requestView,
 } from '@/helpers/services.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	type CartModel,
-	type CartStatus,
 	displayCartLabel,
 	displayCartOwner,
 } from '@/models/cart.model';
@@ -29,14 +27,13 @@ import type {
  * There is no free-text search and no `global`: the only string a cart carries is its token, which
  * is the guest's whole credential - a back-office search by it would turn this screen into a way to
  * open any cart. Everything here narrows by something the business already knows.
+ *
+ * No status and no `is_deleted` either: a cart is a live basket or it does not exist, so every row
+ * this screen can show is one somebody is carrying right now.
  */
 export type CartDataTableFiltersType = {
-	status: { value: CartStatus | null; matchMode: 'equals' };
 	user_id: { value: string | null; matchMode: 'equals' };
-	order_id: { value: string | null; matchMode: 'equals' };
 	currency: { value: string | null; matchMode: 'equals' };
-	/** Whether removed carts join the listing - what `restore` needs to reach a row. */
-	is_deleted: { value: boolean; matchMode: 'equals' };
 };
 
 export default async function dataSourceConfig(): Promise<
@@ -46,7 +43,6 @@ export default async function dataSourceConfig(): Promise<
 		[
 			'view.title',
 			'delete.title',
-			'restore.title',
 			'viewUser.title',
 			'guide.title',
 		] as const,
@@ -89,11 +85,8 @@ export default async function dataSourceConfig(): Promise<
 				sortOrder: -1 as const,
 				rows: 10,
 				filters: {
-					status: { value: null, matchMode: 'equals' },
 					user_id: { value: null, matchMode: 'equals' },
-					order_id: { value: null, matchMode: 'equals' },
 					currency: { value: null, matchMode: 'equals' },
-					is_deleted: { value: false, matchMode: 'equals' },
 				} satisfies CartDataTableFiltersType,
 			},
 			/*
@@ -123,50 +116,22 @@ export default async function dataSourceConfig(): Promise<
 						}),
 				},
 				{
-					field: 'status',
-					header: 'Status',
-					sortable: true,
-					minWidth: 128,
-					maxWidth: 128,
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
-							dataSource: 'cart',
-							isStatus: true,
-						}),
-				},
-				{
 					field: 'currency',
 					header: 'Currency',
 					defaultWidth: 104,
-				},
-				{
-					field: 'order_id',
-					header: 'Order',
-					defaultWidth: 120,
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
-							// Only a converted cart names one; every other row has nothing to
-							// point at rather than a missing value.
-							customValue: entry.order_id
-								? `#${entry.order_id}`
-								: '-',
-						}),
 				},
 				{
 					field: 'expires_at',
 					header: 'Expires At',
 					sortable: true,
 					body: (entry, column) =>
+						/*
+						 * The deadline the cleanup job measures against: a cart untouched past
+						 * it is deleted, lines and all. A date already in the past means the
+						 * sweep has not come round yet.
+						 */
 						DataTableValue(entry, column, {
-							/*
-							 * Meaningful only while the cart is active - it is the deadline the
-							 * cleanup job measures against. On a converted or abandoned cart it
-							 * is the moment that has already passed, so it reads as noise.
-							 */
-							customValue:
-								entry.status === 'active'
-									? (formatDate(entry.expires_at) ?? '-')
-									: '-',
+							customValue: formatDate(entry.expires_at) ?? '-',
 						}),
 				},
 				{
@@ -197,33 +162,21 @@ export default async function dataSourceConfig(): Promise<
 			 * No `create` and no `update`. A cart is the shopper's own working state, filled
 			 * through `/public/cart`; a back office able to edit one would be changing the record
 			 * of what they chose. The order is where the business takes over.
+			 *
+			 * No `restore` either - the delete is permanent, since a cart has no state between
+			 * live and gone. The shopper simply starts a new one on their next visit.
 			 */
 			delete: {
 				windowType: 'action',
 				windowTitle: translations['delete.title'],
 				permission: ['cart', 'delete'],
 				entriesSelection: 'single',
-				customEntryCheck: (entry: CartModel) => !entry.deleted_at, // Return true if the entry is not deleted
 				operationFunction: (entry: CartModel) =>
 					requestDelete('cart', entry),
 				buttonPosition: 'left',
 				button: {
 					variant: 'outline',
 					hover: 'error',
-				},
-			},
-			restore: {
-				windowType: 'action',
-				windowTitle: translations['restore.title'],
-				permission: ['cart', 'delete'],
-				entriesSelection: 'single',
-				customEntryCheck: (entry: CartModel) => !!entry.deleted_at, // Return true if the entry is deleted
-				operationFunction: (entry: CartModel) =>
-					requestRestore('cart', entry),
-				buttonPosition: 'left',
-				button: {
-					variant: 'outline',
-					hover: 'default',
 				},
 			},
 			view: {

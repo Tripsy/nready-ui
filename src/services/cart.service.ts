@@ -2,6 +2,7 @@ import { ApiRequest } from '@/helpers/api.helper';
 import type {
 	CartAddItemParams,
 	CartCheckoutModel,
+	CartCheckoutParams,
 	CartWithPricingModel,
 } from '@/models/cart.model';
 import type { ApiResponseFetch } from '@/types/api.type';
@@ -95,20 +96,24 @@ export async function requestSetCartCurrency(
 }
 
 /**
- * Turns the cart into an order. Requires a session - the order names a `client` to invoice, which
- * cannot be chosen for an anonymous caller.
+ * Turns the cart into an order. Requires a session - the order names a `client` to invoice, and it
+ * has to be one of the caller's own (`requestOwnClients` in `client.service.ts`); somebody else's
+ * answers 404. A shopper with none adds one with `requestCreateOwnClient` first.
  *
  * Prices are resolved once more on the backend rather than reused from whatever the shopper was
  * last shown, and those are the figures written to the order: this is the moment they stop moving.
  * An empty cart answers 400, and so does a cart with any line carrying an `issue` - check
  * `pricing.has_issues` before offering the button.
  *
+ * The delivery choice is written as the order's first shipment, leaving from the default warehouse
+ * at no charge - a 409 means no default warehouse is configured. The payment method is recorded
+ * on the order.
+ *
  * The cart is terminal afterwards, so the next `requestCart` starts a new one.
  */
-export async function requestCartCheckout(params: {
-	client_id: number;
-	notes?: string;
-}): Promise<ApiResponseFetch<CartCheckoutModel>> {
+export async function requestCartCheckout(
+	params: CartCheckoutParams,
+): Promise<ApiResponseFetch<CartCheckoutModel>> {
 	return await new ApiRequest().doFetch('/public/cart/checkout', {
 		method: 'POST',
 		body: JSON.stringify(params),

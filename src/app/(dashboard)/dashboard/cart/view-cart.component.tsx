@@ -22,6 +22,9 @@ function money(value: number, currency: string): string {
  * A line carrying an `issue` is dimmed and labelled rather than hidden: it is still in the
  * shopper's cart and still blocking their checkout, so a support screen that quietly dropped it
  * would be answering a question about a cart nobody has.
+ *
+ * A bundle's component lines follow their header and are indented under it, the way the order view
+ * draws them: the header carries no money and the components carry all of it.
  */
 function CartLineRow({
 	line,
@@ -32,12 +35,24 @@ function CartLineRow({
 }) {
 	return (
 		<tr className={line.issue ? 'opacity-60' : undefined}>
-			<td className="py-2 pr-4 align-top">
+			<td
+				className={
+					line.parent_id
+						? 'py-2 pr-4 pl-4 align-top'
+						: 'py-2 pr-4 align-top'
+				}
+			>
 				<div className="font-medium">
-					{line.sku ?? `Variant #${line.variant_id}`}
+					{line.label ?? line.sku ?? `Variant #${line.variant_id}`}
+					{line.is_bundle && (
+						<span className="ml-2 text-xs font-normal text-muted">
+							Bundle
+						</span>
+					)}
 				</div>
 				<div className="text-xs text-muted">
-					Product #{line.product_id} · Variant #{line.variant_id}
+					{line.sku && `${line.sku} · `}Product #{line.product_id} ·
+					Variant #{line.variant_id}
 				</div>
 
 				{line.options.length > 0 && (
@@ -107,27 +122,13 @@ export function ViewCart({ entry }: { entry: CartModel }) {
 			</div>
 
 			<ViewSection title="Cart">
-				<ViewField
-					label="Status"
-					value={formatEnumLabel(entry.status)}
-				/>
 				<ViewField label="Shopper" value={displayCartOwner(entry)} />
 				<ViewField label="Currency" value={entry.currency} />
-				<ViewField
-					label="Order"
-					value={entry.order_id ? `#${entry.order_id}` : '-'}
-				/>
-				{/*
-				 * Only meaningful while the cart is active: it is the deadline the cleanup job
-				 * measures against, and on a terminal cart it is a moment that already passed.
-				 */}
+				{/* The deadline the cleanup job measures against - a cart untouched past it is
+				    deleted, lines and all. */}
 				<ViewField
 					label="Expires At"
-					value={
-						entry.status === 'active'
-							? formatDate(entry.expires_at)
-							: '-'
-					}
+					value={formatDate(entry.expires_at)}
 				/>
 				<ViewField
 					label="Last Activity"

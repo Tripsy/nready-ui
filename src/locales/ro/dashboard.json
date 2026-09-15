@@ -44,7 +44,8 @@
 		"review": "Recenzii",
 		"comment": "Comentarii",
 		"complaint": "Reclamații",
-		"cart": "Coșuri"
+		"cart": "Coșuri",
+		"order": "Comenzi"
 	},
 	"text": {
 		"showing_entries": "Se afișează {{first}} - {{last}} din {{total}} înregistrări",

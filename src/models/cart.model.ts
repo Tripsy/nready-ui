@@ -1,4 +1,6 @@
-import type { StatusTransitions } from '@/types/common.type';
+import Routes from '@/config/routes.setup';
+import type { OrderPaymentMethod, ShippingMethod } from '@/models/order.model';
+import { roundMoney } from '@/models/product.model';
 
 /**
  * Mirrors `cart` and `cart_item` in the backend.
@@ -6,29 +8,12 @@ import type { StatusTransitions } from '@/types/common.type';
  * **Nothing under `pricing` is stored** - a cart holds references and is repriced from the catalog
  * on every read. Do not cache it, do not persist it between visits, and do not compute a total
  * from a figure the page was handed earlier - re-read the cart instead.
+ *
+ * **A cart has no status and no soft delete.** It exists while somebody is filling it and is
+ * deleted the moment it stops being that - checked out, folded into an account's own at sign-in,
+ * or left untouched past `expires_at`. So every cart the API returns is a live basket, and a
+ * handle that no longer resolves gets a fresh cart rather than an old one in some final state.
  */
-
-/**
- * The cart's lifecycle. `converted` and `abandoned` are both terminal: a shopper returning after
- * either is given a new cart, never the old one back.
- */
-export const CartStatusEnum = {
-	ACTIVE: 'active',
-	CONVERTED: 'converted',
-	ABANDONED: 'abandoned',
-} as const;
-
-export type CartStatus = (typeof CartStatusEnum)[keyof typeof CartStatusEnum];
-
-/** Mirrors `STATUS_TRANSITIONS` on the entity. Nothing leaves a terminal state. */
-export const CART_STATUS_TRANSITIONS: StatusTransitions<CartStatus> = {
-	[CartStatusEnum.ACTIVE]: [
-		CartStatusEnum.CONVERTED,
-		CartStatusEnum.ABANDONED,
-	],
-	[CartStatusEnum.CONVERTED]: [],
-	[CartStatusEnum.ABANDONED]: [],
-};
 
 /**
  * Why a line cannot be bought as it stands. The line is still returned - a shopper has to see what
@@ -39,6 +24,10 @@ export const CartLineIssueEnum = {
 	NOT_SELLABLE: 'not_sellable',
 	NO_PRICE: 'no_price',
 	OPTION_GONE: 'option_gone',
+	/** The options no longer answer the product's questions within their bounds. */
+	OPTION_SELECTION: 'option_selection',
+	/** The bundle's composition moved under the line - it has to be removed and added again. */
+	BUNDLE_CHANGED: 'bundle_changed',
 } as const;
 
 export type CartLineIssue =
@@ -46,6 +35,7 @@ export type CartLineIssue =
 
 /** What each chosen option did to the line price, in the cart's currency. */
 export type CartOptionSnapshot = {
+	option_id?: number;
 	label: string;
 	price_delta: number;
 	currency: string;
@@ -61,12 +51,50 @@ export type CartDiscountSnapshot = {
 	value: number;
 };
 
-/** One priced line. Every money field is computed at read time and stored nowhere. */
+/**
+ * One priced line. Every money field is computed at read time and stored nowhere.
+ *
+ * A bundle arrives as a header line plus one line per component, mirroring what the order records
+ * (`product.md` §8.3). **The header carries no money** - `unit_price` and `subtotal` are zero on
+ * it and its components hold the bundle's whole price between them, each at its own VAT rate - so
+ * summing every line is correct and must not be special-cased. `base_price` on the header is what
+ * one bundle costs, for display only.
+ */
+/**
+ * Where a cart line's name links to: its product page, opened on the variant in the basket so
+ * the page shows what was added. A bundle's page has a single variant, so its header needs no
+ * `?variant=`. `null` when the product has no slug in the served language - the name renders as
+ * plain text rather than as a link to nothing.
+ */
+export function cartLineHref(
+	line: Pick<CartLineModel, 'slug' | 'sku' | 'is_bundle'>,
+): string | null {
+	if (!line.slug) {
+		return null;
+	}
+
+	const path = Routes.get('product-view', { slug: line.slug });
+
+	return line.sku && !line.is_bundle
+		? `${path}?variant=${encodeURIComponent(line.sku)}`
+		: path;
+}
+
 export type CartLineModel = {
 	id: number;
+	/** The bundle line this one belongs to; null on every line the shopper added directly. */
+	parent_id: number | null;
+	/** Which `product_bundle_item` this line materializes; null unless it is a component. */
+	bundle_item_id: number | null;
+	/** True on a bundle header, so the components below it can be rendered as its contents. */
+	is_bundle: boolean;
 	variant_id: number;
 	product_id: number;
 	sku: string | null;
+	/** The product's name in the served content language; null when it has none there. */
+	label: string | null;
+	/** The product's slug in the same language, for linking the line to its page; null when it has none. */
+	slug: string | null;
 	quantity: number;
 	notes: string | null;
 
@@ -122,14 +150,11 @@ export type CartModel = {
 	 * and a back-office search by it would turn a support screen into a way to open any cart.
 	 */
 	token: string;
-	status: CartStatus;
 	currency: string;
 	user_id: number | null;
-	order_id: number | null;
 	expires_at: string;
 	created_at: string;
 	updated_at: string | null;
-	deleted_at: string | null;
 	pricing?: CartPricingModel;
 };
 
@@ -161,7 +186,103 @@ export function displayCartTotal(entry: CartModel): string {
 	return `${entry.pricing.total.toFixed(2)} ${entry.currency}`;
 }
 
-/** What checkout answers with. The cart is terminal at that point, so no basket comes back. */
+/** The product's name, then its SKU - a line whose product lost its translation still says something. */
+export function displayCartLineName(line: CartLineModel): string {
+	return line.label ?? line.sku ?? `#${line.variant_id}`;
+}
+
+/**
+ * A bundle's component lines keyed by their header's id, in the order the backend returned them.
+ * Top-level lines are not in the map - they are the ones with `parent_id === null`.
+ */
+export function groupCartComponents(
+	lines: readonly CartLineModel[],
+): Map<number, CartLineModel[]> {
+	const componentsByParent = new Map<number, CartLineModel[]>();
+
+	for (const line of lines) {
+		if (line.parent_id === null) {
+			continue;
+		}
+
+		const list = componentsByParent.get(line.parent_id) ?? [];
+
+		list.push(line);
+		componentsByParent.set(line.parent_id, list);
+	}
+
+	return componentsByParent;
+}
+
+/**
+ * What a line costs, VAT-inclusive and after its discount - the figure the basket and the checkout
+ * summary both show.
+ *
+ * A bundle header carries no money: its components hold the whole price, each at its own VAT rate,
+ * so a bundle's figure is summed from them. The header's own zero would read as a free menu.
+ */
+export function getCartLineGrossTotal(
+	line: CartLineModel,
+	components: readonly CartLineModel[],
+): number {
+	if (line.is_bundle) {
+		return roundMoney(
+			components.reduce(
+				(sum, component) =>
+					sum + component.total + component.vat_amount,
+				0,
+			),
+		);
+	}
+
+	return roundMoney(line.total + line.vat_amount);
+}
+
+/**
+ * What the discounts took off, VAT-inclusive - the "Discount" row of a summary. The reduction is
+ * stored net and VAT is charged after it, so each line's is grossed up at that line's own rate.
+ */
+export function getCartDiscountGross(lines: readonly CartLineModel[]): number {
+	return roundMoney(
+		lines.reduce(
+			(sum, line) =>
+				sum +
+				roundMoney(line.discount_reduction * (1 + line.vat_rate / 100)),
+			0,
+		),
+	);
+}
+
+/**
+ * A line's unit price before its discount, VAT-inclusive. A bundle has no unit price of its own,
+ * so its figure is its total divided by the quantity.
+ */
+export function getCartLineGrossUnitPrice(
+	line: CartLineModel,
+	lineTotal: number,
+): number {
+	if (line.is_bundle) {
+		return line.quantity > 0 ? roundMoney(lineTotal / line.quantity) : 0;
+	}
+
+	return roundMoney(line.unit_price * (1 + line.vat_rate / 100));
+}
+
+/**
+ * The checkout payload. Both addresses are client addresses filed under `client_id`: billing
+ * always, delivery for a courier only. The backend copies the billing one onto the order and the
+ * delivery one onto its first shipment.
+ */
+export type CartCheckoutParams = {
+	client_id: number;
+	billing_address_id: number;
+	delivery_method: ShippingMethod;
+	delivery_address_id?: number | null;
+	payment_method: OrderPaymentMethod;
+	notes?: string | null;
+};
+
+/** What checkout answers with. The cart is deleted at that point, so no basket comes back. */
 export type CartCheckoutModel = {
 	order_id: number;
 	ref_code: string;
@@ -176,5 +297,16 @@ export type CartAddItemParams = {
 	product_id: number;
 	quantity: number;
 	options?: number[];
+	/**
+	 * What was chosen inside a bundle: the `product_bundle_item` rows ticked or picked, and for a
+	 * tick box how many units of it.
+	 *
+	 * **Only the decisions.** Components that always come with the kit are not sent - the backend
+	 * resolves those from the catalog, and naming one is refused. `units` is omitted on a group
+	 * candidate, whose own quantity says what the bundle contains once it is the one chosen.
+	 *
+	 * Accepted only on a bundle, and required when the bundle has choices to make.
+	 */
+	components?: { item_id: number; units?: number }[];
 	notes?: string;
 };

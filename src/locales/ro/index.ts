@@ -17,6 +17,7 @@ import categories from '@/locales/ro/categories.json';
 import category from '@/locales/ro/category.json';
 import category_order from '@/locales/ro/category-order.json';
 import category_tree from '@/locales/ro/category-tree.json';
+import checkout from '@/locales/ro/checkout.json';
 import client from '@/locales/ro/client.json';
 import client_address from '@/locales/ro/client-address.json';
 import comment from '@/locales/ro/comment.json';
@@ -37,6 +38,7 @@ import login from '@/locales/ro/login.json';
 import logout from '@/locales/ro/logout.json';
 import mail_queue from '@/locales/ro/mail-queue.json';
 import oauth from '@/locales/ro/oauth.json';
+import order from '@/locales/ro/order.json';
 import password_recover from '@/locales/ro/password-recover.json';
 import password_recover_change from '@/locales/ro/password-recover-change.json';
 import permission from '@/locales/ro/permission.json';
@@ -77,6 +79,7 @@ const ro = {
 	category,
 	'category-order': category_order,
 	'category-tree': category_tree,
+	checkout,
 	client,
 	'client-address': client_address,
 	comment,
@@ -98,6 +101,7 @@ const ro = {
 	oauth,
 	'password-recover': password_recover,
 	'password-recover-change': password_recover_change,
+	order,
 	permission,
 	place,
 	product,

@@ -8,18 +8,22 @@ import Routes from '@/config/routes.setup';
 import { cn } from '@/helpers/css.helper';
 import { useCart } from '@/hooks/use-cart.hook';
 import { useTranslation } from '@/hooks/use-translation.hook';
-import type { CartLineModel } from '@/models/cart.model';
+import { type CartLineModel, cartLineHref } from '@/models/cart.model';
+import { roundMoney } from '@/models/product.model';
+
+/** Not priced anywhere yet - see `cart-basket.component.tsx`. */
+const DELIVERY_COST = 0;
 
 const TRANSLATION_KEYS = [
 	'cart.storefront.heading',
 	'cart.storefront.empty',
 	'cart.storefront.empty_hint',
 	'cart.storefront.open',
-	'cart.storefront.subtotal',
+	'cart.storefront.products_cost',
 	'cart.storefront.discount',
-	'cart.storefront.vat',
+	'cart.storefront.delivery_cost',
 	'cart.storefront.total',
-	'cart.storefront.go_to_checkout',
+	'cart.storefront.go_to_cart',
 	'cart.storefront.has_issues',
 	'cart.storefront.loading',
 	'cart.storefront.unavailable',
@@ -41,27 +45,73 @@ function money(value: number, currency: string): string {
 	return `${value.toFixed(2)} ${currency}`;
 }
 
+/** The product's name, then its SKU - a line whose product lost its translation still says something. */
+function lineName(line: CartLineModel): string {
+	return line.label ?? line.sku ?? `#${line.variant_id}`;
+}
+
 function CartMenuLine({
 	line,
+	components,
 	currency,
 	unavailableLabel,
+	onNavigate,
 }: {
 	readonly line: CartLineModel;
+	/** A bundle's component lines; empty on every other line. */
+	readonly components: CartLineModel[];
 	readonly currency: string;
 	readonly unavailableLabel: string;
+	/** Closes the panel - it lives in the header, so it would otherwise stay open over the new page. */
+	readonly onNavigate: () => void;
 }) {
+	const href = cartLineHref(line);
+
+	// VAT-inclusive. A bundle header carries no money - its components hold the whole price.
+	const total = line.is_bundle
+		? roundMoney(
+				components.reduce(
+					(sum, component) =>
+						sum + component.total + component.vat_amount,
+					0,
+				),
+			)
+		: roundMoney(line.total + line.vat_amount);
+	const unitPrice = line.is_bundle
+		? line.quantity > 0
+			? roundMoney(total / line.quantity)
+			: 0
+		: roundMoney(line.unit_price * (1 + line.vat_rate / 100));
+	const hasIssue =
+		!!line.issue || components.some((component) => component.issue);
+
 	return (
 		<li className="flex items-start justify-between gap-3 py-2">
 			<div className="min-w-0">
 				<p className="truncate text-sm font-medium">
-					{line.sku ?? `#${line.variant_id}`}
+					{href ? (
+						<NextLink
+							href={href}
+							onClick={onNavigate}
+							className="hover:underline underline-offset-4"
+						>
+							{lineName(line)}
+						</NextLink>
+					) : (
+						lineName(line)
+					)}
 				</p>
+				{components.length > 0 && (
+					<p className="truncate text-xs text-muted">
+						{components.map(lineName).join(', ')}
+					</p>
+				)}
 				<p className="text-xs text-muted">
-					{line.quantity} × {money(line.unit_price, currency)}
+					{line.quantity} × {money(unitPrice, currency)}
 				</p>
 				{/* A line that cannot be bought is shown and labelled, never hidden - it is what
 				    is blocking their checkout, so it has to be findable. */}
-				{line.issue && (
+				{hasIssue && (
 					<p className="text-xs font-medium text-danger">
 						{unavailableLabel}
 					</p>
@@ -69,7 +119,7 @@ function CartMenuLine({
 			</div>
 
 			<span className="shrink-0 text-sm tabular-nums">
-				{money(line.total, currency)}
+				{money(total, currency)}
 			</span>
 		</li>
 	);
@@ -155,8 +205,27 @@ export function CartMenu(): JSX.Element | null {
 	}
 
 	const pricing = cart.pricing;
-	const preview = lines.slice(0, PREVIEW_LINES);
-	const hidden = lines.length - preview.length;
+
+	// Components are drawn inside their bundle, so only the lines a shopper added count as rows.
+	const topLevel = lines.filter((line) => line.parent_id === null);
+	const preview = topLevel.slice(0, PREVIEW_LINES);
+	const hidden = topLevel.length - preview.length;
+
+	const componentsOf = (id: number) =>
+		lines.filter((line) => line.parent_id === id);
+
+	// VAT-inclusive, reconciling to the total - the cart page's summary, in brief.
+	const discountGross = roundMoney(
+		lines.reduce(
+			(sum, line) =>
+				sum +
+				roundMoney(line.discount_reduction * (1 + line.vat_rate / 100)),
+			0,
+		),
+	);
+	const productsCost = roundMoney(
+		pricing.total + discountGross - DELIVERY_COST,
+	);
 
 	return (
 		/*
@@ -202,7 +271,9 @@ export function CartMenu(): JSX.Element | null {
 							<CartMenuLine
 								key={line.id}
 								line={line}
+								components={componentsOf(line.id)}
 								currency={pricing.currency}
+								onNavigate={() => setIsOpen(false)}
 								unavailableLabel={
 									translations['cart.storefront.unavailable']
 								}
@@ -216,33 +287,28 @@ export function CartMenu(): JSX.Element | null {
 
 					<dl className="mt-3 space-y-1 border-t border-border pt-3 text-sm">
 						<div className="flex justify-between text-muted">
-							<dt>{translations['cart.storefront.subtotal']}</dt>
+							<dt>
+								{translations['cart.storefront.products_cost']}
+							</dt>
 							<dd className="tabular-nums">
-								{money(pricing.subtotal, pricing.currency)}
+								{money(productsCost, pricing.currency)}
 							</dd>
 						</div>
 
-						{/* Only when there is one - a zero line reads as "no discount applies",
-						    which is a claim the panel does not need to make. */}
-						{pricing.discount_reduction > 0 && (
-							<div className="flex justify-between text-muted">
-								<dt>
-									{translations['cart.storefront.discount']}
-								</dt>
-								<dd className="tabular-nums">
-									-
-									{money(
-										pricing.discount_reduction,
-										pricing.currency,
-									)}
-								</dd>
-							</div>
-						)}
+						<div className="flex justify-between text-muted">
+							<dt>{translations['cart.storefront.discount']}</dt>
+							<dd className="tabular-nums">
+								{discountGross > 0 ? '-' : ''}
+								{money(discountGross, pricing.currency)}
+							</dd>
+						</div>
 
 						<div className="flex justify-between text-muted">
-							<dt>{translations['cart.storefront.vat']}</dt>
+							<dt>
+								{translations['cart.storefront.delivery_cost']}
+							</dt>
 							<dd className="tabular-nums">
-								{money(pricing.vat_amount, pricing.currency)}
+								{money(DELIVERY_COST, pricing.currency)}
 							</dd>
 						</div>
 
@@ -267,7 +333,7 @@ export function CartMenu(): JSX.Element | null {
 							'mt-4 flex w-full items-center justify-center rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover',
 						)}
 					>
-						{translations['cart.storefront.go_to_checkout']}
+						{translations['cart.storefront.go_to_cart']}
 					</NextLink>
 				</div>
 			)}

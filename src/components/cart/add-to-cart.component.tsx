@@ -1,10 +1,13 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { type JSX, useState } from 'react';
 import { Icons } from '@/components/icon.component';
 import { Button } from '@/components/ui/button';
+import Routes from '@/config/routes.setup';
 import { useCart } from '@/hooks/use-cart.hook';
 import { useTranslation } from '@/hooks/use-translation.hook';
+import type { CartAddItemParams } from '@/models/cart.model';
 import { useToast } from '@/providers/toast.provider';
 
 const TRANSLATION_KEYS = [
@@ -12,6 +15,7 @@ const TRANSLATION_KEYS = [
 	'cart.storefront.adding',
 	'cart.storefront.added',
 	'cart.storefront.add_failed',
+	'cart.storefront.go_to_cart',
 	'cart.storefront.unavailable',
 	'cart.storefront.quantity',
 	'cart.storefront.increase',
@@ -38,15 +42,22 @@ export function AddToCart({
 	productId,
 	variantId,
 	isAvailable = true,
+	components,
+	isReady = true,
 }: {
 	readonly productId: number;
 	readonly variantId: number;
 	/** False while the product is outside its sellable window - the backend would refuse the line anyway. */
 	readonly isAvailable?: boolean;
+	/** A bundle's picks, from `ProductBundleBuilder`; omitted on a simple product. */
+	readonly components?: CartAddItemParams['components'];
+	/** False while a bundle still has a choice unanswered - the backend would refuse the line. */
+	readonly isReady?: boolean;
 }): JSX.Element {
 	const { translations } = useTranslation(TRANSLATION_KEYS);
 	const { showToast } = useToast();
 	const { addItem } = useCart();
+	const router = useRouter();
 
 	const [quantity, setQuantity] = useState(1);
 
@@ -58,12 +69,24 @@ export function AddToCart({
 				product_id: productId,
 				variant_id: variantId,
 				quantity: quantity,
+				...(components && components.length > 0
+					? { components: components }
+					: {}),
 			},
 			{
 				onSuccess: () => {
+					/*
+					 * The way on from here, beside the confirmation. It opens the cart rather than
+					 * `/checkout`: the cart is where lines with issues are resolved before checkout
+					 * will accept them - the same target the header panel's checkout button has.
+					 */
 					showToast({
 						severity: 'success',
 						summary: translations['cart.storefront.added'],
+						action: {
+							label: translations['cart.storefront.go_to_cart'],
+							onPress: () => router.push(Routes.get('cart-view')),
+						},
 					});
 
 					// Back to one: the next thing the shopper adds is its own decision, and
@@ -135,7 +158,11 @@ export function AddToCart({
 				</Button>
 			</fieldset>
 
-			<Button type="button" onClick={onAdd} disabled={isPending}>
+			<Button
+				type="button"
+				onClick={onAdd}
+				disabled={isPending || !isReady}
+			>
 				<Icons.Cart className="mr-2 h-4 w-4" />
 				{isPending
 					? translations['cart.storefront.adding']

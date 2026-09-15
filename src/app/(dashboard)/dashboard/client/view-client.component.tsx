@@ -61,7 +61,9 @@ export function ViewClient({ entry }: { entry: ClientModel }) {
 			</ViewSection>
 
 			<ViewSection title="Contact Details">
-				<ViewField label="Name" value={entry.contact_name} />
+				{entry.client_type === ClientTypeEnum.COMPANY && (
+					<ViewField label="Name" value={entry.contact_name} />
+				)}
 				<ViewField label="Email" value={entry.contact_email} />
 				<ViewField label="Phone" value={entry.contact_phone} />
 			</ViewSection>

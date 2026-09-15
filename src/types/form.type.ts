@@ -28,7 +28,15 @@ type FormValueType =
  * walks a path of any depth, as does `accumulateZodErrors`.
  */
 export type FormValuesType = {
-	[key: string]: FormValueType | FormValuesType | FormValuesType[];
+	/*
+	 * `FormValueType[]` is a list of scalars - the option ids on an order line - which
+	 * `FormErrorsType` already answers with a flat `string[]` rather than per-item errors.
+	 */
+	[key: string]:
+		| FormValueType
+		| FormValueType[]
+		| FormValuesType
+		| FormValuesType[];
 };
 
 export type GetFormValuesFnType<FormValues> = (

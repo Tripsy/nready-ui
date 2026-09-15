@@ -44,7 +44,8 @@
 		"review": "Reviews",
 		"comment": "Comments",
 		"complaint": "Complaints",
-		"cart": "Carts"
+		"cart": "Carts",
+		"order": "Orders"
 	},
 	"text": {
 		"showing_entries": "Showing {{first}} to {{last}} of {{total}} entries",

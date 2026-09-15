@@ -8,6 +8,7 @@ paths:
   - "src/hooks/use-refresh-data-table.hook.ts"
   - "src/providers/query-client.provider.tsx"
   - "src/app/**/data-table-*.component.tsx"
+  - "src/app/**/*.definition.ts"
 ---
 
 # Data Fetching Protocol
@@ -40,6 +41,18 @@ paths:
 - Before wrapping a new backend endpoint, check `../nready-api/src/features/<entity>/<entity>.routes.ts`
   and `<entity>.controller.ts` for the exact path, method, and response envelope - don't guess the shape from
   the frontend side.
+- Type a wrapper's return by what the endpoint actually sends: an action answering only a message is
+  `ApiResponseFetch<null>`. A `windowType: 'action'` operation takes that as is, but a `windowType: 'form'`
+  operation must return `ApiResponseFetch<Partial<Entry>>` - adapt it at the call site with an explicit
+  return type, and guard the spread, since `ApiResponseFetch` includes `undefined`:
+  ```typescript
+  operationFunction: async (values, id): Promise<ApiResponseFetch<Partial<ClientModel>>> => {
+  	const response = await requestUpdateClientAccount(id, values.user_id);
+
+  	return response && { ...response, data: {} };
+  },
+  ```
+  See `linkAccount` in `dashboard/client/client.definition.ts`.
 
 ## 3. Query Key Conventions
 

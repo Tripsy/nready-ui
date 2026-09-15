@@ -1,0 +1,82 @@
+{
+	"meta": {
+		"title": "Orders - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_client_id": "Select a client",
+		"invalid_currency": "Invalid currency",
+		"invalid_type": "Invalid order type",
+		"invalid_issued_at": "Invalid issue date",
+		"invalid_lines": "Add at least one line",
+		"invalid_variant_id": "Pick a product variant",
+		"invalid_product_id": "Invalid product",
+		"invalid_quantity": "Quantity must be above 0",
+		"invalid_price": "Price must be 0 or more",
+		"invalid_vat_rate": "VAT rate must be between 0 and 100",
+		"invalid_options": "Invalid product options",
+		"invalid_notes": "Invalid notes"
+	},
+	"status": {
+		"pending": "Pending",
+		"confirmed": "Confirmed",
+		"completed": "Completed",
+		"canceled": "Canceled",
+		"deleted": "Deleted"
+	},
+	"error": {
+		"cannot_update_status": "This order cannot change status from its current state"
+	},
+	"action": {
+		"create": {
+			"title": "Compose a new order",
+			"label": "Add",
+			"success": "Order created as pending"
+		},
+		"update": {
+			"title": "Update order - {{entry}}",
+			"label": "Update",
+			"success": "Order updated successfully"
+		},
+		"delete": {
+			"title": "Delete order - {{entry}}",
+			"label": "Delete",
+			"success": "Order deleted successfully",
+			"confirm": "Are you sure you want to delete this order?"
+		},
+		"restore": {
+			"title": "Restore order - {{entry}}",
+			"label": "Restore",
+			"success": "Order restored successfully",
+			"confirm": "Are you sure you want to restore this order?"
+		},
+		"statusTransition": {
+			"title": "Update status - {{entry}}",
+			"label": "Status",
+			"success": "Order status updated successfully"
+		},
+		"view": {
+			"title": "Order details - {{entry}}",
+			"label": "View details"
+		},
+		"guide": {
+			"title": "How orders work",
+			"label": "Usage guide"
+		}
+	},
+	"help": {
+		"intro": "An order is the document the business raises against a client: what was bought, at what price, and how far along it is. Most orders arrive on their own - a shopper checking out turns their cart into one - and this screen is where they are followed, plus where an order taken by phone or in person is typed up.",
+		"step_1_title": "Compose or wait for one",
+		"step_1_body": "Every order starts as pending, whether a shopper checked out or it was typed up here from a phone call or a counter sale. Either way the reference (ORD-1183) is allocated the moment the document is saved, and an order canceled while still pending leaves that number spent.",
+		"step_2_title": "State the figures yourself",
+		"step_2_body": "An order records prices, it does not work them out. Each line names a variant, a quantity, a unit price excluding VAT and a VAT rate - the price and rate suggested when a variant is picked are a starting point taken from the catalog, not a rule, and the operator agrees the final figure. Options are picked per line from the questions the product asks, and every required question needs an answer - but the unit price stays the one you type, with the option deltas already included. Discounts are not offered here: the catalog's own rules are applied when the order is saved.",
+		"step_3_title": "Edit lines only while it is pending",
+		"step_3_body": "Lines can be replaced as a set while the order is pending - a checkout order included, so a quantity can be corrected before it is accepted - and never after it is confirmed. The options chosen at checkout are loaded with the lines and saved back with them. The notes, the issue date, the client and the type stay editable throughout.",
+		"step_4_title": "Move it along",
+		"step_4_body": "Pending to confirmed to completed, one way only. Cancel is available up to and including confirmed - confirming moves no stock, since goods leave on shipment - and both completed and canceled are terminal. An order that goes wrong after fulfilment is corrected on the money, with a credit note against the invoice.",
+		"step_5_title": "Find it again",
+		"step_5_body": "Search takes a whole reference (ORD-1183), a bare number - matched against both the id and the document number - or a series code. Filter by client, status, type and issue date, and order by id, document number, issue date, status or creation date.",
+		"note": "The totals shown on an order are its lines summed at the prices they were quoted at, before any discount recorded against them. A discount is stored as the rule that applied rather than the money it took off, so the charged figure cannot be recomputed faithfully here - an order carrying one is flagged instead of quietly reduced.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
+	}
+}

@@ -39,6 +39,7 @@ const TRANSLATION_KEYS = [
 
 	'dashboard.labels.shop',
 	'dashboard.labels.product',
+	'dashboard.labels.order',
 
 	'dashboard.labels.logistics',
 	'dashboard.labels.address',
@@ -197,6 +198,13 @@ export function useSideMenuSections(): {
 						text: translations['dashboard.labels.cart'],
 						icon: Icons.Cart,
 						permission: hasPermission(auth, 'cart'),
+					},
+					{
+						page: 'order',
+						href: Routes.get('order'),
+						text: translations['dashboard.labels.order'],
+						icon: Icons.Order,
+						permission: hasPermission(auth, 'order'),
 					},
 				],
 			},

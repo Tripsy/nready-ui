@@ -67,6 +67,12 @@ export const statusList: Record<
 		variant: 'success',
 		icon: Icons.Status.Ok,
 	},
+	// An order accepted by the business but not yet fulfilled - a state of its own between
+	// `pending` and `completed`, and without an entry here the three render identically
+	confirmed: {
+		variant: 'info',
+		icon: Icons.Status.Authorized,
+	},
 	failed: {
 		variant: 'error',
 		icon: Icons.Status.Failed,

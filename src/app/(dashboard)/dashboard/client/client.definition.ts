@@ -226,6 +226,10 @@ export function getFormValues(formData: FormData): ClientFormValuesType {
 		...base,
 		client_type: ClientTypeEnum.PERSON,
 
+		// The form has no contact name for a person - `person_name` is the contact - so an
+		// existing value is cleared on save rather than kept out of sight
+		contact_name: null,
+
 		person_name: getFormDataAsString(formData, 'person_name'),
 		person_identification_number: getFormDataAsString(
 			formData,

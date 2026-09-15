@@ -6,6 +6,8 @@ import {
 	PRODUCT_ATTRIBUTE_TRANSLATION_KEYS,
 	ProductAttributes,
 } from '@/app/(public)/_components/product/product-attributes.component';
+import { ProductBundleBuilder } from '@/app/(public)/_components/product/product-bundle-builder.component';
+import { PRODUCT_BUNDLE_BUILDER_TRANSLATION_KEYS } from '@/app/(public)/_components/product/product-bundle-builder.definition';
 import { ProductGallery } from '@/app/(public)/_components/product/product-gallery.component';
 import {
 	ProductRelated,
@@ -45,6 +47,7 @@ import {
 	buildVariantAxisGroups,
 	buildVariantAxisLabel,
 	formatProductPrice,
+	ProductCompositionEnum,
 	type ProductContentType,
 	type ProductListVariantType,
 	type ProductPublicModel,
@@ -75,6 +78,7 @@ const TRANSLATION_KEYS = [
 	'text.variants',
 	...PRODUCT_ATTRIBUTE_TRANSLATION_KEYS,
 	...PRODUCT_VARIANT_CHOOSER_TRANSLATION_KEYS,
+	...PRODUCT_BUNDLE_BUILDER_TRANSLATION_KEYS,
 ] as const;
 
 /**
@@ -325,6 +329,8 @@ export default async function Page(props: Props) {
 
 	const tags = toPublicTagRefs(entry);
 
+	const isBundle = entry.composition === ProductCompositionEnum.BUNDLE;
+
 	return (
 		<div className="container-default py-12 md:py-16">
 			<Breadcrumb
@@ -534,7 +540,40 @@ export default async function Page(props: Props) {
 						 * deployment reads is still addable, and a card holding only the button
 						 * is better than a button with no card around it.
 						 */}
-						{selected && (
+						{/*
+						 * A bundle's card is the builder instead: what the kit holds, the choices it
+						 * leaves open, and a total that moves with them. The headline price alone
+						 * would sell a box without saying what is in it, and the cart refuses a
+						 * bundle with choices to make and none sent.
+						 */}
+						{selected && isBundle && (
+							<div className="rounded-2xl border border-border bg-surface p-6">
+								<ProductBundleBuilder
+									productId={entry.id}
+									variantId={selected.id}
+									isAvailable={
+										entry.sale_status ===
+										ProductSaleStatusEnum.AVAILABLE
+									}
+									bundlePrice={
+										selectedPrice
+											? {
+													currency:
+														selectedPrice.currency,
+													sale_price:
+														selectedPrice.net_sale_price,
+												}
+											: null
+									}
+									groups={entry.bundle_groups ?? []}
+									items={entry.bundle_items ?? []}
+									language={language}
+									translations={translations}
+								/>
+							</div>
+						)}
+
+						{selected && !isBundle && (
 							<div className="rounded-2xl border border-border bg-surface p-6">
 								{selectedPrice && (
 									<p className="flex flex-wrap items-baseline gap-2 text-2xl font-semibold">

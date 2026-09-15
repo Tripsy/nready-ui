@@ -35,6 +35,45 @@ export type ClientAddressModel<D = Date | string> = {
 	updated_at: D | null;
 };
 
+/** The place an address sits in, named by the backend - each level null when the chain stops short. */
+export type AddressPlaceNames = {
+	city: string | null;
+	region: string | null;
+	country: string | null;
+};
+
+/**
+ * A client address as the storefront lists it (`GET /public/client-addresses`): the street data
+ * flattened onto `address`, and the place named in `place` rather than as a nested place tree.
+ */
+export type OwnClientAddressModel<D = Date | string> = Omit<
+	ClientAddressModel<D>,
+	'address' | 'client'
+> & {
+	address: {
+		id: number;
+		city_id: number | null;
+		/** Street and number. */
+		details: string;
+		postal_code: string | null;
+	} | null;
+	place: AddressPlaceNames;
+};
+
+/** One line, most specific first: street, flat, postal code, then the place from city outward. */
+export function displayOwnClientAddress(entry: OwnClientAddressModel): string {
+	return [
+		entry.address?.details,
+		entry.details,
+		entry.address?.postal_code,
+		entry.place.city,
+		entry.place.region,
+		entry.place.country,
+	]
+		.filter((part): part is string => !!part)
+		.join(', ');
+}
+
 export function displayClientAddressLabel(
 	entry: ClientAddressModel,
 	language: Language,

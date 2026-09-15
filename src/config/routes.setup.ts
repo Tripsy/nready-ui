@@ -172,6 +172,9 @@ Routes.add('products-brand', '/products/brand/:slug');
 Routes.add('product-view', '/products/:slug');
 // The shopper's own basket. Public: a guest has a cart before they have an account.
 Routes.add('cart-view', '/cart');
+// Authenticated: the order is billed to one of the account's own clients. A guest is sent to
+// login with `?from=/checkout`, and signing in folds their guest cart into the account's.
+Routes.add('checkout', '/checkout', { auth: RouteAuthEnum.AUTHENTICATED });
 Routes.add('articles', '/articles');
 Routes.add('articles-categories', '/articles/categories');
 Routes.add('articles-category', '/articles/category/:slug');
@@ -299,6 +302,9 @@ Routes.group('dashboard')
 	})
 	.add('warehouse', '/dashboard/warehouse', {
 		permissionEntity: 'warehouse',
+	})
+	.add('order', '/dashboard/order', {
+		permissionEntity: 'order',
 	})
 	.add('term', '/dashboard/term', {
 		permissionEntity: 'term',

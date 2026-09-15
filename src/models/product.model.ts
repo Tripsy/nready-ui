@@ -165,6 +165,13 @@ export type ProductPriceType = {
 	sale_price: number | null;
 	reference_price: number | null;
 	min_price: number | null;
+	/**
+	 * The two figures above with VAT added, attached by the public reads alone - the storefront
+	 * quotes VAT-inclusive prices and has neither the rates nor, for a bundle, the split across
+	 * components taxed at different rates. `attachGrossPrices` on the backend.
+	 */
+	sale_price_gross?: number | null;
+	reference_price_gross?: number | null;
 };
 
 /**
@@ -217,7 +224,11 @@ export type ProductListVariantType = {
 	is_default: boolean;
 	prices: Pick<
 		ProductPriceType,
-		'currency' | 'sale_price' | 'reference_price'
+		| 'currency'
+		| 'sale_price'
+		| 'reference_price'
+		| 'sale_price_gross'
+		| 'reference_price_gross'
 	>[];
 	attributes?: ProductVariantAxisType[];
 	/*
@@ -394,6 +405,15 @@ export type ProductBundleGroupType = {
  * stock and carries its own VAT class.
  */
 export type ProductBundleItemType = {
+	/**
+	 * The stored row's id, and what a cart line names this component by - `item_id` in the
+	 * `components` payload is this, not `variant_id`, since the same variant may be offered twice
+	 * in one bundle under different terms.
+	 *
+	 * Optional because the dashboard's bundle form holds unsaved rows that have none yet. Every
+	 * read hands it back, so a storefront that needs it can rely on it once the row came from one.
+	 */
+	id?: number;
 	variant_id: number;
 	quantity: number;
 	position: number;
@@ -402,6 +422,18 @@ export type ProductBundleItemType = {
 	is_optional: boolean;
 	is_default: boolean;
 	prices: ProductBundleItemPriceType[];
+	/**
+	 * The component's own variant, projected by the storefront read alone.
+	 *
+	 * A component names a variant of **another** product, so nothing else in the bundle's payload
+	 * can say what it is: the bundle's own `variants` are its header's. Absent on the dashboard
+	 * read, which resolves components through `GET /product-variants` instead.
+	 */
+	variant?: Pick<ProductListVariantType, 'id' | 'sku' | 'prices'> | null;
+	/** The component product's label in the served language - storefront read only. */
+	label?: string | null;
+	/** The component product's VAT rate in percent - storefront read only. */
+	vat_rate?: number;
 };
 
 /**
@@ -431,6 +463,8 @@ export type ProductOptionPriceType = {
  * and held by the same kind of partial unique index.
  */
 export type ProductOptionType = {
+	/** Present on a read; absent on a row the editor has not saved yet. */
+	id?: number;
 	label_id: number;
 	position: number | null;
 	is_default: boolean;
@@ -452,6 +486,8 @@ export type ProductOptionType = {
  * `max_select` null means no upper bound.
  */
 export type ProductOptionGroupType = {
+	/** Present on a read; absent on a row the editor has not saved yet. */
+	id?: number;
 	label_id: number;
 	min_select: number | null;
 	max_select: number | null;
@@ -1125,11 +1161,30 @@ export function buildProductSpecifications(
  * never quote two different markets.
  */
 export function resolveVariantPrice(
-	variant: ProductListVariantType | undefined,
+	/*
+	 * Structural rather than `ProductListVariantType`: the only thing read is `prices`, and a
+	 * bundle component's variant arrives projected down to the three fields the storefront needs.
+	 * Every existing caller still satisfies this.
+	 */
+	variant:
+		| {
+				prices?: Pick<
+					ProductPriceType,
+					| 'currency'
+					| 'sale_price'
+					| 'reference_price'
+					| 'sale_price_gross'
+					| 'reference_price_gross'
+				>[];
+		  }
+		| undefined,
 ): {
 	currency: string;
+	/** VAT-inclusive whenever the read supplied it - the figure a shopper is quoted. */
 	sale_price: number;
 	reference_price: number | null;
+	/** Excluding VAT, for arithmetic that has to meet the cart's own (the bundle builder). */
+	net_sale_price: number;
 } | null {
 	const prices = variant?.prices ?? [];
 
@@ -1145,16 +1200,58 @@ export function resolveVariantPrice(
 		return null;
 	}
 
-	const reference = price.reference_price;
+	const sale = price.sale_price_gross ?? price.sale_price;
+	const reference = price.reference_price_gross ?? price.reference_price;
 
 	return {
 		currency: price.currency,
-		sale_price: price.sale_price,
+		sale_price: sale,
 		reference_price:
-			reference !== null && reference > price.sale_price
-				? reference
-				: null,
+			reference !== null && reference > sale ? reference : null,
+		net_sale_price: price.sale_price,
 	};
+}
+
+/** Two decimals, the scale every money figure is quoted in - the backend's `roundMoney`. */
+export function roundMoney(value: number): number {
+	return Math.round(value * 100) / 100;
+}
+
+/**
+ * Splits a total across parts pro-rata by weight, the remainder landing on the largest share so
+ * the parts sum exactly - a port of the backend's `apportion`, which the cart splits a bundle's
+ * price with. It has to stay identical for a page quoting a bundle to meet the cart's figure.
+ */
+export function apportion(total: number, weights: readonly number[]): number[] {
+	if (weights.length === 0) {
+		return [];
+	}
+
+	const rounded = roundMoney(total);
+	const sum = weights.reduce((carry, weight) => carry + weight, 0);
+
+	const shares =
+		sum > 0
+			? weights.map((weight) => roundMoney((rounded * weight) / sum))
+			: weights.map(() => roundMoney(rounded / weights.length));
+
+	const drift = roundMoney(
+		rounded - shares.reduce((carry, share) => carry + share, 0),
+	);
+
+	if (drift !== 0) {
+		let largest = 0;
+
+		for (let index = 1; index < shares.length; index++) {
+			if (shares[index] > shares[largest]) {
+				largest = index;
+			}
+		}
+
+		shares[largest] = roundMoney(shares[largest] + drift);
+	}
+
+	return shares;
 }
 
 /**
@@ -1179,9 +1276,10 @@ export function resolvePriceRange(
 		? preferred
 		: prices[0].currency;
 
+	// VAT-inclusive when the read supplied it, which every public one does.
 	const amounts = prices
 		.filter((price) => price.currency === currency)
-		.map((price) => price.sale_price)
+		.map((price) => price.sale_price_gross ?? price.sale_price)
 		.filter((amount): amount is number => amount !== null);
 
 	if (amounts.length === 0) {
