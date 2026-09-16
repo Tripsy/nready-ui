@@ -18,6 +18,10 @@ import {
  * One cache entry for the whole app. The header badge, the product page and the basket page all
  * read this key, so a line added on one is on the others without any of them telling the others -
  * which is the reason the cart is server data in TanStack Query rather than a Zustand store.
+ *
+ * Checkout is the exception: a basket priced against a client is a different quote, so it holds
+ * its own entry keyed `[...CART_QUERY_KEY, clientId]`. The base key stays this array's prefix, so
+ * invalidating it reaches the client-priced entries too.
  */
 export const CART_QUERY_KEY = ['cart'] as const;
 
@@ -40,22 +44,32 @@ const STALE_TIME_MS = 30_000;
  * response instead of invalidating and re-fetching - one round trip per action rather than two,
  * and no window where the badge shows the old count.
  */
-export function useCart() {
+export function useCart(clientId?: number | null) {
 	const queryClient = useQueryClient();
 
+	/*
+	 * Naming a client asks the backend to price the basket against that buyer, which is what makes
+	 * a client-scoped discount visible before the order is raised. It is a different quote of the
+	 * same lines, so it gets its own entry rather than overwriting the one every other page reads.
+	 */
+	const queryKey = clientId ? [...CART_QUERY_KEY, clientId] : CART_QUERY_KEY;
+
 	const query = useQuery({
-		queryKey: CART_QUERY_KEY,
-		queryFn: async () => getResponseData(await requestCart()),
+		queryKey: queryKey,
+		queryFn: async () => getResponseData(await requestCart(clientId)),
 		staleTime: STALE_TIME_MS,
 	});
 
 	const setCart = useCallback(
 		(cart: CartWithPricingModel | undefined) => {
 			if (cart) {
-				queryClient.setQueryData(CART_QUERY_KEY, cart);
+				queryClient.setQueryData(
+					clientId ? [...CART_QUERY_KEY, clientId] : CART_QUERY_KEY,
+					cart,
+				);
 			}
 		},
-		[queryClient],
+		[queryClient, clientId],
 	);
 
 	const addItem = useMutation({

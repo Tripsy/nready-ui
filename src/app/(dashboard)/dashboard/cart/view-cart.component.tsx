@@ -95,11 +95,17 @@ function CartLineRow({
 				{line.discount_reduction > 0 ? (
 					<>
 						-{money(line.discount_reduction, currency)}
-						{line.discount && (
-							<div className="text-xs text-muted">
-								{line.discount.label}
+						{/* One per rule: a line can carry its own discount and an order-wide
+						    campaign's share of it at the same time, and the figure above is
+						    their sum. */}
+						{line.discount?.map((discount, index) => (
+							<div
+								key={discount.discount_id ?? index}
+								className="text-xs text-muted"
+							>
+								{discount.label}
 							</div>
-						)}
+						))}
 					</>
 				) : (
 					'-'

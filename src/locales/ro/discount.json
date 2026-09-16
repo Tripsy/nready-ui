@@ -15,7 +15,7 @@
 		"percent_must_be_between_0_and_100": "Reducerea procentuală trebuie să fie între 0 și 100",
 		"invalid_notes": "Notițe invalide",
 		"invalid_min_order_value": "Valoarea minimă a comenzii este invalidă",
-		"invalid_countries": "Codurile de țară trebuie să aibă două litere",
+		"invalid_countries": "Codurile de țară trebuie să aibă două litere (ISO alpha-2, ex. RO)",
 		"invalid_hour": "Ora trebuie să fie un număr întreg între 0 și 23",
 		"invalid_day": "Ziua trebuie să fie între luni și duminică",
 		"range_needs_both_ends": "Setează ambele capete ale intervalului sau niciunul",

@@ -207,6 +207,16 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 							value={`-${displayOrderMoney(totals.discount_reduction, currency)}`}
 						/>
 					)}
+					{/*
+					 * A breakdown of the row above, not a further reduction - the campaign's
+					 * money is already inside it, so the figure is labelled as included.
+					 */}
+					{totals.order_discount_reduction > 0 && (
+						<ViewField
+							label="Of which order-wide"
+							value={`-${displayOrderMoney(totals.order_discount_reduction, currency)} (included in the discount above)`}
+						/>
+					)}
 					<ViewField
 						label="VAT"
 						value={displayOrderMoney(totals.vat_amount, currency)}

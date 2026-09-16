@@ -70,7 +70,12 @@ const validatorMessages = [
 ] as const;
 
 class DiscountValidator extends BaseValidator<typeof validatorMessages> {
-	/** Two-letter ISO codes, comma separated. Empty means "no country condition". */
+	/**
+	 * Two-letter ISO 3166-1 alpha-2 codes, comma separated. Empty means "no country condition".
+	 *
+	 * Alpha-2 is the vocabulary every country rule in the system shares, because the reader-side
+	 * check is compared against CDN geo headers, which emit nothing else.
+	 */
 	readonly countries = z
 		.string()
 		.trim()

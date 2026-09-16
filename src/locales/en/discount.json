@@ -15,7 +15,7 @@
 		"percent_must_be_between_0_and_100": "Percent discount must be between 0 and 100",
 		"invalid_notes": "Invalid notes",
 		"invalid_min_order_value": "Minimum order value is invalid",
-		"invalid_countries": "Country codes must be two letters",
+		"invalid_countries": "Country codes must be two letters (ISO alpha-2, e.g. RO)",
 		"invalid_hour": "Hour must be a whole number between 0 and 23",
 		"invalid_day": "Day must be between Monday and Sunday",
 		"range_needs_both_ends": "Set both ends of the range, or neither",

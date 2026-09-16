@@ -139,7 +139,6 @@ export function CheckoutForm(): JSX.Element {
 	const { showToast } = useToast();
 	const { auth } = useAuth();
 	const queryClient = useQueryClient();
-	const { cart, lines, isLoading: isCartLoading } = useCart();
 
 	const elementIds = useElementIds([
 		'delivery_method',
@@ -163,6 +162,13 @@ export function CheckoutForm(): JSX.Element {
 	const [selectedClientId, setSelectedClientId] = useState<number | null>(
 		null,
 	);
+
+	/*
+	 * Priced against the client being billed, so a discount scoped to that buyer shows on the
+	 * summary here rather than appearing for the first time on the order. Declared below the
+	 * selection it reads, and re-priced whenever the shopper changes it.
+	 */
+	const { cart, lines, isLoading: isCartLoading } = useCart(selectedClientId);
 	const [editor, setEditor] = useState<BillingEditor | null>(null);
 	const [billingValues, setBillingValues] = useState<BillingValues>(() =>
 		getDefaultBillingValues(auth),
@@ -606,10 +612,18 @@ export function CheckoutForm(): JSX.Element {
 										<p className="text-xs text-muted tabular-nums">
 											{line.quantity} ×{' '}
 											{money(unitPrice, pricing.currency)}
-											{line.discount && (
-												<span className="ml-2 text-accent">
-													{line.discount.label}
-												</span>
+											{line.discount?.map(
+												(discount, index) => (
+													<span
+														key={
+															discount.discount_id ??
+															index
+														}
+														className="ml-2 text-accent"
+													>
+														{discount.label}
+													</span>
+												),
 											)}
 										</p>
 

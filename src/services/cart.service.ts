@@ -28,10 +28,19 @@ import type { ApiResponseFetch } from '@/types/api.type';
  * The current cart, created when the caller has none - so a first page load needs no separate
  * "start a cart" call and the badge in the header can call this unconditionally.
  */
-export async function requestCart(): Promise<
-	ApiResponseFetch<CartWithPricingModel>
-> {
-	return await new ApiRequest().doFetch('/public/cart', { method: 'GET' });
+export async function requestCart(
+	clientId?: number | null,
+): Promise<ApiResponseFetch<CartWithPricingModel>> {
+	/*
+	 * `clientId` is a preview: it prices the basket against a client the caller holds, so a
+	 * discount scoped to that buyer shows on the checkout summary rather than appearing for the
+	 * first time on the order. The basket page has no client chosen and sends none.
+	 */
+	const query = clientId ? `?client_id=${clientId}` : '';
+
+	return await new ApiRequest().doFetch(`/public/cart${query}`, {
+		method: 'GET',
+	});
 }
 
 /**

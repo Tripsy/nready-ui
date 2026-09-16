@@ -42,7 +42,7 @@ export type CartOptionSnapshot = {
 	currency: string;
 };
 
-/** The discount that won this line, as the backend recorded it. Null when none applied. */
+/** One rule that reduced a line, as the backend recorded it. */
 export type CartDiscountSnapshot = {
 	label: string;
 	scope: string;
@@ -50,6 +50,13 @@ export type CartDiscountSnapshot = {
 	reference: string | null;
 	type: string;
 	value: number;
+	/** The rule it came from; absent on snapshots written before it was recorded. */
+	discount_id?: number;
+	/**
+	 * What this rule alone took off the line. A line may carry its own discount and, stacked on
+	 * top, its share of an order-wide campaign - `discount_reduction` is their sum.
+	 */
+	reduction?: number;
 };
 
 /**
@@ -108,8 +115,13 @@ export type CartLineModel = {
 	vat_rate: number;
 	/** `unit_price × quantity`, excluding VAT and before any discount. */
 	subtotal: number;
+	/** Everything taken off this line - every snapshot below, summed. */
 	discount_reduction: number;
-	discount: CartDiscountSnapshot | null;
+	/**
+	 * The rules that reduced this line: its own best discount first, then an order-wide campaign
+	 * apportioned onto it. Null when none applied.
+	 */
+	discount: CartDiscountSnapshot[] | null;
 	/** `subtotal - discount_reduction`, excluding VAT. */
 	total: number;
 	vat_amount: number;
@@ -122,7 +134,15 @@ export type CartPricingModel = {
 	exchange_rate: number;
 	lines: CartLineModel[];
 	subtotal: number;
+	/** Everything the discounts took off, the order-wide campaign included. */
 	discount_reduction: number;
+	/**
+	 * The order-wide campaign that fired, or null. Its money is already inside
+	 * `discount_reduction` and inside the lines it reached, so name it rather than adding it.
+	 */
+	order_discount: CartDiscountSnapshot | null;
+	/** What `order_discount` took off. Already counted in `discount_reduction`. */
+	order_discount_reduction: number;
 	vat_amount: number;
 	/** What the shopper would pay, VAT included. */
 	total: number;

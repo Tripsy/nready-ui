@@ -138,11 +138,16 @@ function BasketLine({
 
 				<p className="mt-1 text-sm text-muted">
 					{money(unitPrice, currency)}
-					{line.discount && (
-						<span className="ml-2 text-accent">
-							{line.discount.label}
+					{/* One per rule: a line can carry its own discount and an order-wide
+					    campaign's share of it at the same time. */}
+					{line.discount?.map((discount, index) => (
+						<span
+							key={discount.discount_id ?? index}
+							className="ml-2 text-accent"
+						>
+							{discount.label}
 						</span>
-					)}
+					))}
 				</p>
 
 				{/* Shown, never hidden: this is what is blocking checkout, so it has to be
@@ -326,7 +331,17 @@ export function CartBasket(): JSX.Element {
 					</div>
 
 					<div className="flex justify-between text-muted">
-						<dt>{translations['cart.storefront.discount']}</dt>
+						<dt>
+							{translations['cart.storefront.discount']}
+							{/* Named beside the row rather than given one of its own: the
+							    campaign's money is already inside `discountGross`, and a second
+							    figure would read as a second reduction. */}
+							{pricing.order_discount && (
+								<span className="ml-2 text-accent">
+									{pricing.order_discount.label}
+								</span>
+							)}
+						</dt>
 						<dd className="tabular-nums">
 							{discountGross > 0 ? '-' : ''}
 							{money(discountGross, pricing.currency)}

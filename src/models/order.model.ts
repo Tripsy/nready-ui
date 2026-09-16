@@ -61,7 +61,7 @@ export const ORDER_REF_CODE_MAX_LENGTH = 10;
 /** What one request may compose, mirroring `ORDER_LINES_MAX` in the backend validator. */
 export const ORDER_LINES_MAX = 200;
 
-/** The discount that won a line, as the backend snapshotted it when the order was raised. */
+/** One rule that reduced a line, as the backend snapshotted it when the order was raised. */
 export type OrderDiscountSnapshot = {
 	label: string;
 	scope: string;
@@ -69,6 +69,13 @@ export type OrderDiscountSnapshot = {
 	reference?: string | null;
 	type: string;
 	value: number;
+	/** The rule it came from; absent on snapshots written before it was recorded. */
+	discount_id?: number;
+	/**
+	 * What this rule alone took off the line. A line may carry its own discount and, stacked on
+	 * top, its share of an order-wide campaign - `discount_reduction` is their sum.
+	 */
+	reduction?: number;
 };
 
 /** What a chosen option did to the line's unit price, in the order's currency. */
@@ -130,7 +137,13 @@ export type OrderTotalsModel = {
 	currency: string;
 	exchange_rate: number;
 	subtotal: number;
+	/** Everything the catalog's rules took off, the order-wide campaign included. */
 	discount_reduction: number;
+	/**
+	 * How much of `discount_reduction` came from an order-wide campaign rather than the lines'
+	 * own rules. **Already inside** that figure - show it as a breakdown, never subtract it again.
+	 */
+	order_discount_reduction: number;
 	vat_amount: number;
 	total: number;
 	has_discount: boolean;
