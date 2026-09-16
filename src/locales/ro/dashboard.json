@@ -45,7 +45,8 @@
 		"comment": "Comentarii",
 		"complaint": "Reclamații",
 		"cart": "Coșuri",
-		"order": "Comenzi"
+		"order": "Comenzi",
+		"shipping": "Expedieri"
 	},
 	"text": {
 		"showing_entries": "Se afișează {{first}} - {{last}} din {{total}} înregistrări",

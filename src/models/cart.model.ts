@@ -1,6 +1,7 @@
 import Routes from '@/config/routes.setup';
-import type { OrderPaymentMethod, ShippingMethod } from '@/models/order.model';
+import type { OrderPaymentMethod } from '@/models/order.model';
 import { roundMoney } from '@/models/product.model';
+import type { ShippingMethod } from '@/models/shipping.model';
 
 /**
  * Mirrors `cart` and `cart_item` in the backend.

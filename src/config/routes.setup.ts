@@ -306,6 +306,9 @@ Routes.group('dashboard')
 	.add('order', '/dashboard/order', {
 		permissionEntity: 'order',
 	})
+	.add('shipping', '/dashboard/shipping', {
+		permissionEntity: 'shipping',
+	})
 	.add('term', '/dashboard/term', {
 		permissionEntity: 'term',
 	})

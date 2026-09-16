@@ -191,6 +191,12 @@ export const statusList: Record<
 		variant: 'default',
 		icon: Icons.Status.Preparing,
 	},
+	// A parcel handed to the carrier. It shares `transit`'s icon because it is the same physical
+	// state, but it is the value `shipping.status` actually holds
+	shipped: {
+		variant: 'info',
+		icon: Icons.Status.Transit,
+	},
 	transit: {
 		variant: 'default',
 		icon: Icons.Status.Transit,

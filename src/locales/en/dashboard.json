@@ -45,7 +45,8 @@
 		"comment": "Comments",
 		"complaint": "Complaints",
 		"cart": "Carts",
-		"order": "Orders"
+		"order": "Orders",
+		"shipping": "Shipments"
 	},
 	"text": {
 		"showing_entries": "Showing {{first}} to {{last}} of {{total}} entries",

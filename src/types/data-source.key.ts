@@ -25,6 +25,7 @@ import type { ProductCategoryAttributeModel } from '@/models/product-category-at
 import type { ProductVariantModel } from '@/models/product-variant.model';
 import type { RatingModel } from '@/models/rating.model';
 import type { ReviewModel } from '@/models/review.model';
+import type { ShippingModel } from '@/models/shipping.model';
 import type { TemplateModel } from '@/models/template.model';
 import type { TermModel } from '@/models/term.model';
 import type { UserModel } from '@/models/user.model';
@@ -59,6 +60,11 @@ export type DatasourceModels = {
 	'log-history': LogHistoryModel;
 	'mail-queue': MailQueueModel;
 	order: OrderModel;
+	/*
+	 * One parcel of an order. An order may have several, each leaving from its own warehouse, which
+	 * is what lets a basket whose goods sit in two places travel as two shipments.
+	 */
+	shipping: ShippingModel;
 	permission: PermissionModel;
 	place: PlaceModel;
 	product: ProductModel;

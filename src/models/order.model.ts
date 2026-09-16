@@ -55,15 +55,6 @@ export const OrderPaymentMethodEnum = {
 export type OrderPaymentMethod =
 	(typeof OrderPaymentMethodEnum)[keyof typeof OrderPaymentMethodEnum];
 
-/** How the goods travel, mirroring `ShippingMethodEnum` on `order-shipping.entity.ts`. */
-export const ShippingMethodEnum = {
-	SELF_PICKUP: 'self_pickup',
-	COURIER: 'courier',
-} as const;
-
-export type ShippingMethod =
-	(typeof ShippingMethodEnum)[keyof typeof ShippingMethodEnum];
-
 /** Mirrors `varchar(10)` on the backend `order.ref_code` column. */
 export const ORDER_REF_CODE_MAX_LENGTH = 10;
 
@@ -156,6 +147,14 @@ export type OrderModel<D = Date | string> = {
 	id: number;
 
 	client_id: number;
+	/**
+	 * The client address the order is billed to, referenced rather than copied.
+	 *
+	 * Null on a back-office document raised before one is agreed, and null again once that address
+	 * is deleted - the backend key is `SET NULL`. An invoice raised from the order is where the
+	 * billing details get frozen.
+	 */
+	billing_address_id: number | null;
 	ref_code: string;
 	ref_number: number;
 	status: OrderStatus;
@@ -187,9 +186,15 @@ export type OrderModel<D = Date | string> = {
 	deleted_at: D | null;
 };
 
-/** The reference as a person cites it - "ORD-1183". */
-export const displayOrderReference = (entry: OrderModel): string =>
-	`${entry.ref_code}-${entry.ref_number}`;
+/**
+ * The reference as a person cites it - "ORD-1183".
+ *
+ * Takes the two columns it reads rather than a whole order, so the narrow projections other
+ * entities join an order as - a shipment's `order`, say - can be labelled with it too.
+ */
+export const displayOrderReference = (
+	entry: Pick<OrderModel, 'ref_code' | 'ref_number'>,
+): string => `${entry.ref_code}-${entry.ref_number}`;
 
 export const displayOrderLabel = (entry: OrderModel): string =>
 	displayOrderReference(entry);

@@ -77,6 +77,7 @@ import {
 	Move,
 	Newspaper,
 	Package,
+	PackageCheck,
 	PackagePlus,
 	PenLine,
 	PiggyBank,
@@ -226,6 +227,8 @@ export const Icons = {
 	Shop: createIcon(Store),
 	Cart: createIcon(ShoppingCart),
 	Order: createIcon(ReceiptText),
+	// A parcel of an order, as against `Carrier`, which is who carries it
+	Shipping: createIcon(PackageCheck),
 	Warehouse: createIcon(Warehouse),
 	Carrier: createIcon(Truck),
 	Logistics: createIcon(Package),

@@ -1,0 +1,92 @@
+{
+	"meta": {
+		"title": "Movements - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_scope": "Select a movement type",
+		"invalid_order_id": "Select an order",
+		"invalid_document_ref": "Invalid document reference",
+		"invalid_pickup_warehouse_id": "Select a pickup warehouse",
+		"invalid_pickup_client_address_id": "Select a pickup address",
+		"invalid_destination_warehouse_id": "Select a destination warehouse",
+		"invalid_destination_client_address_id": "Select a destination address",
+		"invalid_carrier_id": "Invalid carrier",
+		"invalid_method": "Select a delivery method",
+		"invalid_tracking_number": "Invalid tracking number",
+		"invalid_tracking_url": "Invalid tracking URL",
+		"invalid_operational_cost": "Invalid operational cost",
+		"invalid_price": "Invalid price",
+		"invalid_vat_rate": "Invalid VAT rate",
+		"invalid_currency": "Invalid currency",
+		"invalid_contact_name": "Invalid contact name",
+		"invalid_contact_phone": "Invalid contact phone",
+		"invalid_contact_email": "Invalid contact email",
+		"invalid_variant_id": "Invalid variant",
+		"invalid_quantity": "Invalid quantity"
+	},
+	"error": {
+		"cannot_update_status": "This movement has reached a state it cannot move on from"
+	},
+	"status": {
+		"pending": "Pending",
+		"preparing": "Preparing",
+		"shipped": "Shipped",
+		"delivered": "Delivered",
+		"failed": "Failed",
+		"returned": "Returned",
+		"deleted": "Deleted"
+	},
+	"action": {
+		"create": {
+			"title": "Add new movement",
+			"label": "Add",
+			"success": "New movement added successfully"
+		},
+		"update": {
+			"title": "Update movement - {{entry}}",
+			"label": "Update",
+			"success": "Movement updated successfully"
+		},
+		"delete": {
+			"title": "Delete movement - {{entry}}",
+			"label": "Delete",
+			"success": "Movement deleted successfully",
+			"confirm": "Are you sure you want to delete this movement?"
+		},
+		"restore": {
+			"title": "Restore movement - {{entry}}",
+			"label": "Restore",
+			"success": "Movement restored successfully",
+			"confirm": "Are you sure you want to restore this movement?"
+		},
+		"view": {
+			"title": "Movement details - {{entry}}",
+			"label": "View details"
+		},
+		"statusTransition": {
+			"title": "Move - {{entry}}",
+			"label": "Change status",
+			"success": "Movement status updated successfully"
+		},
+		"guide": {
+			"title": "How movements work",
+			"label": "Usage guide"
+		}
+	},
+	"help": {
+		"intro": "A movement is goods travelling between two places. A delivery goes from a warehouse to a client, a relocation between two warehouses, and a return comes back from a client. One document can have several: when the goods of a single order sit in two places, they travel as two movements, each from its own site.",
+		"step_1_title": "Choose the movement type first",
+		"step_1_body": "The type decides everything else: which two ends the form asks for, and which document the movement answers to. A delivery runs warehouse to client address against an order, a relocation warehouse to warehouse against a relocation document, and a return client address to warehouse against an order. It is fixed once the movement exists - a movement of a different kind is a new one, not an edited one.",
+		"step_2_title": "Say where it starts and ends",
+		"step_2_body": "Both ends are required, and the pickers change with the type. An end belonging to another type is dropped rather than stored, so a movement never names somewhere its type has no use for. Until the goods leave, the ends are live references - correcting one reaches the goods.",
+		"step_3_title": "Say what travels",
+		"step_3_body": "Contents are listed by variant and quantity. On a movement with an order behind it, each variant must be on that order and the quantity cannot exceed what the order still has unshipped for that variant across its other movements - so nothing is sent twice. A relocation is measured against stock on hand instead, and its contents cannot be chosen until the relocation document exists.",
+		"step_4_title": "Move it through its statuses",
+		"step_4_body": "Pending to preparing to shipped, and from shipped to delivered or returned; failed is reachable from any state before arrival. Marking it shipped freezes both ends into the movement and stamps the shipped date; delivered stamps its own. Neither stamp is ever rewritten, nothing returns to an earlier state, and delivered, returned and failed are all final.",
+		"step_5_title": "Find it again",
+		"step_5_body": "Search matches the tracking number from three characters. An all-digit term is matched exactly against the shipment id, the order id and the order number; an order reference such as ORD-1183 lists that order's shipments. Filter by type, status and method.",
+		"note": "Once a movement is marked shipped neither end can be changed - the frozen copies are what the document keeps saying, whatever is edited or deleted afterwards. Deleting a movement is a soft delete and releases what it carried, so those quantities become available to the document's other movements again.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
+	}
+}

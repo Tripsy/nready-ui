@@ -51,6 +51,7 @@ import rating from '@/locales/en/rating.json';
 import register from '@/locales/en/register.json';
 import review from '@/locales/en/review.json';
 import shared from '@/locales/en/shared.json';
+import shipping from '@/locales/en/shipping.json';
 import status from '@/locales/en/status.json';
 import template from '@/locales/en/template.json';
 import term from '@/locales/en/term.json';
@@ -102,6 +103,7 @@ const en = {
 	'password-recover': password_recover,
 	'password-recover-change': password_recover_change,
 	order,
+	shipping: shipping,
 	permission,
 	place,
 	product,

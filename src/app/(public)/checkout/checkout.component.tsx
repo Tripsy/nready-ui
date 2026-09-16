@@ -45,8 +45,8 @@ import {
 } from '@/models/cart.model';
 import type { ClientModel } from '@/models/client.model';
 import { ClientAddressTypeEnum } from '@/models/client-address.model';
-import { ShippingMethodEnum } from '@/models/order.model';
 import { roundMoney } from '@/models/product.model';
+import { ShippingMethodEnum } from '@/models/shipping.model';
 import { useAuth } from '@/providers/auth.provider';
 import { useToast } from '@/providers/toast.provider';
 import { requestCartCheckout } from '@/services/cart.service';

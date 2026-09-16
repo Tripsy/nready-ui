@@ -7,9 +7,11 @@ import {
 import {
 	type OrderPaymentMethod,
 	OrderPaymentMethodEnum,
+} from '@/models/order.model';
+import {
 	type ShippingMethod,
 	ShippingMethodEnum,
-} from '@/models/order.model';
+} from '@/models/shipping.model';
 import type { OwnClientCreateParams } from '@/services/client.service';
 import type { OwnClientAddressParams } from '@/services/client-address.service';
 
