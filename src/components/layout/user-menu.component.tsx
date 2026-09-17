@@ -6,6 +6,7 @@ import {
 	KeyRound,
 	LayoutDashboard,
 	LogOut,
+	Package,
 	User,
 	UserPlus,
 	UserX,
@@ -117,6 +118,15 @@ export function UserMenu({ translations }: UserMenuProps) {
 						>
 							<User className="h-4 w-4" />{' '}
 							{translations['layout.menu.account']}
+						</Dropdown.Item>
+						<Dropdown.Item
+							id={Routes.get('account-orders')}
+							href={Routes.get('account-orders')}
+							textValue={translations['layout.menu.orders']}
+							className={itemClass}
+						>
+							<Package className="h-4 w-4" />{' '}
+							{translations['layout.menu.orders']}
 						</Dropdown.Item>
 						<Dropdown.Item
 							id={Routes.get('dashboard')}

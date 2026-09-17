@@ -78,6 +78,7 @@
 		"bundle_changed": "Acest pachet s-a schimbat de când l-ai adăugat - elimină-l și adaugă-l din nou.",
 		"loading": "Se încarcă…",
 		"checkout_sign_in_hint": "Vei fi rugat să te autentifici sau să îți creezi un cont - coșul tău rămâne cu tine.",
-		"meta_title": "Coșul tău | {{app_name}}"
+		"meta_title": "Coșul tău | {{app_name}}",
+		"delivery_at_checkout": "Calculat la finalizarea comenzii"
 	}
 }

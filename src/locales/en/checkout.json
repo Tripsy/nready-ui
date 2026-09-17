@@ -77,7 +77,9 @@
 		"discount": "Discount",
 		"delivery_cost": "Delivery cost",
 		"total": "Total",
-		"vat_included": "VAT included:"
+		"vat_included": "VAT included:",
+		"delivery_pending": "Choose a delivery address",
+		"delivery_free": "Free"
 	},
 	"place_order": "Place order",
 	"placing": "Placing order…",

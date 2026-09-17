@@ -34,6 +34,7 @@ const TRANSLATION_KEYS = [
 	'cart.storefront.products_cost',
 	'cart.storefront.discount',
 	'cart.storefront.delivery_cost',
+	'cart.storefront.delivery_at_checkout',
 	'cart.storefront.vat_included',
 	'cart.storefront.total',
 	'cart.storefront.go_to_checkout',
@@ -49,12 +50,6 @@ const QUANTITY_MAX = 999;
 function money(value: number, currency: string): string {
 	return `${value.toFixed(2)} ${currency}`;
 }
-
-/**
- * Delivery is not priced anywhere yet - no shipping method or rate exists to charge from - so the
- * summary states it as zero rather than leaving out a line the shopper will expect to see.
- */
-const DELIVERY_COST = 0;
 
 /** The line's name, linked to its product page when the product has a slug to link to. */
 function LineName({ line }: { readonly line: CartLineModel }) {
@@ -266,9 +261,7 @@ export function CartBasket(): JSX.Element {
 	 * than summed separately, so the three lines always reconcile to the total the backend computed.
 	 */
 	const discountGross = getCartDiscountGross(pricing.lines);
-	const productsCost = roundMoney(
-		pricing.total + discountGross - DELIVERY_COST,
-	);
+	const productsCost = roundMoney(pricing.total + discountGross);
 
 	const componentsByParent = groupCartComponents(lines);
 
@@ -350,8 +343,16 @@ export function CartBasket(): JSX.Element {
 
 					<div className="flex justify-between text-muted">
 						<dt>{translations['cart.storefront.delivery_cost']}</dt>
-						<dd className="tabular-nums">
-							{money(DELIVERY_COST, pricing.currency)}
+						{/*
+						 * Priced by the destination's country, which only checkout knows - so the
+						 * row is named here and the total stays the goods.
+						 */}
+						<dd>
+							{
+								translations[
+									'cart.storefront.delivery_at_checkout'
+								]
+							}
 						</dd>
 					</div>
 

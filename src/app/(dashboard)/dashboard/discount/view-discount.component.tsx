@@ -11,8 +11,8 @@ import { formatDate, isoWeekdayName } from '@/helpers/date.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import {
 	type DiscountModel,
-	DiscountScopeEnum,
 	displayDiscountValue,
+	getDiscountTargetScope,
 } from '@/models/discount.model';
 import { requestDiscountTargets } from '@/services/discount.service';
 
@@ -58,9 +58,7 @@ function describeConditions(conditions: DiscountModel['conditions']): string[] {
 export function ViewDiscount({ entry }: { entry: DiscountModel }) {
 	const conditionLines = describeConditions(entry.conditions);
 
-	/** `order` has no targets; every other scope points at rows of one catalog table. */
-	const targetScope =
-		entry.scope === DiscountScopeEnum.ORDER ? null : entry.scope;
+	const targetScope = getDiscountTargetScope(entry.scope);
 
 	// Targets live behind their own endpoint, so the entry alone cannot show them.
 	const { data: targets, isLoading: targetsLoading } = useQuery({

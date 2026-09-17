@@ -179,8 +179,40 @@ export type CartModel = {
 	pricing?: CartPricingModel;
 };
 
+/**
+ * What delivering the basket costs, as the checkout read quotes it for a chosen method and address
+ * (`ShippingRateService` on the backend): the flat rate for the destination country, with the best
+ * `shipping` discount for the client applied.
+ */
+export type CartDeliveryModel = {
+	/** Excluding VAT, in the cart currency, before the discount. */
+	price: number;
+	vat_rate: number;
+	operational_cost: number;
+	discount: CartLineModel['discount'];
+	/** Money off `price`, excluding VAT. */
+	discount_reduction: number;
+	vat_amount: number;
+	/** What the shopper pays for delivery, VAT included. */
+	total: number;
+};
+
 /** A cart whose lines have been priced - every storefront response, and the dashboard read. */
-export type CartWithPricingModel = CartModel & { pricing: CartPricingModel };
+export type CartWithPricingModel = CartModel & {
+	pricing: CartPricingModel;
+	/**
+	 * The delivery quote, present only on a checkout read that named a client and a delivery
+	 * choice - and null even then while a courier has no address, or when nothing is physical.
+	 * Never inside `pricing.total`, which is the goods alone.
+	 */
+	delivery?: CartDeliveryModel | null;
+};
+
+/** The delivery a checkout read asks to be quoted. */
+export type CartDeliveryChoice = {
+	method: string;
+	addressId: number | null;
+};
 
 /**
  * How a cart is named in a window title or a confirmation. There is nothing human on the row - no

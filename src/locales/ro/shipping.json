@@ -22,7 +22,8 @@
 		"invalid_contact_phone": "Telefon de contact invalid",
 		"invalid_contact_email": "Email de contact invalid",
 		"invalid_variant_id": "Variantă invalidă",
-		"invalid_quantity": "Cantitate invalidă"
+		"invalid_quantity": "Cantitate invalidă",
+		"price_needs_vat_rate": "Prețul și cota TVA merg împreună - completează-le pe amândouă sau lasă-le goale pentru a folosi tarifele de livrare"
 	},
 	"error": {
 		"cannot_update_status": "Această mișcare a ajuns într-o stare din care nu mai poate fi mutată"

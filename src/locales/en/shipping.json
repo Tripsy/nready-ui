@@ -22,7 +22,8 @@
 		"invalid_contact_phone": "Invalid contact phone",
 		"invalid_contact_email": "Invalid contact email",
 		"invalid_variant_id": "Invalid variant",
-		"invalid_quantity": "Invalid quantity"
+		"invalid_quantity": "Invalid quantity",
+		"price_needs_vat_rate": "Price and VAT rate go together - fill in both, or leave both empty to use the shipping rates"
 	},
 	"error": {
 		"cannot_update_status": "This movement has reached a state it cannot move on from"

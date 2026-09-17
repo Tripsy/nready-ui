@@ -55,15 +55,10 @@ import {
 	requestOwnClients,
 	requestUpdateOwnClient,
 } from '@/services/client.service';
+import { OWN_ORDERS_QUERY_KEY } from '@/services/order.service';
 
 /** The account's own clients - the bill-to choices. */
 const OWN_CLIENTS_QUERY_KEY = ['client', 'own'] as const;
-
-/**
- * Delivery is not priced yet - the backend writes the shipment at zero - so the summary states it
- * as zero, matching the basket.
- */
-const DELIVERY_COST = 0;
 
 function money(value: number, currency: string): string {
 	return `${value.toFixed(2)} ${currency}`;
@@ -165,10 +160,27 @@ export function CheckoutForm(): JSX.Element {
 
 	/*
 	 * Priced against the client being billed, so a discount scoped to that buyer shows on the
-	 * summary here rather than appearing for the first time on the order. Declared below the
-	 * selection it reads, and re-priced whenever the shopper changes it.
+	 * summary here rather than appearing for the first time on the order - and quoted for the
+	 * delivery chosen, whose address decides the rate. Declared below the selections it reads, and
+	 * re-priced whenever the shopper changes one.
 	 */
-	const { cart, lines, isLoading: isCartLoading } = useCart(selectedClientId);
+	const {
+		cart,
+		lines,
+		isLoading: isCartLoading,
+		isFetching: isCartFetching,
+	} = useCart(
+		selectedClientId,
+		values.delivery_method
+			? {
+					method: values.delivery_method,
+					addressId:
+						values.delivery_method === ShippingMethodEnum.COURIER
+							? values.delivery_address_id
+							: null,
+				}
+			: null,
+	);
 	const [editor, setEditor] = useState<BillingEditor | null>(null);
 	const [billingValues, setBillingValues] = useState<BillingValues>(() =>
 		getDefaultBillingValues(auth),
@@ -325,6 +337,10 @@ export function CheckoutForm(): JSX.Element {
 			 * rendered ahead of the empty-cart branch, so that re-read cannot replace it.
 			 */
 			void queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+			// A new order heads the account's history, which may already be cached from a visit
+			void queryClient.invalidateQueries({
+				queryKey: OWN_ORDERS_QUERY_KEY,
+			});
 		},
 		onError: (error) =>
 			showToast({
@@ -401,9 +417,28 @@ export function CheckoutForm(): JSX.Element {
 
 	// The same arithmetic as the basket summary, so the two pages state the same figures
 	const discountGross = getCartDiscountGross(pricing.lines);
-	const productsCost = roundMoney(
-		pricing.total + discountGross - DELIVERY_COST,
+	const productsCost = roundMoney(pricing.total + discountGross);
+
+	/*
+	 * The delivery is its own figure beside the goods - `pricing.total` never includes it - so the
+	 * order total and the VAT are summed here. A courier with no address yet has no quote, and
+	 * the row says what is missing rather than showing a zero that would read as free.
+	 */
+	const delivery = cart.delivery ?? null;
+	// Null for a basket with nothing physical too, which has nothing to deliver and reads as free
+	const isDeliveryPending =
+		delivery === null &&
+		values.delivery_method === ShippingMethodEnum.COURIER &&
+		values.delivery_address_id === null;
+	const orderTotal = roundMoney(pricing.total + (delivery?.total ?? 0));
+	const orderVat = roundMoney(
+		pricing.vat_amount + (delivery?.vat_amount ?? 0),
 	);
+	const deliveryDiscountGross = delivery
+		? roundMoney(
+				delivery.discount_reduction * (1 + delivery.vat_rate / 100),
+			)
+		: 0;
 
 	// The backend refuses a cart with issues, and the basket is where they are resolved
 	if (pricing.has_issues) {
@@ -651,7 +686,10 @@ export function CheckoutForm(): JSX.Element {
 						})}
 				</ul>
 
-				<dl className="mt-4 space-y-2 text-sm">
+				<dl
+					className={`mt-4 space-y-2 text-sm transition-opacity ${isCartFetching ? 'opacity-60' : ''}`}
+					aria-busy={isCartFetching}
+				>
 					<div className="flex justify-between text-muted">
 						<dt>
 							{translations['checkout.summary.products_cost']}
@@ -673,21 +711,48 @@ export function CheckoutForm(): JSX.Element {
 						<dt>
 							{translations['checkout.summary.delivery_cost']}
 						</dt>
-						<dd className="tabular-nums">
-							{money(DELIVERY_COST, pricing.currency)}
+						<dd className="text-right tabular-nums">
+							{isDeliveryPending
+								? translations[
+										'checkout.summary.delivery_pending'
+									]
+								: delivery === null || delivery.total === 0
+									? translations[
+											'checkout.summary.delivery_free'
+										]
+									: money(delivery.total, pricing.currency)}
+							{/* The rule that took something off, with the undiscounted figure beside it */}
+							{delivery && deliveryDiscountGross > 0 && (
+								<span className="block text-xs">
+									<s>
+										{money(
+											roundMoney(
+												delivery.total +
+													deliveryDiscountGross,
+											),
+											pricing.currency,
+										)}
+									</s>
+									{delivery.discount?.[0] && (
+										<span className="ml-2 text-accent">
+											{delivery.discount[0].label}
+										</span>
+									)}
+								</span>
+							)}
 						</dd>
 					</div>
 
 					<div className="flex justify-between border-t border-border pt-2 text-base font-semibold">
 						<dt>{translations['checkout.summary.total']}</dt>
 						<dd className="tabular-nums">
-							{money(pricing.total, pricing.currency)}
+							{money(orderTotal, pricing.currency)}
 						</dd>
 					</div>
 
 					<p className="text-right text-xs text-muted">
 						{translations['checkout.summary.vat_included']}{' '}
-						{money(pricing.vat_amount, pricing.currency)}
+						{money(orderVat, pricing.currency)}
 					</p>
 				</dl>
 

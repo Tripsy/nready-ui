@@ -1,4 +1,5 @@
 import type { ClientType } from '@/models/client.model';
+import { roundMoney } from '@/models/product.model';
 import type { StatusTransitions } from '@/types/common.type';
 
 /**
@@ -226,3 +227,100 @@ export const displayOrderClient = (entry: OrderModel): string => {
 /** A money figure as the dashboard shows it: two decimals, then the code. */
 export const displayOrderMoney = (value: number, currency: string): string =>
 	`${value.toFixed(2)} ${currency}`;
+
+/**
+ * The components each bundle header exploded into, keyed by the header's id. A line with no
+ * `parent_id` is a header or a plain product and is not a key's value.
+ */
+export function groupOrderComponents(
+	lines: readonly OrderLineModel[],
+): Map<number, OrderLineModel[]> {
+	const componentsByParent = new Map<number, OrderLineModel[]>();
+
+	for (const line of lines) {
+		if (line.parent_id === null) {
+			continue;
+		}
+
+		const list = componentsByParent.get(line.parent_id) ?? [];
+
+		list.push(line);
+		componentsByParent.set(line.parent_id, list);
+	}
+
+	return componentsByParent;
+}
+
+/**
+ * What a line cost, VAT-inclusive and after its discount - the figure a buyer was shown at
+ * checkout.
+ *
+ * Rounded in the steps `OrderService.computeTotals` rounds in (the gross, then the VAT on what is
+ * left after the reduction), so the lines agree with the `totals` the backend states beside them.
+ * A bundle header carries no money: its components hold the whole price, each at its own VAT rate,
+ * so its figure is summed from them.
+ */
+export function getOrderLineGrossTotal(
+	line: OrderLineModel,
+	components: readonly OrderLineModel[],
+): number {
+	if (components.length > 0) {
+		return roundMoney(
+			components.reduce(
+				(sum, component) => sum + getOrderLineGrossTotal(component, []),
+				0,
+			),
+		);
+	}
+
+	const net = roundMoney(
+		roundMoney(Number(line.price) * Number(line.quantity)) -
+			Number(line.discount_reduction),
+	);
+
+	return roundMoney(net + roundMoney((net * Number(line.vat_rate)) / 100));
+}
+
+/**
+ * A line's unit price before its discount, VAT-inclusive - the "2 × 45.00" beside the line total.
+ *
+ * Worked back from the total plus what the discount took off, so the two figures shown together
+ * cannot disagree by a rounding step. A bundle's figure comes from its components, which hold the
+ * money and the discounts.
+ */
+export function getOrderLineGrossUnitPrice(
+	line: OrderLineModel,
+	components: readonly OrderLineModel[],
+	lineTotal: number,
+): number {
+	if (Number(line.quantity) <= 0) {
+		return 0;
+	}
+
+	const discountGross = getOrderDiscountGross(
+		components.length > 0 ? components : [line],
+	);
+
+	return roundMoney((lineTotal + discountGross) / Number(line.quantity));
+}
+
+/**
+ * What the discounts took off, VAT-inclusive. The reduction is stored net and VAT is charged after
+ * it, so each line's is grossed up at that line's own rate - the arithmetic `getCartDiscountGross`
+ * uses, so the order states the discount the checkout summary did.
+ */
+export function getOrderDiscountGross(
+	lines: readonly OrderLineModel[],
+): number {
+	return roundMoney(
+		lines.reduce(
+			(sum, line) =>
+				sum +
+				roundMoney(
+					Number(line.discount_reduction) *
+						(1 + Number(line.vat_rate) / 100),
+				),
+			0,
+		),
+	);
+}

@@ -39,6 +39,8 @@ import {
 	DiscountTypeEnum,
 	displayDiscountLabel,
 	displayDiscountValue,
+	getDiscountTargetScope,
+	isDiscountTargetRequired,
 } from '@/models/discount.model';
 import { requestUpdateDiscountTargets } from '@/services/discount.service';
 import type { FindFunctionParamsType } from '@/types/action.type';
@@ -201,14 +203,14 @@ class DiscountValidator extends BaseValidator<typeof validatorMessages> {
 		})
 		.superRefine((data, ctx) => {
 			/*
-			 * Every scope except `order` resolves through the target link table, so a discount
-			 * without targets can never match a basket line - it is saved, looks fine in the
-			 * list, and silently applies to nothing. The backend cannot enforce this: targets
+			 * Every scope except `order` and `shipping` resolves through the target link table, so
+			 * a discount without targets can never match a basket line - it is saved, looks fine in
+			 * the list, and silently applies to nothing. The backend cannot enforce this: targets
 			 * are written by a second call that needs the discount's id, so the row legitimately
 			 * exists without them for an instant.
 			 */
 			if (
-				data.scope !== DiscountScopeEnum.ORDER &&
+				isDiscountTargetRequired(data.scope) &&
 				(data.targets ?? []).length === 0
 			) {
 				ctx.addIssue({
@@ -448,13 +450,31 @@ async function saveTargets(
 	discountId: number,
 	values: DiscountManageOutput,
 ): Promise<void> {
-	if (values.scope === DiscountScopeEnum.ORDER) {
+	const targetScope = getDiscountTargetScope(values.scope);
+
+	if (!targetScope) {
 		return;
 	}
 
-	await requestUpdateDiscountTargets(discountId, {
-		[values.scope]: (values.targets ?? []).map((target) => target.id),
-	});
+	const ids = (values.targets ?? []).map((target) => target.id);
+
+	/*
+	 * A shipping discount may link to clients only, and the backend judges that against the set
+	 * as it will stand - so every other type is cleared in the same call rather than left behind
+	 * from the scope the discount had before.
+	 */
+	await requestUpdateDiscountTargets(
+		discountId,
+		values.scope === DiscountScopeEnum.SHIPPING
+			? {
+					client: ids,
+					variant: [],
+					product: [],
+					category: [],
+					brand: [],
+				}
+			: { [targetScope]: ids },
+	);
 }
 
 export type DiscountDataTableFiltersType = {
@@ -629,12 +649,26 @@ export default async function dataSourceConfig(): Promise<
 				) => {
 					const params = prepareParamsFromFormValues(values);
 
+					/*
+					 * Moving a discount onto `shipping` is refused while it still links to anything
+					 * but clients, so its targets are rewritten first. Under the scope it still has,
+					 * that call is unconstrained.
+					 */
+					const isToShipping =
+						values.scope === DiscountScopeEnum.SHIPPING;
+
+					if (isToShipping) {
+						await saveTargets(id, values);
+					}
+
 					const response = await requestUpdate<
 						DiscountModel,
 						typeof params
 					>('discount', params, id);
 
-					await saveTargets(id, values);
+					if (!isToShipping) {
+						await saveTargets(id, values);
+					}
 
 					return response;
 				},

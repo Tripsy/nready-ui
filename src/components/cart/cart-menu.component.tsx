@@ -11,9 +11,6 @@ import { useTranslation } from '@/hooks/use-translation.hook';
 import { type CartLineModel, cartLineHref } from '@/models/cart.model';
 import { roundMoney } from '@/models/product.model';
 
-/** Not priced anywhere yet - see `cart-basket.component.tsx`. */
-const DELIVERY_COST = 0;
-
 const TRANSLATION_KEYS = [
 	'cart.storefront.heading',
 	'cart.storefront.empty',
@@ -22,6 +19,7 @@ const TRANSLATION_KEYS = [
 	'cart.storefront.products_cost',
 	'cart.storefront.discount',
 	'cart.storefront.delivery_cost',
+	'cart.storefront.delivery_at_checkout',
 	'cart.storefront.total',
 	'cart.storefront.go_to_cart',
 	'cart.storefront.has_issues',
@@ -223,9 +221,7 @@ export function CartMenu(): JSX.Element | null {
 			0,
 		),
 	);
-	const productsCost = roundMoney(
-		pricing.total + discountGross - DELIVERY_COST,
-	);
+	const productsCost = roundMoney(pricing.total + discountGross);
 
 	return (
 		/*
@@ -307,8 +303,13 @@ export function CartMenu(): JSX.Element | null {
 							<dt>
 								{translations['cart.storefront.delivery_cost']}
 							</dt>
-							<dd className="tabular-nums">
-								{money(DELIVERY_COST, pricing.currency)}
+							{/* Priced at checkout, by the destination - see `cart-basket.component.tsx` */}
+							<dd>
+								{
+									translations[
+										'cart.storefront.delivery_at_checkout'
+									]
+								}
 							</dd>
 						</div>
 

@@ -77,7 +77,9 @@
 		"discount": "Reducere",
 		"delivery_cost": "Cost livrare",
 		"total": "Total",
-		"vat_included": "TVA inclus:"
+		"vat_included": "TVA inclus:",
+		"delivery_pending": "Alege o adresă de livrare",
+		"delivery_free": "Gratuit"
 	},
 	"place_order": "Plasează comanda",
 	"placing": "Se plasează comanda…",

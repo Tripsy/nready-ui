@@ -1,4 +1,5 @@
-import type { OrderModel } from '@/models/order.model';
+import type { OrderDiscountSnapshot, OrderModel } from '@/models/order.model';
+import { roundMoney } from '@/models/product.model';
 import type { StatusTransitions } from '@/types/common.type';
 
 /**
@@ -187,9 +188,16 @@ export type ShippingModel<D = Date | string> = {
 	tracking_url: string | null;
 
 	vat_rate: number;
+	/** Excluding VAT, before `discount_reduction`. */
 	price: number;
 	currency: string;
 	exchange_rate: number;
+	/**
+	 * The `shipping`-scope discount a checkout applied - at most one snapshot - and what it took off
+	 * `price`, excluding VAT. What the client pays is `(price - discount_reduction) x (1 + vat_rate)`.
+	 */
+	discount?: OrderDiscountSnapshot[] | null;
+	discount_reduction?: number;
 	/**
 	 * What the movement cost the business, in the base currency (`app.currency`) rather than
 	 * `currency` above. Null until the back office records it - zero is a real figure.
@@ -238,6 +246,20 @@ export const displayShippingDocument = (entry: ShippingModel): string => {
 	return entry.document_ref ? `Doc #${entry.document_ref}` : '-';
 };
 
+/** A frozen address on one line, street first - or a dash when every part is empty. */
+export const displayAddressSnapshot = (
+	snapshot: ShippingAddressSnapshot,
+): string =>
+	[
+		snapshot.details,
+		snapshot.address_city,
+		snapshot.address_region,
+		snapshot.address_country,
+		snapshot.postal_code,
+	]
+		.filter((part): part is string => !!part)
+		.join(', ') || '-';
+
 /**
  * One end of a movement in words, preferring the frozen copy once there is one.
  *
@@ -250,17 +272,7 @@ export const displayShippingEnd = (
 	clientAddressId: number | null,
 ): string => {
 	if (snapshot) {
-		return (
-			[
-				snapshot.details,
-				snapshot.address_city,
-				snapshot.address_region,
-				snapshot.address_country,
-				snapshot.postal_code,
-			]
-				.filter((part): part is string => !!part)
-				.join(', ') || '-'
-		);
+		return displayAddressSnapshot(snapshot);
 	}
 
 	if (warehouse) {
@@ -298,3 +310,49 @@ export const displayShippingDestination = (
 		entry.destination_client_address_id,
 	);
 };
+
+/**
+ * A movement as the buyer it is delivered to is shown it (`GET /public/orders/:id/shipments`) -
+ * where it stands, how it travels and how to follow it. The business's own side (the operational
+ * cost, internal notes, contact snapshot, allocation ids) is not in the payload.
+ *
+ * `destination_data` is null until the movement ships, for the reason `ShippingAddressSnapshot`
+ * gives. `pickup_warehouse` carries only the name: it is where a `self_pickup` is collected from.
+ */
+export type OrderShipmentModel<D = Date | string> = Pick<
+	ShippingModel<D>,
+	| 'id'
+	| 'scope'
+	| 'order_id'
+	| 'status'
+	| 'method'
+	| 'destination_data'
+	| 'tracking_number'
+	| 'tracking_url'
+	| 'shipped_at'
+	| 'delivered_at'
+	| 'estimated_delivery_at'
+	| 'created_at'
+	| 'price'
+	| 'vat_rate'
+	| 'currency'
+	| 'discount_reduction'
+> & {
+	pickup_warehouse: { id: number; name: string } | null;
+	carrier: { id: number; name: string } | null;
+};
+
+/**
+ * What the client paid for a movement, VAT included: VAT is charged on the price after its
+ * discount, rounded in the steps the backend rounds a shipment quote in (`withShippingTotals`).
+ */
+export function getShippingGrossTotal(
+	entry: Pick<ShippingModel, 'price' | 'vat_rate' | 'discount_reduction'>,
+): { total: number; vat_amount: number } {
+	const net = roundMoney(
+		Number(entry.price) - Number(entry.discount_reduction ?? 0),
+	);
+	const vatAmount = roundMoney((net * Number(entry.vat_rate)) / 100);
+
+	return { total: roundMoney(net + vatAmount), vat_amount: vatAmount };
+}

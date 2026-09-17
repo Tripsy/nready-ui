@@ -19,6 +19,7 @@ import {
 	DiscountScopeEnum,
 	type DiscountType,
 	DiscountTypeEnum,
+	getDiscountTargetScope,
 } from '@/models/discount.model';
 import { useWindowForm } from '@/providers/window-form.provider';
 import { requestDiscountTargets } from '@/services/discount.service';
@@ -95,9 +96,7 @@ export function FormManageDiscount() {
 	// date on the update form, which a past-date rule would flag on an untouched field.
 	const today = new Date();
 
-	/** `order` has no targets; every other scope maps straight onto a link table. */
-	const targetScope =
-		formValues.scope === DiscountScopeEnum.ORDER ? null : formValues.scope;
+	const targetScope = getDiscountTargetScope(formValues.scope);
 
 	/*
 	 * `FormErrorsType` types an array field's errors per item, but the "pick at least one"
@@ -264,6 +263,12 @@ export function FormManageDiscount() {
 						isLoading={targetsLoading}
 						error={targetsError}
 					/>
+					{formValues.scope === DiscountScopeEnum.SHIPPING && (
+						<p className="text-xs text-muted">
+							Reduces the delivery or return price. Leave empty to
+							apply it to every buyer.
+						</p>
+					)}
 				</div>
 			)}
 

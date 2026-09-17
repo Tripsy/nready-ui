@@ -54,6 +54,7 @@ export default function AccountMe() {
 		'account.button.delete_title',
 		'account.message.session_destroy_success',
 		'account.message.session_destroy_error',
+		'layout.menu.orders',
 	] as const;
 
 	const { translations } = useTranslation(translationsKeys);
@@ -145,6 +146,14 @@ export default function AccountMe() {
 		<div className="min-h-[calc(80vh-4rem)] px-4 py-12">
 			<div className="text-center mb-8">
 				<h1 className="text-2xl font-bold mb-2">My Account</h1>
+				<Link
+					href={Routes.get('account-orders')}
+					variant="outline"
+					size="sm"
+					className="mt-2"
+				>
+					<Icons.Logistics /> {translations['layout.menu.orders']}
+				</Link>
 			</div>
 
 			<div className="flex flex-wrap justify-center gap-8">

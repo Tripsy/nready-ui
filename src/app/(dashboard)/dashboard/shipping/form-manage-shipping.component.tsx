@@ -903,12 +903,21 @@ export function FormManageShipping() {
 							fieldType="number"
 							fieldName="price"
 							fieldValue={formValues.price ?? ''}
-							isRequired={true}
+							isRequired={formValues.is_existing}
 							disabled={pending}
 							className="w-36"
-							placeholderText="excl. VAT"
+							placeholderText={
+								formValues.is_existing
+									? 'excl. VAT'
+									: 'from rates'
+							}
 							onChange={(e) =>
-								handleChange('price', Number(e.target.value))
+								handleChange(
+									'price',
+									e.target.value === ''
+										? null
+										: Number(e.target.value),
+								)
 							}
 							error={errors.price}
 						/>
@@ -919,11 +928,21 @@ export function FormManageShipping() {
 							fieldType="number"
 							fieldName="vat_rate"
 							fieldValue={formValues.vat_rate ?? ''}
-							isRequired={true}
+							isRequired={formValues.is_existing}
 							disabled={pending}
 							className="w-28"
+							placeholderText={
+								formValues.is_existing
+									? undefined
+									: 'from rates'
+							}
 							onChange={(e) =>
-								handleChange('vat_rate', Number(e.target.value))
+								handleChange(
+									'vat_rate',
+									e.target.value === ''
+										? null
+										: Number(e.target.value),
+								)
 							}
 							error={errors.vat_rate}
 						/>
@@ -956,7 +975,11 @@ export function FormManageShipping() {
 							isRequired={false}
 							disabled={pending}
 							className="w-44"
-							placeholderText="not recorded"
+							placeholderText={
+								formValues.is_existing
+									? 'not recorded'
+									: 'estimate'
+							}
 							onChange={(e) =>
 								handleChange(
 									'operational_cost',

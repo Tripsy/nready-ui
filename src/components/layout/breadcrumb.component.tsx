@@ -26,7 +26,7 @@ export function Breadcrumb({
 	homeHref,
 	className,
 }: {
-	items: BreadcrumbItem[];
+	items: readonly BreadcrumbItem[];
 	/** Where the home icon points - the dashboard root, or the site root. */
 	homeHref: string;
 	className?: string;
@@ -49,7 +49,14 @@ export function Breadcrumb({
 
 				{items.map((item, index) => (
 					<li
-						key={`breadcrumb-${item.label}`}
+						/*
+						 * Keyed on the href where there is one, because a label is not always
+						 * resolved at first render: a trail built in a client component reads its
+						 * labels from `useTranslation`, which is empty for one pass, and two
+						 * undefined labels would collide. Only the last crumb has no href, and one
+						 * of those cannot collide with itself.
+						 */
+						key={`breadcrumb-${item.href ?? item.label}`}
 						className="flex items-center gap-1.5"
 					>
 						<ChevronRight className="h-4 w-4 text-muted" />

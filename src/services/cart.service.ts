@@ -1,8 +1,9 @@
-import { ApiRequest } from '@/helpers/api.helper';
+import { ApiRequest, buildQueryString } from '@/helpers/api.helper';
 import type {
 	CartAddItemParams,
 	CartCheckoutModel,
 	CartCheckoutParams,
+	CartDeliveryChoice,
 	CartWithPricingModel,
 } from '@/models/cart.model';
 import type { ApiResponseFetch } from '@/types/api.type';
@@ -30,17 +31,28 @@ import type { ApiResponseFetch } from '@/types/api.type';
  */
 export async function requestCart(
 	clientId?: number | null,
+	delivery?: CartDeliveryChoice | null,
 ): Promise<ApiResponseFetch<CartWithPricingModel>> {
 	/*
 	 * `clientId` is a preview: it prices the basket against a client the caller holds, so a
 	 * discount scoped to that buyer shows on the checkout summary rather than appearing for the
 	 * first time on the order. The basket page has no client chosen and sends none.
+	 *
+	 * `delivery` asks for the delivery to be quoted too, and is only read with a client - the
+	 * address has to be proven one of theirs before its country decides the rate.
 	 */
-	const query = clientId ? `?client_id=${clientId}` : '';
-
-	return await new ApiRequest().doFetch(`/public/cart${query}`, {
-		method: 'GET',
+	const query = buildQueryString({
+		client_id: clientId,
+		delivery_method: clientId ? delivery?.method : null,
+		delivery_address_id: clientId ? delivery?.addressId : null,
 	});
+
+	return await new ApiRequest().doFetch(
+		`/public/cart${query ? `?${query}` : ''}`,
+		{
+			method: 'GET',
+		},
+	);
 }
 
 /**

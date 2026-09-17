@@ -86,6 +86,8 @@ export const CHECKOUT_TRANSLATION_KEYS = [
 	'checkout.summary.products_cost',
 	'checkout.summary.discount',
 	'checkout.summary.delivery_cost',
+	'checkout.summary.delivery_pending',
+	'checkout.summary.delivery_free',
 	'checkout.summary.total',
 	'checkout.summary.vat_included',
 	'checkout.place_order',

@@ -217,7 +217,14 @@ Routes.group('account')
 	.add('email-confirm-send', '/account/email-confirm-send')
 	// Where the provider returns the browser; must match `getOAuthRedirectUri`.
 	.add('oauth-callback', '/account/oauth/:provider')
-	.add('account-me', '/account/me', { auth: RouteAuthEnum.AUTHENTICATED });
+	.add('account-me', '/account/me', { auth: RouteAuthEnum.AUTHENTICATED })
+	// The static list ahead of its `:id` sibling, for the first-match reason the products block gives.
+	.add('account-orders', '/account/orders', {
+		auth: RouteAuthEnum.AUTHENTICATED,
+	})
+	.add('account-order-view', '/account/orders/:id', {
+		auth: RouteAuthEnum.AUTHENTICATED,
+	});
 
 // Dashboard
 Routes.group('dashboard')

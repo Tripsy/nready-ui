@@ -92,6 +92,16 @@ export function ViewShipping({ entry }: { entry: ShippingModel }) {
 					label="Price"
 					value={`${Number(entry.price).toFixed(2)} ${entry.currency}`}
 				/>
+				{Number(entry.discount_reduction ?? 0) > 0 && (
+					<ViewField
+						label="Discount"
+						value={`-${Number(entry.discount_reduction).toFixed(2)} ${entry.currency}${
+							entry.discount?.[0]
+								? ` (${entry.discount[0].label})`
+								: ''
+						}`}
+					/>
+				)}
 				<ViewField
 					label="VAT Rate"
 					value={`${Number(entry.vat_rate).toFixed(2)}%`}

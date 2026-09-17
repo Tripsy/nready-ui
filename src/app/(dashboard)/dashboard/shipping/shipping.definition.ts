@@ -63,6 +63,7 @@ const validatorMessages = [
 	'invalid_price',
 	'invalid_operational_cost',
 	'invalid_vat_rate',
+	'price_needs_vat_rate',
 	'invalid_currency',
 	'invalid_contact_name',
 	'invalid_contact_phone',
@@ -97,77 +98,120 @@ class ShippingValidator extends BaseValidator<typeof validatorMessages> {
 	 * still owns is the shape of each field and the figures.
 	 */
 	manage = () =>
-		z.object({
-			scope: this.validateEnum(
-				ShippingScopeEnum,
-				this.getMessage('invalid_scope'),
-			),
-			order_id: this.validateId(this.getMessage('invalid_order_id'), {
-				required: false,
-			}),
-			document_ref: this.validateId(
-				this.getMessage('invalid_document_ref'),
-				{ required: false },
-			),
-			pickup_warehouse_id: this.validateId(
-				this.getMessage('invalid_pickup_warehouse_id'),
-				{ required: false },
-			),
-			pickup_client_address_id: this.validateId(
-				this.getMessage('invalid_pickup_client_address_id'),
-				{ required: false },
-			),
-			destination_warehouse_id: this.validateId(
-				this.getMessage('invalid_destination_warehouse_id'),
-				{ required: false },
-			),
-			destination_client_address_id: this.validateId(
-				this.getMessage('invalid_destination_client_address_id'),
-				{ required: false },
-			),
-			carrier_id: this.validateId(this.getMessage('invalid_carrier_id'), {
-				required: false,
-			}),
-			method: this.validateEnum(
-				ShippingMethodEnum,
-				this.getMessage('invalid_method'),
-			),
-			tracking_number: z.string().nullable(),
-			tracking_url: z.string().nullable(),
+		z
+			.object({
+				scope: this.validateEnum(
+					ShippingScopeEnum,
+					this.getMessage('invalid_scope'),
+				),
+				order_id: this.validateId(this.getMessage('invalid_order_id'), {
+					required: false,
+				}),
+				document_ref: this.validateId(
+					this.getMessage('invalid_document_ref'),
+					{ required: false },
+				),
+				pickup_warehouse_id: this.validateId(
+					this.getMessage('invalid_pickup_warehouse_id'),
+					{ required: false },
+				),
+				pickup_client_address_id: this.validateId(
+					this.getMessage('invalid_pickup_client_address_id'),
+					{ required: false },
+				),
+				destination_warehouse_id: this.validateId(
+					this.getMessage('invalid_destination_warehouse_id'),
+					{ required: false },
+				),
+				destination_client_address_id: this.validateId(
+					this.getMessage('invalid_destination_client_address_id'),
+					{ required: false },
+				),
+				carrier_id: this.validateId(
+					this.getMessage('invalid_carrier_id'),
+					{
+						required: false,
+					},
+				),
+				method: this.validateEnum(
+					ShippingMethodEnum,
+					this.getMessage('invalid_method'),
+				),
+				tracking_number: z.string().nullable(),
+				tracking_url: z.string().nullable(),
+				/*
+				 * `>= 0` like the backend, not the helper's positive default: a self pickup is free, and
+				 * a stricter form could never save one. Optional on a create - left empty together with
+				 * the VAT rate, both are quoted from the shipping rates - see the refine below.
+				 */
+				price: this.validateNumber(this.getMessage('invalid_price'), {
+					required: false,
+					onlyPositive: false,
+					allowDecimals: 2,
+				}).refine(
+					(value) =>
+						value === null || value === undefined || value >= 0,
+					{
+						message: this.getMessage('invalid_price'),
+					},
+				),
+				// Optional and `>= 0`: a self-pickup legitimately costs nothing
+				operational_cost: this.validateNumber(
+					this.getMessage('invalid_operational_cost'),
+					{ required: false, onlyPositive: false, allowDecimals: 2 },
+				).refine(
+					(value) =>
+						value === null || value === undefined || value >= 0,
+					{ message: this.getMessage('invalid_operational_cost') },
+				),
+				vat_rate: this.validateNumber(
+					this.getMessage('invalid_vat_rate'),
+					{
+						required: false,
+						onlyPositive: false,
+						allowDecimals: 2,
+					},
+				).refine(
+					(value) =>
+						value === null ||
+						value === undefined ||
+						(value >= 0 && value <= 100),
+					{ message: this.getMessage('invalid_vat_rate') },
+				),
+				currency: this.validateString(
+					this.getMessage('invalid_currency'),
+				),
+				contact_name: z.string().nullable(),
+				contact_phone: z.string().nullable(),
+				contact_email: z.string().nullable(),
+				estimated_delivery_at: z.string().nullable(),
+				notes: z.string().nullable(),
+				lines: z.array(this.line()),
+				// Read by the refine below; carried through so the parsed output keeps it
+				is_existing: z.boolean(),
+			})
 			/*
-			 * `>= 0` like the backend, not the helper's positive default: a checkout writes its
-			 * shipment at zero price and zero VAT, and a stricter form could never save one.
+			 * The backend quotes price and VAT rate as a pair and refuses one without the other. An
+			 * update has no quote to fall back on - an empty price there would mean "unchanged" to the
+			 * API while the form shows it blank - so both are required once the movement exists.
 			 */
-			price: this.validateNumber(this.getMessage('invalid_price'), {
-				required: true,
-				onlyPositive: false,
-				allowDecimals: 2,
-			}).refine((value) => value >= 0, {
-				message: this.getMessage('invalid_price'),
-			}),
-			// Optional and `>= 0`: a self-pickup legitimately costs nothing
-			operational_cost: this.validateNumber(
-				this.getMessage('invalid_operational_cost'),
-				{ required: false, onlyPositive: false, allowDecimals: 2 },
-			).refine(
-				(value) => value === null || value === undefined || value >= 0,
-				{ message: this.getMessage('invalid_operational_cost') },
-			),
-			vat_rate: this.validateNumber(this.getMessage('invalid_vat_rate'), {
-				required: true,
-				onlyPositive: false,
-				allowDecimals: 2,
-			}).refine((value) => value >= 0 && value <= 100, {
-				message: this.getMessage('invalid_vat_rate'),
-			}),
-			currency: this.validateString(this.getMessage('invalid_currency')),
-			contact_name: z.string().nullable(),
-			contact_phone: z.string().nullable(),
-			contact_email: z.string().nullable(),
-			estimated_delivery_at: z.string().nullable(),
-			notes: z.string().nullable(),
-			lines: z.array(this.line()),
-		});
+			.superRefine((data, ctx) => {
+				const hasPrice =
+					data.price !== null && data.price !== undefined;
+				const hasVatRate =
+					data.vat_rate !== null && data.vat_rate !== undefined;
+
+				if (
+					hasPrice !== hasVatRate ||
+					(data.is_existing && !hasPrice)
+				) {
+					ctx.addIssue({
+						path: [hasPrice ? 'vat_rate' : 'price'],
+						message: this.getMessage('price_needs_vat_rate'),
+						code: 'custom',
+					});
+				}
+			});
 }
 
 async function validateForm(values: ShippingFormValuesType) {
@@ -267,9 +311,10 @@ function getFormState(
 			method: data?.method ?? ShippingMethodEnum.COURIER,
 			tracking_number: data?.tracking_number ?? null,
 			tracking_url: data?.tracking_url ?? null,
-			price: data?.price ?? 0,
+			// Empty on a create, which quotes them from the shipping rates when left that way
+			price: data?.price ?? null,
 			operational_cost: data?.operational_cost ?? null,
-			vat_rate: data?.vat_rate ?? 0,
+			vat_rate: data?.vat_rate ?? null,
 			currency: data?.currency ?? null,
 			contact_name: data?.contact_name ?? null,
 			contact_phone: data?.contact_phone ?? null,
@@ -319,10 +364,26 @@ function prepareParamsFromFormValues(values: ShippingFormValuesType) {
 		destination_client_address: _destinationClientAddress,
 		carrier: _carrier,
 		is_existing: _isExisting,
+		price,
+		vat_rate,
+		operational_cost,
 		...params
 	} = values;
 
-	return params;
+	/*
+	 * An empty figure is left out rather than sent as null: the API reads an absent price and VAT
+	 * rate as "quote them" and an absent operational cost as "use the estimate", but refuses null.
+	 */
+	return {
+		...params,
+		...(price === null || price === undefined ? {} : { price: price }),
+		...(vat_rate === null || vat_rate === undefined
+			? {}
+			: { vat_rate: vat_rate }),
+		...(operational_cost === null || operational_cost === undefined
+			? {}
+			: { operational_cost: operational_cost }),
+	};
 }
 
 /**

@@ -78,6 +78,7 @@
 		"bundle_changed": "This bundle has changed since you added it - remove it and add it again.",
 		"loading": "Loading…",
 		"checkout_sign_in_hint": "You will be asked to sign in or create an account first - your cart comes with you.",
-		"meta_title": "Your cart | {{app_name}}"
+		"meta_title": "Your cart | {{app_name}}",
+		"delivery_at_checkout": "Calculated at checkout"
 	}
 }
