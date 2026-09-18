@@ -46,7 +46,7 @@ export type GroupedOptionsType = {
  * react-aria fields (Select, ComboBox, …) derive their accessible name from a
  * `<Label>` rendered *inside* their own context, or from `aria-label` /
  * `aria-labelledby`. This project's labels live one level up in `FormElement`, so
- * those fields must point back at the label with `aria-labelledby` — otherwise
+ * those fields must point back at the label with `aria-labelledby` - otherwise
  * react-aria logs "If you do not provide a visible label, you must specify an
  * aria-label or aria-labelledby attribute for accessibility" and the control ends
  * up with no accessible name.
@@ -125,38 +125,25 @@ export const FormElementIcon = ({
 	</div>
 );
 
+/**
+ * A field is outlined only while it is in error.
+ *
+ * There is deliberately no filled/valid state: an outline on every field that merely holds a
+ * value marks the ordinary case rather than the one worth looking at, and on a form where most
+ * fields are populated - or a filter bar carrying defaults - it leaves the field that actually
+ * needs attention with nothing to set it apart.
+ */
 const stateConfig = {
 	default: {
 		borderClass: '',
 	},
-	success: {
-		borderClass: 'border border-success focus-visible:ring-success',
-	},
 	error: {
 		borderClass: 'border border-danger focus-visible:ring-danger',
 	},
-	warning: {
-		borderClass: 'border border-warning focus-visible:ring-warning',
-	},
 };
 
-const useFieldState = ({
-	value,
-	error,
-}: {
-	value?: string | number | boolean | null;
-	error?: string[];
-}) => {
-	if (error?.length) {
-		return stateConfig.error;
-	}
-
-	if (value !== null && value !== undefined && value !== '') {
-		return stateConfig.success;
-	}
-
-	return stateConfig.default;
-};
+const useFieldState = ({ error }: { error?: string[] }) =>
+	error?.length ? stateConfig.error : stateConfig.default;
 
 export type FormComponentProps<Fields, Value> = {
 	id: string;
@@ -179,7 +166,44 @@ export type FormComponentProps<Fields, Value> = {
 	icons?: { left?: JSX.Element; right?: JSX.Element };
 };
 
+/**
+ * A field is named by exactly one of two things: the label it renders itself, or an `ariaLabel`
+ * standing in for one that lives elsewhere - a shared column header, or the question column of
+ * a row layout.
+ *
+ * Spelled as a union because *neither* fails silently. The control reaches a screen reader with
+ * no accessible name, and a component that renders its label row regardless shows an empty one,
+ * carrying a required asterisk that reads as a name which failed to load. Nothing about either
+ * surfaces at runtime, so the compiler is the only place it can be caught.
+ *
+ * Passing *both* is refused for a different reason: `ariaLabel` overrides the visible text for
+ * assistive tech, so the two disagreeing leaves which one wins up to the reader.
+ */
+type NamedByLabelOrAria =
+	| { labelText: string; ariaLabel?: never }
+	| { labelText?: never; ariaLabel: string };
+
+/**
+ * A textarea names itself differently: by its label, or - where it has none - by its
+ * placeholder, which is why one of the two is required rather than both being optional.
+ *
+ * Unlike the pair above these are not alternatives, so this is an "at least one" rather than an
+ * "exactly one": a label *and* a hint inside the box is the ordinary case. Naming a field by its
+ * placeholder is the weak form of the two, since it disappears the moment the field has content;
+ * it stays available because the single-field comment forms lean on it, where the surrounding
+ * heading already asks the question.
+ */
+type NamedByLabelOrPlaceholder =
+	| { labelText: string; placeholderText?: string }
+	| { labelText?: string; placeholderText: string };
+
 /** Standard form elements **/
+
+export type FormComponentInputProps<Fields> = Omit<
+	FormComponentProps<Fields, InputValueType | number>,
+	'labelText'
+> &
+	NamedByLabelOrAria;
 
 export const FormComponentInput = <Fields,>({
 	labelText,
@@ -190,17 +214,24 @@ export const FormComponentInput = <Fields,>({
 	isRequired = false,
 	className = 'w-full',
 	placeholderText,
+	ariaLabel,
 	disabled,
 	autoComplete,
 	onChange,
 	error,
 	icons,
-}: FormComponentProps<Fields, InputValueType | number>) => {
-	const { borderClass } = useFieldState({ value: fieldValue, error });
+}: FormComponentInputProps<Fields>) => {
+	const { borderClass } = useFieldState({ error });
 
 	return (
 		<FormElement
-			label={{ for: id, text: labelText, required: isRequired }}
+			// Omitted rather than empty: a label with no text still occupies its row, which
+			// would push a header-labeled field out of line with its neighbors.
+			label={
+				labelText
+					? { for: id, text: labelText, required: isRequired }
+					: undefined
+			}
 			error={error}
 		>
 			<FormElementWrapper>
@@ -218,6 +249,7 @@ export const FormComponentInput = <Fields,>({
 						value={fieldValue ?? ''}
 						className={cn(borderClass, className)}
 						placeholder={placeholderText}
+						aria-label={labelText ? undefined : ariaLabel}
 						autoComplete={autoComplete}
 						disabled={disabled}
 						aria-invalid={!!error}
@@ -237,12 +269,12 @@ export const FormComponentInput = <Fields,>({
 
 type FormComponentTimeProps<Fields> = Omit<
 	FormComponentProps<Fields, InputValueType>,
-	'fieldType' | 'autoComplete' | 'icons'
+	'fieldType' | 'autoComplete' | 'icons' | 'labelText'
 > & {
 	minTime?: string;
 	maxTime?: string;
 	minuteInterval?: number;
-};
+} & NamedByLabelOrAria;
 
 export const FormComponentTime = <Fields,>({
 	labelText,
@@ -252,6 +284,7 @@ export const FormComponentTime = <Fields,>({
 	isRequired = false,
 	className = 'min-w-36',
 	placeholderText = '--:--',
+	ariaLabel,
 	disabled,
 	onChange,
 	error,
@@ -260,7 +293,7 @@ export const FormComponentTime = <Fields,>({
 	minuteInterval = 1,
 }: FormComponentTimeProps<Fields>) => {
 	const [open, setOpen] = useState(false);
-	const { borderClass } = useFieldState({ value: fieldValue, error });
+	const { borderClass } = useFieldState({ error });
 
 	const hours = Array.from({ length: 24 }, (_, i) =>
 		String(i).padStart(2, '0'),
@@ -329,7 +362,13 @@ export const FormComponentTime = <Fields,>({
 
 	return (
 		<FormElement
-			label={{ for: id, text: labelText, required: isRequired }}
+			// Omitted rather than empty, as `FormComponentInput` does it: a label with no
+			// text still occupies its row and would push a header-labeled cell out of line.
+			label={
+				labelText
+					? { for: id, text: labelText, required: isRequired }
+					: undefined
+			}
 			error={error}
 		>
 			<div>
@@ -348,6 +387,7 @@ export const FormComponentTime = <Fields,>({
 							borderClass,
 							className,
 						)}
+						aria-label={labelText ? undefined : ariaLabel}
 						disabled={disabled}
 					>
 						<Icons.Clock className="mr-2 h-4 w-4" />
@@ -419,6 +459,19 @@ export const FormComponentTime = <Fields,>({
 	);
 };
 
+export type FormComponentTextareaProps<Fields> = Omit<
+	FormComponentProps<Fields, InputValueType>,
+	| 'fieldType'
+	| 'autoComplete'
+	| 'onChange'
+	| 'icons'
+	| 'labelText'
+	| 'placeholderText'
+> & {
+	onChange: React.ChangeEventHandler<HTMLTextAreaElement>;
+	rows: number;
+} & NamedByLabelOrPlaceholder;
+
 export const FormComponentTextarea = <Fields,>({
 	labelText,
 	id,
@@ -431,22 +484,16 @@ export const FormComponentTextarea = <Fields,>({
 	onChange,
 	error,
 	rows,
-}: Omit<
-	FormComponentProps<Fields, InputValueType>,
-	'fieldType' | 'autoComplete' | 'onChange' | 'icons'
-> & {
-	onChange: React.ChangeEventHandler<HTMLTextAreaElement>;
-	rows: number;
-}) => {
-	const { borderClass } = useFieldState({ value: fieldValue, error });
+}: FormComponentTextareaProps<Fields>) => {
+	const { borderClass } = useFieldState({ error });
 
 	return (
 		<FormElement
 			/*
-			 * No `labelText`, no label element — an empty one still renders its required
+			 * No `labelText`, no label element - an empty one still renders its required
 			 * asterisk, which reads as a field whose name failed to load. The name then has to
 			 * come from somewhere a screen reader can use, so it falls back to the placeholder;
-			 * a control with neither is unlabelled, which is why one of the two is required.
+			 * a control with neither is unlabeled, which is why one of the two is required.
 			 */
 			label={
 				labelText
@@ -473,6 +520,16 @@ export const FormComponentTextarea = <Fields,>({
 	);
 };
 
+export type FormComponentSelectProps<Fields> = Omit<
+	FormComponentProps<Fields, OptionValueType>,
+	'autoComplete' | 'icons' | 'onChange' | 'labelText'
+> & {
+	options: OptionsType | GroupedOptionsType;
+	onChange: (value: string) => void;
+	/** Render a searchable combobox (type-to-filter) instead of a plain select. */
+	searchable?: boolean;
+} & NamedByLabelOrAria;
+
 export const FormComponentSelect = <Fields,>({
 	labelText,
 	id,
@@ -486,20 +543,13 @@ export const FormComponentSelect = <Fields,>({
 	options,
 	onChange,
 	searchable = false,
-}: Omit<
-	FormComponentProps<Fields, OptionValueType>,
-	'autoComplete' | 'icons' | 'onChange'
-> & {
-	options: OptionsType | GroupedOptionsType;
-	onChange: (value: string) => void;
-	/** Render a searchable combobox (type-to-filter) instead of a plain select. */
-	searchable?: boolean;
-}) => {
-	const { borderClass } = useFieldState({ value: fieldValue, error });
+	ariaLabel,
+}: FormComponentSelectProps<Fields>) => {
+	const { borderClass } = useFieldState({ error });
 
 	const isGrouped = 'options' in options[0];
 
-	// Shared option collection — identical for the Select and ComboBox variants.
+	// Shared option collection - identical for the Select and ComboBox variants.
 	const listBoxItems = isGrouped
 		? (options as GroupedOptionsType).map((group) => (
 				<ListBox.Section
@@ -517,7 +567,7 @@ export const FormComponentSelect = <Fields,>({
 							textValue={label}
 							// `pr-8` reserves the strip the selected-state indicator occupies.
 							// It is absolutely positioned (`right: 8px`, 16px wide), so it is
-							// outside the item's intrinsic width — without the padding the
+							// outside the item's intrinsic width - without the padding the
 							// label runs underneath it and the popover never widens to fit.
 							className="whitespace-nowrap rounded-md pr-8"
 						>
@@ -534,7 +584,7 @@ export const FormComponentSelect = <Fields,>({
 					textValue={label}
 					// `pr-8` reserves the strip the selected-state indicator occupies. It is
 					// absolutely positioned (`right: 8px`, 16px wide), so it is outside the
-					// item's intrinsic width — without the padding the label runs underneath
+					// item's intrinsic width - without the padding the label runs underneath
 					// it and the popover never widens to fit.
 					className="whitespace-nowrap rounded-md pr-8"
 				>
@@ -543,12 +593,24 @@ export const FormComponentSelect = <Fields,>({
 				</ListBox.Item>
 			));
 
+	const labelledBy = labelText || ariaLabel ? getFieldLabelId(id) : undefined;
+
 	return (
 		<FormElement
-			label={{ for: id, text: labelText, required: isRequired }}
+			label={
+				labelText
+					? { for: id, text: labelText, required: isRequired }
+					: undefined
+			}
 			error={error}
 		>
 			<div>
+				{!labelText && ariaLabel ? (
+					<span id={getFieldLabelId(id)} className="sr-only">
+						{ariaLabel}
+					</span>
+				) : null}
+
 				<input
 					type="hidden"
 					name={fieldName}
@@ -559,9 +621,9 @@ export const FormComponentSelect = <Fields,>({
 				{searchable ? (
 					<ComboBox
 						fullWidth
-						aria-labelledby={getFieldLabelId(id)}
-						selectedKey={fieldValue ?? null}
-						onSelectionChange={(key) =>
+						aria-labelledby={labelledBy}
+						value={fieldValue ?? null}
+						onChange={(key) =>
 							onChange(key == null ? '' : String(key))
 						}
 						isDisabled={disabled}
@@ -585,9 +647,9 @@ export const FormComponentSelect = <Fields,>({
 				) : (
 					<Select
 						fullWidth
-						aria-labelledby={getFieldLabelId(id)}
-						selectedKey={fieldValue ?? null}
-						onSelectionChange={(key) =>
+						aria-labelledby={labelledBy}
+						value={fieldValue ?? null}
+						onChange={(key) =>
 							onChange(key == null ? '' : String(key))
 						}
 						isDisabled={disabled}
@@ -614,16 +676,13 @@ export const FormComponentSelect = <Fields,>({
 	);
 };
 
-export const FormComponentCheckbox = <Fields,>({
-	children,
-	id,
-	fieldName,
-	checked,
-	className,
-	disabled,
-	error,
-	onCheckedChange,
-}: Omit<
+/**
+ * A checkbox is named by the text beside the box rather than by a `labelText` - `Checkbox.Content`
+ * is the `<label>`, so the wording goes in as `children`. Which makes the naming rule the same
+ * one as everywhere else, in different clothes: exactly one of `children` or `ariaLabel`, the
+ * latter for a bare box whose question lives elsewhere. See `NamedByLabelOrAria`.
+ */
+export type FormComponentCheckboxProps<Fields> = Omit<
 	FormComponentProps<Fields, CheckboxValueType>,
 	| 'labelText'
 	| 'fieldType'
@@ -636,9 +695,23 @@ export const FormComponentCheckbox = <Fields,>({
 > & {
 	checked: boolean;
 	onCheckedChange: (checked: boolean) => void;
-	children: JSX.Element | string;
-}) => {
-	const { borderClass } = useFieldState({ value: checked, error });
+} & (
+		| { children: JSX.Element | string; ariaLabel?: never }
+		| { children?: never; ariaLabel: string }
+	);
+
+export const FormComponentCheckbox = <Fields,>({
+	children,
+	id,
+	fieldName,
+	checked,
+	className,
+	disabled,
+	error,
+	onCheckedChange,
+	ariaLabel,
+}: FormComponentCheckboxProps<Fields>) => {
+	const { borderClass } = useFieldState({ error });
 
 	return (
 		<FormElement error={error}>
@@ -652,12 +725,26 @@ export const FormComponentCheckbox = <Fields,>({
 				className={className}
 				contentClassName="gap-2"
 				controlClassName={borderClass}
+				aria-label={children ? undefined : ariaLabel}
 			>
 				{children}
 			</Checkbox>
 		</FormElement>
 	);
 };
+
+type FormComponentRadioProps<Fields> = Omit<
+	FormComponentProps<Fields, OptionValueType>,
+	| 'fieldType'
+	| 'onChange'
+	| 'placeholderText'
+	| 'autoComplete'
+	| 'icons'
+	| 'labelText'
+> & {
+	options: OptionsType;
+	onChange: (value: string) => void;
+} & NamedByLabelOrAria;
 
 export const FormComponentRadio = <Fields,>({
 	labelText,
@@ -670,22 +757,33 @@ export const FormComponentRadio = <Fields,>({
 	error,
 	options,
 	onChange,
-}: Omit<
-	FormComponentProps<Fields, OptionValueType>,
-	'fieldType' | 'onChange' | 'placeholderText' | 'autoComplete' | 'icons'
-> & {
-	options: OptionsType;
-	onChange: (value: string) => void;
-}) => (
+	ariaLabel,
+}: FormComponentRadioProps<Fields>) => (
 	<FormElement
-		label={{
-			id: getFieldLabelId(id),
-			text: labelText,
-			required: isRequired,
-		}}
+		/*
+		 * The group has no single control for `htmlFor` to point at, so it is named by reference
+		 * either way - from the label rendered here, or from the `sr-only` stand-in below. An
+		 * `ariaLabel` says the visible label is already on screen somewhere else, so rendering
+		 * one here too would state the question twice.
+		 */
+		label={
+			ariaLabel
+				? undefined
+				: {
+						id: getFieldLabelId(id),
+						text: labelText,
+						required: isRequired,
+					}
+		}
 		error={error}
 	>
 		<div>
+			{ariaLabel ? (
+				<span id={getFieldLabelId(id)} className="sr-only">
+					{ariaLabel}
+				</span>
+			) : null}
+
 			<input
 				type="hidden"
 				name={fieldName}
@@ -743,13 +841,13 @@ export const FormComponentCalendarWithoutFormElement = <Fields,>({
 	maxDate?: Date;
 	/**
 	 * Accessible name for the picker. Needed because `placeholderText` is optional and,
-	 * for filters, arrives a tick late from `useTranslation` — react-aria's DatePicker
+	 * for filters, arrives a tick late from `useTranslation` - react-aria's DatePicker
 	 * warns when it renders with neither a visible label nor an aria-label.
 	 */
 	ariaLabel?: string;
 }) => {
 	// The project stores dates as `YYYY-MM-DD`, which is exactly what `parseDate`
-	// reads and `CalendarDate.toString()` emits — no timezone conversion is involved
+	// reads and `CalendarDate.toString()` emits - no timezone conversion is involved
 	// in either direction. `minDate`/`maxDate` arrive as JS `Date`s and are read as
 	// local calendar parts, matching what the calendar displays.
 	const value = fieldValue ? parseDate(fieldValue) : null;
@@ -757,7 +855,7 @@ export const FormComponentCalendarWithoutFormElement = <Fields,>({
 	/*
 	 * The popover has to be told what to anchor to. HeroUI's `DatePicker.Popover` renders
 	 * react-aria's `Popover` without passing a `triggerRef`, and its own trigger context is
-	 * private to the trigger — so with nothing to measure, react-aria positions the calendar at
+	 * private to the trigger - so with nothing to measure, react-aria positions the calendar at
 	 * the viewport's top-left corner instead of under the field. The trigger merges an outer
 	 * ref with its internal one, and the popover spreads unknown props straight through, so
 	 * handing the same ref to both is what connects them.
@@ -845,7 +943,7 @@ export const FormComponentCalendar = <Fields,>({
 				className={className}
 				placeholderText={placeholderText}
 				// The visible <label> is wired via `for`, but react-aria reads props, not
-				// the DOM — so the field's label doubles as the picker's accessible name.
+				// the DOM - so the field's label doubles as the picker's accessible name.
 				ariaLabel={labelText}
 				disabled={disabled}
 				onSelect={onSelect}
@@ -858,6 +956,7 @@ export const FormComponentCalendar = <Fields,>({
 
 export const FormComponentAutoComplete = <Fields, T>({
 	labelText,
+	ariaLabel,
 	id,
 	fieldName,
 	fieldValue,
@@ -871,28 +970,29 @@ export const FormComponentAutoComplete = <Fields, T>({
 	autoCompleteProps,
 }: Omit<
 	FormComponentProps<Fields, InputValueType>,
-	'fieldType' | 'autoComplete' | 'onChange' | 'icons'
-> & {
-	icons?: { left?: JSX.Element };
-	onInputChange?: (value: string) => void;
-	autoCompleteProps: {
-		suggestions: readonly T[];
-		onSelect?: (item: T) => void;
+	'fieldType' | 'autoComplete' | 'onChange' | 'icons' | 'labelText'
+> &
+	NamedByLabelOrAria & {
+		icons?: { left?: JSX.Element };
+		onInputChange?: (value: string) => void;
+		autoCompleteProps: {
+			suggestions: readonly T[];
+			onSelect?: (item: T) => void;
 
-		getOptionLabel: (item: T) => string;
-		getOptionKey?: (item: T) => string | number;
+			getOptionLabel: (item: T) => string;
+			getOptionKey?: (item: T) => string | number;
 
-		maxSuggestions?: number;
+			maxSuggestions?: number;
 
-		isLoading?: boolean;
-		emptyMessage?: string;
-		loadingMessage?: string;
+			isLoading?: boolean;
+			emptyMessage?: string;
+			loadingMessage?: string;
 
-		allowCreate?: boolean;
-		onCreate?: (value: string) => void;
-		createLabel?: (value: string) => string;
-	};
-}) => {
+			allowCreate?: boolean;
+			onCreate?: (value: string) => void;
+			createLabel?: (value: string) => string;
+		};
+	}) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [inputValue, setInputValue] = useState(fieldValue ?? '');
 	const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -998,7 +1098,7 @@ export const FormComponentAutoComplete = <Fields, T>({
 		autoCompleteProps.maxSuggestions || 99,
 	);
 
-	const { borderClass } = useFieldState({ value: fieldValue, error });
+	const { borderClass } = useFieldState({ error });
 
 	const isLoading = autoCompleteProps.isLoading;
 	const isEmpty =
@@ -1014,7 +1114,13 @@ export const FormComponentAutoComplete = <Fields, T>({
 
 	return (
 		<FormElement
-			label={{ for: id, text: labelText, required: isRequired }}
+			// No `labelText`, no label element - an empty one still renders its required
+			// asterisk, which reads as a name that failed to load.
+			label={
+				labelText
+					? { for: id, text: labelText, required: isRequired }
+					: undefined
+			}
 			error={error}
 		>
 			<div ref={wrapperRef} className="relative w-full">
@@ -1036,6 +1142,7 @@ export const FormComponentAutoComplete = <Fields, T>({
 							placeholder={placeholderText}
 							disabled={disabled}
 							aria-invalid={!!error}
+							aria-label={labelText ? undefined : ariaLabel}
 							onChange={handleOnChange}
 							onKeyDown={handleKeyDown}
 						/>
@@ -1055,7 +1162,14 @@ export const FormComponentAutoComplete = <Fields, T>({
 				</FormElementWrapper>
 
 				{shouldShowDropdown && (
-					<ul className="absolute z-50 w-full mt-1 max-h-60 overflow-auto bg-overlay border border-border rounded-md shadow-lg">
+					/*
+					 * Above the field's own error tooltip, which is `z-50`, absolutely
+					 * positioned at `top-full` and - on a pointer device - revealed by
+					 * hovering the element. That is the same spot the suggestions occupy and
+					 * the same moment the user reaches for them, so at equal z-index the
+					 * later element wins and the tooltip swallows every click on the list.
+					 */
+					<ul className="absolute z-[60] w-full mt-1 max-h-60 overflow-auto bg-overlay border border-border rounded-md shadow-lg">
 						{/* Loading */}
 						{isLoading && (
 							<li className="px-3 py-2 text-sm text-muted">
@@ -1189,8 +1303,9 @@ export const FormComponentSubmit = ({
 export const FormComponentName = <Fields,>(
 	props: Omit<
 		FormComponentProps<Fields, InputValueType>,
-		'fieldName' | 'fieldType' | 'autoComplete' | 'icons'
-	>,
+		'fieldName' | 'fieldType' | 'autoComplete' | 'icons' | 'labelText'
+	> &
+		NamedByLabelOrAria,
 ) => (
 	<FormComponentInput
 		{...props}
@@ -1208,10 +1323,10 @@ export const FormComponentName = <Fields,>(
 export const FormComponentEmail = <Fields,>(
 	props: Omit<
 		FormComponentProps<Fields, InputValueType>,
-		'fieldName' | 'fieldType' | 'autoComplete' | 'icons'
+		'fieldName' | 'fieldType' | 'autoComplete' | 'icons' | 'labelText'
 	> & {
 		fieldName?: 'email' | 'email_new';
-	},
+	} & NamedByLabelOrAria,
 ) => (
 	<FormComponentInput
 		{...props}
@@ -1228,10 +1343,10 @@ export const FormComponentPassword = <Fields,>({
 	showPassword,
 	setShowPassword,
 	...props
-}: FormComponentProps<Fields, InputValueType> & {
+}: Omit<FormComponentProps<Fields, InputValueType>, 'labelText'> & {
 	showPassword: boolean;
 	setShowPassword?: (showPassword: boolean) => void;
-}) => (
+} & NamedByLabelOrAria) => (
 	<FormComponentInput
 		{...props}
 		fieldType={showPassword ? 'text' : 'password'}

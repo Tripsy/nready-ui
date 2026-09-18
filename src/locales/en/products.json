@@ -1,12 +1,34 @@
 {
 	"meta": {
 		"title": "Products | {{app_name}}",
-		"description": "The product catalogue we are getting ready."
+		"description": "Everything we currently have on sale."
 	},
 	"text": {
 		"heading": "Products",
-		"subheading": "The catalogue is on its way.",
-		"placeholder": "There is nothing to show here yet. The product listing is still being built.",
-		"browse_categories": "Browse categories"
+		"subheading": "Everything we currently have on sale.",
+		"back_to_list": "All products",
+		"unavailable": "This product is temporarily unavailable. Please try again later.",
+		"not_found_heading": "Product not found",
+		"not_found_message": "The product you are looking for does not exist, or is no longer on sale.",
+		"no_description": "This product has no description yet.",
+		"price_from": "from",
+		"no_entries": "There are no products on sale yet. Check back soon.",
+		"loading_more": "Loading more products…",
+		"category_subheading": "Everything we have on sale under this category.",
+		"brand_subheading": "Everything we have on sale from this brand.",
+		"list_unavailable": "The product list is temporarily unavailable. Please try again later.",
+		"variants": "Options",
+		"variant_adjusts": "Not available with what you picked - choosing it changes your other selections.",
+		"bundle_heading": "Build your bundle",
+		"bundle_included": "Included",
+		"bundle_extras": "Extras",
+		"bundle_price": "Bundle price",
+		"bundle_free": "included",
+		"bundle_unavailable": "This bundle is not available to configure right now.",
+		"attributes": "Specifications",
+		"attribute_yes": "Yes",
+		"attribute_no": "No",
+		"related_heading": "More from {{category}}",
+		"related_more": "See more products from {{category}}"
 	}
 }

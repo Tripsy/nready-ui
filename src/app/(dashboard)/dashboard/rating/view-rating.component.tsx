@@ -38,7 +38,7 @@ export function ViewRating({ entry }: { entry: RatingModel }) {
 
 			<ViewSection title="Rated By">
 				{/* A rating cast without an account is anchored to the origin address alone,
-				    which the backend never returns — so there is nothing to show beyond this. */}
+				    which the backend never returns - so there is nothing to show beyond this. */}
 				<ViewField
 					label="User"
 					value={entry.user ? entry.user.name : 'Guest'}

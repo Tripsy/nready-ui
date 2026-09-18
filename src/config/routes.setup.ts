@@ -158,17 +158,29 @@ class RoutesCollection {
 const Routes = new RoutesCollection();
 
 Routes.add('home', '/');
-Routes.add('docs', '/docs');
+Routes.add('api-docs', '/api-docs');
+Routes.add('api-docs-feature', '/api-docs/:feature');
 Routes.add('page', '/page/:label');
 Routes.add('products', '/products');
 Routes.add('products-categories', '/products/categories');
+Routes.add('products-brands', '/products/brands');
+Routes.add('products-category', '/products/category/:slug');
+Routes.add('products-brand', '/products/brand/:slug');
+// Added after the static siblings on purpose: `match` returns the first pattern that fits,
+// and `/products/:slug` fits every one of those paths too. Next resolves the file-system
+// routes by the same precedence, static segment before dynamic.
+Routes.add('product-view', '/products/:slug');
+// The shopper's own basket. Public: a guest has a cart before they have an account.
+Routes.add('cart-view', '/cart');
+// Authenticated: the order is billed to one of the account's own clients. A guest is sent to
+// login with `?from=/checkout`, and signing in folds their guest cart into the account's.
+Routes.add('checkout', '/checkout', { auth: RouteAuthEnum.AUTHENTICATED });
 Routes.add('articles', '/articles');
 Routes.add('articles-categories', '/articles/categories');
-// Added after `articles-categories` on purpose: `match` returns the first pattern that fits,
-// and `/articles/:category` fits that path too. Next resolves the file-system routes by the
-// same precedence, static segment before dynamic.
-Routes.add('articles-category', '/articles/:category');
-Routes.add('article-view', '/articles/:category/:slug');
+Routes.add('articles-category', '/articles/category/:slug');
+// Same ordering rule as the products block above: `/articles/:slug` also fits
+// `/articles/categories`, so both static siblings are registered ahead of it.
+Routes.add('article-view', '/articles/:slug');
 // The permalink a notification email links a comment by. It resolves the comment's target and
 // redirects, so a link in an old inbox survives the article being re-slugged or re-filed.
 Routes.add('comment-link', '/comments/:id');
@@ -205,7 +217,14 @@ Routes.group('account')
 	.add('email-confirm-send', '/account/email-confirm-send')
 	// Where the provider returns the browser; must match `getOAuthRedirectUri`.
 	.add('oauth-callback', '/account/oauth/:provider')
-	.add('account-me', '/account/me', { auth: RouteAuthEnum.AUTHENTICATED });
+	.add('account-me', '/account/me', { auth: RouteAuthEnum.AUTHENTICATED })
+	// The static list ahead of its `:id` sibling, for the first-match reason the products block gives.
+	.add('account-orders', '/account/orders', {
+		auth: RouteAuthEnum.AUTHENTICATED,
+	})
+	.add('account-order-view', '/account/orders/:id', {
+		auth: RouteAuthEnum.AUTHENTICATED,
+	});
 
 // Dashboard
 Routes.group('dashboard')
@@ -248,6 +267,9 @@ Routes.group('dashboard')
 	.add('discount', '/dashboard/discount', {
 		permissionEntity: 'discount',
 	})
+	.add('product', '/dashboard/product', {
+		permissionEntity: 'product',
+	})
 	.add('log-data', '/dashboard/log-data', {
 		permissionEntity: 'log-data',
 	})
@@ -259,6 +281,9 @@ Routes.group('dashboard')
 	})
 	.add('document-series', '/dashboard/document-series', {
 		permissionEntity: 'document-series',
+	})
+	.add('exchange-rate', '/dashboard/exchange-rate', {
+		permissionEntity: 'exchange-rate',
 	})
 	.add('image', '/dashboard/image', {
 		permissionEntity: 'image',
@@ -282,6 +307,15 @@ Routes.group('dashboard')
 	.add('carrier', '/dashboard/carrier', {
 		permissionEntity: 'carrier',
 	})
+	.add('warehouse', '/dashboard/warehouse', {
+		permissionEntity: 'warehouse',
+	})
+	.add('order', '/dashboard/order', {
+		permissionEntity: 'order',
+	})
+	.add('shipping', '/dashboard/shipping', {
+		permissionEntity: 'shipping',
+	})
 	.add('term', '/dashboard/term', {
 		permissionEntity: 'term',
 	})
@@ -300,13 +334,19 @@ Routes.group('dashboard')
 	})
 	.add('complaint', '/dashboard/complaint', {
 		permissionEntity: 'complaint',
+	})
+	.add('review', '/dashboard/review', {
+		permissionEntity: 'review',
+	})
+	.add('cart', '/dashboard/cart', {
+		permissionEntity: 'cart',
 	});
 
 /**
  * Routes a signed-in user must never be sent back to.
  *
  * Held as route *names*, not paths: `Routes.get('email-confirm')` returns the pattern
- * `/account/email-confirm/:token` verbatim, which no real pathname ever equals — so a
+ * `/account/email-confirm/:token` verbatim, which no real pathname ever equals - so a
  * path-based list silently failed to exclude every parameterised route in it.
  */
 const EXCLUDED_ROUTE_NAMES: ReadonlySet<string> = new Set([
@@ -324,7 +364,7 @@ const EXCLUDED_ROUTE_NAMES: ReadonlySet<string> = new Set([
  * Check if the given path is an excluded route (usually auth related routes)
  * On successful login it doesn't redirect back to excluded routes
  *
- * Resolves the pathname to a route first, so `/account/email-confirm/abc123` is recognised
+ * Resolves the pathname to a route first, so `/account/email-confirm/abc123` is recognized
  * as `email-confirm` rather than compared as a literal string.
  *
  * @param pathname - a pathname without its query string

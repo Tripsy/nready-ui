@@ -3,7 +3,7 @@ import type { StatusTransitions } from '@/types/common.type';
 /**
  * Normalizes date fields in an object while preserving all other properties.
  *
- * An absent or null field stays as it is — `new Date(null)` is the epoch, not "no date", so
+ * An absent or null field stays as it is - `new Date(null)` is the epoch, not "no date", so
  * converting one would turn a record that has never been updated into one updated on
  * 1 January 1970. `updated_at` and `deleted_at` are nullable on most models, which makes that
  * the ordinary case rather than an edge one.

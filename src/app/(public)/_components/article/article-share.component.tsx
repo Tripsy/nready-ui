@@ -14,7 +14,7 @@ export type ArticleShareTranslations = Record<
 >;
 
 /**
- * The absolute address a network has to be handed — a share target is resolved on the
+ * The absolute address a network has to be handed - a share target is resolved on the
  * network's servers, so the relative path the router works in is meaningless there.
  * `app.url` is the public origin, which is also what the canonical/metadata layer uses.
  */

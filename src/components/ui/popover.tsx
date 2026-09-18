@@ -10,7 +10,7 @@ const Popover = HeroPopover;
  * Renders the popover trigger as the project `Button`.
  *
  * HeroUI's own `Popover.Trigger` is a `role="button"` div wrapped in react-aria's
- * `Pressable` — it neither carries the project button styling nor supports
+ * `Pressable` - it neither carries the project button styling nor supports
  * `disabled` (it forwards nothing to `Pressable`). Its `render` escape hatch lets
  * us substitute a real `<button>`; the DOM props handed back are typed for the
  * default `div`, so the cast is contained here rather than at every call site.
@@ -31,7 +31,7 @@ type PopoverContentProps = React.ComponentProps<typeof HeroPopover.Content>;
 
 /**
  * The positioned surface. HeroUI's `.popover` uses `min(32px, --radius-3xl)`, the
- * same oversized radius that had to be overridden on the Select/ComboBox popovers —
+ * same oversized radius that had to be overridden on the Select/ComboBox popovers -
  * pinned to `rounded-md` here so every overlay matches the form fields.
  *
  * Padding stays on the surface rather than the inner dialog (`p-0`), so callers keep

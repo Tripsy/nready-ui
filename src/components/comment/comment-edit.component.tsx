@@ -1,6 +1,11 @@
-'use client';
-
+/*
+ * No `'use client'`: `comment-thread.component.tsx` is the boundary that mounts this, and
+ * everything a client module imports is already in the client graph. Next's TS plugin treats
+ * any file carrying the directive as a client *entry* and then rejects the non-serializable
+ * props below (TS71007) - `onSaved` and `onCancel` are plain callbacks, not server actions.
+ */
 import { useMutation } from '@tanstack/react-query';
+import type React from 'react';
 import { useCallback, useState } from 'react';
 import {
 	COMMENT_CONTENT_MAX,
@@ -25,7 +30,7 @@ import {
  * would be a `<name>.action.ts`, a form-values contract and a validator around a single textarea.
  * Secondary inline actions are what `useMutation` is for (`data-fetching.md` §1).
  *
- * The row is replaced by this editor rather than opened beside it — a comment and a draft of the
+ * The row is replaced by this editor rather than opened beside it - a comment and a draft of the
  * same comment on screen at once is two versions of one thing, and the reader has to work out
  * which one is live.
  */
@@ -40,7 +45,7 @@ export function CommentEdit({
 	/**
 	 * Which endpoint the save goes to. An author edits through the public route, which needs no
 	 * permission and narrows to their own row; anybody else is a moderator going through the
-	 * dashboard route. A moderator editing their *own* comment takes the public path too — it is
+	 * dashboard route. A moderator editing their *own* comment takes the public path too - it is
 	 * the one that asks for nothing they might not have.
 	 */
 	isOwn: boolean;
@@ -90,7 +95,7 @@ export function CommentEdit({
 	});
 
 	const onSubmit = useCallback(
-		(event: React.FormEvent) => {
+		(event: React.SubmitEvent) => {
 			event.preventDefault();
 
 			setTouched(true);
@@ -125,7 +130,7 @@ export function CommentEdit({
 				}
 			/>
 
-			{/* `mt-3` — the textarea sits flush against its own border, so without it the two
+			{/* `mt-3` - the textarea sits flush against its own border, so without it the two
 			    controls touch the field they belong to. */}
 			<div className="mt-3 flex flex-wrap items-center gap-3">
 				<Button type="submit" disabled={isPending || !isValid}>

@@ -4,7 +4,10 @@ import {
 	type CategoryFormValuesType,
 	FormManageCategory,
 } from '@/app/(dashboard)/dashboard/category/form-manage-category.component';
+import { ManagerAttributesCategory } from '@/app/(dashboard)/dashboard/category/manager-attributes-category.component';
+import { UsageGuideCategory } from '@/app/(dashboard)/dashboard/category/usage-guide-category.component';
 import { ViewCategory } from '@/app/(dashboard)/dashboard/category/view-category.component';
+import { Icons } from '@/components/icon.component';
 import Routes from '@/config/routes.setup';
 import { getLanguageClient, translateBatch } from '@/config/translate.setup';
 import {
@@ -27,7 +30,7 @@ import {
 	resolveValidatorMessages,
 	sharedValidatorMessages,
 } from '@/helpers/validator.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	CATEGORY_DEFAULT_TYPE,
 	type CategoryContentType,
@@ -166,7 +169,7 @@ function getFormValues(formData: FormData): CategoryFormValuesType {
 			...content,
 			// `toKebabCase` strips anything outside the latin alphabet, so a wholly
 			// non-latin label leaves the slug empty and the field reports itself as
-			// required — better than persisting a meaningless slug into a unique index.
+			// required - better than persisting a meaningless slug into a unique index.
 			slug: content.slug?.trim() || toKebabCase(content.label ?? ''),
 		})),
 	};
@@ -195,7 +198,7 @@ function getFormState(
 }
 
 /**
- * `parent` holds the autocomplete's display text and never belongs in a request — only the
+ * `parent` holds the autocomplete's display text and never belongs in a request - only the
  * resolved `parent_id` does.
  */
 function prepareCreateParams({
@@ -206,7 +209,7 @@ function prepareCreateParams({
 }
 
 /**
- * The backend's `update` schema accepts `parent_id` and `contents` only — `type` is fixed once
+ * The backend's `update` schema accepts `parent_id` and `contents` only - `type` is fixed once
  * the row exists. `parent_id` is always sent, including as `null`: the backend reads the key's
  * presence as the intent to re-parent and its emptiness as a promotion to root, and the form
  * prefills it from the entry, so an unchanged value is a no-op there.
@@ -244,12 +247,14 @@ export default async function dataSourceConfig(): Promise<
 			'disable.title',
 			'order.title',
 			'tree.title',
+			'attributes.title',
+			'guide.title',
 		] as const,
 		'category.action',
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<CategoryModel>['displayButton'] {
 		return {
 			action: () =>
@@ -259,7 +264,7 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	function displayButtonStatus(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<CategoryModel>['displayButton'] {
 		return {
 			action: (entry: CategoryModel) => {
@@ -458,7 +463,7 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['category', 'update'],
 				entriesSelection: 'single',
 				// `pending` is a valid source state too, so this is not the mirror of
-				// `disable` — anything not already active can be activated.
+				// `disable` - anything not already active can be activated.
 				customEntryCheck: (entry: CategoryModel) =>
 					!entry.deleted_at &&
 					entry.status !== CategoryStatusEnum.ACTIVE,
@@ -521,6 +526,49 @@ export default async function dataSourceConfig(): Promise<
 				buttonPosition: 'right',
 				button: {
 					variant: 'warning',
+				},
+			},
+			/*
+			 * Only a product category declares attributes: the definitions describe what a
+			 * product in it must say about itself, and the article tree holds none. Gated on
+			 * `product` rather than `category`, matching the backend policy - the schema of a
+			 * catalog belongs to whoever may edit the catalog.
+			 */
+			attributes: {
+				windowType: 'other',
+				windowTitle: translations['attributes.title'],
+				windowComponent: ManagerAttributesCategory,
+				windowConfigProps: {
+					size: 'xl',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['product', 'read'],
+				entriesSelection: 'single',
+				customEntryCheck: (entry: CategoryModel) =>
+					entry.type === CategoryTypeEnum.PRODUCT,
+				buttonPosition: 'left',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+				},
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideCategory,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['category', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
 				},
 			},
 		},

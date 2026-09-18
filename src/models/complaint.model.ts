@@ -2,7 +2,7 @@ import { formatEnumLabel } from '@/helpers/string.helper';
 
 /**
  * Mirrors `complaint` in the backend. There is no create and no update here: a complaint is filed
- * by a reader through `/public/complaints`, and the text is their accusation — a moderator decides
+ * by a reader through `/public/complaints`, and the text is their accusation - a moderator decides
  * on it (`resolve` / `reopen`) rather than rewriting it.
  *
  * Soft-deleted, so a dismissed complaint is still on record and can be restored.
@@ -31,7 +31,7 @@ export type ComplaintReason =
 	(typeof ComplaintReasonEnum)[keyof typeof ComplaintReasonEnum];
 
 /**
- * `is_resolved` and `resolved_at` move together — the backend holds a check constraint tying them,
+ * `is_resolved` and `resolved_at` move together - the backend holds a check constraint tying them,
  * so a resolved complaint always carries the timestamp and an open one never does.
  *
  * `user_id` is never null: a complaint accuses somebody, so it is always attached to an account.
@@ -67,7 +67,7 @@ export type ComplaintModel<D = Date | string> = {
  * it. A narrower row than the dashboard's: the moderation trail (`resolved_at`, `resolved_by`,
  * `deleted_at`) is not the reporter's to read, and `user_id` is their own by construction.
  *
- * `own` is null when they have filed nothing — a withdrawn complaint frees the slot, so it reads
+ * `own` is null when they have filed nothing - a withdrawn complaint frees the slot, so it reads
  * as nothing too.
  */
 export type ComplaintOwnEntryType<D = Date | string> = Pick<
@@ -87,8 +87,8 @@ export type ComplaintPublicReadType = {
 };
 
 /**
- * What was reported, as one cell. There is no foreign key behind these two columns — `entity_type`
- * picks the table at read time — and a comment is hard-deleted, so the id may name a row that is
+ * What was reported, as one cell. There is no foreign key behind these two columns - `entity_type`
+ * picks the table at read time - and a comment is hard-deleted, so the id may name a row that is
  * no longer there. The complaint outlives it on purpose.
  */
 export const displayComplaintTarget = (entry: ComplaintModel): string =>
@@ -102,7 +102,7 @@ export const displayComplaintReporter = (entry: ComplaintModel): string =>
  * `(#id)` itself, and carrying it here would print it twice.
  */
 export const displayComplaintLabel = (entry: ComplaintModel): string =>
-	`${formatEnumLabel(entry.reason)} — ${displayComplaintTarget(entry)}`;
+	`${formatEnumLabel(entry.reason)} - ${displayComplaintTarget(entry)}`;
 
 /** The resolution as a word, for a cell that would otherwise print a bare boolean. */
 export const displayComplaintResolution = (entry: ComplaintModel): string =>

@@ -1,7 +1,7 @@
 import { headers } from 'next/headers';
 import type React from 'react';
 import { logger } from '@/helpers/logger.helper';
-import type { AuthModel } from '@/models/auth.model';
+import type { AccountModel } from '@/models/account.model';
 import { AriaRouterProvider } from '@/providers/aria-router.provider';
 import { AuthProvider } from '@/providers/auth.provider';
 import { QueryProvider } from '@/providers/query-client.provider';
@@ -12,7 +12,7 @@ export async function Providers({ children }: { children: React.ReactNode }) {
 	const headersList = await headers();
 	const authHeader = headersList.get('x-auth-data');
 
-	let initAuth: AuthModel | null = null;
+	let initAuth: AccountModel | null = null;
 
 	try {
 		initAuth = authHeader ? JSON.parse(authHeader) : null;

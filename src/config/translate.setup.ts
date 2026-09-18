@@ -12,7 +12,7 @@ const languageResources: Record<string, TranslationResource> = {};
 
 /**
  * In-flight imports, so concurrent first callers share one `import()` rather than each
- * starting their own — `languageResources` is only populated once the import resolves.
+ * starting their own - `languageResources` is only populated once the import resolves.
  */
 const languageResourcesPending: Record<
 	string,
@@ -43,7 +43,7 @@ async function fetchLanguage(): Promise<Language> {
 }
 
 export function getLanguageClient(): Language {
-	// Client: read from html[lang] set by RootLayout — always fresh
+	// Client: read from html[lang] set by RootLayout - always fresh
 	const fromDom = document.documentElement.lang?.toLowerCase();
 
 	if (fromDom && Configuration.isSupportedLanguage(fromDom)) {
@@ -93,8 +93,8 @@ export const getTranslatedString = (
 		return objectValue;
 	}
 
-	// A miss is silent in production — the key is a serviceable placeholder and warning on
-	// every render would be noise — but while developing it is almost always a typo or a
+	// A miss is silent in production - the key is a serviceable placeholder and warning on
+	// every render would be noise - but while developing it is almost always a typo or a
 	// key that was never added to the locale file.
 	if (isDebug) {
 		logger.warn('Missing translation', undefined, { key });
@@ -106,7 +106,7 @@ export const getTranslatedString = (
 /**
  * Synchronous lookup for a key whose locale resource is already in the module cache.
  *
- * `translate` is async purely because the locale bundle is a dynamic import — once that
+ * `translate` is async purely because the locale bundle is a dynamic import - once that
  * import has resolved the lookup itself is pure. Client components use this to paint the
  * right text on their first frame instead of flashing empty for a tick.
  *

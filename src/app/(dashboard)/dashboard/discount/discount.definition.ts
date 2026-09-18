@@ -4,8 +4,11 @@ import {
 	type DiscountFormValuesType,
 	FormManageDiscount,
 } from '@/app/(dashboard)/dashboard/discount/form-manage-discount.component';
+import { UsageGuideDiscount } from '@/app/(dashboard)/dashboard/discount/usage-guide-discount.component';
 import { ViewDiscount } from '@/app/(dashboard)/dashboard/discount/view-discount.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
+import { toCalendarValue } from '@/helpers/date.helper';
 import {
 	getFormDataAsEnum,
 	getFormDataAsNumber,
@@ -24,7 +27,7 @@ import {
 	resolveValidatorMessages,
 	sharedValidatorMessages,
 } from '@/helpers/validator.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	type DiscountConditions,
 	type DiscountModel,
@@ -36,6 +39,8 @@ import {
 	DiscountTypeEnum,
 	displayDiscountLabel,
 	displayDiscountValue,
+	getDiscountTargetScope,
+	isDiscountTargetRequired,
 } from '@/models/discount.model';
 import { requestUpdateDiscountTargets } from '@/services/discount.service';
 import type { FindFunctionParamsType } from '@/types/action.type';
@@ -67,7 +72,12 @@ const validatorMessages = [
 ] as const;
 
 class DiscountValidator extends BaseValidator<typeof validatorMessages> {
-	/** Two-letter ISO codes, comma separated. Empty means "no country condition". */
+	/**
+	 * Two-letter ISO 3166-1 alpha-2 codes, comma separated. Empty means "no country condition".
+	 *
+	 * Alpha-2 is the vocabulary every country rule in the system shares, because the reader-side
+	 * check is compared against CDN geo headers, which emit nothing else.
+	 */
 	readonly countries = z
 		.string()
 		.trim()
@@ -185,7 +195,7 @@ class DiscountValidator extends BaseValidator<typeof validatorMessages> {
 			}),
 			/*
 			 * Carried through validation rather than stripped: zod drops unknown keys, and
-			 * `processForm` assigns the parsed output back over the form values — so a targets
+			 * `processForm` assigns the parsed output back over the form values - so a targets
 			 * list left out of the schema would vanish from the picker on every submit.
 			 * It is not part of the discount payload; `prepareParamsFromFormValues` removes it.
 			 */
@@ -193,14 +203,14 @@ class DiscountValidator extends BaseValidator<typeof validatorMessages> {
 		})
 		.superRefine((data, ctx) => {
 			/*
-			 * Every scope except `order` resolves through the target link table, so a discount
-			 * without targets can never match a basket line — it is saved, looks fine in the
-			 * list, and silently applies to nothing. The backend cannot enforce this: targets
+			 * Every scope except `order` and `shipping` resolves through the target link table, so
+			 * a discount without targets can never match a basket line - it is saved, looks fine in
+			 * the list, and silently applies to nothing. The backend cannot enforce this: targets
 			 * are written by a second call that needs the discount's id, so the row legitimately
 			 * exists without them for an instant.
 			 */
 			if (
-				data.scope !== DiscountScopeEnum.ORDER &&
+				isDiscountTargetRequired(data.scope) &&
 				(data.targets ?? []).length === 0
 			) {
 				ctx.addIssue({
@@ -304,21 +314,12 @@ function getFormValues(formData: FormData): DiscountFormValuesType {
 		end_at: getFormDataAsString(formData, 'end_at'),
 		notes: getFormDataAsString(formData, 'notes'),
 		// The picker renders one hidden input per selected id, which is what puts them in
-		// `FormData` — `processForm` rebuilds its values from there on every submit.
+		// `FormData` - `processForm` rebuilds its values from there on every submit.
 		targets: formData
 			.getAll('target_id')
 			.map((id) => ({ id: Number(id) }))
 			.filter((target) => Number.isFinite(target.id)),
 	};
-}
-
-/** The calendar and the date validator both work on `YYYY-MM-DD`; a stored timestamp is trimmed to it. */
-function toCalendarValue(value: DiscountModel['start_at']): string | null {
-	if (!value) {
-		return null;
-	}
-
-	return (value instanceof Date ? value.toISOString() : value).slice(0, 10);
 }
 
 function getFormState(
@@ -357,12 +358,12 @@ type DiscountManageOutput = ValidatorOutput<DiscountValidator, 'manage'>;
 
 /**
  * Turns the validated `rules` text into the `jsonb` object the backend expects. The parse
- * cannot throw here — the validator has already rejected anything `JSON.parse` would choke
+ * cannot throw here - the validator has already rejected anything `JSON.parse` would choke
  * on. `undefined` (rather than `null`) for an empty box, because the backend's update path
  * copies a key only when it is present, so omitting it leaves the stored rules alone.
  */
 /**
- * Rebuilds the `conditions` object from the flat form fields — the inverse of what
+ * Rebuilds the `conditions` object from the flat form fields - the inverse of what
  * `getFormState` pulls apart.
  *
  * An absent condition is omitted rather than sent as null: the backend's schema is `.strict()`
@@ -418,7 +419,7 @@ function buildConditions(
 
 function prepareParamsFromFormValues(data: DiscountManageOutput) {
 	// `targets` goes to its own endpoint, and the flat condition fields are folded into one
-	// `conditions` object — neither belongs in the discount payload as the form holds them.
+	// `conditions` object - neither belongs in the discount payload as the form holds them.
 	const {
 		targets: _targets,
 		condition_min_order_value: _minOrderValue,
@@ -438,7 +439,7 @@ function prepareParamsFromFormValues(data: DiscountManageOutput) {
 
 /**
  * Sends the picker's selection to `PUT /discounts/:id/targets` after the discount itself is
- * saved, as a second call in the same `operationFunction` — the pipeline supports multi-step
+ * saved, as a second call in the same `operationFunction` - the pipeline supports multi-step
  * submits there, and it is the only place that knows the new id after a create.
  *
  * Only the selected scope is sent, so switching a discount from `category` to `brand` clears the
@@ -449,13 +450,31 @@ async function saveTargets(
 	discountId: number,
 	values: DiscountManageOutput,
 ): Promise<void> {
-	if (values.scope === DiscountScopeEnum.ORDER) {
+	const targetScope = getDiscountTargetScope(values.scope);
+
+	if (!targetScope) {
 		return;
 	}
 
-	await requestUpdateDiscountTargets(discountId, {
-		[values.scope]: (values.targets ?? []).map((target) => target.id),
-	});
+	const ids = (values.targets ?? []).map((target) => target.id);
+
+	/*
+	 * A shipping discount may link to clients only, and the backend judges that against the set
+	 * as it will stand - so every other type is cleared in the same call rather than left behind
+	 * from the scope the discount had before.
+	 */
+	await requestUpdateDiscountTargets(
+		discountId,
+		values.scope === DiscountScopeEnum.SHIPPING
+			? {
+					client: ids,
+					variant: [],
+					product: [],
+					category: [],
+					brand: [],
+				}
+			: { [targetScope]: ids },
+	);
 }
 
 export type DiscountDataTableFiltersType = {
@@ -478,12 +497,13 @@ export default async function dataSourceConfig(): Promise<
 			'view.title',
 			'delete.title',
 			'restore.title',
+			'guide.title',
 		] as const,
 		'discount.action',
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<DiscountModel>['displayButton'] {
 		return {
 			action: () =>
@@ -510,7 +530,7 @@ export default async function dataSourceConfig(): Promise<
 				} satisfies DiscountDataTableFiltersType,
 			},
 			// Only `id`, `label`, `start_at`, `end_at`, `created_at` and `updated_at` are
-			// sortable — they are the columns the backend's `OrderByEnum` accepts.
+			// sortable - they are the columns the backend's `OrderByEnum` accepts.
 			columns: [
 				{
 					field: 'id',
@@ -629,12 +649,26 @@ export default async function dataSourceConfig(): Promise<
 				) => {
 					const params = prepareParamsFromFormValues(values);
 
+					/*
+					 * Moving a discount onto `shipping` is refused while it still links to anything
+					 * but clients, so its targets are rewritten first. Under the scope it still has,
+					 * that call is unconstrained.
+					 */
+					const isToShipping =
+						values.scope === DiscountScopeEnum.SHIPPING;
+
+					if (isToShipping) {
+						await saveTargets(id, values);
+					}
+
 					const response = await requestUpdate<
 						DiscountModel,
 						typeof params
 					>('discount', params, id);
 
-					await saveTargets(id, values);
+					if (!isToShipping) {
+						await saveTargets(id, values);
+					}
 
 					return response;
 				},
@@ -685,6 +719,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['discount', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideDiscount,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['discount', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

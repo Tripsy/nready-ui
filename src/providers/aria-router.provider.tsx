@@ -6,7 +6,7 @@ import type { ReactNode } from 'react';
 
 /**
  * Wires react-aria's client-side navigation (used by HeroUI components that take an
- * `href` — menu items, links, etc.) to the Next.js router, so those navigations are
+ * `href` - menu items, links, etc.) to the Next.js router, so those navigations are
  * client-side rather than full page loads.
  */
 export function AriaRouterProvider({ children }: { children: ReactNode }) {

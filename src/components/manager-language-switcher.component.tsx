@@ -15,7 +15,7 @@ type ManagerLanguageSwitcherProps<T extends string> = {
  * Optional heading plus the language toggles for a per-language block.
  *
  * A group of toggle buttons rather than a tab list: it selects which translation the fields
- * below show, and those fields are the same in every language — there is no per-language
+ * below show, and those fields are the same in every language - there is no per-language
  * panel of its own for a tab to describe.
  *
  * Common rather than dashboard-scoped because `manager-images` uses it too, and that lives in

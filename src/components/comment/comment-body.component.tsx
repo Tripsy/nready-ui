@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
  * A comment's text, folded when it runs long.
  *
  * Plain text, deliberately: the body is whatever a visitor typed, and rendering it as markdown
- * would put their formatting — and anything an injection survives — into the page.
+ * would put their formatting - and anything an injection survives - into the page.
  * `whitespace-pre-line` keeps the paragraph breaks they intended.
  *
  * The fold is client state rather than a CSS line clamp: a clamp measures rendered height, so how
@@ -43,7 +43,7 @@ export function CommentBody({
 				 * goes with the fold rather than becoming a "less".
 				 *
 				 * Inside the paragraph, so it sits at the end of the text it belongs to rather
-				 * than on a line of its own — a thread of folded comments would otherwise grow a
+				 * than on a line of its own - a thread of folded comments would otherwise grow a
 				 * column of buttons down its left edge.
 				 */
 				<Button

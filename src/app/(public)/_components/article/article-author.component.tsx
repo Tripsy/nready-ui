@@ -16,12 +16,12 @@ const AVATAR_SIZE = 56;
 /**
  * The by-line box closing an article.
  *
- * `name` is the only field an article is guaranteed to carry — the backend requires it on the
+ * `name` is the only field an article is guaranteed to carry - the backend requires it on the
  * author object, and an article with no object of its own falls back to the account that
  * filed it, which has nothing but a name. Everything else is optional and simply drops out.
  *
  * The avatar is free text on the API (a URL the editor pastes), so it is served unoptimized
- * unless it resolves to a host this app already proxies — next/image would otherwise refuse a
+ * unless it resolves to a host this app already proxies - next/image would otherwise refuse a
  * remote host that is not in `remotePatterns`.
  */
 export function ArticleAuthor({

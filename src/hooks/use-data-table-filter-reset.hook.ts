@@ -22,7 +22,7 @@ export function useDataTableFilterReset({
 }: UseDataTableFilterResetOptions) {
 	const refreshDataTable = useRefreshDataTable();
 
-	// Intentionally not synced — default filters are fixed at mount time
+	// Intentionally not synced - default filters are fixed at mount time
 	const defaultFiltersRef = useRef(defaultFilters);
 
 	const onResetRef = useRef(onReset);

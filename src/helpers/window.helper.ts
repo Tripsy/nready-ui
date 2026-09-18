@@ -19,7 +19,7 @@ export const WINDOW_CACHE_LABEL = 'window-entry';
  * share the id out of it.
  *
  * Only queries with an open window are active, so the refetch cost is bounded by how many
- * windows are stacked on that row — in practice one or two.
+ * windows are stacked on that row - in practice one or two.
  */
 export function invalidateWindowEntries(
 	queryClient: QueryClient,

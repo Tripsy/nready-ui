@@ -12,7 +12,7 @@ type LinkPendingIconProps = {
 /**
  * Swaps a link's icon for a spinner while that link's navigation is in flight.
  *
- * Must be rendered inside a `next/link` <Link> — that is the only place `useLinkStatus()`
+ * Must be rendered inside a `next/link` <Link> - that is the only place `useLinkStatus()`
  * has a status to read. It flips to `pending` on the click itself, so unlike a route-level
  * `loading.tsx` fallback it needs no bytes from the server: it tells the user *which* link
  * is loading during the request that precedes the fallback.

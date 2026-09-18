@@ -14,8 +14,8 @@ import { requestPublicCategories } from '@/services/category.service';
 import type { Language } from '@/types/common.type';
 
 /**
- * The catalogue is a handful of groups, not a feed, so the page shows the whole tree rather
- * than paginating it. The cap is a guard against a catalogue that outgrows that assumption:
+ * The catalog is a handful of groups, not a feed, so the page shows the whole tree rather
+ * than paginating it. The cap is a guard against a catalog that outgrows that assumption:
  * past it the listing is still correct, only incomplete, which the nesting makes visible
  * (a child whose parent did not fit is drawn as a root).
  */
@@ -27,7 +27,7 @@ const REVALIDATE_SECONDS = 3600;
 
 /**
  * Builds the href for one category, from its slug. A surface with no page per category
- * omits it and every name renders as plain text — a link to a 404 is worse than none.
+ * omits it and every name renders as plain text - a link to a 404 is worse than none.
  */
 export type BuildCategoryHref = (slug: string) => string;
 
@@ -44,7 +44,7 @@ export const CATEGORY_LISTING_TRANSLATION_KEYS = [
 ] as const;
 
 /**
- * `null` means the backend could not be reached — told apart from an empty catalogue, which is
+ * `null` means the backend could not be reached - told apart from an empty catalog, which is
  * a legitimate answer and reads very differently to a visitor.
  */
 async function getCategoryTree(

@@ -7,7 +7,7 @@ import {
 
 /*
  * Browser runtime. Next loads this before any application code, which is what lets the
- * reporter be in place before the first component renders — including `global-error.tsx`,
+ * reporter be in place before the first component renders - including `global-error.tsx`,
  * whose whole purpose is to catch a root layout that never got that far.
  *
  * Session replay is deliberately not enabled: it is the largest addition to the client

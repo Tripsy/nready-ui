@@ -5,7 +5,9 @@ import {
 	FormManageComment,
 } from '@/app/(dashboard)/dashboard/comment/form-manage-comment.component';
 import { StatusTransitionComment } from '@/app/(dashboard)/dashboard/comment/status-transition-comment.component';
+import { UsageGuideComment } from '@/app/(dashboard)/dashboard/comment/usage-guide-comment.component';
 import { ViewComment } from '@/app/(dashboard)/dashboard/comment/view-comment.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import {
 	getFormDataAsBoolean,
@@ -20,7 +22,7 @@ import {
 } from '@/helpers/services.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	COMMENT_DEFAULT_TYPE,
 	COMMENT_STATUS_TRANSITIONS,
@@ -105,8 +107,8 @@ function getFormState(
 }
 
 /**
- * Exactly the keys in the backend's `find.filterSchema`. `term` is the free-text search — it
- * matches the comment body and a guest's name — and reaches the table as `global`, which
+ * Exactly the keys in the backend's `find.filterSchema`. `term` is the free-text search - it
+ * matches the comment body and a guest's name - and reaches the table as `global`, which
  * `data-table-list.component.tsx` renames on the way out.
  *
  * `user` is the label half of the autocomplete pair; only `user_id` reaches the backend.
@@ -133,12 +135,13 @@ export default async function dataSourceConfig(): Promise<
 			'delete.title',
 			'statusTransition.title',
 			'viewUser.title',
+			'guide.title',
 		] as const,
 		'comment.action',
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<CommentModel>['displayButton'] {
 		return {
 			action: () =>
@@ -148,7 +151,7 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	function displayButtonViewUser(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 		entry: CommentModel,
 	): DataTableValueOptionsType<CommentModel>['displayButton'] {
 		if (!entry.user_id) {
@@ -168,11 +171,11 @@ export default async function dataSourceConfig(): Promise<
 	 * The status badge opens the transition window rather than performing a move.
 	 *
 	 * Unlike `complaint`, whose state is a boolean and so has exactly one move from anywhere, a
-	 * comment can go several ways from most of its states — the badge cannot pick one, so it
+	 * comment can go several ways from most of its states - the badge cannot pick one, so it
 	 * offers the choice.
 	 */
 	function displayButtonStatus(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<CommentModel>['displayButton'] {
 		return {
 			action: (entry: CommentModel) => {
@@ -321,7 +324,7 @@ export default async function dataSourceConfig(): Promise<
 			},
 			/*
 			 * One window for every moderation decision, since a comment has no single next
-			 * state. `windowType: 'other'` because the window owns the request itself — the
+			 * state. `windowType: 'other'` because the window owns the request itself - the
 			 * moves are rendered from the transition map and each one issues its own
 			 * `statusUpdate`, so there is no single `operationFunction` to declare here.
 			 */
@@ -345,7 +348,7 @@ export default async function dataSourceConfig(): Promise<
 					hover: 'default',
 				},
 			},
-			// Hard delete, and it takes the replies with it — `parent_id` cascades in the
+			// Hard delete, and it takes the replies with it - `parent_id` cascades in the
 			// database, so there is no orphaned subtree left behind and nothing to restore.
 			delete: {
 				windowType: 'action',
@@ -372,6 +375,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['comment', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideComment,
+				windowConfigProps: {
+					size: 'xl3',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['comment', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

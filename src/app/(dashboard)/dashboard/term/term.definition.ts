@@ -4,7 +4,9 @@ import {
 	FormManageTerm,
 	type TermFormValuesType,
 } from '@/app/(dashboard)/dashboard/term/form-manage-term.component';
+import { UsageGuideTerm } from '@/app/(dashboard)/dashboard/term/usage-guide-term.component';
 import { ViewTerm } from '@/app/(dashboard)/dashboard/term/view-term.component';
+import { Icons } from '@/components/icon.component';
 import { Configuration } from '@/config/settings.config';
 import { getLanguageClient, translateBatch } from '@/config/translate.setup';
 import { getFormDataAsEnum } from '@/helpers/form.helper';
@@ -22,10 +24,11 @@ import {
 	resolveValidatorMessages,
 	sharedValidatorMessages,
 } from '@/helpers/validator.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	displayTermLabel,
 	displayTermValue,
+	storedTermValue,
 	type TermContentType,
 	type TermModel,
 	type TermType,
@@ -55,8 +58,11 @@ class TermValidator extends BaseValidator<typeof validatorMessages> {
 			language: this.validateLanguage(
 				this.getMessage('invalid_language'),
 			),
-			// Mirrors the backend rule: every term is stored lower-cased, so what the editor
-			// typed and what comes back on the next read are the same string.
+			/*
+			 * Trimmed here and case-folded on the object below, where `type` is in reach - the
+			 * rule depends on it, and a content row on its own cannot see which type it belongs
+			 * to. The backend splits it the same way, and for the same reason.
+			 */
 			value: this.validateString(
 				{
 					invalid: this.getMessage('invalid_value'),
@@ -65,30 +71,43 @@ class TermValidator extends BaseValidator<typeof validatorMessages> {
 					}),
 				},
 				{ maxChars: VALUE_MAX_CHARS },
-			).transform((value) => value.trim().toLowerCase()),
+			).transform((value) => value.trim()),
 		});
 	}
 
 	manage = () =>
-		z.object({
-			type: this.validateEnum(
-				TermTypeEnum,
-				this.getMessage('invalid_type'),
-			),
-			contents: this.contentsSchema()
-				.array()
-				.min(1, this.getMessage('invalid_contents'))
-				.refine(
-					(contents) => {
-						const languages = contents.map(
-							(content) => content.language,
-						);
-
-						return new Set(languages).size === languages.length;
-					},
-					{ message: this.getMessage('duplicate_contents') },
+		z
+			.object({
+				type: this.validateEnum(
+					TermTypeEnum,
+					this.getMessage('invalid_type'),
 				),
-		});
+				contents: this.contentsSchema()
+					.array()
+					.min(1, this.getMessage('invalid_contents'))
+					.refine(
+						(contents) => {
+							const languages = contents.map(
+								(content) => content.language,
+							);
+
+							return new Set(languages).size === languages.length;
+						},
+						{ message: this.getMessage('duplicate_contents') },
+					),
+			})
+			/*
+			 * Folded against the term's own type, mirroring `TermService.normalizeContents`.
+			 * Applied client-side as well so the editor sees the wording it will read back
+			 * rather than typing one string and being handed another on the next fetch.
+			 */
+			.transform((data) => ({
+				...data,
+				contents: data.contents.map((content) => ({
+					...content,
+					value: storedTermValue(data.type, content.value),
+				})),
+			}));
 }
 
 async function validateForm(values: TermFormValuesType) {
@@ -152,6 +171,7 @@ export default async function dataSourceConfig(): Promise<
 			'view.title',
 			'delete.title',
 			'restore.title',
+			'guide.title',
 		] as const,
 		'term.action',
 	);
@@ -159,7 +179,7 @@ export default async function dataSourceConfig(): Promise<
 	const defaultLanguage = Configuration.defaultLanguage();
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<TermModel>['displayButton'] {
 		return {
 			action: () =>
@@ -199,7 +219,7 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'type',
 					header: 'Type',
-					// `formatEnumLabel`, not `capitalize` — the values are snake_case, so
+					// `formatEnumLabel`, not `capitalize` - the values are snake_case, so
 					// capitalizing alone leaves "Attribute_value" against the filter
 					// dropdown's "Attribute Value".
 					body: (entry, column) =>
@@ -211,7 +231,7 @@ export default async function dataSourceConfig(): Promise<
 					/*
 					 * The backend returns the one wording for the filtered language, so the row
 					 * carries at most a single content. An empty cell means the term has no
-					 * translation there — the state this table exists to surface.
+					 * translation there - the state this table exists to surface.
 					 */
 					field: 'contents',
 					header: 'Value',
@@ -324,6 +344,24 @@ export default async function dataSourceConfig(): Promise<
 				// The list row carries only the filtered language; the details window shows
 				// every wording, which is what `read` returns when no language is requested
 				reloadEntry: (id: number) => requestView<TermModel>('term', id),
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideTerm,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['term', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

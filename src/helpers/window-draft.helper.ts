@@ -15,7 +15,7 @@ const draftKey = (uid: string): string => `${DRAFT_KEY_PREFIX}${uid}`;
 const isRecord = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null && !Array.isArray(value);
 
-/** Drops credential-like fields at every level — nested groups and row arrays included. */
+/** Drops credential-like fields at every level - nested groups and row arrays included. */
 const stripSensitiveFields = (
 	values: Record<string, unknown>,
 ): Record<string, unknown> => {
@@ -53,7 +53,7 @@ const getStorage = (): Storage | null => {
 	try {
 		return window.sessionStorage;
 	} catch (error: unknown) {
-		// Disabled storage (private mode, blocked cookies) — drafts are optional
+		// Disabled storage (private mode, blocked cookies) - drafts are optional
 		logger.warn('Session storage unavailable, drafts disabled', error);
 
 		return null;
@@ -71,7 +71,7 @@ export function readWindowDraft(uid: string): FormValuesType | null {
 	try {
 		/*
 		 * Stripped on the way out as well as in. Writes have been filtered since drafts were
-		 * introduced, so nothing in storage should carry a credential — but `sessionStorage`
+		 * introduced, so nothing in storage should carry a credential - but `sessionStorage`
 		 * is caller-editable and a draft could equally predate the filter, and either way the
 		 * cost of re-running it is a walk over an object that is about to be spread into form
 		 * state anyway.
@@ -96,7 +96,7 @@ export function saveWindowDraft(uid: string, values: FormValuesType): void {
 
 	const safeValues = stripSensitiveFields(values as Record<string, unknown>);
 
-	// Nothing left to keep (a form of nothing but credentials) — storing `{}` would
+	// Nothing left to keep (a form of nothing but credentials) - storing `{}` would
 	// leave a key behind that says a form was being filled in, for no benefit
 	if (Object.keys(safeValues).length === 0) {
 		clearWindowDraft(uid);
@@ -107,7 +107,7 @@ export function saveWindowDraft(uid: string, values: FormValuesType): void {
 	try {
 		storage.setItem(draftKey(uid), JSON.stringify(safeValues));
 	} catch (error: unknown) {
-		// Quota exceeded or serialization failure — never break the form over a draft
+		// Quota exceeded or serialization failure - never break the form over a draft
 		logger.warn('Could not store window draft', error, { uid });
 	}
 }

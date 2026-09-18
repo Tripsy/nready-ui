@@ -1,7 +1,23 @@
 import dayjs from '@/config/dayjs.config';
 import { Configuration } from '@/config/settings.config';
+import type { Language } from '@/types/common.type';
 
 const DEFAULT_DATE_FORMAT = 'YYYY-MM-DD';
+
+/**
+ * The language a month or a relative phrase renders in.
+ *
+ * Applied to the dayjs *instance* rather than through `dayjs.locale()`, which would mutate the
+ * shared module - see `dayjs.config.ts`. Callers that know the reader's language pass it; the
+ * rest fall back to the deployment default, which is what a numeric format renders in anyway.
+ *
+ * Never resolve this from ambient state (`document.documentElement.lang`, a request header):
+ * a client component renders on the server first, and a language that differs between the two
+ * passes produces exactly the hydration mismatch `formatRelativeDate` documents below.
+ */
+function resolveLocale(language?: Language): Language {
+	return language ?? Configuration.defaultLanguage();
+}
 
 /**
  * Create a current date
@@ -54,6 +70,38 @@ export function createPastDate(seconds: number): Date {
 }
 
 /**
+ * The days of the week as every weekday the backend stores numbers them - ISO 8601, Monday is 1
+ * through Sunday is 7. Both `product_availability.day_of_week` and `discount.conditions.day_range`
+ * are written in it, so one list serves the pickers and the readouts of both.
+ *
+ * It is not what `Date.getDay()` returns; a weekday read off a date has to be converted, which is
+ * the backend's `isoWeekday` and has no caller here yet.
+ */
+export const ISO_WEEKDAYS = [
+	{ value: 1, label: 'Monday' },
+	{ value: 2, label: 'Tuesday' },
+	{ value: 3, label: 'Wednesday' },
+	{ value: 4, label: 'Thursday' },
+	{ value: 5, label: 'Friday' },
+	{ value: 6, label: 'Saturday' },
+	{ value: 7, label: 'Sunday' },
+] as const;
+
+/**
+ * Names an ISO weekday. An out-of-range number renders as `Day 9` rather than as nothing - a
+ * value the backend's check constraint refuses, so seeing it means the two have drifted.
+ *
+ * @param {number} day - ISO weekday, 1 (Monday) through 7 (Sunday)
+ * @returns {string} - The day's English name
+ */
+export function isoWeekdayName(day: number): string {
+	return (
+		ISO_WEEKDAYS.find((weekday) => weekday.value === day)?.label ??
+		`Day ${day}`
+	);
+}
+
+/**
  * Check if a string is a valid date.
  *
  * Expects the calendar part to lead in `YYYY-MM-DD` form; anything after it (a time, an
@@ -68,6 +116,45 @@ export function isValidDate(date: string): boolean {
 	}
 
 	return dayjs(date).isValid();
+}
+
+/**
+ * A stored timestamp as a string, for the display helpers that take one.
+ *
+ * The same two shapes `toCalendarValue` reconciles - a list response carries the ISO string, an
+ * entry the window reloaded carries a `Date` - but the whole instant is kept: this feeds
+ * `formatDate`, which renders in the reader's own zone, where `toCalendarValue` answers the
+ * calendar day a form field is set to.
+ *
+ * @param value - The stored timestamp
+ * @returns The timestamp as an ISO string
+ */
+export function toDateValue(value: Date | string): string {
+	return value instanceof Date ? value.toISOString() : value;
+}
+
+/**
+ * A stored date as the calendar input and the date validator both want it: `YYYY-MM-DD`.
+ *
+ * A model field is `Date | string` depending on where the row came from - a list response
+ * carries the ISO string, an entry the window reloaded carries a `Date` - so both are trimmed
+ * to the calendar part. The trim reads the **UTC** day, which is what these fields mean: they
+ * take effect on the day given, not at a time of day.
+ *
+ * @param value - The stored timestamp, or nothing
+ * @returns The date as `YYYY-MM-DD`, or `null` when there is nothing to show
+ */
+export function toCalendarValue(
+	value: Date | string | null | undefined,
+): string | null {
+	if (!value) {
+		return null;
+	}
+
+	return (value instanceof Date ? value.toISOString() : value).slice(
+		0,
+		DEFAULT_DATE_FORMAT.length,
+	);
 }
 
 /**
@@ -100,10 +187,11 @@ export function stringToDate(date: string, startOfDay: boolean = false): Date {
  */
 export function formatDate(
 	value: string | number | Date | null | undefined,
-	format?: 'default' | 'date-time' | 'time',
+	format?: 'default' | 'date-time' | 'time' | 'month-year',
 	options?: {
 		customFormat?: string;
 		strict?: boolean;
+		language?: Language;
 	},
 ): string | null {
 	// Handle empty values
@@ -119,7 +207,7 @@ export function formatDate(
 		return null;
 	}
 
-	const date = dayjs(value);
+	const date = dayjs(value).locale(resolveLocale(options?.language));
 
 	// Validate date
 	if (!date.isValid()) {
@@ -137,6 +225,10 @@ export function formatDate(
 			return date.format('DD-MM-YYYY, HH:mm');
 		case 'time':
 			return date.format('HH:mm');
+		case 'month-year':
+			// The only preset whose output is language-dependent - `options.language`
+			// decides whether this reads "September" or "septembrie".
+			return date.format('MMMM, YYYY');
 		default:
 			// No `if (format)` fallback here: the cases above cover every member of the
 			// union, so this branch is only reached when `format` is undefined.
@@ -151,7 +243,7 @@ export function formatDate(
 /**
  * Combine a date with a specified wall-clock time.
  *
- * `setHours` resolves against the runtime's zone, which is the user's own device zone —
+ * `setHours` resolves against the runtime's zone, which is the user's own device zone -
  * these run client-side. That is the intended reading: "20:00" means 20:00 where the user
  * is, and serializing the resulting Date yields the correct UTC instant for the backend. Do
  * not reach for `app.timezone` here; company time applies to filter day-boundaries only
@@ -256,11 +348,11 @@ export function timeAgo(date: string | Date): string {
  * weeks that framing stops carrying information ("4 months ago") and the date itself is the
  * more useful fact.
  *
- * **The absolute half resolves in `app.timezone`, not the viewer's zone** — the one display
+ * **The absolute half resolves in `app.timezone`, not the viewer's zone** - the one display
  * that departs from the convention in CLAUDE.md, and it has to. The article feed is a client
  * component rendered on the server first, so the same date is formatted twice: in the
  * container (UTC) for the HTML, then in the browser. An instant late in the UTC day lands on
- * the next date in a positive-offset browser, and React fails hydration on the mismatch —
+ * the next date in a positive-offset browser, and React fails hydration on the mismatch -
  * seen as "8 July 2026" against "7 July 2026". A publication date is an editorial fact
  * rather than a per-viewer instant, so pinning it to company time is both stable and true.
  *
@@ -269,18 +361,25 @@ export function timeAgo(date: string | Date): string {
  * value near a boundary still disagrees. Callers render it inside a `<time>` carrying
  * `suppressHydrationWarning` for that reason.
  *
+ * Both halves are language-dependent - `fromNow()` reads its phrasing from the locale just as
+ * `MMMM` reads the month name - so `language` has to be the reader's, and it has to be the same
+ * value on the server pass and in the browser. Pass it down from wherever the language was
+ * resolved for the page rather than reading it from the DOM in the client half.
+ *
  * @param value - the instant to describe
  * @param relativeWithinDays - how recent still reads as relative
+ * @param language - the reader's language; defaults to the deployment's
  */
 export function formatRelativeDate(
 	value: string | number | Date | null | undefined,
 	relativeWithinDays: number = 14,
+	language?: Language,
 ): string | null {
 	if (value === null || value === undefined || value === '') {
 		return null;
 	}
 
-	const date = dayjs(value);
+	const date = dayjs(value).locale(resolveLocale(language));
 
 	if (!date.isValid()) {
 		return null;
@@ -300,7 +399,7 @@ export function formatRelativeDate(
  * That is deliberate, and the one place the app departs from device-local input: this backs
  * the dashboard's date-range filters, where a picked day has to mean the company's day so
  * two managers in different countries filtering "27-07" get the same rows. Instants typed
- * into forms take the opposite convention — see `combineDateAndTime`.
+ * into forms take the opposite convention - see `combineDateAndTime`.
  *
  * @param value - Date string in company time (e.g. "2024-01-15" or "2024-01-15T20:00")
  * @param endOfDay

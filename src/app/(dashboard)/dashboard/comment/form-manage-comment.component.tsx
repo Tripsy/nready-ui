@@ -10,7 +10,7 @@ import { type CommentType, CommentTypeEnum } from '@/models/comment.model';
 import { useWindowForm } from '@/providers/window-form.provider';
 
 /**
- * The moderator's edit. Only the three fields the backend's `update` accepts are here — the
+ * The moderator's edit. Only the three fields the backend's `update` accepts are here - the
  * moderation decision itself is a separate endpoint, driven by the status buttons on the table.
  */
 export type CommentFormValuesType = {

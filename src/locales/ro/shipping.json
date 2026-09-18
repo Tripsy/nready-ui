@@ -1,0 +1,93 @@
+{
+	"meta": {
+		"title": "Mișcări de marfă - Panou | {{app_name}}"
+	},
+	"validation": {
+		"invalid_scope": "Selectează tipul mișcării",
+		"invalid_order_id": "Selectează o comandă",
+		"invalid_document_ref": "Referință de document invalidă",
+		"invalid_pickup_warehouse_id": "Selectează depozitul de ridicare",
+		"invalid_pickup_client_address_id": "Selectează adresa de ridicare",
+		"invalid_destination_warehouse_id": "Selectează depozitul de destinație",
+		"invalid_destination_client_address_id": "Selectează adresa de destinație",
+		"invalid_carrier_id": "Curier invalid",
+		"invalid_method": "Selectează metoda de livrare",
+		"invalid_tracking_number": "Număr de urmărire invalid",
+		"invalid_tracking_url": "Link de urmărire invalid",
+		"invalid_operational_cost": "Cost operațional invalid",
+		"invalid_price": "Preț invalid",
+		"invalid_vat_rate": "Cotă TVA invalidă",
+		"invalid_currency": "Monedă invalidă",
+		"invalid_contact_name": "Nume de contact invalid",
+		"invalid_contact_phone": "Telefon de contact invalid",
+		"invalid_contact_email": "Email de contact invalid",
+		"invalid_variant_id": "Variantă invalidă",
+		"invalid_quantity": "Cantitate invalidă",
+		"price_needs_vat_rate": "Prețul și cota TVA merg împreună - completează-le pe amândouă sau lasă-le goale pentru a folosi tarifele de livrare"
+	},
+	"error": {
+		"cannot_update_status": "Această mișcare a ajuns într-o stare din care nu mai poate fi mutată"
+	},
+	"status": {
+		"pending": "În așteptare",
+		"preparing": "În pregătire",
+		"shipped": "Expediat",
+		"delivered": "Livrat",
+		"failed": "Eșuat",
+		"returned": "Returnat",
+		"deleted": "Șters"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă mișcare",
+			"label": "Adaugă",
+			"success": "Mișcare adăugată cu succes"
+		},
+		"update": {
+			"title": "Modifică mișcarea - {{entry}}",
+			"label": "Modifică",
+			"success": "Mișcare modificată cu succes"
+		},
+		"delete": {
+			"title": "Șterge mișcarea - {{entry}}",
+			"label": "Șterge",
+			"success": "Mișcare ștearsă cu succes",
+			"confirm": "Sigur vrei să ștergi această mișcare?"
+		},
+		"restore": {
+			"title": "Restaurează mișcarea - {{entry}}",
+			"label": "Restaurează",
+			"success": "Mișcare restaurată cu succes",
+			"confirm": "Sigur vrei să restaurezi această mișcare?"
+		},
+		"view": {
+			"title": "Detalii mișcare - {{entry}}",
+			"label": "Vezi detalii"
+		},
+		"statusTransition": {
+			"title": "Schimbă starea - {{entry}}",
+			"label": "Schimbă starea",
+			"success": "Starea mișcării a fost modificată cu succes"
+		},
+		"guide": {
+			"title": "Cum funcționează mișcările de marfă",
+			"label": "Ghid de utilizare"
+		}
+	},
+	"help": {
+		"intro": "O mișcare înseamnă marfă care circulă între două locuri. O livrare pleacă dintr-un depozit către un client, o relocare are loc între două depozite, iar un retur vine înapoi de la client. Un document poate avea mai multe: când produsele unei comenzi se află în locuri diferite, ele călătoresc ca două mișcări, fiecare din locul ei.",
+		"step_1_title": "Alege întâi tipul mișcării",
+		"step_1_body": "Tipul decide tot restul: ce două capete îți cere formularul și cărui document îi răspunde mișcarea. O livrare merge de la depozit la adresa clientului, pentru o comandă; o relocare de la depozit la depozit, pentru un document de relocare; un retur de la adresa clientului la depozit, tot pentru o comandă. Tipul este fixat odată ce mișcarea există - o mișcare de alt fel este una nouă, nu una modificată.",
+		"step_2_title": "Spune de unde pleacă și unde ajunge",
+		"step_2_body": "Ambele capete sunt obligatorii, iar câmpurile se schimbă în funcție de tip. Un capăt care aparține altui tip este ignorat, nu salvat, așa că o mișcare nu indică niciodată un loc de care tipul ei nu are nevoie. Până când marfa pleacă, capetele sunt referințe vii - o corectură ajunge la marfă.",
+		"step_3_title": "Spune ce călătorește",
+		"step_3_body": "Conținutul este listat pe variantă și cantitate. Pentru o mișcare cu o comandă în spate, fiecare variantă trebuie să fie pe acea comandă, iar cantitatea nu poate depăși ce a rămas neexpediat pentru acea variantă, ținând cont de celelalte mișcări ale comenzii - astfel nimic nu este trimis de două ori. O relocare se raportează la stocul existent și conținutul ei nu poate fi ales până când documentul de relocare nu există.",
+		"step_4_title": "Mută mișcarea prin stări",
+		"step_4_body": "În așteptare, în pregătire, expediat, iar din expediat în livrat sau returnat; eșuat este accesibil din orice stare dinainte de sosire. Marcarea ca expediat îngheață ambele capete în mișcare și înregistrează data expedierii; livrat își înregistrează propria dată. Niciuna nu se rescrie, nimic nu revine la o stare anterioară, iar livrat, returnat și eșuat sunt toate finale.",
+		"step_5_title": "Găsește mișcarea din nou",
+		"step_5_body": "Căutarea se face după numărul de urmărire, de la trei caractere. Un termen format doar din cifre este căutat exact după id-ul expedierii, id-ul comenzii și numărul comenzii; o referință de comandă precum ORD-1183 afișează expedierile acelei comenzi. Poți filtra după tip, stare și metodă.",
+		"note": "Odată marcată ca expediată, niciunul dintre capete nu mai poate fi schimbat - copiile înghețate sunt ceea ce documentul continuă să spună, indiferent ce se modifică sau se șterge ulterior. Ștergerea unei mișcări este una logică și eliberează ce transporta, astfel încât acele cantități redevin disponibile pentru celelalte mișcări ale documentului.",
+		"tab_info": "Informații",
+		"tab_api": "Documentație API"
+	}
+}

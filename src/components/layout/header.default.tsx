@@ -4,6 +4,7 @@ import { Menu, X } from 'lucide-react';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { CartMenu } from '@/components/cart/cart-menu.component';
 import { LanguageSwitcher } from '@/components/layout/language-switcher.component';
 import { LogoComponent } from '@/components/layout/logo.default';
 import { ToggleTheme } from '@/components/layout/toggle-theme';
@@ -34,7 +35,7 @@ export function Header({
 	const observerRef = useRef<IntersectionObserver | null>(null);
 
 	/*
-	 * Every entry is public, so the nav is no longer gated on `authStatus` — it used to be,
+	 * Every entry is public, so the nav is no longer gated on `authStatus` - it used to be,
 	 * because the only destination besides home was the dashboard. Signed-in users still
 	 * reach that from `UserMenu`, which is where the authenticated destinations live.
 	 *
@@ -176,6 +177,9 @@ export function Header({
 							translations={translations}
 						/>
 						<ToggleTheme translations={translations} />
+						{/* Renders nothing until the basket has something in it, so a visitor
+						    who has never added anything sees no empty icon. */}
+						<CartMenu />
 						<UserMenu translations={translations} />
 					</div>
 				</div>

@@ -8,6 +8,7 @@
 		"cash-flow": "Flux de numerar",
 		"client": "Clienți",
 		"discount": "Reduceri",
+		"exchange-rate": "Cursuri valutare",
 		"content": "Conținut",
 		"brand": "Mărci",
 		"brand-order": "Ordine",
@@ -33,12 +34,19 @@
 		"logistics": "Logistică",
 		"vendor": "Furnizori",
 		"carrier": "Curieri",
+		"warehouse": "Depozite",
+		"shop": "Magazin",
+		"product": "Produse",
 		"publishing": "Publicare",
 		"article": "Articole",
 		"article-order": "Ordine",
 		"rating": "Evaluări",
+		"review": "Recenzii",
 		"comment": "Comentarii",
-		"complaint": "Reclamații"
+		"complaint": "Reclamații",
+		"cart": "Coșuri",
+		"order": "Comenzi",
+		"shipping": "Expedieri"
 	},
 	"text": {
 		"showing_entries": "Se afișează {{first}} - {{last}} din {{total}} înregistrări",
@@ -57,6 +65,10 @@
 		"label_page_previous": "Pagina anterioară",
 		"label_page_next": "Pagina următoare",
 		"label_select_row": "Selectează rândul",
+		"label_menu_search": "Caută în meniu",
+		"placeholder_menu_search": "Caută în meniu...",
+		"label_menu_search_clear": "Șterge căutarea din meniu",
+		"no_menu_entries": "Nu s-au găsit intrări în meniu",
 		"label_select_all_rows": "Selectează toate rândurile"
 	}
 }

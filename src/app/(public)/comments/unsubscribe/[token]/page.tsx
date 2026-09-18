@@ -34,7 +34,7 @@ type Props = {
 };
 
 /**
- * The subscription behind the link, or null. Called from both `generateMetadata` and the page —
+ * The subscription behind the link, or null. Called from both `generateMetadata` and the page -
  * Next memorizes a GET `fetch` across them within one render, so this costs one request, and the
  * title would otherwise be in a different language from the page under it.
  */
@@ -69,7 +69,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
  *
  * The subscription is read server-side (`remote-api`): the token in the path is the only
  * credential, so there is no session for the proxy to attach, and the answer belongs to whoever
- * holds the link — it is never cached. A token that opens nothing renders the error below rather
+ * holds the link - it is never cached. A token that opens nothing renders the error below rather
  * than a form that cannot be saved.
  */
 export default async function Page(props: Props) {
@@ -82,7 +82,7 @@ export default async function Page(props: Props) {
 	 * in it, quite possibly in a browser that has never been to the site. `translateBatch` falls
 	 * back to the visitor's language if the stored one is no longer supported.
 	 *
-	 * Sequential rather than in parallel with the read for the same reason — the language is in
+	 * Sequential rather than in parallel with the read for the same reason - the language is in
 	 * the answer. One extra round trip on a page nobody loads twice.
 	 */
 	const translations = await translateBatch(
@@ -116,7 +116,7 @@ export default async function Page(props: Props) {
 					{translations['unsubscribe.heading']}
 				</h1>
 
-				{/* The address is echoed back so the reader can see which of theirs this is —
+				{/* The address is echoed back so the reader can see which of theirs this is -
 				    it is the one the email they followed was sent to. */}
 				<p className="mt-2 text-sm text-muted">
 					{translations['unsubscribe.intro']}{' '}

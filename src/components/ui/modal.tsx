@@ -55,7 +55,7 @@ export function Modal({
 	);
 
 	// A minimized window stays mounted to preserve its form state, so the lock
-	// has to follow `isHidden` too — otherwise a window parked in the dock keeps
+	// has to follow `isHidden` too - otherwise a window parked in the dock keeps
 	// the page behind it unscrollable
 	useEffect(() => {
 		if (!isOpen || isHidden) {
@@ -127,7 +127,7 @@ export function Modal({
 
 				{/* Control buttons - Fixed */}
 				<div className="absolute right-4 top-4 z-10 flex gap-2">
-					{/* Rendered only when a handler is given — a modal without
+					{/* Rendered only when a handler is given - a modal without
 					    `onMinimize` has nowhere to minimize to */}
 					{onMinimize && (
 						<Button

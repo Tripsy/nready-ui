@@ -1,12 +1,34 @@
 {
 	"meta": {
 		"title": "Produse | {{app_name}}",
-		"description": "Catalogul de produse pe care îl pregătim."
+		"description": "Tot ce avem acum la vânzare."
 	},
 	"text": {
 		"heading": "Produse",
-		"subheading": "Catalogul este pe drum.",
-		"placeholder": "Momentan nu avem nimic de afișat aici. Lista de produse este încă în lucru.",
-		"browse_categories": "Vezi categoriile"
+		"subheading": "Tot ce avem acum la vânzare.",
+		"back_to_list": "Toate produsele",
+		"unavailable": "Acest produs este temporar indisponibil. Încearcă din nou mai târziu.",
+		"not_found_heading": "Produsul nu a fost găsit",
+		"not_found_message": "Produsul căutat nu există sau nu mai este la vânzare.",
+		"no_description": "Acest produs nu are încă o descriere.",
+		"price_from": "de la",
+		"no_entries": "Nu avem încă produse la vânzare. Revino în curând.",
+		"loading_more": "Se încarcă mai multe produse…",
+		"category_subheading": "Tot ce avem la vânzare în această categorie.",
+		"brand_subheading": "Tot ce avem la vânzare de la această marcă.",
+		"list_unavailable": "Lista de produse este temporar indisponibilă. Încearcă din nou mai târziu.",
+		"variants": "Opțiuni",
+		"variant_adjusts": "Indisponibil cu ce ai ales - alegerea ei îți schimbă celelalte opțiuni.",
+		"bundle_heading": "Compune pachetul",
+		"bundle_included": "Incluse",
+		"bundle_extras": "Suplimente",
+		"bundle_price": "Prețul pachetului",
+		"bundle_free": "inclus",
+		"bundle_unavailable": "Acest pachet nu poate fi configurat momentan.",
+		"attributes": "Specificații",
+		"attribute_yes": "Da",
+		"attribute_no": "Nu",
+		"related_heading": "Mai multe din {{category}}",
+		"related_more": "Vezi mai multe produse din {{category}}"
 	}
 }

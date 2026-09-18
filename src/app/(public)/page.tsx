@@ -14,7 +14,7 @@ import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
 import { translate, translateBatch } from '@/config/translate.setup';
 import { logger } from '@/helpers/logger.helper';
-import type { AuthModel } from '@/models/auth.model';
+import type { AccountModel } from '@/models/account.model';
 
 export async function generateMetadata(): Promise<Metadata> {
 	return {
@@ -57,7 +57,7 @@ const TRANSLATION_KEYS = [
 	'home.cta.ready_description',
 ] as const;
 
-async function getAuth(): Promise<AuthModel | null> {
+async function getAuth(): Promise<AccountModel | null> {
 	const headersList = await headers();
 	const authHeader = headersList.get('x-auth-data');
 

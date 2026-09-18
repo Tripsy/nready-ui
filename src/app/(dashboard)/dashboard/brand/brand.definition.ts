@@ -4,8 +4,10 @@ import {
 	type BrandFormValuesType,
 	FormManageBrand,
 } from '@/app/(dashboard)/dashboard/brand/form-manage-brand.component';
-import { ManagerBrandImages } from '@/app/(dashboard)/dashboard/brand/manager-brand-images.component';
+import { ManagerImagesBrand } from '@/app/(dashboard)/dashboard/brand/manager-images-brand.component';
+import { UsageGuideBrand } from '@/app/(dashboard)/dashboard/brand/usage-guide-brand.component';
 import { ViewBrand } from '@/app/(dashboard)/dashboard/brand/view-brand.component';
+import { Icons } from '@/components/icon.component';
 import Routes from '@/config/routes.setup';
 import { translateBatch } from '@/config/translate.setup';
 import { getFormDataAsEnum, getFormDataAsString } from '@/helpers/form.helper';
@@ -24,7 +26,7 @@ import {
 	resolveValidatorMessages,
 	sharedValidatorMessages,
 } from '@/helpers/validator.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	BRAND_DEFAULT_TYPE,
 	type BrandContentType,
@@ -131,7 +133,7 @@ function getFormValues(formData: FormData): BrandFormValuesType {
 	return {
 		...values,
 		// `toKebabCase` strips anything outside the latin alphabet, so a wholly non-latin name
-		// (`Москва`) reduces to an empty string. Send `null` rather than `''` — the id that
+		// (`Москва`) reduces to an empty string. Send `null` rather than `''` - the id that
 		// would make a usable fallback does not exist yet at create time, so this stays an
 		// open case rather than being papered over with a meaningless slug.
 		slug: values.name ? toKebabCase(values.name) || null : null,
@@ -174,12 +176,13 @@ export default async function dataSourceConfig(): Promise<
 			'disable.title',
 			'order.title',
 			'managerImages.title',
+			'guide.title',
 		] as const,
 		'brand.action',
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<BrandModel>['displayButton'] {
 		return {
 			action: () =>
@@ -189,7 +192,7 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	function displayButtonStatus(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<BrandModel>['displayButton'] {
 		return {
 			action: (entry: BrandModel) => {
@@ -378,7 +381,7 @@ export default async function dataSourceConfig(): Promise<
 			managerImages: {
 				windowType: 'other',
 				windowTitle: translations['managerImages.title'],
-				windowComponent: ManagerBrandImages,
+				windowComponent: ManagerImagesBrand,
 				windowConfigProps: {
 					size: 'xl2',
 				},
@@ -415,6 +418,24 @@ export default async function dataSourceConfig(): Promise<
 				buttonPosition: 'right',
 				button: {
 					variant: 'default',
+				},
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideBrand,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['brand', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
 				},
 			},
 		},

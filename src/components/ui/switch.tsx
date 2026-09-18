@@ -10,7 +10,7 @@ type SwitchProps = Omit<ComponentProps<typeof HeroSwitch>, 'children'> & {
 
 /**
  * Thin wrapper over HeroUI v3's compound Switch. `Switch.Content` is the interactive
- * `SwitchButton` (the clickable label) and must wrap the visual `Control`/`Thumb` —
+ * `SwitchButton` (the clickable label) and must wrap the visual `Control`/`Thumb` -
  * without it the switch renders but does nothing. Forwards react-aria Switch props
  * (isSelected, onChange, isDisabled, size…). `thumbIcon` renders inside the thumb;
  * `children` become the label text next to the control.

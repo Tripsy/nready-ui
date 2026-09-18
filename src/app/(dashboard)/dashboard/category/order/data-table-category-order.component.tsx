@@ -42,7 +42,7 @@ import type { Language } from '@/types/common.type';
 
 /**
  * A sibling group small enough to drag through is far below this; the cap only keeps a
- * pathological group from being requested unbounded, since the list must be complete —
+ * pathological group from being requested unbounded, since the list must be complete -
  * the backend rejects a partial permutation.
  */
 const GROUP_LIMIT = 200;
@@ -157,7 +157,7 @@ const DataTableCategoryOrderContent = (): JSX.Element => {
 					status: CategoryStatusEnum.ACTIVE,
 					type,
 					language,
-					// The group is one parent's children, or the roots of this type —
+					// The group is one parent's children, or the roots of this type -
 					// `is_root` exists because an absent `parent_id` cannot express the
 					// difference between "the roots" and "any parent" in a query string.
 					...(parentId ? { parent_id: parentId } : { is_root: true }),
@@ -217,7 +217,7 @@ const DataTableCategoryOrderContent = (): JSX.Element => {
 		);
 	}
 
-	// The backend rejects fewer than two positions — a group of one has no order to state.
+	// The backend rejects fewer than two positions - a group of one has no order to state.
 	const canReorder = orderedCategories.length > 1;
 
 	return (

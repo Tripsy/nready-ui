@@ -1,5 +1,6 @@
 import account from '@/locales/en/account.json';
 import address from '@/locales/en/address.json';
+import api_docs from '@/locales/en/api-docs.json';
 import app from '@/locales/en/app.json';
 import article from '@/locales/en/article.json';
 import article_order from '@/locales/en/article-order.json';
@@ -8,13 +9,17 @@ import articles_categories from '@/locales/en/articles-categories.json';
 import auth from '@/locales/en/auth.json';
 import brand from '@/locales/en/brand.json';
 import brand_order from '@/locales/en/brand-order.json';
+import brands from '@/locales/en/brands.json';
 import carrier from '@/locales/en/carrier.json';
+import cart from '@/locales/en/cart.json';
 import cash_flow from '@/locales/en/cash-flow.json';
 import categories from '@/locales/en/categories.json';
 import category from '@/locales/en/category.json';
 import category_order from '@/locales/en/category-order.json';
 import category_tree from '@/locales/en/category-tree.json';
+import checkout from '@/locales/en/checkout.json';
 import client from '@/locales/en/client.json';
+import client_address from '@/locales/en/client-address.json';
 import comment from '@/locales/en/comment.json';
 import complaint from '@/locales/en/complaint.json';
 import cron_history from '@/locales/en/cron-history.json';
@@ -23,6 +28,7 @@ import discount from '@/locales/en/discount.json';
 import document_series from '@/locales/en/document-series.json';
 import email_confirm from '@/locales/en/email-confirm.json';
 import email_confirm_send from '@/locales/en/email-confirm-send.json';
+import exchange_rate from '@/locales/en/exchange-rate.json';
 import home from '@/locales/en/home.json';
 import image from '@/locales/en/image.json';
 import layout from '@/locales/en/layout.json';
@@ -32,24 +38,32 @@ import login from '@/locales/en/login.json';
 import logout from '@/locales/en/logout.json';
 import mail_queue from '@/locales/en/mail-queue.json';
 import oauth from '@/locales/en/oauth.json';
+import order from '@/locales/en/order.json';
 import password_recover from '@/locales/en/password-recover.json';
 import password_recover_change from '@/locales/en/password-recover-change.json';
 import permission from '@/locales/en/permission.json';
 import place from '@/locales/en/place.json';
+import product from '@/locales/en/product.json';
+import productBundle from '@/locales/en/product-bundle.json';
+import productCategoryAttribute from '@/locales/en/product-category-attribute.json';
 import products from '@/locales/en/products.json';
 import rating from '@/locales/en/rating.json';
 import register from '@/locales/en/register.json';
+import review from '@/locales/en/review.json';
 import shared from '@/locales/en/shared.json';
+import shipping from '@/locales/en/shipping.json';
 import status from '@/locales/en/status.json';
 import template from '@/locales/en/template.json';
 import term from '@/locales/en/term.json';
 import user from '@/locales/en/user.json';
 import vendor from '@/locales/en/vendor.json';
+import warehouse from '@/locales/en/warehouse.json';
 
 const en = {
 	// BE
 	account,
 	address: address,
+	'api-docs': api_docs,
 	app,
 	article,
 	'article-order': article_order,
@@ -58,13 +72,17 @@ const en = {
 	auth,
 	brand,
 	'brand-order': brand_order,
+	brands,
 	carrier,
+	cart,
 	'cash-flow': cash_flow,
 	categories,
 	category,
 	'category-order': category_order,
 	'category-tree': category_tree,
+	checkout,
 	client,
+	'client-address': client_address,
 	comment,
 	complaint,
 	'cron-history': cron_history,
@@ -73,6 +91,7 @@ const en = {
 	'document-series': document_series,
 	'email-confirm': email_confirm,
 	'email-confirm-send': email_confirm_send,
+	'exchange-rate': exchange_rate,
 	home,
 	image,
 	'log-data': log_data,
@@ -83,10 +102,16 @@ const en = {
 	oauth,
 	'password-recover': password_recover,
 	'password-recover-change': password_recover_change,
+	order,
+	shipping: shipping,
 	permission,
 	place,
+	product,
+	'product-bundle': productBundle,
+	'product-category-attribute': productCategoryAttribute,
 	products,
 	rating,
+	review,
 	register,
 	shared,
 	template,
@@ -94,6 +119,7 @@ const en = {
 	user,
 	status,
 	vendor,
+	warehouse,
 
 	// FE
 	layout,

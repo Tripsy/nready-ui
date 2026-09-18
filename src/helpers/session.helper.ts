@@ -47,7 +47,7 @@ export async function deleteCookie(name: string, path?: string): Promise<void> {
 	});
 
 	// `setupTrackedCookie` always writes the two together, so they have to come down
-	// together — otherwise logging out leaves `<name>-expiration` behind, still carrying a
+	// together - otherwise logging out leaves `<name>-expiration` behind, still carrying a
 	// future timestamp, until its own maxAge runs out. Deleting a cookie that was never
 	// tracked is a no-op.
 	cookieStore.delete({
@@ -104,7 +104,7 @@ export async function getTrackedCookie(
  * Turns a token the backend issued into this origin's session cookie.
  *
  * Lives here rather than in `auth.service.ts` because both callers are route handlers
- * (`/api/auth/session`, `/api/auth/oauth/:provider`) and that module is `'use server'` — a
+ * (`/api/auth/session`, `/api/auth/oauth/:provider`) and that module is `'use server'` - a
  * session written from a server action resets the page that invoked it, which is the whole
  * reason those handlers exist (see CLAUDE.md, "Never call a server action from inside a form
  * pipeline").

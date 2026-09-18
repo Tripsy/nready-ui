@@ -19,7 +19,7 @@ export async function requestDiscountTargets(
  * Replaces the links for the scopes present in `targets`.
  *
  * Absent scopes are left untouched by the backend, so the caller must send an explicit empty
- * array to clear one — which is what the form does for the scope it is editing.
+ * array to clear one - which is what the form does for the scope it is editing.
  */
 export async function requestUpdateDiscountTargets(
 	discountId: number,

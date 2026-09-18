@@ -23,7 +23,7 @@ export const ARTICLE_PAGE_SIZE = 12;
 // the browser and cached by TanStack Query instead.
 const REVALIDATE_SECONDS = 600;
 
-/** How many cards the featured block holds — one full row of the three-column grid. */
+/** How many cards the featured block holds - one full row of the three-column grid. */
 const FEATURED_LIMIT = 3;
 
 export const ARTICLE_LIST_TRANSLATION_KEYS = [
@@ -43,7 +43,7 @@ export type ArticleListTranslations = Record<
 /**
  * The first page of the feed, plus the total the pager needs to know when to stop.
  *
- * `null` means the backend could not be reached — told apart from an empty feed, which is a
+ * `null` means the backend could not be reached - told apart from an empty feed, which is a
  * legitimate answer and reads very differently to a visitor.
  */
 export async function loadPublicArticles(params: {
@@ -100,7 +100,7 @@ export async function loadFeaturedArticles(
 /**
  * The featured slot: a three-column card block above the feed.
  *
- * Text only — the cards are a shortcut to a handful of articles, and the covers are what the
+ * Text only - the cards are a shortcut to a handful of articles, and the covers are what the
  * feed below already leads with. The same articles stay in that feed rather than being
  * lifted out of it, so a reader scrolling the list still meets them in date order.
  */

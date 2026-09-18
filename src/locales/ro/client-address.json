@@ -1,0 +1,28 @@
+{
+	"validation": {
+		"invalid_client_id": "Clientul nu a putut fi identificat",
+		"invalid_address_id": "Alege o adresă din listă sau creeaz-o",
+		"invalid_address": "Adresă invalidă",
+		"invalid_type": "Selectează facturare sau livrare",
+		"invalid_details": "Detalii invalide",
+		"invalid_notes": "Notițe invalide"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă adresă client",
+			"label": "Adaugă",
+			"success": "Adresa clientului a fost adăugată cu succes"
+		},
+		"update": {
+			"title": "Editează adresa clientului - {{entry}}",
+			"label": "Actualizează",
+			"success": "Adresa clientului a fost actualizată cu succes"
+		},
+		"delete": {
+			"title": "Șterge adresa clientului - {{entry}}",
+			"label": "Șterge",
+			"success": "Adresa clientului a fost ștearsă cu succes",
+			"confirm": "Sigur vrei să elimini această adresă de la client? Nu poate fi restaurată. Adresa în sine rămâne."
+		}
+	}
+}

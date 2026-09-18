@@ -24,7 +24,7 @@ export default function Page() {
 			type={CategoryTypeEnum.ARTICLE}
 			translationPrefix={TRANSLATION_PREFIX}
 			buildCategoryHref={(category) =>
-				Routes.get('articles-category', { category })
+				Routes.get('articles-category', { slug: category })
 			}
 		/>
 	);

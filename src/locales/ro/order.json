@@ -1,0 +1,126 @@
+{
+	"meta": {
+		"title": "Comenzi - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_client_id": "Selectează un client",
+		"invalid_currency": "Monedă invalidă",
+		"invalid_type": "Tip de comandă invalid",
+		"invalid_issued_at": "Dată de emitere invalidă",
+		"invalid_lines": "Adaugă cel puțin o linie",
+		"invalid_variant_id": "Alege o variantă de produs",
+		"invalid_product_id": "Produs invalid",
+		"invalid_quantity": "Cantitatea trebuie să fie mai mare decât 0",
+		"invalid_price": "Prețul trebuie să fie 0 sau mai mare",
+		"invalid_vat_rate": "Cota TVA trebuie să fie între 0 și 100",
+		"invalid_options": "Opțiuni de produs invalide",
+		"invalid_notes": "Notițe invalide"
+	},
+	"status": {
+		"pending": "În așteptare",
+		"confirmed": "Confirmată",
+		"completed": "Finalizată",
+		"canceled": "Anulată",
+		"deleted": "Ștearsă"
+	},
+	"error": {
+		"cannot_update_status": "Această comandă nu poate schimba statusul din starea curentă"
+	},
+	"action": {
+		"create": {
+			"title": "Compune o comandă nouă",
+			"label": "Adaugă",
+			"success": "Comanda a fost creată în așteptare"
+		},
+		"update": {
+			"title": "Actualizează comanda - {{entry}}",
+			"label": "Actualizează",
+			"success": "Comanda a fost actualizată cu succes"
+		},
+		"delete": {
+			"title": "Șterge comanda - {{entry}}",
+			"label": "Șterge",
+			"success": "Comanda a fost ștearsă cu succes",
+			"confirm": "Sigur vrei să ștergi această comandă?"
+		},
+		"restore": {
+			"title": "Restaurează comanda - {{entry}}",
+			"label": "Restaurează",
+			"success": "Comanda a fost restaurată cu succes",
+			"confirm": "Sigur vrei să restaurezi această comandă?"
+		},
+		"statusTransition": {
+			"title": "Actualizează statusul - {{entry}}",
+			"label": "Status",
+			"success": "Statusul comenzii a fost actualizat cu succes"
+		},
+		"view": {
+			"title": "Detalii comandă - {{entry}}",
+			"label": "Vezi detalii"
+		},
+		"guide": {
+			"title": "Cum funcționează comenzile",
+			"label": "Ghid de utilizare"
+		}
+	},
+	"help": {
+		"intro": "O comandă este documentul pe care afacerea îl emite către un client: ce s-a cumpărat, la ce preț și în ce stadiu este. Majoritatea comenzilor apar singure - un cumpărător care finalizează checkout-ul își transformă coșul în comandă - iar acest ecran este locul din care sunt urmărite, plus locul unde se introduce o comandă luată telefonic sau la fața locului.",
+		"step_1_title": "Compune una sau așteaptă",
+		"step_1_body": "Orice comandă pornește în așteptare, fie că a venit dintr-un checkout, fie că a fost tastată aici după un telefon sau o vânzare la ghișeu. În ambele cazuri referința (ORD-1183) este alocată în momentul salvării, iar o comandă anulată cât este în așteptare consumă definitiv acel număr.",
+		"step_2_title": "Prețurile le stabilești tu",
+		"step_2_body": "O comandă înregistrează prețuri, nu le calculează. Fiecare linie indică o variantă, o cantitate, un preț unitar fără TVA și o cotă de TVA - prețul și cota sugerate la alegerea variantei sunt un punct de plecare preluat din catalog, nu o regulă, iar operatorul stabilește cifra finală. Opțiunile se aleg pe fiecare linie dintre întrebările pe care le pune produsul, iar fiecare întrebare obligatorie cere un răspuns - dar prețul unitar rămâne cel tastat, cu diferențele opțiunilor deja incluse. Reducerile nu sunt oferite aici: regulile catalogului se aplică la salvarea comenzii.",
+		"step_3_title": "Modifici liniile doar cât este în așteptare",
+		"step_3_body": "Liniile pot fi înlocuite în bloc cât timp comanda este în așteptare - inclusiv o comandă din checkout, ca o cantitate să poată fi corectată înainte de acceptare - și niciodată după confirmare. Opțiunile alese la checkout sunt încărcate odată cu liniile și salvate înapoi cu ele. Notele, data emiterii, clientul și tipul rămân editabile oricând.",
+		"step_4_title": "Mut-o mai departe",
+		"step_4_body": "În așteptare, confirmată, finalizată - într-o singură direcție. Anularea este disponibilă până la confirmare inclusiv, pentru că o confirmare nu mișcă stoc: marfa pleacă la livrare. Finalizată și anulată sunt ambele stări finale. O comandă care iese prost după livrare se corectează pe bani, cu o factură de storno.",
+		"step_5_title": "Găsește-o din nou",
+		"step_5_body": "Căutarea acceptă o referință completă (ORD-1183), un număr simplu - căutat atât în id cât și în numărul documentului - sau un cod de serie. Filtrează după client, status, tip și data emiterii și ordonează după id, număr de document, dată, status sau data creării.",
+		"note": "Totalurile afișate sunt liniile însumate la prețurile la care au fost cotate, înainte de orice reducere înregistrată pe ele. O reducere este păstrată ca regula care s-a aplicat, nu ca suma scăzută, așa că cifra încasată nu poate fi recalculată fidel aici - o comandă care are una este semnalată, nu diminuată în tăcere.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API"
+	},
+	"storefront": {
+		"meta_title": "Comenzile mele | {{app_name}}",
+		"meta_title_view": "Comanda {{reference}} | {{app_name}}",
+		"heading": "Comenzile mele",
+		"loading": "Se încarcă…",
+		"error": "Comenzile nu au putut fi încărcate. Încearcă din nou în câteva momente.",
+		"empty": "Nu ai plasat încă nicio comandă.",
+		"empty_filtered": "Nicio comandă nu are acest status.",
+		"start_shopping": "Începe cumpărăturile",
+		"filter_all": "Toate",
+		"placed_on": "Plasată pe",
+		"billed_to": "Facturată către",
+		"payment_method": "Plată",
+		"total": "Total",
+		"view": "Vezi comanda",
+		"previous": "Înapoi",
+		"next": "Înainte",
+		"page_of": "Pagina {{page}} din {{pages}}",
+		"back": "Înapoi la comenzi",
+		"not_found": "Această comandă nu există sau nu aparține contului tău.",
+		"items": "Produse",
+		"quantity": "Cant.",
+		"unit_price": "Preț unitar",
+		"line_total": "Total",
+		"summary": "Sumar",
+		"products_cost": "Produse",
+		"discount": "Reducere",
+		"vat_included": "TVA inclus:",
+		"notes": "Notele tale",
+		"shipments": "Livrare",
+		"shipments_empty": "Nimic nu a fost programat încă pentru livrare.",
+		"shipment_method": "Metodă",
+		"carrier": "Curier",
+		"tracking": "Număr AWB",
+		"track": "Urmărește coletul",
+		"pickup_from": "Ridicare de la",
+		"deliver_to": "Livrată la",
+		"shipped_at": "Expediată pe",
+		"delivered_at": "Livrată pe",
+		"estimated_delivery_at": "Livrare estimată",
+		"scope_return": "Retur",
+		"delivery_cost": "Livrare",
+		"delivery_free": "Gratuit"
+	}
+}

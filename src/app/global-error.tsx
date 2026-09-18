@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { logger } from '@/helpers/logger.helper';
 
 /**
- * Last-resort boundary for errors thrown by the root layout itself — which `error.tsx`
+ * Last-resort boundary for errors thrown by the root layout itself - which `error.tsx`
  * cannot catch, because it renders *inside* that layout. Until this file existed such a
  * failure fell through to Next's built-in page and was reported nowhere.
  *

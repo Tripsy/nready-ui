@@ -1,5 +1,9 @@
 import { logger } from '@/helpers/logger.helper';
 import { getObjectValue, type ObjectValue } from '@/helpers/objects.helper';
+import {
+	type ProductVariantDisplay,
+	ProductVariantDisplayEnum,
+} from '@/models/product-display.model';
 import type { Currency, Language } from '@/types/common.type';
 
 function loadSettings() {
@@ -13,6 +17,29 @@ function loadSettings() {
 			currency: (process.env.NEXT_PUBLIC_APP_CURRENCY ||
 				'RON') as Currency,
 			vatRate: Number(process.env.NEXT_PUBLIC_APP_VAT_RATE || 24),
+		},
+		product: {
+			/*
+			 * Whether the catalog grid shows one card per product or one per variant.
+			 *
+			 * A variant has no name and no slug of its own - it is a SKU plus its axis values - so
+			 * `expanded` derives the wording from those axes and points every card at the product
+			 * page with `?variant=<sku>`. `collapsed` is the safe default: it is the only shape that
+			 * reads well for a catalog whose products mostly have a single variant.
+			 *
+			 * `NEXT_PUBLIC_` because the feed renders page two onward in the browser and has to make
+			 * the same choice the server made for page one.
+			 */
+			variantDisplay: (process.env.NEXT_PUBLIC_PRODUCT_VARIANT_DISPLAY ||
+				ProductVariantDisplayEnum.COLLAPSED) as ProductVariantDisplay,
+		},
+		apiDocs: {
+			/*
+			 * Whether the `/api-docs` pages exist. Opt-in, and it has to agree with the
+			 * backend's own `API_DOCS_ENABLED` - that one is the real gate, since it decides
+			 * whether there is anything to render.
+			 */
+			enabled: process.env.NEXT_PUBLIC_API_DOCS_ENABLED === 'true',
 		},
 		language: {
 			default: (process.env.NEXT_PUBLIC_LANGUAGE_DEFAULT ||
@@ -43,8 +70,21 @@ function loadSettings() {
 			nameMinChars: 3,
 			passwordMinChars: 8,
 			sessionToken: process.env.SESSION_TOKEN || 'session',
+			/*
+			 * The guest cart handle. Kept as an httpOnly cookie and attached by the proxy in
+			 * the `X-Cart-Token` header, exactly as the session token is - the backend
+			 * returns it in the body, but nothing in the page ever needs to read it, and a
+			 * handle a script can read is a basket any script can take over.
+			 *
+			 * Long-lived by design: it is not a credential for an account, only for a
+			 * basket, and the backend expires the cart itself after 30 days of silence.
+			 */
+			cartToken: process.env.CART_TOKEN || 'cart_token',
+			cartTokenMaxAge: Number(
+				process.env.CART_TOKEN_MAX_AGE || 60 * 60 * 24 * 30,
+			),
 			// Seconds, and it has to track the backend's AUTH_JWT_EXPIRES_IN (86400).
-			// The backend signs its JWT without an `exp` claim — a token's lifetime lives in
+			// The backend signs its JWT without an `exp` claim - a token's lifetime lives in
 			// `account_token.expire_at` (`now + authExpiresIn`), which auth.middleware slides
 			// forward on use. A cookie outliving that leaves the browser holding a session it
 			// believes is valid while every request behind it fails auth. The previous
@@ -54,7 +94,7 @@ function loadSettings() {
 			// Seconds of remaining life below which the session cookie is rewritten with a
 			// full `sessionMaxAge` again. Mirrors the backend's AUTH_JWT_REFRESH_EXPIRES_IN
 			// (28800), which is the same threshold auth.middleware uses to slide `expire_at`
-			// forward — so the cookie and the token it stands for extend together. Lower
+			// forward - so the cookie and the token it stands for extend together. Lower
 			// values are safe but log the user out while their backend session is still
 			// alive; higher ones rewrite the cookie on almost every request.
 			sessionRefreshThreshold: Number(
@@ -62,7 +102,7 @@ function loadSettings() {
 			),
 		},
 		/*
-		 * Social sign-in. Only the client ids live here — they are public by design and the
+		 * Social sign-in. Only the client ids live here - they are public by design and the
 		 * browser needs them to build the provider's authorize URL. The client *secrets*
 		 * belong to the backend, which is what performs the code exchange.
 		 *
@@ -85,17 +125,26 @@ function loadSettings() {
 		},
 		remoteApi: {
 			url: process.env.REMOTE_API_URL,
+			/*
+			 * Sent as `x-api-key` on every request that leaves for the backend, which
+			 * gates all of its routes on it. Deliberately not `NEXT_PUBLIC_`: a key the
+			 * client bundle carried would be readable by the visitors it exists to keep
+			 * out. It resolves to `undefined` in the browser, and nothing there needs it -
+			 * every call the browser makes reaches the backend through `/api/proxy`, which
+			 * attaches the key server-side.
+			 */
+			key: process.env.REMOTE_API_KEY || '',
 			wsUrl: process.env.NEXT_PUBLIC_REMOTE_API_WS_URL,
 			wsReconnectDelay:
 				Number(process.env.NEXT_PUBLIC_REMOTE_API_WS_RECONNECT_DELAY) ||
 				3000,
 		},
 		sentry: {
-			// Empty disables Sentry entirely — `init` is skipped rather than run against a
+			// Empty disables Sentry entirely - `init` is skipped rather than run against a
 			// blank DSN, so a machine without one carries none of the SDK's instrumentation.
 			dsn: process.env.NEXT_PUBLIC_SENTRY_DSN || '',
 			// Fraction of transactions sampled for performance data. Errors are never
-			// sampled — this only bounds span volume against the plan's quota.
+			// sampled - this only bounds span volume against the plan's quota.
 			tracesSampleRate: Number(
 				process.env.NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE || 0.1,
 			),
@@ -142,7 +191,7 @@ type Settings = ReturnType<typeof loadSettings>;
 /**
  * Every valid dotted path into `Settings`, as a union of string literals.
  *
- * Arrays stop the recursion — `language.supported` is a leaf, there is no
+ * Arrays stop the recursion - `language.supported` is a leaf, there is no
  * `language.supported.0`. `NonNullable` lets an optional branch (`mail.host` is
  * `string | undefined`) still be classified by its non-undefined type.
  */
@@ -202,7 +251,7 @@ export const Configuration = {
 	},
 
 	// These read the cached object directly rather than going through `get()`, skipping the
-	// path split and lookup. They are the hot paths — `isEnvironment` runs on every request
+	// path split and lookup. They are the hot paths - `isEnvironment` runs on every request
 	// in the proxy, `defaultLanguage` on every translated render.
 	environment: () => {
 		return getSettings().app.environment;

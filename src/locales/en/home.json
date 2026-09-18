@@ -6,7 +6,7 @@
 		"title_prefix": "Run your",
 		"title_highlight": "catalog",
 		"title_suffix": "from a single dashboard",
-		"subtitle": "Products, orders, stock and cash flow — all in one place, with the right access for every role on your team."
+		"subtitle": "Products, orders, stock and cash flow - all in one place, with the right access for every role on your team."
 	},
 	"feature": {
 		"heading": "Everything Your Operation Needs",
@@ -22,7 +22,7 @@
 		"permissions_title": "Roles & Permissions",
 		"permissions_description": "Grant per-entity, per-operation access so admins and operators only see what they need.",
 		"dashboard_title": "One Admin Dashboard",
-		"dashboard_description": "Every entity — users, logs, mail queue, templates — managed from a single, consistent CRUD interface."
+		"dashboard_description": "Every entity - users, logs, mail queue, templates - managed from a single, consistent CRUD interface."
 	},
 	"cta": {
 		"go_dashboard": "Go to Dashboard",

@@ -33,8 +33,8 @@ const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
 		},
 		ref,
 	) => {
-		// External links skip NextLink entirely — there is nothing to prefetch
-		// or soft-navigate to — and get the usual noopener/noreferrer hardening.
+		// External links skip NextLink entirely - there is nothing to prefetch
+		// or soft-navigate to - and get the usual noopener/noreferrer hardening.
 		if (external) {
 			return (
 				<a

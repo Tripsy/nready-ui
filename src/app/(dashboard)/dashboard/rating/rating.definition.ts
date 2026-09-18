@@ -1,9 +1,11 @@
 import { DataTableValue } from '@/app/(dashboard)/_components/data-table-value';
+import { UsageGuideRating } from '@/app/(dashboard)/dashboard/rating/usage-guide-rating.component';
 import { ViewRating } from '@/app/(dashboard)/dashboard/rating/view-rating.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import { requestDelete, requestFind } from '@/helpers/services.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	displayRatingLabel,
 	displayRatingValue,
@@ -19,7 +21,7 @@ import type {
 } from '@/types/data-source.type';
 
 /**
- * Exactly the keys in the backend's `find.filterSchema` — it accepts no free-text term, so
+ * Exactly the keys in the backend's `find.filterSchema` - it accepts no free-text term, so
  * there is no `global` filter here and the table carries no search box.
  *
  * `user` is the label half of the autocomplete pair; only `user_id` reaches the backend.
@@ -37,12 +39,17 @@ export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<RatingModel>
 > {
 	const translations = await translateBatch(
-		['delete.title', 'view.title', 'viewUser.title'] as const,
+		[
+			'delete.title',
+			'view.title',
+			'viewUser.title',
+			'guide.title',
+		] as const,
 		'rating.action',
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<RatingModel>['displayButton'] {
 		return {
 			action: () =>
@@ -52,7 +59,7 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	function displayButtonViewUser(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 		entry: RatingModel,
 	): DataTableValueOptionsType<RatingModel>['displayButton'] {
 		if (!entry.user_id) {
@@ -84,7 +91,7 @@ export default async function dataSourceConfig(): Promise<
 					user_id: { value: null, matchMode: 'equals' },
 				} satisfies RatingDataTableFiltersType,
 			},
-			// Only `id` and `created_at` are sortable — the two columns the backend's
+			// Only `id` and `created_at` are sortable - the two columns the backend's
 			// `OrderByEnum` accepts.
 			columns: [
 				{
@@ -181,6 +188,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['rating', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideRating,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['rating', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

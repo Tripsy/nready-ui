@@ -7,6 +7,7 @@ export const LAYOUT_TRANSLATION_KEYS = [
 	'layout.menu.register',
 	'layout.menu.register_title',
 	'layout.menu.account',
+	'layout.menu.orders',
 	'layout.menu.dashboard',
 	'layout.menu.logout',
 	'layout.aria.toggle_menu',

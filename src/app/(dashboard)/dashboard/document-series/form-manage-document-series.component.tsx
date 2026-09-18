@@ -37,7 +37,7 @@ export function FormManageDocumentSeries() {
 
 	/*
 	 * The document type is the key the counter is stored under, so the backend's update
-	 * payload has no slot for it — editing it would move already-issued numbers to another
+	 * payload has no slot for it - editing it would move already-issued numbers to another
 	 * series. The field is shown on update for context but stays disabled, which also keeps
 	 * its hidden input out of the submitted `FormData`.
 	 */

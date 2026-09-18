@@ -17,7 +17,7 @@ import {
  * URL to assign afterwards, adding a hop and a broken no-JS path for nothing.
  *
  * The `state` is minted here and stored in an httpOnly cookie. The callback compares the two
- * and refuses on a mismatch — the backend cannot do this check, since it never sees the
+ * and refuses on a mismatch - the backend cannot do this check, since it never sees the
  * browser leave, so this handler and the callback are jointly the entire CSRF defense for
  * the flow.
  */
@@ -44,7 +44,7 @@ export async function GET(
 
 	/*
 	 * Where to land after a successful sign-in. Carried in the cookie rather than through
-	 * the provider's `state`, so the value never leaves this origin — a redirect target that
+	 * the provider's `state`, so the value never leaves this origin - a redirect target that
 	 * round-trips through a third party is a redirect target an attacker can rewrite.
 	 */
 	const fromParam = request.nextUrl.searchParams.get('from');
@@ -74,7 +74,7 @@ export async function GET(
 }
 
 /**
- * Only same-origin, non-auth paths are accepted as a return target — an absolute URL here
+ * Only same-origin, non-auth paths are accepted as a return target - an absolute URL here
  * would make this an open redirect.
  */
 function isSafeReturnPath(value: string): boolean {

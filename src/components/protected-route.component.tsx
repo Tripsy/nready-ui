@@ -13,7 +13,7 @@ import Routes, {
 	RouteAuthEnum,
 } from '@/config/routes.setup';
 import { useTranslation } from '@/hooks/use-translation.hook';
-import { hasPermission } from '@/models/auth.model';
+import { hasPermission } from '@/models/account.model';
 import type {
 	PermissionEntityType,
 	PermissionOperationType,

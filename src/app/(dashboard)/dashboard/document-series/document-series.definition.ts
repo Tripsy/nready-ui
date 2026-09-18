@@ -4,7 +4,9 @@ import {
 	type DocumentSeriesFormValuesType,
 	FormManageDocumentSeries,
 } from '@/app/(dashboard)/dashboard/document-series/form-manage-document-series.component';
+import { UsageGuideDocumentSeries } from '@/app/(dashboard)/dashboard/document-series/usage-guide-document-series.component';
 import { ViewDocumentSeries } from '@/app/(dashboard)/dashboard/document-series/view-document-series.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import {
 	getFormDataAsEnum,
@@ -22,7 +24,7 @@ import {
 	resolveValidatorMessages,
 	sharedValidatorMessages,
 } from '@/helpers/validator.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	DOCUMENT_SERIES_CODE_MAX_CHARS,
 	DOCUMENT_SERIES_DEFAULT_START_NUMBER,
@@ -117,7 +119,7 @@ async function validateFormUpdate(values: DocumentSeriesFormValuesType) {
 
 function getFormValues(formData: FormData): DocumentSeriesFormValuesType {
 	return {
-		// Null on update: the field is rendered disabled, so it submits nothing — and the
+		// Null on update: the field is rendered disabled, so it submits nothing - and the
 		// update schema drops it anyway.
 		document_type: getFormDataAsEnum(
 			formData,
@@ -156,12 +158,18 @@ export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<DocumentSeriesModel>
 > {
 	const translations = await translateBatch(
-		['create.title', 'update.title', 'view.title', 'delete.title'] as const,
+		[
+			'create.title',
+			'update.title',
+			'view.title',
+			'delete.title',
+			'guide.title',
+		] as const,
 		'document-series.action',
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<DocumentSeriesModel>['displayButton'] {
 		return {
 			action: () =>
@@ -184,7 +192,7 @@ export default async function dataSourceConfig(): Promise<
 					document_type: { value: null, matchMode: 'equals' },
 				} satisfies DocumentSeriesDataTableFiltersType,
 			},
-			// Only `id` and `code` are sortable — they are the two columns the backend's
+			// Only `id` and `code` are sortable - they are the two columns the backend's
 			// `OrderByEnum` accepts.
 			columns: [
 				{
@@ -303,6 +311,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['document-series', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideDocumentSeries,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['document-series', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

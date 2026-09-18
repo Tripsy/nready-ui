@@ -24,7 +24,7 @@ export interface ImageStorageService {
 	 * A URL the browser can fetch the object from.
 	 *
 	 * For local storage this is the static path Next already serves. For S3 the bucket is
-	 * private, so this mints a short-lived presigned URL — which is why the method is async
+	 * private, so this mints a short-lived presigned URL - which is why the method is async
 	 * even though one implementation has nothing to await.
 	 */
 	resolveUrl(filePath: string): Promise<string>;
@@ -59,7 +59,7 @@ class S3StorageService implements ImageStorageService {
 		/*
 		 * Credentials are passed only when both are actually configured. Omitting the key
 		 * lets the SDK fall back to its default provider chain, which on EC2 resolves the
-		 * instance role from IMDS — so production needs no long-lived access keys on disk.
+		 * instance role from IMDS - so production needs no long-lived access keys on disk.
 		 *
 		 * The config defaults both to '', and passing those through would not fall back:
 		 * an explicit `credentials` object short-circuits the chain and every request would
@@ -187,7 +187,7 @@ class LocalStorageService implements ImageStorageService {
 	async delete(filePath: string): Promise<void> {
 		const fileStoragePath = path.join(this.baseStoragePath, filePath);
 
-		// Path traversal guard — filePath comes from client input
+		// Path traversal guard - filePath comes from client input
 		if (!fileStoragePath.startsWith(this.baseStoragePath)) {
 			throw new Error('Invalid local path');
 		}
@@ -247,7 +247,7 @@ export class ImageStorageFactory {
 
 	getDefaultService(): ImageStorageService {
 		// Cast rather than typing `images.storage` in the config: `ImageStorage` lives in
-		// image.model.ts, which itself reads Configuration — importing it there would close
+		// image.model.ts, which itself reads Configuration - importing it there would close
 		// a cycle (Biome's noImportCycles).
 		const storageType = Configuration.get('images.storage') as ImageStorage;
 

@@ -153,7 +153,7 @@ export function FormManagePlace() {
 				fieldName="code"
 				fieldValue={formValues.code ?? ''}
 				className="pl-8"
-				isRequired={true}
+				isRequired={false}
 				placeholderText="eg: RO"
 				icons={{
 					left: <Icons.Code className="opacity-40 h-4.5 w-4.5" />,

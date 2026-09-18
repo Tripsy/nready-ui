@@ -1,5 +1,6 @@
 import type React from 'react';
 import type { ModalSizeType } from '@/components/ui/modal';
+import type { MapApiErrorFnType } from '@/helpers/form-process.helper';
 import type {
 	ActionEventType,
 	DisplayEntryLabelFnType,
@@ -9,6 +10,7 @@ import type {
 	ReloadEntryFnType,
 } from '@/types/action.type';
 import type {
+	FormSituationType,
 	GetFormStateFnType,
 	GetFormValuesFnType,
 	ValidateFormFnType,
@@ -51,6 +53,7 @@ export type WindowDefinition = {
 	displayEntryLabel?: DisplayEntryLabelFnType<any>;
 	// biome-ignore lint/suspicious/noExplicitAny: It's fine
 	reloadEntry?: ReloadEntryFnType<any>;
+	mapApiError?: MapApiErrorFnType<FormSituationType>;
 	// biome-ignore lint/suspicious/noExplicitAny: It's fine
 	prepareEntry?: PrepareEntryFnType<any>;
 };

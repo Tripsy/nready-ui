@@ -2,14 +2,14 @@
  * The single entry point for diagnostics, replacing direct `console.*` calls.
  *
  * Two runtimes share it. Server-side (route handlers, middleware, server components) the
- * console *is* the sink — Docker captures stdout — so console output is unconditional
+ * console *is* the sink - Docker captures stdout - so console output is unconditional
  * rather than dev-only. Client-side the console is only visible to whoever has devtools
  * open, which is why a reporter can be attached to forward the same entry somewhere
  * durable.
  *
  * Env is read straight from `process.env` rather than through `Configuration`: settings
  * resolution logs its own misses through this module, so importing it would close an
- * import cycle (`noImportCycles`) — and a logger that needs working config to report a
+ * import cycle (`noImportCycles`) - and a logger that needs working config to report a
  * config failure is a logger that goes quiet exactly when it is needed.
  */
 
@@ -22,7 +22,7 @@ export const LogLevelEnum = {
 
 export type LogLevel = (typeof LogLevelEnum)[keyof typeof LogLevelEnum];
 
-/** Structured detail attached to an entry — anything a grouping backend can index on. */
+/** Structured detail attached to an entry - anything a grouping backend can index on. */
 export type LogContext = Record<string, unknown>;
 
 export type LogEntry = {
@@ -50,7 +50,7 @@ export function setLogReporter(nextReporter: LogReporter | null): void {
 	reporter = nextReporter;
 }
 
-// Same flag `Configuration.get('app.debug')` resolves, read directly — see the module note.
+// Same flag `Configuration.get('app.debug')` resolves, read directly - see the module note.
 const isDebug = process.env.NEXT_PUBLIC_APP_DEBUG === 'true';
 
 /**
@@ -83,7 +83,7 @@ function writeToConsole({ level, message, error, context }: LogEntry): void {
 }
 
 function emit(entry: LogEntry): void {
-	// Debug is developer commentary, not a diagnostic — it stays off unless asked for.
+	// Debug is developer commentary, not a diagnostic - it stays off unless asked for.
 	if (entry.level === LogLevelEnum.DEBUG && !isDebug) {
 		return;
 	}
@@ -125,7 +125,7 @@ export const logger = {
  * Ready-made `.catch()` handler for a promise nothing awaits.
  *
  * `promise.catch(console.error)` reports the rejection with no indication of which call
- * produced it — in a provider that fires several refreshes on a timer, that is an
+ * produced it - in a provider that fires several refreshes on a timer, that is an
  * anonymous stack. `promise.catch(logRejection('Auth refresh failed'))` names the site.
  */
 export function logRejection(

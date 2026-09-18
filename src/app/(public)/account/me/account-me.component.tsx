@@ -12,7 +12,7 @@ import { Link } from '@/components/ui/link';
 import Routes from '@/config/routes.setup';
 import { formatDate } from '@/helpers/date.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
-import { hasPassword } from '@/models/auth.model';
+import { hasPassword } from '@/models/account.model';
 import { useAuth } from '@/providers/auth.provider';
 import { useToast } from '@/providers/toast.provider';
 import { requestGetSessions } from '@/services/account.service';
@@ -54,6 +54,7 @@ export default function AccountMe() {
 		'account.button.delete_title',
 		'account.message.session_destroy_success',
 		'account.message.session_destroy_error',
+		'layout.menu.orders',
 	] as const;
 
 	const { translations } = useTranslation(translationsKeys);
@@ -120,7 +121,7 @@ export default function AccountMe() {
 			dataSource: 'account',
 			action: 'deleteAccount',
 			events: {
-				// Access is revoked immediately — send the user to the status
+				// Access is revoked immediately - send the user to the status
 				// page. `info` (not `error`): deletion succeeded, and the copy
 				// already lives at `app.info.account_delete`.
 				success: () => {
@@ -145,6 +146,14 @@ export default function AccountMe() {
 		<div className="min-h-[calc(80vh-4rem)] px-4 py-12">
 			<div className="text-center mb-8">
 				<h1 className="text-2xl font-bold mb-2">My Account</h1>
+				<Link
+					href={Routes.get('account-orders')}
+					variant="outline"
+					size="sm"
+					className="mt-2"
+				>
+					<Icons.Logistics /> {translations['layout.menu.orders']}
+				</Link>
 			</div>
 
 			<div className="flex flex-wrap justify-center gap-8">
@@ -256,7 +265,7 @@ export default function AccountMe() {
 								</div>
 								{/*
 								 * A social sign-in account has no password, so there is
-								 * nothing to change and no meaningful "last updated" —
+								 * nothing to change and no meaningful "last updated" -
 								 * `password_updated_at` is stamped at creation regardless.
 								 * Setting a first one goes through password recovery, which
 								 * proves ownership by email instead of by current password.

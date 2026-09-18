@@ -21,7 +21,7 @@ import { useModalStore } from '@/stores/window.store';
 /**
  * The moderation decision, as the set of moves allowed from where the comment currently sits.
  *
- * A comment has no single next state — `pending` can go to approved, rejected or spam — so the
+ * A comment has no single next state - `pending` can go to approved, rejected or spam - so the
  * status badge cannot act on one click the way `complaint`'s does. It opens this instead, and the
  * moves are drawn from the same transition map the backend enforces, so a button is never offered
  * for a move that would come back 409.

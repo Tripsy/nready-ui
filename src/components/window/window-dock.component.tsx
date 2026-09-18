@@ -15,7 +15,7 @@ export function WindowDock({ modals }: { modals: WindowConfig[] }) {
 	const hasWindows = modals.length > 1;
 
 	// `closeAll` clears the whole stack, including the window currently on
-	// screen — which is no longer listed here, hence the wording
+	// screen - which is no longer listed here, hence the wording
 	const handleCloseAll = () => {
 		if (confirm('Close all open windows?')) {
 			closeAll();

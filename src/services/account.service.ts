@@ -87,7 +87,7 @@ export async function requestLogin(
 /**
  * Redeems a provider authorization code for a session.
  *
- * The code is exchanged by the backend, not here — the client secret never reaches the
+ * The code is exchanged by the backend, not here - the client secret never reaches the
  * browser. `redirect_uri` has to be the exact value used to obtain the code, which is why
  * both legs build it from `getOAuthRedirectUri`.
  *
@@ -204,7 +204,7 @@ export async function requestGetSessions(): Promise<AuthTokenType[]> {
 		}
 	} catch (error: unknown) {
 		// The caller renders a list, so a failure degrades to "no sessions" rather than an
-		// error state — which is indistinguishable from a genuinely empty list on screen.
+		// error state - which is indistinguishable from a genuinely empty list on screen.
 		// The log is the only trace that the request failed at all.
 		logger.error('Failed to load account sessions', error);
 	}

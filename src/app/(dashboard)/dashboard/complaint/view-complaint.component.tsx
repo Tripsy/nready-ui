@@ -33,7 +33,7 @@ export function ViewComplaint({ entry }: { entry: ComplaintModel }) {
 					label="Entity Type"
 					value={formatEnumLabel(entry.entity_type)}
 				/>
-				{/* There is no foreign key behind this id, and a comment is hard-deleted — a
+				{/* There is no foreign key behind this id, and a comment is hard-deleted - a
 				    complaint outlives what it reported, so the id may name a row that is gone. */}
 				<ViewField label="Entity ID" value={entry.entity_id} />
 			</ViewSection>

@@ -50,7 +50,7 @@ import {
 } from '@/services/complaint.service';
 
 type ComplaintReportProps = {
-	/** What is being reported — an article today, a comment next. */
+	/** What is being reported - an article today, a comment next. */
 	entityType: ComplaintEntityType;
 	entityId: number;
 	/**
@@ -77,7 +77,7 @@ function ComplaintReportForm({
 	onWithdraw,
 	withdrawing,
 }: ComplaintReportProps & {
-	/** What this reader already filed against the target, or null — the form amends it if so. */
+	/** What this reader already filed against the target, or null - the form amends it if so. */
 	own: ComplaintOwnEntryType | null;
 	onReported: () => void;
 	onWithdraw: () => void;
@@ -110,7 +110,7 @@ function ComplaintReportForm({
 	const elementIds = useElementIds(['reason', 'description'] as const);
 
 	/*
-	 * The reasons offered, plus whatever this reader filed under if that is not among them — a
+	 * The reasons offered, plus whatever this reader filed under if that is not among them - a
 	 * complaint made when the host offered a different set, or against a target whose set has
 	 * since changed, would otherwise open with nothing selected and read as never filed.
 	 */
@@ -131,7 +131,7 @@ function ComplaintReportForm({
 
 	return (
 		<form action={action} onSubmit={markSubmit} className="form-section">
-			{/* The request's shape, not the reader's input — see the definition. */}
+			{/* The request's shape, not the reader's input - see the definition. */}
 			<input type="hidden" name="entity_type" value={entityType} />
 			<input type="hidden" name="entity_id" value={entityId} />
 			<input type="hidden" name="has_own" value={own ? '1' : '0'} />
@@ -203,7 +203,7 @@ function ComplaintReportForm({
  * request between them.
  *
  * `staleTime: 0` against the provider's five-minute default: the answer is this reader's own
- * complaint, and it changes through this very dialog — a cached one would offer to file a report
+ * complaint, and it changes through this very dialog - a cached one would offer to file a report
  * they have just withdrawn. The backend does not cache it either (`ComplaintEntity.HAS_CACHE` is
  * false).
  */
@@ -236,13 +236,13 @@ function useOwnComplaint(
 }
 
 /**
- * The dialog on its own, for a host that already has somewhere to open it from — a menu item, a
- * row action — rather than the trigger below.
+ * The dialog on its own, for a host that already has somewhere to open it from - a menu item, a
+ * row action - rather than the trigger below.
  *
  * Reporting needs an account: `user_id` is `NOT NULL` on the backend's table and every public
  * complaint endpoint answers 401 without a session, so a signed-out reader is shown the way to
  * sign in rather than a form that cannot be submitted. Which is also why the read is `enabled` on
- * the session — and on the dialog being open, so a page rendering one of these per row does not
+ * the session - and on the dialog being open, so a page rendering one of these per row does not
  * ask about every one of them on arrival.
  */
 export function ComplaintReportDialog({
@@ -326,7 +326,7 @@ export function ComplaintReportDialog({
 				) : own?.is_resolved ? (
 					/*
 					 * A decided complaint is the record the decision is answered from, so the
-					 * backend refuses both an amendment and a withdrawal — there is nothing to
+					 * backend refuses both an amendment and a withdrawal - there is nothing to
 					 * offer but what was reported.
 					 */
 					<div className="space-y-2">

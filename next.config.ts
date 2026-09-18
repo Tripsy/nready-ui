@@ -11,16 +11,16 @@ const nextConfig: NextConfig = {
 
 		/*
 		 * Keep Turbopack under the container's 4g `mem_limit` (docker-compose.yml).
-		 * Without a target it grows until the cgroup OOM killer SIGKILLs next-server —
+		 * Without a target it grows until the cgroup OOM killer SIGKILLs next-server -
 		 * which looks like the dev server silently exiting, with nothing in the log.
 		 *
 		 * 2 GiB, not 3: at 3 the container idled at ~85% of its limit with the dev server
 		 * doing nothing, leaving under a gigabyte for the Node process around Turbopack's
-		 * arena — close enough to the ceiling that an ordinary recompile spike was landing
+		 * arena - close enough to the ceiling that an ordinary recompile spike was landing
 		 * as exit 137. The cost is recompile speed on a cold page graph.
 		 *
 		 * Note this bounds memory, not the on-disk `.next/dev/cache`, which still grows
-		 * across sessions — `pnpm run clean` drops it, but it does not move the numbers
+		 * across sessions - `pnpm run clean` drops it, but it does not move the numbers
 		 * above: measured 87% before a clean and 85% after, idle.
 		 */
 		turbopackMemoryLimit: 2 * 1024 * 1024 * 1024,
@@ -31,7 +31,7 @@ export default withSentryConfig(nextConfig, {
 	org: process.env.SENTRY_ORG,
 	project: process.env.SENTRY_PROJECT,
 
-	// Build-time only, and absent on a dev machine — without it the build still succeeds,
+	// Build-time only, and absent on a dev machine - without it the build still succeeds,
 	// it just skips the source map upload and stack traces stay minified.
 	authToken: process.env.SENTRY_AUTH_TOKEN,
 

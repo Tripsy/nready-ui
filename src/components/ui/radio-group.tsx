@@ -5,7 +5,7 @@ import { cn } from '@/helpers/css.helper';
 
 /**
  * HeroUI's `.radio__control` sets `[border-width:var(--border-width-field)]`, which
- * resolves to `0` in this theme — an unselected radio is then just a `bg-field`
+ * resolves to `0` in this theme - an unselected radio is then just a `bg-field`
  * circle with no visible edge. Restoring a 1px `border-border` matches how inputs and
  * selects were fixed. The `data-selected` variant keeps HeroUI's `border-transparent`
  * on the filled state, so the accent circle keeps its clean edge.
@@ -21,7 +21,7 @@ export type RadioProps = Omit<
 	children?: ReactNode;
 	/** Applied to the clickable label row rather than the option container. */
 	contentClassName?: string;
-	/** Applied to the control (the circle) — see `ui/checkbox` for the width caveat. */
+	/** Applied to the control (the circle) - see `ui/checkbox` for the width caveat. */
 	controlClassName?: string;
 };
 
@@ -31,7 +31,7 @@ const getControlClass = (controlClassName?: string) =>
 
 /**
  * Mirrors `ui/checkbox`: HeroUI's compound Radio composed into the single shape this
- * project uses. `Radio.Content` is the react-aria `RadioButton` — it renders the
+ * project uses. `Radio.Content` is the react-aria `RadioButton` - it renders the
  * `<label>` and owns the click target, so the option's text is passed as `children`
  * rather than as a separate `<Label htmlFor>` sibling.
  */

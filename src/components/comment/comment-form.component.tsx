@@ -23,7 +23,7 @@ import type { CommentEntityType } from '@/models/comment.model';
 import { useAuth } from '@/providers/auth.provider';
 
 type CommentFormProps = {
-	/** What is being commented on — an article today, a review next. */
+	/** What is being commented on - an article today, a review next. */
 	entityType: CommentEntityType;
 	entityId: number;
 	/** The comment being answered, or null for a new thread. */
@@ -54,7 +54,7 @@ function CommentFormFields({
 
 	/*
 	 * Whether the name and email fields are asked for at all. Resolved on the client, so it
-	 * settles only once the session has been read — the backend decides for itself either way,
+	 * settles only once the session has been read - the backend decides for itself either way,
 	 * and rejects a guest who sent neither.
 	 */
 	const requiresGuest = !auth?.id;
@@ -108,7 +108,7 @@ function CommentFormFields({
 			onSubmit={markSubmit}
 			className="form-section mt-4"
 		>
-			{/* The request's shape, not the reader's input — see the definition. */}
+			{/* The request's shape, not the reader's input - see the definition. */}
 			<input type="hidden" name="entity_type" value={entityType} />
 			<input type="hidden" name="entity_id" value={entityId} />
 			<input type="hidden" name="parent_id" value={parentId ?? ''} />
@@ -176,7 +176,7 @@ function CommentFormFields({
 						error={errors.guest_website}
 					/>
 
-					{/* The address is never published — the reader has no way to know that
+					{/* The address is never published - the reader has no way to know that
 					    unless the form says so. */}
 					<p className="self-end text-xs text-muted sm:col-span-1">
 						{translations['form.guest_email_note']}
@@ -241,7 +241,7 @@ export function CommentForm({ onSuccess, ...props }: CommentFormProps) {
 	if (posted) {
 		return (
 			<div className="mt-4 space-y-3">
-				{/* The backend's wording where there is one — it is the half that knows whether
+				{/* The backend's wording where there is one - it is the half that knows whether
 				    the comment is already on the page or waiting for a moderator. */}
 				<p className="text-sm text-success">
 					{posted.message || props.translations['form.success']}

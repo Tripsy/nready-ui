@@ -34,7 +34,7 @@ const languages = toOptionsFromEnum(LanguageEnum, {
 
 /**
  * The featured slot picks the group being ordered, and the category picker only appears for the
- * `category` one — a section slot has no subtree to scope to, and the API rejects the pair.
+ * `category` one - a section slot has no subtree to scope to, and the API rejects the pair.
  */
 export const DataTableFiltersArticleOrder = (): JSX.Element => {
 	const { dataSource, dataTableStateDefault, dataTableStore } =

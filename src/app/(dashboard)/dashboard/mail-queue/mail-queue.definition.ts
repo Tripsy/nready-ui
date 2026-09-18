@@ -1,9 +1,11 @@
 import { DataTableValue } from '@/app/(dashboard)/_components/data-table-value';
+import { UsageGuideMailQueue } from '@/app/(dashboard)/dashboard/mail-queue/usage-guide-mail-queue.component';
 import { ViewMailQueue } from '@/app/(dashboard)/dashboard/mail-queue/view-mail-queue.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import { formatDate } from '@/helpers/date.helper';
 import { requestDeleteMultiple, requestFind } from '@/helpers/services.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import type {
 	MailQueueModel,
 	MailQueueStatus,
@@ -27,12 +29,17 @@ export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<MailQueueModel>
 > {
 	const translations = await translateBatch(
-		['delete.title', 'view.title', 'viewTemplate.label'] as const,
+		[
+			'delete.title',
+			'view.title',
+			'viewTemplate.label',
+			'guide.title',
+		] as const,
 		'mail-queue.action',
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<MailQueueModel>['displayButton'] {
 		return {
 			action: () =>
@@ -42,7 +49,7 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	function displayButtonViewTemplate(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 		entry: MailQueueModel,
 	): DataTableValueOptionsType<MailQueueModel>['displayButton'] {
 		if (!entry.template) {
@@ -159,6 +166,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['mail-queue', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideMailQueue,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['mail-queue', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

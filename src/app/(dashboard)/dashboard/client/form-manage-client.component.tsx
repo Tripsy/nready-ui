@@ -55,6 +55,7 @@ export function FormManageClient() {
 	return (
 		<>
 			<FormComponentRadio<ClientFormValuesType>
+				labelText="Type"
 				id={elementIds.clientType}
 				fieldName="client_type"
 				fieldValue={formValues.client_type}
@@ -170,19 +171,24 @@ export function FormManageClient() {
 				/>
 			</div>
 
-			<div className="grid sm:grid-cols-3 gap-4">
-				<FormComponentInput<ClientFormValuesType>
-					labelText="Contact - Name"
-					id={elementIds.contactName}
-					fieldName="contact_name"
-					fieldValue={formValues.contact_name ?? ''}
-					isRequired={false}
-					disabled={pending}
-					onChange={(e) =>
-						handleChange('contact_name', e.target.value)
-					}
-					error={errors.contact_name}
-				/>
+			{/* A person is their own contact, so the name field would only repeat `person_name` */}
+			<div
+				className={`grid gap-4 ${formValues.client_type === ClientTypeEnum.COMPANY ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}
+			>
+				{formValues.client_type === ClientTypeEnum.COMPANY && (
+					<FormComponentInput<ClientFormValuesType>
+						labelText="Contact - Name"
+						id={elementIds.contactName}
+						fieldName="contact_name"
+						fieldValue={formValues.contact_name ?? ''}
+						isRequired={false}
+						disabled={pending}
+						onChange={(e) =>
+							handleChange('contact_name', e.target.value)
+						}
+						error={errors.contact_name}
+					/>
+				)}
 
 				<FormComponentInput<ClientFormValuesType>
 					labelText="Contact - Email"

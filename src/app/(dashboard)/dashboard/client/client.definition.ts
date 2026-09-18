@@ -1,12 +1,23 @@
 import { z } from 'zod';
 import { DataTableValue } from '@/app/(dashboard)/_components/data-table-value';
 import {
+	type ClientAccountFormValuesType,
+	FormAccountClient,
+} from '@/app/(dashboard)/dashboard/client/form-account-client.component';
+import {
 	type ClientFormValuesType,
 	FormManageClient,
 } from '@/app/(dashboard)/dashboard/client/form-manage-client.component';
+import { ManagerAddressesClient } from '@/app/(dashboard)/dashboard/client/manager-addresses-client.component';
+import { UsageGuideClient } from '@/app/(dashboard)/dashboard/client/usage-guide-client.component';
 import { ViewClient } from '@/app/(dashboard)/dashboard/client/view-client.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
-import { getFormDataAsEnum, getFormDataAsString } from '@/helpers/form.helper';
+import {
+	getFormDataAsEnum,
+	getFormDataAsNumber,
+	getFormDataAsString,
+} from '@/helpers/form.helper';
 import { arrayHasValue } from '@/helpers/objects.helper';
 import {
 	requestCreate,
@@ -17,16 +28,19 @@ import {
 	requestUpdateStatus,
 } from '@/helpers/services.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	type ClientModel,
 	type ClientStatus,
 	ClientStatusEnum,
 	type ClientType,
 	ClientTypeEnum,
+	displayClientAccount,
 	displayClientLabel,
 } from '@/models/client.model';
+import { requestUpdateClientAccount } from '@/services/client.service';
 import type { FindFunctionParamsType } from '@/types/action.type';
+import type { ApiResponseFetch } from '@/types/api.type';
 import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
@@ -46,9 +60,18 @@ const validatorMessages = [
 	'invalid_company_reg_com',
 	'invalid_person_name',
 	'invalid_person_identification_number',
+	'invalid_user_id',
 ] as const;
 
 class ClientValidator extends BaseValidator<typeof validatorMessages> {
+	/**
+	 * The link to an account, submitted on its own (`PATCH /clients/:id/account`) - the backend
+	 * drops `user_id` from `create` and `update`. Required: unlinking is a separate action.
+	 */
+	account = z.object({
+		user_id: this.validateId(this.getMessage('invalid_user_id')),
+	});
+
 	baseSchema = {
 		iban: this.validateIBAN(this.getMessage('invalid_iban'), {
 			required: false,
@@ -134,6 +157,44 @@ async function validateForm(values: ClientFormValuesType) {
 	return validator.manage.safeParse(values);
 }
 
+async function validateAccountForm(values: ClientAccountFormValuesType) {
+	const translations = await translateBatch(
+		validatorMessages,
+		'client.validation',
+	);
+
+	const validator = new ClientValidator(translations);
+
+	return validator.account.safeParse(values);
+}
+
+function getAccountFormValues(formData: FormData): ClientAccountFormValuesType {
+	return {
+		user_id: getFormDataAsNumber(formData, 'user_id'),
+		user: getFormDataAsString(formData, 'user_label'),
+	};
+}
+
+function getAccountFormState(
+	data?: ClientModel,
+): FormStateType<ClientAccountFormValuesType> {
+	return {
+		errors: {},
+		message: null,
+		situation: null,
+		values: {
+			user_id: data?.user_id ?? null,
+			// A client whose account was deleted keeps the id and joins nothing, so the id is all
+			// the autocomplete has left to show
+			user: data?.user
+				? data.user.name
+				: data?.user_id
+					? `#${data.user_id}`
+					: null,
+		},
+	};
+}
+
 export function getFormValues(formData: FormData): ClientFormValuesType {
 	const client_type =
 		getFormDataAsEnum(formData, 'client_type', ClientTypeEnum) ||
@@ -164,6 +225,10 @@ export function getFormValues(formData: FormData): ClientFormValuesType {
 	return {
 		...base,
 		client_type: ClientTypeEnum.PERSON,
+
+		// The form has no contact name for a person - `person_name` is the contact - so an
+		// existing value is cleared on save rather than kept out of sight
+		contact_name: null,
 
 		person_name: getFormDataAsString(formData, 'person_name'),
 		person_identification_number: getFormDataAsString(
@@ -234,16 +299,21 @@ export default async function dataSourceConfig(): Promise<
 			'create.title',
 			'update.title',
 			'view.title',
+			'viewUser.title',
+			'linkAccount.title',
+			'unlinkAccount.title',
+			'addresses.title',
 			'delete.title',
 			'restore.title',
 			'enable.title',
 			'disable.title',
+			'guide.title',
 		] as const,
 		'client.action',
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<ClientModel>['displayButton'] {
 		return {
 			action: () =>
@@ -252,8 +322,24 @@ export default async function dataSourceConfig(): Promise<
 		};
 	}
 
+	/** Opens the linked account in the user view, the way the cart and review listings do. */
+	function displayButtonViewUser(
+		auth: AccountModel | null,
+		entry: ClientModel,
+	): DataTableValueOptionsType<ClientModel>['displayButton'] {
+		return {
+			action: () =>
+				entry.user_id && hasPermission(auth, 'user', 'read')
+					? 'view'
+					: undefined,
+			dataSource: 'user',
+			title: translations['viewUser.title'],
+			alternateEntryId: entry.user_id ?? undefined,
+		};
+	}
+
 	function displayButtonStatus(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<ClientModel>['displayButton'] {
 		return {
 			action: (entry: ClientModel) => {
@@ -317,6 +403,16 @@ export default async function dataSourceConfig(): Promise<
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							customValue: displayClientLabel(entry),
+						}),
+				},
+				{
+					field: 'user_id',
+					header: 'Account',
+					defaultWidth: 160,
+					body: (entry, column, auth) =>
+						DataTableValue(entry, column, {
+							customValue: displayClientAccount(entry),
+							displayButton: displayButtonViewUser(auth, entry),
 						}),
 				},
 				{
@@ -396,6 +492,85 @@ export default async function dataSourceConfig(): Promise<
 				validateForm: validateForm,
 				getFormState: getFormState,
 			},
+			/*
+			 * The link is its own action on the backend - it is what lets a shopper bill an order
+			 * to the client - so it is granted here rather than riding along with an edit. Offered
+			 * only on an unlinked client: a linked one is moved to another account by unlinking it
+			 * first, so a link is never replaced without that being a deliberate step.
+			 */
+			linkAccount: {
+				windowType: 'form',
+				windowTitle: translations['linkAccount.title'],
+				windowComponent: FormAccountClient,
+				windowConfigProps: {
+					size: 'lg',
+				},
+				permission: ['client', 'update'],
+				entriesSelection: 'single',
+				customEntryCheck: (entry: ClientModel) =>
+					!entry.deleted_at && entry.user_id === null,
+				// The endpoint answers with a message and no entry; a form operation expects a
+				// partial entry back, and an empty one says the same thing
+				operationFunction: async (
+					values: ClientAccountFormValuesType,
+					id: number,
+				): Promise<ApiResponseFetch<Partial<ClientModel>>> => {
+					const response = await requestUpdateClientAccount(
+						id,
+						values.user_id,
+					);
+
+					return response && { ...response, data: {} };
+				},
+				buttonPosition: 'left',
+				button: {
+					variant: 'outline',
+					hover: 'success',
+					icon: Icons.Link,
+				},
+				getFormValues: getAccountFormValues,
+				validateForm: validateAccountForm,
+				getFormState: getAccountFormState,
+			},
+			unlinkAccount: {
+				windowType: 'action',
+				windowTitle: translations['unlinkAccount.title'],
+				permission: ['client', 'update'],
+				entriesSelection: 'single',
+				customEntryCheck: (entry: ClientModel) =>
+					!entry.deleted_at && entry.user_id !== null,
+				operationFunction: (entry: ClientModel) =>
+					requestUpdateClientAccount(entry.id, null),
+				buttonPosition: 'left',
+				button: {
+					variant: 'outline',
+					hover: 'error',
+					icon: Icons.Unlink,
+				},
+			},
+			/*
+			 * The client's billing and delivery addresses, managed in their own window rather than
+			 * on a page: an address only means something against the client it belongs to.
+			 */
+			addresses: {
+				windowType: 'other',
+				windowTitle: translations['addresses.title'],
+				windowComponent: ManagerAddressesClient,
+				windowConfigProps: {
+					size: 'xl',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['client-address', 'find'],
+				entriesSelection: 'single',
+				customEntryCheck: (entry: ClientModel) => !entry.deleted_at,
+				buttonPosition: 'left',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Address,
+				},
+			},
 			delete: {
 				windowType: 'action',
 				windowTitle: translations['delete.title'],
@@ -474,6 +649,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['client', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideClient,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['client', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

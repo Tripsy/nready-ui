@@ -10,6 +10,8 @@ export const PlaceTypeEnum = {
 
 export type PlaceType = (typeof PlaceTypeEnum)[keyof typeof PlaceTypeEnum];
 
+export const PLACE_CODE_MAX_CHARS = 3;
+
 export type PlaceContent = {
 	language: Language;
 	name: string;
@@ -19,7 +21,13 @@ export type PlaceContent = {
 export type PlaceModel<D = Date | string> = {
 	id: number;
 	place_type: PlaceType;
+	/** The place's abbreviation and the seed's natural key - alpha-3 on a country. */
 	code: string | null;
+	/**
+	 * ISO 3166-1 alpha-2, on countries only. The vocabulary country rules are written in -
+	 * discount conditions and article visibility rules both match against it.
+	 */
+	alpha2_code: string | null;
 
 	// Parent relationship
 	parent_id: number | null;
@@ -99,6 +107,8 @@ export const displayPlaceLabel = (
 
 export const CITY_DEFAULT = {
 	code: null,
+	// A city has no ISO country code of its own; only a country carries one
+	alpha2_code: null,
 	parent_id: null,
 	place_type: PlaceTypeEnum.CITY,
 	contents: [

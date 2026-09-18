@@ -25,7 +25,7 @@ const languages = toOptionsFromEnum(LanguageEnum, {
 });
 
 /**
- * Type and language only. There is no parent filter here — a tree is rooted by definition, and
+ * Type and language only. There is no parent filter here - a tree is rooted by definition, and
  * a status filter would contradict the page, which shows the active hierarchy.
  */
 export const DataTableFiltersCategoryTree = (): JSX.Element => {

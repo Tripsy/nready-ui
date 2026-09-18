@@ -4,7 +4,9 @@ import {
 	type CarrierFormValuesType,
 	FormManageCarrier,
 } from '@/app/(dashboard)/dashboard/carrier/form-manage-carrier.component';
+import { UsageGuideCarrier } from '@/app/(dashboard)/dashboard/carrier/usage-guide-carrier.component';
 import { ViewCarrier } from '@/app/(dashboard)/dashboard/carrier/view-carrier.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import { getFormDataAsString } from '@/helpers/form.helper';
 import {
@@ -15,7 +17,7 @@ import {
 	requestUpdate,
 } from '@/helpers/services.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
-import { type AuthModel, hasPermission } from '@/models/auth.model';
+import { type AccountModel, hasPermission } from '@/models/account.model';
 import { type CarrierModel, displayCarrierLabel } from '@/models/carrier.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type {
@@ -104,12 +106,13 @@ export default async function dataSourceConfig(): Promise<
 			'view.title',
 			'delete.title',
 			'restore.title',
+			'guide.title',
 		] as const,
 		'carrier.action',
 	);
 
 	function displayButtonView(
-		auth: AuthModel | null,
+		auth: AccountModel | null,
 	): DataTableValueOptionsType<CarrierModel>['displayButton'] {
 		return {
 			action: () =>
@@ -130,7 +133,7 @@ export default async function dataSourceConfig(): Promise<
 					is_deleted: { value: false, matchMode: 'equals' },
 				} satisfies CarrierDataTableFiltersType,
 			},
-			// Only `id`, `name`, `created_at` and `updated_at` are sortable — they are the
+			// Only `id`, `name`, `created_at` and `updated_at` are sortable - they are the
 			// columns the backend's `OrderByEnum` accepts.
 			columns: [
 				{
@@ -262,6 +265,24 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['carrier', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuideCarrier,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['carrier', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
+				},
 			},
 		},
 	};

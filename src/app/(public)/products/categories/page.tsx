@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { CategoryListing } from '@/app/(public)/_components/category/category-listing.component';
+import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
 import { translate } from '@/config/translate.setup';
 import { CategoryTypeEnum } from '@/models/category.model';
@@ -22,6 +23,9 @@ export default function Page() {
 		<CategoryListing
 			type={CategoryTypeEnum.PRODUCT}
 			translationPrefix={TRANSLATION_PREFIX}
+			buildCategoryHref={(category) =>
+				Routes.get('products-category', { slug: category })
+			}
 		/>
 	);
 }

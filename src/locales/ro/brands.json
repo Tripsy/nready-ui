@@ -1,0 +1,12 @@
+{
+	"meta": {
+		"title": "Branduri de produse | {{app_name}}",
+		"description": "Vezi brandurile disponibile în catalogul nostru de produse."
+	},
+	"text": {
+		"heading": "Branduri de produse",
+		"subheading": "Numele din spatele produselor pe care le oferim.",
+		"no_entries": "Momentan nu există branduri de afișat.",
+		"unavailable": "Lista de branduri este temporar indisponibilă. Încearcă din nou mai târziu."
+	}
+}

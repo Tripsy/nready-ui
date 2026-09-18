@@ -16,7 +16,7 @@ type PanelTabId = 'log-data' | 'mail-queue' | 'cron-history';
 
 /**
  * The three health panels share one card. Each tab's query runs whether or not its panel is
- * showing, because the tab strip badges how many rows the tab's current filter selected — a
+ * showing, because the tab strip badges how many rows the tab's current filter selected - a
  * hidden tab still has to know its own count.
  */
 export function SystemPanels(): JSX.Element {
@@ -38,7 +38,7 @@ export function SystemPanels(): JSX.Element {
 
 	return (
 		<Card>
-			{/* No CardHeader — the tab strip is the heading. `CardContent` is `p-6 pt-0` on the
+			{/* No CardHeader - the tab strip is the heading. `CardContent` is `p-6 pt-0` on the
 			    assumption a header sits above it, so the top padding is restored here. */}
 			<CardContent className="p-6">
 				<Tabs

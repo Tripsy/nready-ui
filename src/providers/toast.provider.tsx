@@ -9,6 +9,11 @@ type ToastOptions = {
 	summary: string;
 	detail?: string;
 	life?: number;
+	/** One button beside the message - the step a confirmation leads to, like opening the cart. */
+	action?: {
+		label: string;
+		onPress: () => void;
+	};
 };
 
 type ToastContextType = {
@@ -26,16 +31,29 @@ const TOAST_METHOD = {
 } as const;
 
 function ToastProvider({ children }: { children: React.ReactNode }) {
-	// summary -> toast title (first arg), detail -> description, life -> timeout (ms).
+	// summary -> toast title (first arg), detail -> description, life -> timeout (ms),
+	// action -> the toast's own action button.
 	const showToast = ({
 		severity,
 		summary,
 		detail,
 		life,
+		action,
 	}: ToastOptions): void => {
-		toast[TOAST_METHOD[severity]](summary, {
+		const key = toast[TOAST_METHOD[severity]](summary, {
 			description: detail,
 			timeout: life ?? 7000, // default to 7 seconds
+			actionProps: action
+				? {
+						children: action.label,
+						// Closed on press: the provider lives above the page, so a toast whose
+						// action navigates would otherwise stay open over where it led.
+						onPress: () => {
+							toast.close(key);
+							action.onPress();
+						},
+					}
+				: undefined,
 		});
 	};
 

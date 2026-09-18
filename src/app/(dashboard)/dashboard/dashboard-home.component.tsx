@@ -52,7 +52,7 @@ export function DashboardHome(): JSX.Element {
 					<SumRevenues />
 				</StatCard>
 
-				{/* Spans the two remaining columns of the stat row — five figures need the width. */}
+				{/* Spans the two remaining columns of the stat row - five figures need the width. */}
 				<Card className="sm:col-span-2">
 					<CardHeader className="flex flex-row items-center justify-between pb-2">
 						<CardTitle className="text-sm font-medium text-muted">

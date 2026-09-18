@@ -4,6 +4,7 @@ import { Icons } from '@/components/icon.component';
 import { LogoComponent } from '@/components/layout/logo.default';
 import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
+import { isApiDocsEnabled } from '@/types/api-docs.type';
 
 type FooterLinkSection = {
 	name: string;
@@ -12,19 +13,35 @@ type FooterLinkSection = {
 
 const footerLinkSections: FooterLinkSection[] = [
 	{
-		name: 'Products',
+		name: 'Shopping',
 		links: [
 			{ label: 'Categories', href: Routes.get('products-categories') },
-			{ label: 'Latest', href: Routes.get('products') },
+			{ label: 'Brands', href: Routes.get('products-brands') },
+			{ label: 'Products', href: Routes.get('products') },
 		],
 	},
 	{
 		name: 'Blog',
 		links: [
 			{ label: 'Categories', href: Routes.get('articles-categories') },
-			{ label: 'Latest', href: Routes.get('articles') },
+			{ label: 'Articles', href: Routes.get('articles') },
 		],
 	},
+	// Goes with the pages it links to, which `notFound()` when the reference is off.
+	...(isApiDocsEnabled()
+		? [
+				{
+					name: 'Developers',
+					links: [
+						{
+							label: 'API reference',
+							href: Routes.get('api-docs'),
+							title: 'API reference',
+						},
+					],
+				},
+			]
+		: []),
 	{
 		name: 'Company',
 		links: [
@@ -107,7 +124,7 @@ export function Footer() {
 						</div>
 					</div>
 
-					<div className="flex justify-around md:gap-20">
+					<div className="grid grid-cols-3 gap-8 md:flex md:justify-around md:gap-20">
 						{footerLinkSections.map((section) => (
 							<div key={section.name}>
 								<h3 className="text-sm font-semibold text-foreground mb-4">

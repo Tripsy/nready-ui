@@ -1,6 +1,6 @@
 {
 	"message": {
-		"cancelled": "Sign-in was cancelled before it completed.",
+		"canceled": "Sign-in was canceled before it completed.",
 		"unknown_provider": "That sign-in provider is not supported.",
 		"invalid_state": "This sign-in link could not be verified. Please start again from the login page.",
 		"missing_code": "The provider did not return an authorization code. Please try again.",

@@ -44,7 +44,7 @@ export function ActionButtonContent({
 			iconElement = <IconComponent className="h-4 w-4" />;
 		}
 	} else if (iconSource) {
-		// A component type was passed directly — covers plain function
+		// A component type was passed directly - covers plain function
 		// components, class components, and forwardRef/memo wrapper objects
 		const IconComponent = iconSource as React.ComponentType<LucideProps>;
 
@@ -92,7 +92,7 @@ export function ActionButton({
 
 	// A link command renders an anchor that shares the button styling (`ui/link`
 	// applies the same `buttonVariants`). While disabled we fall back to a real
-	// <button> instead — an anchor has no disabled state, so a styled-but-live
+	// <button> instead - an anchor has no disabled state, so a styled-but-live
 	// link would still navigate mid-action.
 	if (command.type === 'link' && !disabled) {
 		return (

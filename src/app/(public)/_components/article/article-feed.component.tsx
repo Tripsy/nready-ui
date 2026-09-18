@@ -21,7 +21,7 @@ import type { FindFunctionResponseType } from '@/types/action.type';
 import type { Language } from '@/types/common.type';
 
 /**
- * Fallback box for the cover, so a row without one keeps the same rhythm as its neighbours
+ * Fallback box for the cover, so a row without one keeps the same rhythm as its neighbors
  * rather than letting the text run the full width.
  */
 const COVER_WIDTH = 320;
@@ -38,7 +38,7 @@ function CategoryChip({
 }) {
 	return (
 		<Link
-			href={Routes.get('articles-category', { category: category.slug })}
+			href={Routes.get('articles-category', { slug: category.slug })}
 			className="rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent-soft-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
 		>
 			{category.label}
@@ -57,11 +57,11 @@ function resolveArticleView(entry: ArticleModel, language: Language) {
 		brief: getArticleContentProp(entry, language, 'brief', ''),
 		category: getArticlePrimaryCategory(entry, language),
 		href: buildArticlePath(entry, language),
-		publishedAt: formatRelativeDate(entry.publish_at),
+		publishedAt: formatRelativeDate(entry.publish_at, 14, language),
 	};
 }
 
-/** Date above, category inline with the heading — the shape every article block shares. */
+/** Date above, category inline with the heading - the shape every article block shares. */
 export function ArticleHeading({
 	entry,
 	language,
@@ -308,7 +308,7 @@ function SectionHeading({ children }: { children: string }) {
  *
  * The first page is rendered on the server and handed over as `initialEntries`, so the feed
  * is in the HTML a crawler reads and the first paint needs no fetch. Later pages are pulled
- * in as the reader reaches the end of the list — through the proxy, since this runs in the
+ * in as the reader reaches the end of the list - through the proxy, since this runs in the
  * browser and only the proxy may talk to the backend from there.
  */
 export function ArticleFeed({

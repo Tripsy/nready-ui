@@ -45,13 +45,13 @@ const asUserResult = <T>(
 ): Promise<ApiResponseFetch<Partial<UserModel>>> =>
 	response as unknown as Promise<ApiResponseFetch<Partial<UserModel>>>;
 
-// Account self-service is gated by authentication only (see routes.setup) — the
+// Account self-service is gated by authentication only (see routes.setup) - the
 // backend enforces no permission entity here, and these windows are opened
 // directly (never through the dashboard data-table that reads `permission`), so
 // `permission` is intentionally omitted from every action below.
 
 // processForm calls getFormValues synchronously, so the language fallback can't
-// await getLanguage() — here it always comes from the form's radio anyway.
+// await getLanguage() - here it always comes from the form's radio anyway.
 function getAccountEditFormValues(
 	formData: FormData,
 ): AccountEditFormValuesType {
@@ -132,7 +132,7 @@ export default async function dataSourceConfig(): Promise<
 				windowType: 'form',
 				windowTitle: translations['edit.title'],
 				windowComponent: FormManageAccountEdit,
-				// Account forms are short, single-purpose flows — submit or cancel, no parking them in the dock
+				// Account forms are short, single-purpose flows - submit or cancel, no parking them in the dock
 				windowConfigProps: { allowMinimize: false },
 				// `single`: the current user is passed as the entry so the form
 				// can prefill name/language; the id argument is unused (the
@@ -150,7 +150,7 @@ export default async function dataSourceConfig(): Promise<
 				windowType: 'form',
 				windowTitle: translations['emailUpdate.title'],
 				windowComponent: FormManageEmailUpdate,
-				// Account forms are short, single-purpose flows — submit or cancel, no parking them in the dock
+				// Account forms are short, single-purpose flows - submit or cancel, no parking them in the dock
 				windowConfigProps: { allowMinimize: false },
 				entriesSelection: 'free',
 				operationFunction: (values: EmailUpdateFormValuesType) =>
@@ -168,7 +168,7 @@ export default async function dataSourceConfig(): Promise<
 				windowType: 'form',
 				windowTitle: translations['passwordUpdate.title'],
 				windowComponent: FormManagePasswordUpdate,
-				// Account forms are short, single-purpose flows — submit or cancel, no parking them in the dock
+				// Account forms are short, single-purpose flows - submit or cancel, no parking them in the dock
 				windowConfigProps: { allowMinimize: false },
 				entriesSelection: 'free',
 				operationFunction: (values: PasswordUpdateFormValuesType) =>
@@ -188,7 +188,7 @@ export default async function dataSourceConfig(): Promise<
 				windowType: 'form',
 				windowTitle: translations['deleteAccount.title'],
 				windowComponent: FormManageAccountDelete,
-				// Account forms are short, single-purpose flows — submit or cancel, no parking them in the dock
+				// Account forms are short, single-purpose flows - submit or cancel, no parking them in the dock
 				windowConfigProps: { allowMinimize: false },
 				entriesSelection: 'free',
 				operationFunction: (values: AccountDeleteFormValuesType) =>

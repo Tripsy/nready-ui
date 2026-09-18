@@ -1,7 +1,7 @@
 import { formatEnumLabel } from '@/helpers/string.helper';
 
 /**
- * Mirrors `rating` in the backend. The table is append-only — no `updated_at`, no `deleted_at` —
+ * Mirrors `rating` in the backend. The table is append-only - no `updated_at`, no `deleted_at` -
  * so the dashboard only ever reads a row or removes it; there is no create, update or restore.
  */
 
@@ -16,7 +16,7 @@ export type RatingEntityType =
 
 /**
  * How the target was rated. The three are mutually exclusive per row and decide which of
- * `value` / `reaction` carries the rating — the backend enforces that pairing with check
+ * `value` / `reaction` carries the rating - the backend enforces that pairing with check
  * constraints, so a row never holds both.
  */
 export const RatingTypeEnum = {
@@ -43,7 +43,7 @@ export type RatingEmoji =
 
 /**
  * `user_ip_hash` is a column on the table but is deliberately never selected by the backend's
- * list or read query — it identifies a visitor across every target they rated — so it has no
+ * list or read query - it identifies a visitor across every target they rated - so it has no
  * place in this type.
  */
 export type RatingModel<D = Date | string> = {
@@ -62,13 +62,13 @@ export type RatingModel<D = Date | string> = {
 
 	/** When the visitor first rated this target. */
 	created_at: D;
-	/** When they last changed that rating — see `wasRatingChanged` before showing it. */
+	/** When they last changed that rating - see `wasRatingChanged` before showing it. */
 	updated_at: D | null;
 };
 
 /**
  * What `GET /public/ratings/:entity_type/:entity_id` returns for one target: the aggregate
- * over every visitor, and the rows this visitor themselves cast — the two halves a rating
+ * over every visitor, and the rows this visitor themselves cast - the two halves a rating
  * widget renders at once, which is why the backend resolves them together.
  *
  * `own` carries at most one row per rating type, by the uniques on the table. It is resolved
@@ -105,7 +105,7 @@ export type RatingPublicReadType = {
 };
 
 /**
- * The same two halves for a set of targets, keyed by target id — what a list of rated things
+ * The same two halves for a set of targets, keyed by target id - what a list of rated things
  * reads so its request count does not grow with its length.
  *
  * A target nobody has rated is absent from both maps rather than present and empty, so read them
@@ -134,7 +134,7 @@ export const displayRatingLabel = (entry: RatingModel) =>
 
 /**
  * The column defaults to `now()` on insert, so a rating nobody has revisited carries an
- * `updated_at` equal to its `created_at` — displaying it raw reads as an edit that never
+ * `updated_at` equal to its `created_at` - displaying it raw reads as an edit that never
  * happened. Rows cast before the column existed carry null.
  */
 export const wasRatingChanged = (entry: RatingModel): boolean => {

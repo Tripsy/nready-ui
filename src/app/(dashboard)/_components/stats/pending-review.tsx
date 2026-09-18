@@ -31,7 +31,7 @@ const ENTITY_LABEL: Record<PendingReviewEntity, string> = {
 
 /**
  * `complaint` sends a reason enum (`hate_speech`), which wants formatting; every other label is
- * free text — a user's name, a comment's body — that formatting would mangle. `article` sends
+ * free text - a user's name, a comment's body - that formatting would mangle. `article` sends
  * none at all, its title being per-language in `article_content`, so the id stands in.
  */
 function displayLabel(
@@ -57,7 +57,7 @@ export function PendingReview(): JSX.Element {
 
 	return (
 		<Card>
-			{/* No CardHeader — the tab strip is the heading, so the top padding is restored here. */}
+			{/* No CardHeader - the tab strip is the heading, so the top padding is restored here. */}
 			<CardContent className="p-6">
 				<Tabs
 					selectedKey={tab}
@@ -75,7 +75,7 @@ export function PendingReview(): JSX.Element {
 									{ENTITY_LABEL[entity]}
 									{total > 0 && (
 										// Neutral, not danger: a backlog is work to do, not a
-										// failure — the card title already says what it is.
+										// failure - the card title already says what it is.
 										<span className="ml-1.5 rounded-full bg-default px-1.5 text-xs text-default-foreground">
 											{total}
 											<span className="sr-only">
@@ -132,7 +132,7 @@ export function PendingReview(): JSX.Element {
 														entry,
 													)}
 												</NextLink>
-												{/* Only when the title is a real label —
+												{/* Only when the title is a real label -
 												    otherwise the title already *is* the id. */}
 												{entry.label ? (
 													<span className="text-sm text-muted">

@@ -3,7 +3,7 @@ import type { ImagePropertiesType } from '@/types/image.type';
 import type { PageMeta } from '@/types/page-meta.type';
 
 // `csrfError` is emitted by `processForm` when the middleware rejects a submit for a bad or
-// missing CSRF token — any form can hit it, which is why it lives here rather than in a
+// missing CSRF token - any form can hit it, which is why it lives here rather than in a
 // per-flow union.
 export type FormSituationType =
 	| 'success'
@@ -22,11 +22,21 @@ type FormValueType =
 	| null
 	| undefined;
 
+/**
+ * Recursive on purpose: a repeatable group can itself hold a repeatable group - a product
+ * variant carries its own list of per-currency prices - and `FormErrorsType` below already
+ * walks a path of any depth, as does `accumulateZodErrors`.
+ */
 export type FormValuesType = {
+	/*
+	 * `FormValueType[]` is a list of scalars - the option ids on an order line - which
+	 * `FormErrorsType` already answers with a flat `string[]` rather than per-item errors.
+	 */
 	[key: string]:
 		| FormValueType
+		| FormValueType[]
 		| FormValuesType
-		| Record<string, FormValueType>[];
+		| FormValuesType[];
 };
 
 export type GetFormValuesFnType<FormValues> = (

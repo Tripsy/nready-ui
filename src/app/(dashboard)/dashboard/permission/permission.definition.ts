@@ -4,6 +4,8 @@ import {
 	FormManagePermission,
 	type PermissionFormValuesType,
 } from '@/app/(dashboard)/dashboard/permission/form-manage-permission.component';
+import { UsageGuidePermission } from '@/app/(dashboard)/dashboard/permission/usage-guide-permission.component';
+import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import { getFormDataAsString } from '@/helpers/form.helper';
 import {
@@ -74,6 +76,7 @@ export default async function dataSourceConfig(): Promise<
 			'update.title',
 			'delete.title',
 			'restore.title',
+			'guide.title',
 		] as const,
 		'permission.action',
 	);
@@ -196,6 +199,24 @@ export default async function dataSourceConfig(): Promise<
 				button: {
 					variant: 'outline',
 					hover: 'default',
+				},
+			},
+			guide: {
+				windowType: 'other',
+				windowTitle: translations['guide.title'],
+				windowComponent: UsageGuidePermission,
+				windowConfigProps: {
+					size: 'xl2',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
+				permission: ['permission', 'read'],
+				entriesSelection: 'free',
+				buttonPosition: 'right',
+				button: {
+					variant: 'outline',
+					hover: 'info',
+					icon: Icons.Info,
 				},
 			},
 		},

@@ -1,6 +1,8 @@
 /**
- * What a discount attaches to. Mirrors the backend enum — every value except `order` implies
- * targets in the matching link table; `order` takes none and applies to the whole basket.
+ * What a discount attaches to. Mirrors the backend enum - every value except `order` and `shipping`
+ * implies targets in the matching link table; `order` takes none and applies to the whole basket.
+ * `shipping` reduces a delivery or return price rather than the goods, and may be narrowed to
+ * specific clients with `client` targets - with none it applies to every buyer.
  * Country is not a scope: it is a condition inside `rules.applicable_countries`.
  */
 export const DiscountScopeEnum = {
@@ -10,6 +12,7 @@ export const DiscountScopeEnum = {
 	VARIANT: 'variant',
 	CATEGORY: 'category',
 	BRAND: 'brand',
+	SHIPPING: 'shipping',
 } as const;
 
 export type DiscountScope =
@@ -39,7 +42,7 @@ export type DiscountReason =
 /**
  * The conditions a discount is subject to; it applies only when all of them are met.
  *
- * Closed key set, mirroring the backend — an unrecognized key is rejected on write and would
+ * Closed key set, mirroring the backend - an unrecognized key is rejected on write and would
  * stop the discount applying at all, so there is nothing useful to express outside this shape.
  *
  * Worth knowing when reading a cart: `hour_range`/`day_range` depend on when the question is
@@ -81,11 +84,37 @@ export type DiscountModel<D = Date | string> = {
 	deleted_at: D;
 };
 
-/** Every scope that carries targets. `order` applies to the basket and links to nothing. */
+/**
+ * Every target type a discount can link to - a scope name, since most scopes target their own
+ * kind. `order` links to nothing, and `shipping` has no type of its own: it narrows with `client`.
+ */
 export type DiscountTargetScope = Exclude<
 	DiscountScope,
-	typeof DiscountScopeEnum.ORDER
+	typeof DiscountScopeEnum.ORDER | typeof DiscountScopeEnum.SHIPPING
 >;
+
+/**
+ * The target type a discount of this scope links to, or null when it links to nothing. The one
+ * place the scope-to-target mapping is stated, so the form, the view and the submit agree.
+ */
+export function getDiscountTargetScope(
+	scope: DiscountScope,
+): DiscountTargetScope | null {
+	if (scope === DiscountScopeEnum.ORDER) {
+		return null;
+	}
+
+	return scope === DiscountScopeEnum.SHIPPING
+		? DiscountScopeEnum.CLIENT
+		: scope;
+}
+
+/**
+ * Whether a discount of this scope needs at least one target to apply to anything. `shipping`
+ * does not: with no clients picked it is a rule for every buyer.
+ */
+export const isDiscountTargetRequired = (scope: DiscountScope): boolean =>
+	scope !== DiscountScopeEnum.ORDER && scope !== DiscountScopeEnum.SHIPPING;
 
 /** Owner ids per scope, e.g. `{ client: [3, 9], category: [12] }`. */
 export type DiscountTargetMap = Partial<Record<DiscountTargetScope, number[]>>;

@@ -53,6 +53,7 @@ export function WindowForm<
 		getFormValues,
 		validateForm,
 		operationFunction: formOperationFunction,
+		mapApiError,
 		button: buttonSubmit,
 	} = windowDefinition;
 
@@ -112,6 +113,7 @@ export function WindowForm<
 				validateForm,
 				operationFunction,
 				entryId,
+				mapApiError,
 				// No CSRF token here: these forms are authenticated and covered by
 				// the `Sec-Fetch-Site` / origin check in `src/proxy.ts`.
 			}),

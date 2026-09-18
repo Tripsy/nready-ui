@@ -108,7 +108,10 @@ export const createDataTableStore = <K extends DataSourceKey, Model>(
 					// Bump on breaking changes to `DataTableStateType`/filters shape to drop stale
 					// persisted state. v2: `term` stopped accepting `value` as a sort field, and a
 					// rehydrated `sortField` the backend rejects fails the whole list request.
-					version: 2,
+					// v3: the product listing swapped `is_sellable` for `sale_status` and gained
+					// `brand`/`brand_id`; a rehydrated filter set missing a key the component
+					// reads throws on `filters.<key>.value` before the table renders.
+					version: 3,
 					partialize: (state) => ({
 						tableState: state.tableState,
 						selectedEntries: state.selectedEntries,

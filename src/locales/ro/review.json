@@ -1,0 +1,118 @@
+{
+	"meta": {
+		"title": "Recenzii - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_content": "Recenzia trebuie să aibă între 10 și 5000 de caractere",
+		"invalid_is_pinned": "Valoare invalidă pentru fixare",
+		"invalid_is_verified": "Valoare invalidă pentru cumpărător verificat",
+		"invalid_rating": "Fiecare notă trebuie să fie un număr întreg între 1 și 5",
+		"invalid_rating_empty": "Notează cel puțin unul dintre calitate, preț, servicii sau livrare"
+	},
+	"action": {
+		"update": {
+			"title": "Editează recenzia - {{entry}}",
+			"label": "Editează",
+			"success": "Recenzia a fost actualizată"
+		},
+		"delete": {
+			"title": "Șterge recenzia",
+			"label": "Șterge",
+			"success": "Recenzia a fost ștearsă",
+			"confirm": "Sigur vrei să ștergi recenzia selectată? Dispare de pe pagina produsului și poate fi restaurată, dacă între timp cumpărătorul nu scrie alta."
+		},
+		"restore": {
+			"title": "Restaurează recenzia",
+			"label": "Restaurează",
+			"success": "Recenzia a fost restaurată",
+			"confirm": "Sigur vrei să restaurezi recenzia selectată?"
+		},
+		"statusTransition": {
+			"title": "Actualizează statusul - {{entry}}",
+			"label": "Status",
+			"success": "Statusul recenziei a fost actualizat"
+		},
+		"view": {
+			"title": "Detalii recenzie - {{entry}}",
+			"label": "Vezi"
+		},
+		"viewUser": {
+			"title": "Vezi utilizatorul"
+		},
+		"guide": {
+			"title": "Cum funcționează recenziile",
+			"label": "Ghid de utilizare"
+		}
+	},
+	"status": {
+		"pending": "În așteptare",
+		"approved": "Aprobată",
+		"rejected": "Respinsă",
+		"spam": "Spam"
+	},
+	"error": {
+		"cannot_update_status": "Recenzia nu poate trece în alt status din cel curent"
+	},
+	"help": {
+		"intro": "Recenziile sunt scrise de cumpărători pe site - de aici nu se creează niciuna. Ecranul acesta este coada de moderare: ce se publică, ce se retrage și din ce este făcut scorul afișat lângă produs.",
+		"step_1_title": "Totul ajunge în așteptare",
+		"step_1_body": "Spre deosebire de un comentariu, nicio recenzie nu se publică necitită, indiferent cine a scris-o. O recenzie este o afirmație de durată despre ceva pus în vânzare și intră în media produsului, așa că singurul lucru care nu s-ar mai putea desface - publicarea - nu se face primul.",
+		"step_2_title": "Citește din ce e făcut scorul",
+		"step_2_body": "Cumpărătorul notează oricare dintre calitate, preț, servicii și livrare, cel puțin una. Media se calculează peste notele date, nu peste cele patru posibile, așa că o recenzie notată pe două criterii nu este dezavantajată față de una notată pe patru. Lista arată media; fereastra de detalii arată fiecare notă din spatele ei.",
+		"step_3_title": "Vezi ce variantă a fost cumpărată",
+		"step_3_body": "O recenzie poate indica varianta despre care vorbește - 32 cm, negru M - sau niciuna, când a fost scrisă din pagina produsului. Filtrarea după variantă întoarce doar recenziile care o numesc, exact ce afișează site-ul lângă acea variantă.",
+		"step_4_title": "Ia o decizie",
+		"step_4_body": "Fereastra de status oferă doar tranzițiile permise din starea curentă, iar nimic nu readuce recenzia în așteptare. Aprobarea o publică - și tot ea permite cititorilor să comenteze, să voteze sau să o raporteze, pentru că toate trei sunt refuzate pe o recenzie neaprobată.",
+		"step_5_title": "Editează, fixează și verifică",
+		"step_5_body": "Actualizarea schimbă textul, fixarea și eticheta de cumpărător verificat. Notele îi aparțin cumpărătorului și nu se editează de aici. Eticheta nu se pune singură: este o afirmație pe care dashboard-ul o susține, așa că se bifează manual după confirmarea achiziției.",
+		"step_6_title": "Orientează-te în coadă",
+		"step_6_body": "Filtrează după status pentru coada propriu-zisă, sau după produs, variantă, autor, prag de notă, fixare și etichetă. Căutarea caută în textul recenziei. Ștergerea este reversibilă, iar „Arată șterse” este calea prin care restaurarea ajunge la rând.",
+		"note": "Ștergerea eliberează locul: o singură recenzie activă per cumpărător per produs, deci autorul poate scrie imediat alta - iar restaurarea celei vechi întoarce atunci 409, pentru că locul este ocupat. Există o singură recenzie per cumpărător per produs, oricâte variante ar fi cumpărat.",
+		"tab_info": "Info",
+		"tab_api": "API docs",
+		"tab_public": "API public"
+	},
+	"section": {
+		"heading": "Recenzii",
+		"empty": "Încă nu există recenzii. Scrie prima.",
+		"unavailable": "Recenziile sunt momentan indisponibile. Încearcă din nou mai târziu.",
+		"load_more": "Încarcă mai multe recenzii",
+		"loading": "Se încarcă…",
+		"count": "{{total}} recenzie/recenzii",
+		"verified": "Cumpărător verificat",
+		"pinned": "Fixată",
+		"variant": "Cumpărat",
+		"no_score": "Nenotat",
+		"average_of": "Media pe criteriu",
+		"your_review": "Recenzia ta",
+		"pending_note": "Recenzia ta este în așteptarea moderării, așa că nu apare încă în listă și nici în scorul de mai sus.",
+		"approved_note": "Recenzia ta este înregistrată.",
+		"rejected_note": "Un moderator a retras această recenzie, așa că nu mai poate fi editată. Textul scris se păstrează mai jos."
+	},
+	"form": {
+		"heading": "Scrie o recenzie",
+		"heading_edit": "Recenzia ta",
+		"rating": "Notele tale",
+		"rating_note": "Notează cel puțin un criteriu. Lasă necompletate cele pe care nu le poți aprecia - media se calculează peste ce dai.",
+		"content": "Recenzia ta",
+		"content_placeholder": "Ce a fost bun, ce nu și ce ar trebui să știe cineva care cumpără…",
+		"submit": "Trimite recenzia",
+		"submit_edit": "Salvează modificările",
+		"withdraw": "Retrage recenzia",
+		"withdraw_confirm": "Retragi recenzia pentru acest produs? Poți scrie alta după aceea.",
+		"withdraw_success": "Recenzia a fost retrasă",
+		"withdraw_failed": "Recenzia nu a putut fi retrasă",
+		"success": "Mulțumim, recenzia a fost trimisă și așteaptă moderarea.",
+		"success_edit": "Recenzia a fost actualizată",
+		"failed": "Recenzia nu a putut fi trimisă",
+		"guest": "Recenziile sunt scrise de cumpărători cu cont, ca să se știe cine este în spatele lor.",
+		"sign_in": "Autentifică-te pentru a scrie o recenzie",
+		"clear": "Șterge"
+	},
+	"dimension": {
+		"quality": "Calitate",
+		"price": "Preț",
+		"service": "Servicii",
+		"delivery": "Livrare"
+	}
+}

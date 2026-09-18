@@ -21,7 +21,7 @@ import {
 
 const ENTRY_LIMIT = 10;
 
-/** Sentinel for an unset filter — the backend simply receives no `status` filter. */
+/** Sentinel for an unset filter - the backend simply receives no `status` filter. */
 const FILTER_ALL = 'all';
 
 type StatusFilter = CronHistoryStatus | typeof FILTER_ALL;
@@ -33,7 +33,7 @@ const statusOptions = [
 
 const STATUS_VARIANT: Record<CronHistoryStatus, BadgeVariant> = {
 	[CronHistoryStatusEnum.ERROR]: 'error',
-	// `warning` means the job ran but overran its expected time — not a failure, still worth a look.
+	// `warning` means the job ran but overran its expected time - not a failure, still worth a look.
 	[CronHistoryStatusEnum.WARNING]: 'warning',
 	[CronHistoryStatusEnum.OK]: 'success',
 };

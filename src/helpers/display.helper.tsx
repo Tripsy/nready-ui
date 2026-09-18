@@ -67,6 +67,12 @@ export const statusList: Record<
 		variant: 'success',
 		icon: Icons.Status.Ok,
 	},
+	// An order accepted by the business but not yet fulfilled - a state of its own between
+	// `pending` and `completed`, and without an entry here the three render identically
+	confirmed: {
+		variant: 'info',
+		icon: Icons.Status.Authorized,
+	},
 	failed: {
 		variant: 'error',
 		icon: Icons.Status.Failed,
@@ -95,6 +101,20 @@ export const statusList: Record<
 		variant: 'error',
 		icon: Icons.Status.Rejected,
 	},
+	// The moderation states `comment` and `review` share. Without an entry a badge falls back to
+	// a plain grey chip with no icon, which renders a queue of distinct states identically.
+	approved: {
+		variant: 'success',
+		icon: Icons.Status.Ok,
+	},
+	spam: {
+		variant: 'error',
+		icon: Icons.Status.Failed,
+	},
+	flagged: {
+		variant: 'warning',
+		icon: Icons.Status.Warning,
+	},
 	scheduled: {
 		variant: 'default',
 		icon: Icons.Status.Scheduled,
@@ -104,6 +124,34 @@ export const statusList: Record<
 		icon: Icons.Status.Published,
 	},
 	archived: {
+		variant: 'default',
+		icon: Icons.Status.Archived,
+	},
+	pending_review: {
+		variant: 'warning',
+		icon: Icons.Status.Pending,
+	},
+	revision_required: {
+		variant: 'error',
+		icon: Icons.Status.Warning,
+	},
+	ready: {
+		variant: 'success',
+		icon: Icons.Status.Ok,
+	},
+	available: {
+		variant: 'success',
+		icon: Icons.Status.Active,
+	},
+	coming_soon: {
+		variant: 'warning',
+		icon: Icons.Status.Scheduled,
+	},
+	unavailable: {
+		variant: 'error',
+		icon: Icons.Status.Inactive,
+	},
+	discontinued: {
 		variant: 'default',
 		icon: Icons.Status.Archived,
 	},
@@ -142,6 +190,12 @@ export const statusList: Record<
 	preparing: {
 		variant: 'default',
 		icon: Icons.Status.Preparing,
+	},
+	// A parcel handed to the carrier. It shares `transit`'s icon because it is the same physical
+	// state, but it is the value `shipping.status` actually holds
+	shipped: {
+		variant: 'info',
+		icon: Icons.Status.Transit,
 	},
 	transit: {
 		variant: 'default',
@@ -196,7 +250,7 @@ export const DisplayStatus = ({
  * A value preceded by a marker icon while the flag is on, for a column where the flag is a
  * property of the value rather than a column of its own (a featured article's title).
  *
- * The icon is `aria-hidden`, so the meaning has to reach a screen reader some other way — the
+ * The icon is `aria-hidden`, so the meaning has to reach a screen reader some other way - the
  * `title` is a pointer tooltip only.
  */
 export const DisplayFlagged = ({
@@ -247,7 +301,7 @@ export const DisplayDeleted = ({
  * The function lives here rather than in `string.helper` because it needs
  * `getLanguageClient()`, and `translate.setup` imports `string.helper`
  *
- * Client-only — `getLanguageClient()` reads `html[lang]`. Every amount in the app is rendered
+ * Client-only - `getLanguageClient()` reads `html[lang]`. Every amount in the app is rendered
  * client-side, which is what keeps this consistent (a server render would fall back to the
  * container's locale).
  */
@@ -265,7 +319,7 @@ export function formatAmount(amount: number, currencyCode: string) {
 		currencyDisplay: 'narrowSymbol',
 	});
 
-	// `formatToParts(0)` only serves to extract the symbol — the zero itself is discarded.
+	// `formatToParts(0)` only serves to extract the symbol - the zero itself is discarded.
 	const parts = symbolFormatter.formatToParts(0);
 	const currency =
 		parts.find((part) => part.type === 'currency')?.value ?? currencyCode;
@@ -320,8 +374,8 @@ type ImagePreviewProps = {
 
 /**
  * The popover's open state has to live in a real component rather than in `displayImage`
- * itself. `displayImage` is invoked as a plain function — the `.definition.ts` files that
- * call it cannot hold JSX — so a `useState` inside it would run in the *caller's* hook
+ * itself. `displayImage` is invoked as a plain function - the `.definition.ts` files that
+ * call it cannot hold JSX - so a `useState` inside it would run in the *caller's* hook
  * slot, once per row in a data table body, and any conditional row would shift hook order.
  */
 function ImagePreview({

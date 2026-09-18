@@ -11,7 +11,7 @@ type ViewSectionProps = {
 	/**
 	 * `grid` (the default) flows every child through one responsive grid, so where a field
 	 * lands depends on how many precede it. `rows` hands that placement to the caller, whose
-	 * children are then `ViewRow`s — the way to keep two fields together on a line, or to end
+	 * children are then `ViewRow`s - the way to keep two fields together on a line, or to end
 	 * a line early, neither of which auto-flow can express.
 	 */
 	readonly layout?: 'grid' | 'rows';

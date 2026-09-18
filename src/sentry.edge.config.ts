@@ -6,7 +6,7 @@ import {
 } from '@/config/sentry.setup';
 
 /*
- * Edge runtime — this is what covers `src/proxy.ts`, which resolves auth and CSRF on every
+ * Edge runtime - this is what covers `src/proxy.ts`, which resolves auth and CSRF on every
  * matched request and is therefore the one place a failure affects every route at once.
  * Next runs middleware on the edge runtime unless `experimental.nodeMiddleware` is on, so
  * the server config above never loads for it.
