@@ -171,7 +171,7 @@ export function ViewShipping({ entry }: { entry: ShippingModel }) {
 					label="Estimated Delivery"
 					value={
 						entry.estimated_delivery_at
-							? formatDate(entry.estimated_delivery_at)
+							? formatDate(entry.estimated_delivery_at, 'default')
 							: '-'
 					}
 				/>

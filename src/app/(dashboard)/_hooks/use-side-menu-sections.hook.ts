@@ -26,6 +26,7 @@ const TRANSLATION_KEYS = [
 	'dashboard.labels.financial',
 	'dashboard.labels.client',
 	'dashboard.labels.cash-flow',
+	'dashboard.labels.invoice',
 	'dashboard.labels.discount',
 	'dashboard.labels.exchange-rate',
 	'dashboard.labels.vendor',
@@ -113,6 +114,13 @@ export function useSideMenuSections(): {
 						text: translations['dashboard.labels.cash-flow'],
 						icon: Icons.CashFlow,
 						permission: hasPermission(auth, 'cash-flow'),
+					},
+					{
+						page: 'invoice',
+						href: Routes.get('invoice'),
+						text: translations['dashboard.labels.invoice'],
+						icon: Icons.Invoice,
+						permission: hasPermission(auth, 'invoice'),
 					},
 					{
 						page: 'discount',

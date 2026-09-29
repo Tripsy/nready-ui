@@ -111,6 +111,12 @@ class CashFlowValidator extends BaseValidator<typeof validatorMessages> {
 - `prepareParamsFromFormValues(data)` (per-entity, defined in `<entity>.definition.ts`) strips display-only
   fields and computes any derived params (e.g. net amount from gross + VAT) before the result is handed to
   `requestCreate` / `requestUpdate`.
+- A model date field bound to `FormComponentCalendar` goes through `toCalendarValue()`
+  (`src/helpers/date.helper.ts`) in `getFormState`. The field runs `parseDate`, which reads
+  `YYYY-MM-DD` and nothing else and throws `Invalid ISO 8601 date string: ... Use parseAbsolute()
+  instead.` on the full timestamp the entity carries. Never cast the field to `string` on the way
+  in - the cast also hides that a list row gives an ISO string where an entry the window reloaded
+  gives a `Date`, and `toCalendarValue` is what reconciles the two.
 - Display-only fields - values that exist purely to render UI feedback (a selected client's label, etc.) and
   are never sent to the backend - must be marked with a `// display-only fields, not part of validation`
   comment in the `FormValuesType`, excluded from the Zod schema, and stripped in `prepareParamsFromFormValues`.

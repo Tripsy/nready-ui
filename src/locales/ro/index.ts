@@ -31,6 +31,7 @@ import email_confirm_send from '@/locales/ro/email-confirm-send.json';
 import exchange_rate from '@/locales/ro/exchange-rate.json';
 import home from '@/locales/ro/home.json';
 import image from '@/locales/ro/image.json';
+import invoice from '@/locales/ro/invoice.json';
 import layout from '@/locales/ro/layout.json';
 import log_data from '@/locales/ro/log-data.json';
 import log_history from '@/locales/ro/log-history.json';
@@ -94,6 +95,7 @@ const ro = {
 	'exchange-rate': exchange_rate,
 	home,
 	image,
+	invoice,
 	'log-data': log_data,
 	'log-history': log_history,
 	login,

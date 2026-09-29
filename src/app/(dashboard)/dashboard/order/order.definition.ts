@@ -11,7 +11,6 @@ import { UsageGuideOrder } from '@/app/(dashboard)/dashboard/order/usage-guide-o
 import { ViewOrder } from '@/app/(dashboard)/dashboard/order/view-order.component';
 import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
-import { toCalendarValue } from '@/helpers/date.helper';
 import {
 	getFormDataAsJsonList,
 	getFormDataAsNumber,
@@ -52,7 +51,6 @@ const validatorMessages = [
 	'invalid_client_id',
 	'invalid_currency',
 	'invalid_type',
-	'invalid_issued_at',
 	'invalid_lines',
 	'invalid_variant_id',
 	'invalid_product_id',
@@ -119,7 +117,6 @@ class OrderValidator extends BaseValidator<typeof validatorMessages> {
 			type: z.enum(Object.values(OrderTypeEnum), {
 				message: this.getMessage('invalid_type'),
 			}),
-			issued_at: z.string().nullable(),
 			notes: this.validateString(this.getMessage('invalid_notes'), {
 				required: false,
 			}),
@@ -171,7 +168,6 @@ function prepareParamsFromFormValues(
 	return {
 		client_id: data.client_id,
 		type: data.type,
-		issued_at: data.issued_at,
 		notes: data.notes,
 		...(isEditable
 			? {
@@ -196,7 +192,6 @@ function getFormValues(formData: FormData): OrderFormValuesType {
 		client: getFormDataAsString(formData, 'client_label'),
 		currency: getFormDataAsString(formData, 'currency'),
 		type: getFormDataAsString(formData, 'type'),
-		issued_at: getFormDataAsString(formData, 'issued_at'),
 		notes: getFormDataAsString(formData, 'notes'),
 		/*
 		 * Defaulted rather than trusted: the list is parsed back from the hidden JSON field the
@@ -221,9 +216,6 @@ function getFormState(data?: OrderModel): FormStateType<OrderFormValuesType> {
 			client: data ? displayOrderClient(data) : null,
 			currency: data?.totals?.currency ?? null,
 			type: data?.type ?? OrderTypeEnum.STANDARD,
-			// The calendar field reads `YYYY-MM-DD` and nothing else - `parseDate` throws on a
-			// full ISO timestamp, which is what the document carries
-			issued_at: toCalendarValue(data?.issued_at ?? null),
 			notes: data?.notes ?? null,
 			/*
 			 * A create opens with one empty line, since an order with none cannot be saved. An
@@ -266,8 +258,8 @@ export type OrderDataTableFiltersType = {
 	global: { value: string | null; matchMode: 'contains' };
 	status: { value: OrderStatus | null; matchMode: 'equals' };
 	type: { value: OrderType | null; matchMode: 'equals' };
-	issued_at_start: { value: string | null; matchMode: 'equals' };
-	issued_at_end: { value: string | null; matchMode: 'equals' };
+	create_at_start: { value: string | null; matchMode: 'equals' };
+	create_at_end: { value: string | null; matchMode: 'equals' };
 	is_deleted: { value: boolean; matchMode: 'equals' };
 
 	client: { value: string | null; matchMode: 'equals' };
@@ -337,14 +329,14 @@ export default async function dataSourceConfig(): Promise<
 			state: {
 				first: 0,
 				rows: 10,
-				sortField: 'issued_at',
+				sortField: 'created_at',
 				sortOrder: -1 as const,
 				filters: {
 					global: { value: null, matchMode: 'contains' },
 					status: { value: null, matchMode: 'equals' },
 					type: { value: null, matchMode: 'equals' },
-					issued_at_start: { value: null, matchMode: 'equals' },
-					issued_at_end: { value: null, matchMode: 'equals' },
+					create_at_start: { value: null, matchMode: 'equals' },
+					create_at_end: { value: null, matchMode: 'equals' },
 					is_deleted: { value: false, matchMode: 'equals' },
 					client: { value: null, matchMode: 'equals' },
 					client_id: { value: null, matchMode: 'equals' },
@@ -403,8 +395,8 @@ export default async function dataSourceConfig(): Promise<
 					maxWidth: 128,
 				},
 				{
-					field: 'issued_at',
-					header: 'Issued At',
+					field: 'created_at',
+					header: 'Created At',
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

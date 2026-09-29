@@ -34,6 +34,7 @@ import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	type CashFlowCategory,
 	CashFlowCategoryEnum,
+	CashFlowCategoryTypeEnum,
 	type CashFlowDirection,
 	type CashFlowMethod,
 	CashFlowMethodEnum,
@@ -49,7 +50,9 @@ import {
 	REFUNDABLE_STATUSES,
 	STATUS_TRANSITIONS,
 } from '@/models/cash-flow.model';
+import { requestInvoiceRaiseForCashFlow } from '@/services/invoice.service';
 import type { FindFunctionParamsType } from '@/types/action.type';
+import type { ApiResponseFetch } from '@/types/api.type';
 import { type Currency, CurrencyEnum } from '@/types/common.type';
 import type {
 	DataSourceConfigType,
@@ -69,6 +72,7 @@ const validatorMessages = [
 	'invalid_notes',
 	'invalid_client',
 	'invalid_vendor',
+	'invalid_order',
 	'required_operational_record_type',
 ] as const;
 
@@ -81,6 +85,16 @@ class CashFlowValidator extends BaseValidator<typeof validatorMessages> {
 			),
 			[OperationalRecordTypeEnum.VENDOR]: this.validateId(
 				this.getMessage('invalid_vendor'),
+				{ required: false },
+			),
+			/*
+			 * The order a sale was raised for. Checkout writes it, and an operator may name it
+			 * afterwards for money that arrived unmatched - which is what lets the invoice be
+			 * raised from that order's own lines. The API accepts it in any status, unlike the
+			 * amount and the category.
+			 */
+			[OperationalRecordTypeEnum.ORDER]: this.validateId(
+				this.getMessage('invalid_order'),
 				{ required: false },
 			),
 		})
@@ -170,7 +184,7 @@ function getFormValues(formData: FormData): CashFlowFormValuesType {
 	return {
 		category:
 			getFormDataAsEnum(formData, 'category', CashFlowCategoryEnum) ||
-			CashFlowCategoryEnum.CUSTOMER,
+			CashFlowCategoryEnum.SALE,
 		method:
 			getFormDataAsEnum(formData, 'method', CashFlowMethodEnum) ||
 			CashFlowMethodEnum.CASH,
@@ -192,10 +206,15 @@ function getFormValues(formData: FormData): CashFlowFormValuesType {
 				formData,
 				'operational_records.vendor',
 			),
+			[OperationalRecordTypeEnum.ORDER]: getFormDataAsNumber(
+				formData,
+				'operational_records.order',
+			),
 		},
 		// display-only, not submitted to validator
 		client: getFormDataAsString(formData, 'client'),
 		vendor: getFormDataAsString(formData, 'vendor'),
+		order: getFormDataAsString(formData, 'order'),
 	};
 }
 
@@ -207,7 +226,7 @@ function getFormState(
 		message: null,
 		situation: null,
 		values: {
-			category: data?.category ?? CashFlowCategoryEnum.CUSTOMER,
+			category: data?.category ?? CashFlowCategoryEnum.SALE,
 			method: data?.method ?? CashFlowMethodEnum.CASH,
 			amount: data?.amount ?? null,
 			vat_rate: data?.vat_rate ?? Configuration.get('app.vatRate'),
@@ -220,6 +239,7 @@ function getFormState(
 			operational_records: undefined,
 			client: null,
 			vendor: null,
+			order: null,
 		},
 	};
 }
@@ -266,6 +286,7 @@ export default async function dataSourceConfig(): Promise<
 			'delete.title',
 			'complete.title',
 			'cancel.title',
+			'invoice.title',
 			'guide.title',
 		] as const,
 		'cash-flow.action',
@@ -543,6 +564,44 @@ export default async function dataSourceConfig(): Promise<
 				},
 				operationFunction: (entry: CashFlowModel) =>
 					requestUpdateStatus('cash-flow', entry, 'completed'),
+				buttonPosition: 'left',
+				button: {
+					variant: 'outline',
+					hover: 'default',
+				},
+			},
+			/*
+			 * Raises the charge this money is owed a document for, and allocates the movement
+			 * against it. What the invoice itemizes is the API's call, not this button's: with an
+			 * order linked, the order's own lines and its shipping; with none, a single line
+			 * worth what the movement was worth.
+			 *
+			 * Offered only for captured revenue. An order-linked movement still pending leaves
+			 * its order `pending` too, which is outside `INVOICEABLE_ORDER_STATUSES`, so the
+			 * request would be refused - and a movement with no order is invoiced on the strength
+			 * of having landed. Gated on `invoice` create rather than on `cash-flow`: the document
+			 * is what gets written.
+			 */
+			invoice: {
+				windowType: 'action',
+				windowTitle: translations['invoice.title'],
+				permission: ['invoice', 'create'],
+				entriesSelection: 'single',
+				customEntryCheck: (entry: CashFlowModel) =>
+					!entry.deleted_at &&
+					entry.category_type === CashFlowCategoryTypeEnum.REVENUE &&
+					entry.status === CashFlowStatusEnum.COMPLETED,
+				operationFunction: async (
+					entry: CashFlowModel,
+				): Promise<ApiResponseFetch<null>> => {
+					const response = await requestInvoiceRaiseForCashFlow(
+						entry.id,
+					);
+
+					// The action reports only whether it worked - the document it raised is read
+					// from the invoice listing, which is where the operator goes next
+					return response && { ...response, data: null };
+				},
 				buttonPosition: 'left',
 				button: {
 					variant: 'outline',

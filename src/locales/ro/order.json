@@ -6,7 +6,6 @@
 		"invalid_client_id": "Selectează un client",
 		"invalid_currency": "Monedă invalidă",
 		"invalid_type": "Tip de comandă invalid",
-		"invalid_issued_at": "Dată de emitere invalidă",
 		"invalid_lines": "Adaugă cel puțin o linie",
 		"invalid_variant_id": "Alege o variantă de produs",
 		"invalid_product_id": "Produs invalid",

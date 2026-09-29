@@ -89,9 +89,9 @@ type TabsContentProps = React.ComponentProps<typeof HeroTabs.Panel>;
  * switches and its dates that way, and the values it does not carry are then written over the
  * stored ones.
  *
- * Every `Tabs` in this app is inside a form, so force-mounting is the default here rather than a
- * per-call-site opt-in a new form has to know to ask for. The cost is the whole form rendering at
- * once, which these forms are small enough for. react-aria marks a force-mounted inactive panel
+ * Force-mounting is therefore the default here rather than a per-call-site opt-in a new form has
+ * to know to ask for. The cost is the whole form rendering at once, which these forms are small
+ * enough for; a read-only view (`view-order`) pays the same render cost and needs nothing else. react-aria marks a force-mounted inactive panel
  * `inert` but leaves it visible, so the hiding is ours - the fields still submit, since only a
  * `disabled` control is left out of `FormData`.
  *

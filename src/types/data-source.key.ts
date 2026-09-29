@@ -14,6 +14,7 @@ import type { DiscountModel } from '@/models/discount.model';
 import type { DocumentSeriesModel } from '@/models/document-series.model';
 import type { ExchangeRateModel } from '@/models/exchange-rate.model';
 import type { ImageModel } from '@/models/image.model';
+import type { InvoiceModel } from '@/models/invoice.model';
 import type { LogDataModel } from '@/models/log-data.model';
 import type { LogHistoryModel } from '@/models/log-history.model';
 import type { MailQueueModel } from '@/models/mail-queue.model';
@@ -56,6 +57,7 @@ export type DatasourceModels = {
 	'document-series': DocumentSeriesModel;
 	'exchange-rate': ExchangeRateModel;
 	image: ImageModel;
+	invoice: InvoiceModel;
 	'log-data': LogDataModel;
 	'log-history': LogHistoryModel;
 	'mail-queue': MailQueueModel;

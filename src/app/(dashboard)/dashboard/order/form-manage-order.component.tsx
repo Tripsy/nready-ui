@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
 	FormComponentAutoComplete,
-	FormComponentCalendar,
 	FormComponentCheckbox,
 	FormComponentInput,
 	FormComponentSelect,
@@ -87,7 +86,6 @@ export type OrderFormValuesType = {
 	client_id: number | null;
 	currency: string | null;
 	type: string | null;
-	issued_at: string | null;
 	notes: string | null;
 	lines: OrderLineFormType[];
 	// display-only fields, not part of validation
@@ -639,7 +637,7 @@ type FormTabId = (typeof FORM_TABS)[number]['id'];
  * entities and takes a per-language error list and a content tab, neither of which an order has.
  */
 const TAB_FIELDS: Record<FormTabId, readonly (keyof OrderFormValuesType)[]> = {
-	details: ['client_id', 'type', 'issued_at', 'notes'],
+	details: ['client_id', 'type', 'notes'],
 	lines: ['currency', 'lines'],
 };
 
@@ -651,7 +649,6 @@ export function FormManageOrder() {
 		'client',
 		'currency',
 		'type',
-		'issued_at',
 		'notes',
 	] as const);
 
@@ -804,20 +801,6 @@ export function FormManageOrder() {
 							options={types}
 							onChange={(value) => handleChange('type', value)}
 							error={errors.type}
-						/>
-
-						<FormComponentCalendar<OrderFormValuesType>
-							labelText="Issued At"
-							id={elementIds.issued_at}
-							fieldName="issued_at"
-							fieldValue={formValues.issued_at ?? ''}
-							isRequired={false}
-							disabled={pending}
-							placeholderText="defaults to today"
-							onSelect={(value) =>
-								handleChange('issued_at', value)
-							}
-							error={errors.issued_at}
 						/>
 					</div>
 

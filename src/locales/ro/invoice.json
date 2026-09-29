@@ -1,0 +1,108 @@
+{
+	"meta": {
+		"title": "Facturi - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_order_id": "Selectează o comandă validă",
+		"invalid_due_at": "Introdu o dată scadentă validă",
+		"invalid_notes": "Introdu notițe valide",
+		"invalid_cash_flow_id": "Selectează o înregistrare de flux de numerar validă",
+		"invalid_amount": "Introdu o sumă validă"
+	},
+	"status": {
+		"draft": "Ciornă",
+		"issued": "Emisă",
+		"canceled": "Anulată",
+		"unpaid": "Neachitată",
+		"partial": "Achitată parțial",
+		"paid": "Achitată",
+		"deleted": "Ștearsă"
+	},
+	"action": {
+		"create": {
+			"title": "Emite o factură",
+			"label": "Adaugă",
+			"success": "Factura a fost creată cu succes"
+		},
+		"update": {
+			"title": "Modifică factura - {{entry}}",
+			"label": "Modifică",
+			"success": "Factura a fost modificată cu succes"
+		},
+		"issue": {
+			"title": "Emite factura - {{entry}}",
+			"label": "Emite",
+			"success": "Factura a fost emisă cu succes",
+			"confirm": "Emiterea alocă numărul documentului și îngheață datele cumpărătorului și ale emitentului. Operațiunea nu poate fi anulată - o factură emisă poate fi doar stornată sau anulată. Continui?"
+		},
+		"cancel": {
+			"title": "Anulează factura - {{entry}}",
+			"label": "Anulează",
+			"success": "Factura a fost anulată cu succes",
+			"confirm": "Sigur vrei să anulezi această factură? Un document anulat nu poate fi redeschis."
+		},
+		"creditNote": {
+			"title": "Emite o notă de credit - {{entry}}",
+			"label": "Notă de credit",
+			"success": "Nota de credit a fost creată cu succes",
+			"confirm": "Se creează o notă de credit în stare de ciornă, cu aceleași linii ca factura. Continui?"
+		},
+		"allocatePayment": {
+			"title": "Alocă o plată - {{entry}}",
+			"label": "Alocă plată",
+			"success": "Plata a fost alocată cu succes"
+		},
+		"delete": {
+			"title": "Șterge factura - {{entry}}",
+			"label": "Șterge",
+			"success": "Factura a fost ștearsă cu succes",
+			"confirm": "Sigur vrei să ștergi această ciornă de factură?"
+		},
+		"manage": {
+			"title": "Linii - {{entry}}",
+			"label": "Linii"
+		},
+		"view": {
+			"title": "Detalii factură - {{entry}}",
+			"label": "Vezi detalii"
+		},
+		"viewOrder": {
+			"title": "Vezi comanda"
+		},
+		"guide": {
+			"title": "Cum funcționează facturarea",
+			"label": "Ghid de utilizare"
+		}
+	},
+	"field": {
+		"order": "Comandă",
+		"type": "Tip",
+		"due_at": "Scadentă la",
+		"label": "Denumire",
+		"quantity": "Cantitate",
+		"unit_price": "Preț unitar",
+		"vat_rate": "Cota TVA",
+		"discount_reduction": "Reducere",
+		"cash_flow": "Flux de numerar",
+		"amount": "Sumă",
+		"notes": "Notițe"
+	},
+	"help": {
+		"intro": "O factură este înregistrarea înghețată a ceea ce s-a facturat pe o comandă. Se construiește ca ciornă, iar tot ce o face document - numărul, datele, datele cumpărătorului și ale emitentului - se scrie în momentul emiterii.",
+		"step_1_title": "Emite-o dintr-o comandă",
+		"step_1_body": "Alege o comandă confirmată, iar liniile se generează din ea: una pentru fiecare linie de comandă, plus una pentru fiecare expediere care nu a eșuat, fiecare păstrând denumirea, prețul, cota TVA și reducerea din ziua respectivă. Moneda și cursul sunt cele ale comenzii și nu mai pot fi schimbate.",
+		"step_2_title": "Ajusteaz-o cât este ciornă",
+		"step_2_body": "Doar o ciornă acceptă modificări - data scadentă, notițele și linii de ajustare pentru rotunjiri sau corecții manuale. Liniile de produs și de transport nu pot fi adăugate manual: fiecare indică rândul din care a fost ridicată. Orice modificare de linie recalculează totalurile, care nu se introduc niciodată direct.",
+		"step_3_title": "Emite-o",
+		"step_3_body": "Emiterea consumă un număr din serie și înscrie datele de emitere și scadență, apoi copiază clientul și compania pe document, astfel încât o schimbare ulterioară de adresă sau de bancă să nu rescrie ce deține cumpărătorul. Este nevoie de cel puțin o linie și de o adresă de facturare cu țară pe comandă. Nu există drum înapoi spre ciornă: un număr alocat nu se mai returnează.",
+		"step_4_title": "Încaseaz-o din fluxul de numerar",
+		"step_4_body": "Alocă o înregistrare de flux de numerar finalizată pe documentul emis. Suma este brută, în moneda facturii, și nu poate depăși ce a rămas din acea mișcare după celelalte alocări - un singur transfer poate stinge mai multe facturi. Banii încasați sting o factură, cei returnați sting o notă de credit. Starea plății urmează alocările: neachitată, parțial, apoi achitată.",
+		"step_5_title": "Corecteaz-o cu o notă de credit",
+		"step_5_body": "O factură emisă se stornează printr-o notă de credit, care îi copiază liniile și primește propriul număr la emitere. Toate sumele rămân pozitive - tipul documentului poartă semnul. Anularea invalidează doar un document pe care nu s-a alocat nimic; odată ce banii s-au mișcat, nota de credit este singura corecție.",
+		"step_6_title": "Urmărește restanțele",
+		"step_6_body": "Un proces zilnic marchează documentele emise care trec de scadență neachitate. Marcajul nu se șterge niciodată, deci rămâne dovada că acel client a plătit cu întârziere chiar și după ce achită. De aceea filtrul Restantă înseamnă restantă acum - marcată și încă neachitată - nu restantă la un moment dat.",
+		"note": "Ștergerea este disponibilă doar pentru ciorne și este o ștergere logică; un document emis iese din uz prin Anulare, fiind înregistrarea a ceea ce s-a facturat. Nota de credit se emite din factura pe care o stornează și nu poate fi creată din butonul Adaugă.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API"
+	}
+}

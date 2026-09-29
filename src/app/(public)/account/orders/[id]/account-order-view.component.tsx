@@ -386,7 +386,7 @@ export function AccountOrderView({
 
 			<dl className="grid gap-4 rounded-2xl border border-border bg-surface p-6 text-sm sm:grid-cols-3">
 				<Detail label={translations['order.storefront.placed_on']}>
-					{formatDate(order.issued_at, undefined, {
+					{formatDate(order.created_at, undefined, {
 						customFormat: DATE_FORMAT,
 						language: getLanguageClient(),
 					})}

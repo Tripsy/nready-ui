@@ -9,7 +9,11 @@ import {
 } from '@/components/form/form-element.component';
 import { Icons } from '@/components/icon.component';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { requestCreate, requestFind } from '@/helpers/services.helper';
+import {
+	requestCreate,
+	requestFind,
+	requestView,
+} from '@/helpers/services.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import { resolveWindowEntries } from '@/helpers/window.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
@@ -30,6 +34,7 @@ import {
 	ClientStatusEnum,
 	displayClientLabel,
 } from '@/models/client.model';
+import { displayOrderLabel, type OrderModel } from '@/models/order.model';
 import {
 	displayVendorLabel,
 	type VendorModel,
@@ -64,6 +69,7 @@ export type CashFlowFormValuesType = {
 	// display-only fields, not part of validation
 	client: string | null;
 	vendor: string | null;
+	order: string | null;
 };
 
 const groupedCategories = filterGroupedCategories([
@@ -133,6 +139,7 @@ export function FormManageCashFlow({ action }: { action: string }) {
 		'notes',
 		'client',
 		'vendor',
+		'order',
 	] as const);
 
 	const [searchClient, setSearchClient] = useState('');
@@ -168,6 +175,32 @@ export function FormManageCashFlow({ action }: { action: string }) {
 						filter: {
 							term: q,
 							status: VendorStatusEnum.ACTIVE,
+						},
+						limit: 10,
+					});
+
+				return res?.entries ?? [];
+			},
+			minLength: 3,
+		});
+
+	const [searchOrder, setSearchOrder] = useState('');
+
+	/*
+	 * Searched by reference rather than by client: an operator matching money to an order is
+	 * reading it off a bank statement or a confirmation email, where the reference is what they
+	 * have. The order `term` filter recognizes the `CODE-NUMBER` shape, so what they paste
+	 * resolves directly.
+	 */
+	const { suggestions: orderSuggestions, isFetching: isOrderFetching } =
+		useRemoteAutocomplete<OrderModel>({
+			query: searchOrder,
+			queryKey: ['s-order'],
+			queryFn: async (q) => {
+				const res: FindFunctionResponseType<OrderModel> | undefined =
+					await requestFind('order', {
+						filter: {
+							term: q,
 						},
 						limit: 10,
 					});
@@ -230,11 +263,50 @@ export function FormManageCashFlow({ action }: { action: string }) {
 						);
 					}
 					break;
+				/*
+				 * Only an id here, unlike the two above: `cash_flow` does not import the shop, so
+				 * the endpoint hydrates the client and the vendor but never the order. The
+				 * reference an operator reads is resolved separately, below.
+				 */
+				case OperationalRecordTypeEnum.ORDER:
+					updatedOperationalRecords[OperationalRecordTypeEnum.ORDER] =
+						record.entity_id;
+					break;
 			}
 		}
 
 		handleChange('operational_records', updatedOperationalRecords);
 	}, [entryId, operationalRecords, handleChange]);
+
+	const linkedOrderId =
+		formValues.operational_records?.[OperationalRecordTypeEnum.ORDER] ??
+		null;
+
+	/*
+	 * Fills in the label for an order already on the movement. Skipped once the field carries
+	 * one - whether from here or from the operator picking an order - so this runs once per
+	 * window rather than on every keystroke.
+	 *
+	 * Gated on the permission: without `order` read the request would only turn into a refusal,
+	 * and the field is left showing the bare link rather than an error the operator cannot act on.
+	 */
+	const { data: linkedOrder } = useQuery({
+		queryKey: ['cash-flow', 'linked-order', linkedOrderId],
+		// biome-ignore lint/style/noNonNullAssertion: `enabled` covers the null case
+		queryFn: () => requestView<OrderModel>('order', linkedOrderId!),
+		enabled:
+			!!linkedOrderId &&
+			!formValues.order &&
+			hasPermission(auth, 'order', 'read'),
+	});
+
+	useEffect(() => {
+		if (!linkedOrder) {
+			return;
+		}
+
+		handleChange('order', displayOrderLabel(linkedOrder));
+	}, [linkedOrder, handleChange]);
 
 	const createVendorMutation = useMutation({
 		mutationFn: async (name: string) => {
@@ -502,6 +574,58 @@ export function FormManageCashFlow({ action }: { action: string }) {
 						icons={{
 							left: (
 								<Icons.Vendor className="opacity-40 h-4.5 w-4.5" />
+							),
+						}}
+					/>
+				</>
+			)}
+
+			{operationalRecordOptions.order && (
+				<>
+					<input
+						type="hidden"
+						name="operational_records.order"
+						value={formValues.operational_records?.order ?? ''}
+					/>
+
+					<FormComponentAutoComplete<
+						CashFlowFormValuesType,
+						OrderModel
+					>
+						labelText="Order"
+						id={elementIds.order}
+						fieldName="order"
+						fieldValue={formValues.order ?? ''}
+						isRequired={
+							operationalRecordOptions.order === 'required'
+						}
+						className="pl-8"
+						disabled={pending}
+						error={operationalRecordErrors?.order}
+						onInputChange={(value) => {
+							handleChange('order', value);
+							handleOperationalRecordChange(
+								OperationalRecordTypeEnum.ORDER,
+								null,
+							);
+							setSearchOrder(value);
+						}}
+						autoCompleteProps={{
+							suggestions: orderSuggestions,
+							isLoading: isOrderFetching,
+							onSelect: (m) => {
+								handleChange('order', displayOrderLabel(m));
+								handleOperationalRecordChange(
+									OperationalRecordTypeEnum.ORDER,
+									m.id,
+								);
+							},
+							getOptionLabel: (m) => displayOrderLabel(m),
+							getOptionKey: (m) => m.id,
+						}}
+						icons={{
+							left: (
+								<Icons.Order className="opacity-40 h-4.5 w-4.5" />
 							),
 						}}
 					/>

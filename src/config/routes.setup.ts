@@ -264,6 +264,9 @@ Routes.group('dashboard')
 	.add('cash-flow', '/dashboard/cash-flow', {
 		permissionEntity: 'cash-flow',
 	})
+	.add('invoice', '/dashboard/invoice', {
+		permissionEntity: 'invoice',
+	})
 	.add('discount', '/dashboard/discount', {
 		permissionEntity: 'discount',
 	})

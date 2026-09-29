@@ -174,7 +174,6 @@ export type OrderModel<D = Date | string> = {
 	status: OrderStatus;
 	type: OrderType;
 	payment_method: OrderPaymentMethod | null;
-	issued_at: D;
 	notes: string | null;
 
 	/*

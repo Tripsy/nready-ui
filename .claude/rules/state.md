@@ -79,9 +79,12 @@ update simply never lands. Match the store you are editing.
 **persist**, data-table stores - `localStorage` under `datatable-store-<section>-<dataSource>`, via a
 `partialize` that **only** persists `tableState` and `selectedEntries` (not `isLoading`). If you add a new
 top-level field, decide explicitly whether it belongs in `partialize` - don't assume store state is
-persisted. The store is versioned (`version: 1`); bump it when you change the shape of
-`DataTableStateType` or the filters, so stale persisted state is dropped rather than rehydrated into code
-that can no longer read it.
+persisted. The store is versioned (`version` in `data-table.store.ts`, with a note per bump beside it);
+bump it when you change the shape of `DataTableStateType` or any listing's filters - renaming or removing
+a filter key or a sortable field counts - so stale persisted state is dropped rather than rehydrated into
+code that can no longer read it. Skipping the bump crashes the listing on `filters.<key>.value` for any
+browser holding the old state, and a stale `sortField` the backend rejects fails the list request. After
+a bump, zustand logs one "couldn't be migrated" console error per stored table; that is the drop working.
 
 **persist**, window store - different in ways that matter:
 

@@ -1,0 +1,108 @@
+{
+	"meta": {
+		"title": "Invoices - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_order_id": "Select a valid order",
+		"invalid_due_at": "Enter a valid due date",
+		"invalid_notes": "Enter a valid notes",
+		"invalid_cash_flow_id": "Select a valid cash flow entry",
+		"invalid_amount": "Enter a valid amount"
+	},
+	"status": {
+		"draft": "Draft",
+		"issued": "Issued",
+		"canceled": "Canceled",
+		"unpaid": "Unpaid",
+		"partial": "Partially paid",
+		"paid": "Paid",
+		"deleted": "Deleted"
+	},
+	"action": {
+		"create": {
+			"title": "Raise an invoice",
+			"label": "Add",
+			"success": "Invoice created successfully"
+		},
+		"update": {
+			"title": "Update invoice - {{entry}}",
+			"label": "Update",
+			"success": "Invoice updated successfully"
+		},
+		"issue": {
+			"title": "Issue invoice - {{entry}}",
+			"label": "Issue",
+			"success": "Invoice issued successfully",
+			"confirm": "Issuing allocates the document number and freezes the buyer and seller details. It cannot be undone - an issued invoice can only be canceled. Continue?"
+		},
+		"cancel": {
+			"title": "Cancel invoice - {{entry}}",
+			"label": "Cancel",
+			"success": "Invoice canceled successfully",
+			"confirm": "Are you sure you want to cancel this invoice? A canceled document cannot be reopened."
+		},
+		"creditNote": {
+			"title": "Raise a credit note - {{entry}}",
+			"label": "Credit note",
+			"success": "Credit note created successfully",
+			"confirm": "This creates a draft credit note mirroring the lines of this invoice. Continue?"
+		},
+		"allocatePayment": {
+			"title": "Allocate payment - {{entry}}",
+			"label": "Allocate payment",
+			"success": "Payment allocated successfully"
+		},
+		"delete": {
+			"title": "Delete invoice - {{entry}}",
+			"label": "Delete",
+			"success": "Invoice deleted successfully",
+			"confirm": "Are you sure you want to delete this draft invoice?"
+		},
+		"manage": {
+			"title": "Lines - {{entry}}",
+			"label": "Lines"
+		},
+		"view": {
+			"title": "Invoice details - {{entry}}",
+			"label": "View details"
+		},
+		"viewOrder": {
+			"title": "View order"
+		},
+		"guide": {
+			"title": "How invoicing works",
+			"label": "Usage guide"
+		}
+	},
+	"field": {
+		"order": "Order",
+		"type": "Type",
+		"due_at": "Due At",
+		"label": "Label",
+		"quantity": "Quantity",
+		"unit_price": "Unit Price",
+		"vat_rate": "VAT Rate",
+		"discount_reduction": "Discount",
+		"cash_flow": "Cash Flow",
+		"amount": "Amount",
+		"notes": "Notes"
+	},
+	"help": {
+		"intro": "An invoice is the frozen record of what an order was charged. It is assembled as a draft, and everything that makes it a document - its number, its dates, the buyer and seller details printed on it - is written the moment it is issued.",
+		"step_1_title": "Raise it from an order",
+		"step_1_body": "Pick a confirmed order and the lines are generated from it: one per order line, plus one per shipping movement that did not fail, each carrying the label, price, VAT rate and discount as they read that day. The currency and exchange rate are the order's own and cannot be changed afterwards.",
+		"step_2_title": "Adjust it while it is a draft",
+		"step_2_body": "Only a draft accepts changes - the due date, the notes, and adjustment lines for rounding or a manual correction. Product and shipping lines cannot be added by hand: each names the row it was raised from. Every line write re-sums the totals, which are never entered directly.",
+		"step_3_title": "Issue it",
+		"step_3_body": "Issuing spends a number from the series and stamps the issue and due dates, then copies the client and the company onto the document so a later change of address or bank cannot rewrite what the buyer holds. It needs at least one line and a billing address with a country on the order. There is no way back to draft: a number handed out is never returned.",
+		"step_4_title": "Settle it against cash flow",
+		"step_4_body": "Allocate a completed cash flow entry against the issued document. The amount is gross, in the invoice currency, and cannot exceed what is left of that movement after its other allocations - one transfer can clear several invoices. Money in settles a charge, money out settles a credit note. The payment status follows the allocations: unpaid, partial, then paid.",
+		"step_5_title": "Correct it with a credit note",
+		"step_5_body": "An issued charge is reversed by a credit note, which mirrors its lines and is numbered from its own series once issued. Every figure on it stays positive - the type carries the sign. Cancel only invalidates a document nothing has been allocated against; once money has moved, the credit note is the only correction.",
+		"step_6_title": "Watch what goes overdue",
+		"step_6_body": "A nightly job stamps issued documents that pass their due date unsettled. The stamp is never cleared, so it records that this client paid late even after they pay. The Overdue filter therefore reads late right now - stamped and still unsettled - rather than late at some point.",
+		"note": "Deleting is available on drafts only and is a soft delete; an issued document leaves service through Cancel instead, since it is the record of what was charged. A credit note is raised from the charge it reverses and cannot be created from the Add button.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
+	}
+}

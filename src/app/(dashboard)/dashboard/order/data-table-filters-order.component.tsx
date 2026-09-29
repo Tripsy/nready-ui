@@ -129,18 +129,18 @@ export const DataTableFiltersOrder = (): JSX.Element => {
 			/>
 
 			<FormFiltersDateRange<OrderDataTableFiltersType>
-				labelText="Issued"
+				labelText="Created"
 				start={{
-					fieldName: 'issued_at_start',
-					fieldValue: filters.issued_at_start.value,
+					fieldName: 'create_at_start',
+					fieldValue: filters.create_at_start.value,
 					onSelect: (value) =>
-						setFilterValues({ issued_at_start: value }),
+						setFilterValues({ create_at_start: value }),
 				}}
 				end={{
-					fieldName: 'issued_at_end',
-					fieldValue: filters.issued_at_end.value,
+					fieldName: 'create_at_end',
+					fieldValue: filters.create_at_end.value,
 					onSelect: (value) =>
-						setFilterValues({ issued_at_end: value }),
+						setFilterValues({ create_at_end: value }),
 				}}
 			/>
 

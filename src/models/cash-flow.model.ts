@@ -23,7 +23,7 @@ export type CashFlowCategoryType =
 
 export const CashFlowCategoryEnum = {
 	// Revenue
-	CUSTOMER: 'customer', // When company receive money from customer (invoice based)
+	SALE: 'sale', // When company receives money for something it sold
 
 	// Business Expenses
 	VENDOR: 'vendor', // Third-party services
@@ -116,7 +116,7 @@ export type CashFlowMethod =
 export const getExpectedCategoryType = (
 	category: CashFlowCategory,
 ): CashFlowCategoryType => {
-	const revenueCategories = [CashFlowCategoryEnum.CUSTOMER];
+	const revenueCategories = [CashFlowCategoryEnum.SALE];
 	const expenseCategories = [
 		CashFlowCategoryEnum.VENDOR,
 		CashFlowCategoryEnum.INSURANCE,
@@ -142,7 +142,7 @@ export const getExpectedCategoryType = (
 export const GroupedCategories = [
 	{
 		label: formatEnumLabel(CashFlowCategoryTypeEnum.REVENUE),
-		options: [{ label: 'Customer', value: CashFlowCategoryEnum.CUSTOMER }],
+		options: [{ label: 'Sale', value: CashFlowCategoryEnum.SALE }],
 	},
 	{
 		label: formatEnumLabel(CashFlowCategoryTypeEnum.EXPENSE),
@@ -187,9 +187,17 @@ export const getExpectedDirection = (
 	}
 };
 
+/**
+ * Mirrors the API's `OperationalRecordTypeEnum`. The first two name a counterparty - who the money
+ * came from or went to - and `order` names the document the movement was raised for.
+ *
+ * `order` is how a payment exists before there is an invoice to allocate it against: a checkout
+ * asks for the money up front, and the invoice is only raised once that money lands.
+ */
 export const OperationalRecordTypeEnum = {
 	CLIENT: 'client',
 	VENDOR: 'vendor',
+	ORDER: 'order',
 } as const;
 
 export type OperationalRecordType =
@@ -206,8 +214,12 @@ type CashFlowCategoryOperationalRecordType = Partial<
 
 const CashFlowCategoryOperationalRecord: CashFlowCategoryOperationalRecordType =
 	{
-		[CashFlowCategoryEnum.CUSTOMER]: {
+		// `order` is optional: a sale can stand on its own - a deposit, a correction typed up in
+		// the back office - and only a checkout has a document to name up front. An operator may
+		// attach one later, which is what lets such a movement be invoiced from that order
+		[CashFlowCategoryEnum.SALE]: {
 			required: [OperationalRecordTypeEnum.CLIENT],
+			optional: [OperationalRecordTypeEnum.ORDER],
 		},
 		[CashFlowCategoryEnum.VENDOR]: {
 			required: [OperationalRecordTypeEnum.VENDOR],

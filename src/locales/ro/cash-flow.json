@@ -13,6 +13,7 @@
 		"invalid_notes": "Introdu notițe valide",
 		"invalid_client": "Selectează un client valid",
 		"invalid_vendor": "Selectează un furnizor valid",
+		"invalid_order": "Selectează o comandă validă",
 		"required_operational_record_type": "Pentru categoria selectată este necesară o înregistrare operațională (ex.: {{type}})"
 	},
 	"status": {
@@ -64,6 +65,12 @@
 			"label": "Anulează",
 			"success": "Starea fluxului de numerar a fost marcată ca anulată",
 			"confirm": "Sigur vrei să marchezi acest flux de numerar drept anulat?"
+		},
+		"invoice": {
+			"title": "Generează factura - {{entry}}",
+			"label": "Generează factura",
+			"success": "Factura a fost generată cu succes",
+			"confirm": "Generezi factura pentru acest flux de numerar și aloci plata pe ea?"
 		},
 		"view": {
 			"title": "Detalii flux de numerar - {{entry}}",

@@ -153,7 +153,7 @@ export function AccountOrders(): JSX.Element {
 									{displayOrderReference(order)}
 								</NextLink>
 								<p className="text-sm text-muted">
-									{formatDate(order.issued_at, undefined, {
+									{formatDate(order.created_at, undefined, {
 										customFormat: DATE_FORMAT,
 										language: getLanguageClient(),
 									})}

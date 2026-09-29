@@ -93,6 +93,22 @@ export const statusList: Record<
 		variant: 'success',
 		icon: Icons.Status.Verified,
 	},
+	issued: {
+		variant: 'info',
+		icon: Icons.Status.Ok,
+	},
+	unpaid: {
+		variant: 'warning',
+		icon: Icons.Status.Pending,
+	},
+	partial: {
+		variant: 'warning',
+		icon: Icons.Status.Pending,
+	},
+	paid: {
+		variant: 'success',
+		icon: Icons.Status.Success,
+	},
 	draft: {
 		variant: 'warning',
 		icon: Icons.Status.Draft,

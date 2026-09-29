@@ -138,7 +138,7 @@ export default async function dataSourceConfig(): Promise<
 				requestFind<MailQueueModel>('mail-queue', params),
 		},
 		displayEntryLabel: (entry: MailQueueModel) => {
-			return formatDate(entry.sent_at) || '';
+			return formatDate(entry.sent_at, 'date-time') || '';
 		},
 		actions: {
 			delete: {
