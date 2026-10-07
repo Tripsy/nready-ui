@@ -3,7 +3,6 @@
 		"title": "Facturi - Dashboard | {{app_name}}"
 	},
 	"validation": {
-		"invalid_due_at": "Introdu o dată scadentă validă",
 		"invalid_notes": "Introdu notițe valide",
 		"invalid_cash_flow_id": "Selectează o înregistrare de flux de numerar validă",
 		"invalid_amount": "Introdu o sumă validă",

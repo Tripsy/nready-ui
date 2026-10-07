@@ -158,13 +158,14 @@ export const GroupedCategories = [
 	},
 ];
 
+// A group left with no options is dropped, so its header does not render as an empty section
 export const filterGroupedCategories = (excludeValues: CashFlowCategory[]) => {
 	return GroupedCategories.map((group) => ({
 		...group,
 		options: group.options.filter(
 			(option) => !excludeValues.includes(option.value),
 		),
-	}));
+	})).filter((group) => group.options.length > 0);
 };
 
 export const getExpectedDirection = (

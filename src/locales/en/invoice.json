@@ -3,7 +3,6 @@
 		"title": "Invoices - Dashboard | {{app_name}}"
 	},
 	"validation": {
-		"invalid_due_at": "Enter a valid due date",
 		"invalid_notes": "Enter a valid notes",
 		"invalid_cash_flow_id": "Select a valid cash flow entry",
 		"invalid_amount": "Enter a valid amount",

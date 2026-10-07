@@ -67,7 +67,6 @@ import type { FormStateType, ValidatorOutput } from '@/types/form.type';
 const validatorMessages = [
 	...sharedValidatorMessages,
 	'invalid_client_id',
-	'invalid_due_at',
 	'invalid_notes',
 	'invalid_cash_flow_id',
 	'invalid_amount',
@@ -75,12 +74,6 @@ const validatorMessages = [
 ] as const;
 
 class InvoiceValidator extends BaseValidator<typeof validatorMessages> {
-	private dueAt() {
-		return this.validateDate(this.getMessage('invalid_due_at'), {
-			required: false,
-		});
-	}
-
 	private notes() {
 		return this.validateString(this.getMessage('invalid_notes'), {
 			required: false,

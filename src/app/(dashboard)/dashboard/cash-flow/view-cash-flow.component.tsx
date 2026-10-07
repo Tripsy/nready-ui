@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import {
 	ViewField,
+	ViewRow,
 	ViewSection,
 } from '@/app/(dashboard)/_components/view-detail';
 import { Configuration } from '@/config/settings.config';
@@ -170,51 +171,62 @@ export function ViewCashFlow({ entry }: { entry: CashFlowModel }) {
 				</div>
 			</div>
 
-			<ViewSection title="Info">
-				<ViewField
-					label="Direction"
-					value={formatEnumLabel(entry.direction)}
-				/>
-				<ViewField
-					label="Type"
-					value={formatEnumLabel(entry.category_type)}
-				/>
-				<ViewField
-					label="Category"
-					value={formatEnumLabel(entry.category)}
-				/>
-				<ViewField
-					label="Net Amount"
-					value={
-						<DisplayAmount
-							amount={entry.net_amount}
-							currencyCode={entry.currency}
-						/>
-					}
-				/>
-				<ViewField
-					label="Gross Amount"
-					value={
-						<DisplayAmount
-							amount={entry.gross_amount}
-							currencyCode={entry.currency}
-						/>
-					}
-				/>
-				{entry.currency !== Configuration.currency() && (
+			<ViewSection title="Info" layout="rows">
+				<ViewRow>
 					<ViewField
-						label="Exchange Rate"
-						value={entry.exchange_rate}
+						label="Direction"
+						value={formatEnumLabel(entry.direction)}
 					/>
-				)}
+					<ViewField
+						label="Type"
+						value={formatEnumLabel(entry.category_type)}
+					/>
+					<ViewField
+						label="Category"
+						value={formatEnumLabel(entry.category)}
+					/>
+				</ViewRow>
+
+				<ViewRow>
+					<ViewField
+						label="Net Amount"
+						value={
+							<DisplayAmount
+								amount={entry.net_amount}
+								currencyCode={entry.currency}
+							/>
+						}
+					/>
+					<ViewField
+						label="Gross Amount"
+						value={
+							<DisplayAmount
+								amount={entry.gross_amount}
+								currencyCode={entry.currency}
+							/>
+						}
+					/>
+					{entry.currency !== Configuration.currency() && (
+						<ViewField
+							label="Exchange Rate"
+							value={entry.exchange_rate}
+						/>
+					)}
+				</ViewRow>
+
 				{entry.external_reference && (
-					<ViewField
-						label="Reference"
-						value={entry.external_reference}
-					/>
+					<ViewRow>
+						<ViewField
+							label="Reference"
+							value={entry.external_reference}
+						/>
+					</ViewRow>
 				)}
+
 				{entry.notes && (
-					<ViewField label="Notes" value={entry.notes} full />
+					<ViewRow>
+						<ViewField label="Notes" value={entry.notes} full />
+					</ViewRow>
 				)}
 			</ViewSection>
 

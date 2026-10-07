@@ -8,10 +8,12 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Configuration } from '@/config/settings.config';
 import { formatDate } from '@/helpers/date.helper';
-import { DisplayStatus } from '@/helpers/display.helper';
+import { DisplayAmount, DisplayStatus } from '@/helpers/display.helper';
 import { requestFind } from '@/helpers/services.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import { hasPermission } from '@/models/account.model';
+import type { CashFlowModel } from '@/models/cash-flow.model';
+import { displayInvoiceLabel, type InvoiceModel } from '@/models/invoice.model';
 import {
 	displayOrderClient,
 	displayOrderMoney,
@@ -227,6 +229,159 @@ function OrderShipment({ shipment }: { readonly shipment: ShippingModel }) {
 	);
 }
 
+/** The documents billing the order, each with what it still asks for. */
+function OrderInvoices({ invoices }: { readonly invoices: InvoiceModel[] }) {
+	return (
+		<div className="overflow-x-auto">
+			<table className="w-full text-sm">
+				<thead>
+					<tr>
+						<th className="text-left py-2 px-2 font-medium">
+							Reference
+						</th>
+						<th className="text-left py-2 px-2 font-medium">
+							Scope
+						</th>
+						<th className="text-left py-2 px-2 font-medium">
+							Status
+						</th>
+						<th className="text-left py-2 px-2 font-medium">
+							Payment
+						</th>
+						<th className="text-left py-2 px-2 font-medium">
+							Total
+						</th>
+						<th className="text-left py-2 px-2 font-medium">
+							Outstanding
+						</th>
+						<th className="text-left py-2 px-2 font-medium">
+							Due At
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					{invoices.map((invoice) => (
+						<tr
+							key={`invoice-${invoice.id}`}
+							className="border-t border-line hover:bg-surface-secondary/30"
+						>
+							<td className="py-2 px-3">
+								{displayInvoiceLabel(invoice)}
+								{invoice.is_reversal && (
+									<span className="ml-2 text-xs text-muted">
+										reversal
+									</span>
+								)}
+							</td>
+							<td className="py-2 px-3">
+								{formatEnumLabel(invoice.scope)}
+							</td>
+							<td className="py-2 px-3">
+								<DisplayStatus
+									status={invoice.status}
+									dataSource="invoice"
+								/>
+							</td>
+							<td className="py-2 px-3">
+								<DisplayStatus
+									status={invoice.payment_status}
+									dataSource="invoice"
+								/>
+							</td>
+							<td className="py-2 px-3">
+								<DisplayAmount
+									amount={invoice.total_gross}
+									currencyCode={invoice.currency}
+								/>
+							</td>
+							<td className="py-2 px-3">
+								{/* Null on drafts and canceled documents - they ask for nothing */}
+								{invoice.amount_outstanding == null ? (
+									'-'
+								) : (
+									<DisplayAmount
+										amount={invoice.amount_outstanding}
+										currencyCode={invoice.currency}
+									/>
+								)}
+							</td>
+							<td className="py-2 px-3">
+								{invoice.due_at
+									? formatDate(invoice.due_at, 'default')
+									: '-'}
+							</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
+		</div>
+	);
+}
+
+/** The cash flow entries filed against the order through an `order` operational record. */
+function OrderPayments({ payments }: { readonly payments: CashFlowModel[] }) {
+	return (
+		<div className="overflow-x-auto">
+			<table className="w-full text-sm">
+				<thead>
+					<tr>
+						<th className="text-left py-2 px-2 font-medium">ID</th>
+						<th className="text-left py-2 px-2 font-medium">
+							Category
+						</th>
+						<th className="text-left py-2 px-2 font-medium">
+							Method
+						</th>
+						<th className="text-left py-2 px-2 font-medium">
+							Status
+						</th>
+						<th className="text-left py-2 px-2 font-medium">
+							Amount
+						</th>
+						<th className="text-left py-2 px-2 font-medium">
+							Date
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					{payments.map((payment) => (
+						<tr
+							key={`payment-${payment.id}`}
+							className="border-t border-line hover:bg-surface-secondary/30"
+						>
+							<td className="py-2 px-3">#{payment.id}</td>
+							<td className="py-2 px-3">
+								{formatEnumLabel(payment.category)}
+								<span className="ml-2 text-xs text-muted">
+									{formatEnumLabel(payment.direction)}
+								</span>
+							</td>
+							<td className="py-2 px-3">
+								{formatEnumLabel(payment.method)}
+							</td>
+							<td className="py-2 px-3">
+								<DisplayStatus
+									status={payment.status}
+									dataSource="cash-flow"
+								/>
+							</td>
+							<td className="py-2 px-3">
+								<DisplayAmount
+									amount={payment.gross_amount}
+									currencyCode={payment.currency}
+								/>
+							</td>
+							<td className="py-2 px-3">
+								{formatDate(payment.created_at, 'date-time')}
+							</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
+		</div>
+	);
+}
+
 export function ViewOrder({ entry }: { entry: OrderModel }) {
 	const lines = entry.lines ?? [];
 	const totals = entry.totals;
@@ -235,7 +390,7 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 	const { auth } = useAuth();
 
 	// The tab is left out rather than shown failing: the listing answers 403 without this
-	const canReadShipping = hasPermission(auth, 'shipping', 'read');
+	const canFindShipping = hasPermission(auth, 'shipping', 'find');
 
 	/*
 	 * Fetched with the window rather than on opening the tab, so the trigger can carry the count.
@@ -262,7 +417,57 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 
 			return response.entries;
 		},
-		enabled: canReadShipping,
+		enabled: canFindShipping,
+	});
+
+	// Each half of the billing tab is left out on its own when its listing would answer 403
+	const canFindInvoice = hasPermission(auth, 'invoice', 'find');
+	const canFindCashFlow = hasPermission(auth, 'cash-flow', 'find');
+	const canViewBilling = canFindInvoice || canFindCashFlow;
+
+	// Oldest first, so a reversal follows the document it takes back
+	const {
+		data: invoices,
+		isLoading: isInvoicesLoading,
+		isError: isInvoicesError,
+	} = useQuery({
+		queryKey: ['order', 'invoices', entry.id],
+		queryFn: async () => {
+			const response = await requestFind<InvoiceModel>('invoice', {
+				order_by: 'id',
+				direction: 'ASC',
+				filter: { order_id: entry.id },
+			});
+
+			if (!response) {
+				throw new Error('Could not retrieve invoices');
+			}
+
+			return response.entries;
+		},
+		enabled: canFindInvoice,
+	});
+
+	const {
+		data: payments,
+		isLoading: isPaymentsLoading,
+		isError: isPaymentsError,
+	} = useQuery({
+		queryKey: ['order', 'payments', entry.id],
+		queryFn: async () => {
+			const response = await requestFind<CashFlowModel>('cash-flow', {
+				order_by: 'id',
+				direction: 'ASC',
+				filter: { order_id: entry.id },
+			});
+
+			if (!response) {
+				throw new Error('Could not retrieve payments');
+			}
+
+			return response.entries;
+		},
+		enabled: canFindCashFlow,
 	});
 
 	return (
@@ -286,12 +491,23 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 							{lines.length}
 						</span>
 					</TabsTrigger>
-					{canReadShipping && (
+					{canFindShipping && (
 						<TabsTrigger id="shipments">
 							Shipments
 							{shipments && (
 								<span className="ml-1.5 text-xs text-muted">
 									{shipments.length}
+								</span>
+							)}
+						</TabsTrigger>
+					)}
+					{canViewBilling && (
+						<TabsTrigger id="billing">
+							Billing
+							{(invoices || payments) && (
+								<span className="ml-1.5 text-xs text-muted">
+									{(invoices?.length ?? 0) +
+										(payments?.length ?? 0)}
 								</span>
 							)}
 						</TabsTrigger>
@@ -463,7 +679,7 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 					</ViewSection>
 				</TabsContent>
 
-				{canReadShipping && (
+				{canFindShipping && (
 					<TabsContent id="shipments" className="space-y-4">
 						{isShipmentsLoading ? (
 							<p className="text-sm text-muted">
@@ -484,6 +700,50 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 									shipment={shipment}
 								/>
 							))
+						)}
+					</TabsContent>
+				)}
+
+				{canViewBilling && (
+					<TabsContent id="billing" className="space-y-6">
+						{canFindInvoice && (
+							<ViewSection title="Invoices" layout="rows">
+								{isInvoicesLoading ? (
+									<p className="text-sm text-muted">
+										Loading invoices...
+									</p>
+								) : isInvoicesError || !invoices ? (
+									<p className="text-sm text-danger">
+										The invoices could not be loaded.
+									</p>
+								) : invoices.length === 0 ? (
+									<p className="text-sm text-muted">
+										This order has no invoices.
+									</p>
+								) : (
+									<OrderInvoices invoices={invoices} />
+								)}
+							</ViewSection>
+						)}
+
+						{canFindCashFlow && (
+							<ViewSection title="Payments" layout="rows">
+								{isPaymentsLoading ? (
+									<p className="text-sm text-muted">
+										Loading payments...
+									</p>
+								) : isPaymentsError || !payments ? (
+									<p className="text-sm text-danger">
+										The payments could not be loaded.
+									</p>
+								) : payments.length === 0 ? (
+									<p className="text-sm text-muted">
+										This order has no payments.
+									</p>
+								) : (
+									<OrderPayments payments={payments} />
+								)}
+							</ViewSection>
 						)}
 					</TabsContent>
 				)}
