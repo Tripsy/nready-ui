@@ -1,9 +1,5 @@
 import { ApiRequest } from '@/helpers/api.helper';
-import type {
-	InvoiceLineModel,
-	InvoiceModel,
-	InvoicePaymentModel,
-} from '@/models/invoice.model';
+import type { InvoiceModel, InvoicePaymentModel } from '@/models/invoice.model';
 import type { ApiResponseFetch } from '@/types/api.type';
 
 /**
@@ -13,15 +9,14 @@ import type { ApiResponseFetch } from '@/types/api.type';
  */
 
 /**
- * Raise and issue the charge a revenue cash flow entry is owed a document for, then allocate that
- * same movement against it.
+ * Raise and issue the document a revenue cash flow entry is owed, then allocate the client's
+ * captured money against their open documents, oldest due first.
  *
  * What the document itemizes is decided by the movement, not by this call: with an order linked,
- * the order's own lines and its shipping; with none, a single line worth what the movement was
- * worth, billed to the client's billing address. A movement not yet captured leaves the document
- * unpaid for the capture to settle.
+ * the order's goods not billed yet; with none, a single line worth what the movement was worth,
+ * billed to the client's billing address.
  *
- * Refused with 409 when the money is already accounted for - a live charge on the linked order, or
+ * Refused with 409 when the money is already accounted for - the linked order billed in full, or
  * an allocation already made against a movement with no order.
  */
 export async function requestInvoiceRaiseForCashFlow(
@@ -34,69 +29,47 @@ export async function requestInvoiceRaiseForCashFlow(
 }
 
 /**
- * Raise a credit note against an issued charge. It comes back as a draft of its own, mirroring
- * the parent lines, and is numbered from the credit note series when it is issued in turn.
+ * One line of the original to take back: by `quantity` (goods returned, billable again) or by
+ * `amount` (a net price correction, VAT added at the line's rate) - exactly one of the two.
  */
-export async function requestInvoiceCreditNote(
+export type InvoiceReverseLineParams =
+	| { invoice_line_id: number; quantity: number; amount?: never }
+	| { invoice_line_id: number; amount: number; quantity?: never };
+
+/**
+ * Raise an empty custom invoice for a client: a document built by hand, with no order behind it.
+ * Its lines, parties, due date and notes are written afterwards through the same `update` any draft
+ * takes; the buyer starts from the client's billing address when there is one.
+ */
+export async function requestInvoiceCustomCreate(params: {
+	client_id: number;
+}): Promise<ApiResponseFetch<Partial<InvoiceModel>>> {
+	return await new ApiRequest().doFetch('/invoices/custom', {
+		method: 'POST',
+		body: JSON.stringify(params),
+	});
+}
+
+/**
+ * Raise a reversal (storno) against an issued document. It comes back as a draft of the same scope,
+ * flagged `is_reversal`, and is numbered from the invoice series when it is issued in turn.
+ *
+ * `lines` takes back part of the original - each line within what earlier reversals left on it;
+ * omitted, everything not reversed yet.
+ */
+export async function requestInvoiceReverse(
 	id: number,
-	notes?: string | null,
+	params: {
+		notes?: string | null;
+		lines?: InvoiceReverseLineParams[];
+	} = {},
 ): Promise<ApiResponseFetch<Partial<InvoiceModel>>> {
-	return await new ApiRequest().doFetch(`/invoices/${id}/credit-note`, {
+	return await new ApiRequest().doFetch(`/invoices/${id}/reverse`, {
 		method: 'POST',
-		body: JSON.stringify(notes ? { notes } : {}),
-	});
-}
-
-/**
- * Add an adjustment line - rounding, a manual correction, anything with no source row. The API
- * refuses any other kind here and refuses the write outright once the document has left `draft`.
- */
-export async function requestInvoiceLineCreate(
-	id: number,
-	params: {
-		label: string;
-		quantity: number;
-		unit_price: number;
-		vat_rate: number;
-		discount_reduction?: number | null;
-		notes?: string | null;
-	},
-): Promise<ApiResponseFetch<Partial<InvoiceLineModel>>> {
-	return await new ApiRequest().doFetch(`/invoices/${id}/lines`, {
-		method: 'POST',
-		body: JSON.stringify(params),
-	});
-}
-
-/**
- * Restate an adjustment or a generated line while the document is still a draft. The API
- * recomputes the line's net, VAT and total from whatever it reads after the patch, and re-sums the
- * invoice totals with it - none of those three figures is ever sent.
- */
-export async function requestInvoiceLineUpdate(
-	id: number,
-	lineId: number,
-	params: {
-		label?: string | null;
-		quantity?: number | null;
-		unit_price?: number | null;
-		vat_rate?: number | null;
-		discount_reduction?: number | null;
-		notes?: string | null;
-	},
-): Promise<ApiResponseFetch<Partial<InvoiceLineModel>>> {
-	return await new ApiRequest().doFetch(`/invoices/${id}/lines/${lineId}`, {
-		method: 'PUT',
-		body: JSON.stringify(params),
-	});
-}
-
-export async function requestInvoiceLineDelete(
-	id: number,
-	lineId: number,
-): Promise<ApiResponseFetch<null>> {
-	return await new ApiRequest().doFetch(`/invoices/${id}/lines/${lineId}`, {
-		method: 'DELETE',
+		body: JSON.stringify({
+			...(params.notes ? { notes: params.notes } : {}),
+			...(params.lines ? { lines: params.lines } : {}),
+		}),
 	});
 }
 
@@ -106,7 +79,7 @@ export async function requestInvoiceLineDelete(
  * `amount` is **gross**, in the invoice currency and its two decimals - not the net, scaled figure
  * the movement itself stores. The API refuses an amount past what is left of that movement after
  * its other allocations, a movement in another currency, and one whose direction does not match
- * the document (money in settles a charge, money out settles a credit note).
+ * the document (money in settles an invoice, money out settles a reversal).
  */
 export async function requestInvoicePaymentCreate(
 	id: number,
@@ -119,6 +92,19 @@ export async function requestInvoicePaymentCreate(
 	return await new ApiRequest().doFetch(`/invoices/${id}/payments`, {
 		method: 'POST',
 		body: JSON.stringify(params),
+	});
+}
+
+/**
+ * Take every payment off an issued invoice, handing the money back to the client's movements for
+ * an operator to allocate elsewhere. Refused on a reversal and on an invoice with an issued
+ * reversal.
+ */
+export async function requestInvoicePaymentClear(
+	id: number,
+): Promise<ApiResponseFetch<null>> {
+	return await new ApiRequest().doFetch(`/invoices/${id}/payments`, {
+		method: 'DELETE',
 	});
 }
 

@@ -572,15 +572,14 @@ export default async function dataSourceConfig(): Promise<
 			},
 			/*
 			 * Raises the charge this money is owed a document for, and allocates the movement
-			 * against it. What the invoice itemizes is the API's call, not this button's: with an
-			 * order linked, the order's own lines and its shipping; with none, a single line
-			 * worth what the movement was worth.
+			 * against the client's open documents, oldest first. What the invoice itemizes is
+			 * the API's call, not this button's: with an order linked, the order's goods not
+			 * billed yet; with none, a single line worth what the movement was worth.
 			 *
-			 * Offered only for captured revenue. An order-linked movement still pending leaves
-			 * its order `pending` too, which is outside `INVOICEABLE_ORDER_STATUSES`, so the
-			 * request would be refused - and a movement with no order is invoiced on the strength
-			 * of having landed. Gated on `invoice` create rather than on `cash-flow`: the document
-			 * is what gets written.
+			 * Offered only for captured revenue: a movement with no order is invoiced on the
+			 * strength of having landed, and an order-linked one is normally billed already by
+			 * its checkout. Gated on `invoice` create rather than on `cash-flow`: the document is
+			 * what gets written.
 			 */
 			invoice: {
 				windowType: 'action',

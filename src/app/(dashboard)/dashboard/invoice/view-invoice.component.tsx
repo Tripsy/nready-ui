@@ -2,8 +2,10 @@
 
 import {
 	ViewField,
+	ViewRow,
 	ViewSection,
 } from '@/app/(dashboard)/_components/view-detail';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Configuration } from '@/config/settings.config';
 import { formatDate } from '@/helpers/date.helper';
 import { DisplayAmount, DisplayStatus } from '@/helpers/display.helper';
@@ -215,160 +217,229 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 				</div>
 			</div>
 
-			<ViewSection title="Info">
-				<ViewField label="Type" value={formatEnumLabel(entry.type)} />
-				<ViewField label="Order" value={`#${entry.order_id}`} />
-				{entry.parent_invoice_id && (
-					<ViewField
-						label="Credits Invoice"
-						value={`#${entry.parent_invoice_id}`}
-					/>
-				)}
-				<ViewField
-					label="Net"
-					value={
-						<DisplayAmount
-							amount={entry.total_net}
-							currencyCode={entry.currency}
-						/>
-					}
-				/>
-				<ViewField
-					label="VAT"
-					value={
-						<DisplayAmount
-							amount={entry.total_vat}
-							currencyCode={entry.currency}
-						/>
-					}
-				/>
-				<ViewField
-					label="Total"
-					value={
-						<DisplayAmount
-							amount={entry.total_gross}
-							currencyCode={entry.currency}
-						/>
-					}
-				/>
-				{entry.total_discount_reduction > 0 && (
-					<ViewField
-						label="Discount"
-						value={
-							<DisplayAmount
-								amount={entry.total_discount_reduction}
-								currencyCode={entry.currency}
-							/>
-						}
-					/>
-				)}
-				<ViewField
-					label="Allocated"
-					value={
-						<DisplayAmount
-							amount={allocated}
-							currencyCode={entry.currency}
-						/>
-					}
-				/>
-				{entry.currency !== Configuration.currency() && (
-					<ViewField
-						label="Exchange Rate"
-						value={entry.exchange_rate}
-					/>
-				)}
-				{entry.notes && (
-					<ViewField label="Notes" value={entry.notes} full />
-				)}
-			</ViewSection>
-
-			<ViewSection title="Dates">
-				<ViewField
-					label="Issued At"
-					value={
-						entry.issued_at
-							? formatDate(entry.issued_at, 'date-time')
-							: '-'
-					}
-				/>
-				<ViewField
-					label="Due At"
-					value={
-						entry.due_at ? formatDate(entry.due_at, 'default') : '-'
-					}
-				/>
-				{/* Never cleared once stamped, so it reads "was late", not "is late now" */}
-				{entry.overdue_at && (
-					<ViewField
-						label="Went Overdue"
-						value={
-							<span className="text-danger">
-								{formatDate(entry.overdue_at, 'default')}
-							</span>
-						}
-					/>
-				)}
-				{entry.paid_at && (
-					<ViewField
-						label="Paid At"
-						value={formatDate(entry.paid_at, 'date-time')}
-					/>
-				)}
-			</ViewSection>
-
-			{entry.billing_details && (
-				<ViewSection title="Billed To">
-					<ViewInvoiceParty details={entry.billing_details} />
-				</ViewSection>
-			)}
-
-			{entry.seller_details && (
-				<ViewSection title="Issued By">
-					<ViewInvoiceParty details={entry.seller_details} />
-				</ViewSection>
-			)}
-
-			<ViewSection title="Timestamps">
-				<ViewField
-					label="Created At"
-					value={formatDate(entry.created_at, 'date-time')}
-				/>
-				<ViewField
-					label="Updated At"
-					value={formatDate(entry.updated_at, 'date-time')}
-				/>
-				{entry.deleted_at && (
-					<ViewField
-						label="Deleted At"
-						value={
-							<span className="text-danger">
-								{formatDate(entry.deleted_at, 'date-time')}
-							</span>
-						}
-					/>
-				)}
-			</ViewSection>
-
-			{lines.length > 0 && (
-				<div>
-					<h3 className="font-bold border-b border-line pb-2 mb-3">
+			<Tabs defaultSelectedKey="details" className="w-full">
+				<TabsList>
+					<TabsTrigger id="details">Details</TabsTrigger>
+					<TabsTrigger id="lines">
 						Lines
-					</h3>
-					<ViewInvoiceLines lines={lines} currency={entry.currency} />
-				</div>
-			)}
-
-			{payments.length > 0 && (
-				<div>
-					<h3 className="font-bold border-b border-line pb-2 mb-3">
+						<span className="ml-1.5 text-xs text-muted">
+							{lines.length}
+						</span>
+					</TabsTrigger>
+					<TabsTrigger id="payments">
 						Payments
-					</h3>
-					<ViewInvoicePayments
-						payments={payments}
-						currency={entry.currency}
-					/>
-				</div>
-			)}
+						<span className="ml-1.5 text-xs text-muted">
+							{payments.length}
+						</span>
+					</TabsTrigger>
+				</TabsList>
+
+				<TabsContent id="details" className="space-y-6">
+					<ViewSection title="Info" layout="rows">
+						<ViewRow>
+							<ViewField
+								label="Scope"
+								value={formatEnumLabel(entry.scope)}
+							/>
+							<ViewField
+								label="Issued At"
+								value={
+									entry.issued_at
+										? formatDate(
+												entry.issued_at,
+												'date-time',
+											)
+										: '-'
+								}
+							/>
+							{/* A document raised from a bare cash flow entry bills no order */}
+							{entry.order_id && (
+								<ViewField
+									label="Order"
+									value={`#${entry.order_id}`}
+								/>
+							)}
+							{entry.shipping_id && (
+								<ViewField
+									label="Shipment"
+									value={`#${entry.shipping_id}`}
+								/>
+							)}
+							{entry.parent_invoice_id && (
+								<ViewField
+									label="Credits Invoice"
+									value={`#${entry.parent_invoice_id}`}
+								/>
+							)}
+						</ViewRow>
+
+						<ViewRow>
+							<ViewField
+								label="Net"
+								value={
+									<DisplayAmount
+										amount={entry.total_net}
+										currencyCode={entry.currency}
+									/>
+								}
+							/>
+							<ViewField
+								label="VAT"
+								value={
+									<DisplayAmount
+										amount={entry.total_vat}
+										currencyCode={entry.currency}
+									/>
+								}
+							/>
+							<ViewField
+								label="Total"
+								value={
+									<DisplayAmount
+										amount={entry.total_gross}
+										currencyCode={entry.currency}
+									/>
+								}
+							/>
+						</ViewRow>
+
+						<ViewRow>
+							<ViewField
+								label="Allocated"
+								value={
+									<DisplayAmount
+										amount={allocated}
+										currencyCode={entry.currency}
+									/>
+								}
+							/>
+							<ViewField
+								label="Due At"
+								value={
+									entry.due_at ? (
+										<>
+											{formatDate(
+												entry.due_at,
+												'default',
+											)}
+											{/* Never cleared once stamped, so it reads "was late", not "is late now" */}
+											{entry.overdue_at && (
+												<span className="ml-2 text-danger">
+													overdue since{' '}
+													{formatDate(
+														entry.overdue_at,
+														'default',
+													)}
+												</span>
+											)}
+										</>
+									) : (
+										'-'
+									)
+								}
+							/>
+							<ViewField
+								label="Paid At"
+								value={
+									entry.paid_at
+										? formatDate(entry.paid_at, 'date-time')
+										: '-'
+								}
+							/>
+						</ViewRow>
+
+						{(entry.total_discount_reduction > 0 ||
+							entry.currency !== Configuration.currency()) && (
+							<ViewRow>
+								{entry.total_discount_reduction > 0 && (
+									<ViewField
+										label="Discount"
+										value={
+											<DisplayAmount
+												amount={
+													entry.total_discount_reduction
+												}
+												currencyCode={entry.currency}
+											/>
+										}
+									/>
+								)}
+								{entry.currency !==
+									Configuration.currency() && (
+									<ViewField
+										label="Exchange Rate"
+										value={entry.exchange_rate}
+									/>
+								)}
+							</ViewRow>
+						)}
+
+						{entry.notes && (
+							<ViewRow>
+								<ViewField
+									label="Notes"
+									value={entry.notes}
+									full
+								/>
+							</ViewRow>
+						)}
+					</ViewSection>
+
+					{entry.billing_details && (
+						<ViewSection title="Billed To">
+							<ViewInvoiceParty details={entry.billing_details} />
+						</ViewSection>
+					)}
+
+					{entry.seller_details && (
+						<ViewSection title="Issued By">
+							<ViewInvoiceParty details={entry.seller_details} />
+						</ViewSection>
+					)}
+
+					<ViewSection title="Timestamps">
+						<ViewField
+							label="Created At"
+							value={formatDate(entry.created_at, 'date-time')}
+						/>
+						<ViewField
+							label="Updated At"
+							value={formatDate(entry.updated_at, 'date-time')}
+						/>
+					</ViewSection>
+				</TabsContent>
+
+				<TabsContent id="lines">
+					<ViewSection layout="rows">
+						{lines.length === 0 ? (
+							<p className="text-sm text-muted">
+								This invoice has no lines.
+							</p>
+						) : (
+							<ViewInvoiceLines
+								lines={lines}
+								currency={entry.currency}
+							/>
+						)}
+					</ViewSection>
+				</TabsContent>
+
+				<TabsContent id="payments">
+					<ViewSection layout="rows">
+						{payments.length === 0 ? (
+							<p className="text-sm text-muted">
+								Nothing has been allocated against this invoice
+								yet.
+							</p>
+						) : (
+							<ViewInvoicePayments
+								payments={payments}
+								currency={entry.currency}
+							/>
+						)}
+					</ViewSection>
+				</TabsContent>
+			</Tabs>
 		</div>
 	);
 }

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
+import type { ActionIconKey } from '@/components/icon.component';
 import { getDataSourceConfig } from '@/config/data-source.config';
 import ValueError from '@/exceptions/value.error';
 import { logger } from '@/helpers/logger.helper';
@@ -52,7 +53,10 @@ const prepareConfigOnCreate = async (
 				);
 			}
 
-			const actionConfig = actions[enrichedConfig.action];
+			// A string from the window's config, possibly restored - a key no definition registers is
+			// refused just below
+			const actionConfig =
+				actions[enrichedConfig.action as ActionIconKey];
 
 			if (!actionConfig) {
 				throw new ValueError(

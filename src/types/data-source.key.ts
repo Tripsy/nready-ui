@@ -7,6 +7,7 @@ import type { CashFlowModel } from '@/models/cash-flow.model';
 import type { CategoryModel } from '@/models/category.model';
 import type { ClientModel } from '@/models/client.model';
 import type { ClientAddressModel } from '@/models/client-address.model';
+import type { ClientLedgerEntryModel } from '@/models/client-ledger.model';
 import type { CommentModel } from '@/models/comment.model';
 import type { ComplaintModel } from '@/models/complaint.model';
 import type { CronHistoryModel } from '@/models/cron-history.model';
@@ -50,6 +51,11 @@ export type DatasourceModels = {
 	 * from the client they belong to, through `ManagerAddressesClient`.
 	 */
 	'client-address': ClientAddressModel;
+	/*
+	 * Read-only and always scoped to one client: the API addresses it by the client in the path,
+	 * so the listing stays empty until the filter names one.
+	 */
+	'client-ledger': ClientLedgerEntryModel;
 	comment: CommentModel;
 	complaint: ComplaintModel;
 	'cron-history': CronHistoryModel;

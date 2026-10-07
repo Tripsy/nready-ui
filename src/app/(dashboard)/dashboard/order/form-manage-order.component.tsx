@@ -614,7 +614,7 @@ function OrderLineOptions({
 			))}
 
 			{error?.map((message) => (
-				<p key={message} className="text-sm text-error">
+				<p key={message} className="text-sm text-danger">
 					{message}
 				</p>
 			))}
@@ -901,7 +901,7 @@ export function FormManageOrder() {
 					)}
 
 					{ownErrorMessages(lineErrors)?.map((message) => (
-						<p key={message} className="text-sm text-error">
+						<p key={message} className="text-sm text-danger">
 							{message}
 						</p>
 					))}

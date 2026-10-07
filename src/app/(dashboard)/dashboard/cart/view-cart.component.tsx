@@ -74,7 +74,7 @@ function CartLineRow({
 				)}
 
 				{line.issue && (
-					<div className="mt-1 text-xs font-medium text-error">
+					<div className="mt-1 text-xs font-medium text-danger">
 						{formatEnumLabel(line.issue)}
 					</div>
 				)}

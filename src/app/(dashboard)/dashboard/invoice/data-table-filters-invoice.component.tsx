@@ -7,7 +7,6 @@ import {
 	FormFiltersReset,
 	FormFiltersSearch,
 	FormFiltersSelect,
-	FormFiltersShowDeleted,
 } from '@/app/(dashboard)/_components/form-filters.component';
 import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { InvoiceDataTableFiltersType } from '@/app/(dashboard)/dashboard/invoice/invoice.definition';
@@ -19,10 +18,10 @@ import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
 import {
 	type InvoicePaymentStatus,
 	InvoicePaymentStatusEnum,
+	type InvoiceScope,
+	InvoiceScopeEnum,
 	type InvoiceStatus,
 	InvoiceStatusEnum,
-	type InvoiceType,
-	InvoiceTypeEnum,
 } from '@/models/invoice.model';
 import { type Currency, CurrencyEnum } from '@/types/common.type';
 
@@ -34,7 +33,7 @@ const paymentStatuses = toOptionsFromEnum(InvoicePaymentStatusEnum, {
 	formatter: formatEnumLabel,
 });
 
-const types = toOptionsFromEnum(InvoiceTypeEnum, {
+const scopes = toOptionsFromEnum(InvoiceScopeEnum, {
 	formatter: formatEnumLabel,
 });
 
@@ -49,6 +48,11 @@ const currencies = toOptionsFromEnum(CurrencyEnum, {
 const overdueOptions = [
 	{ label: 'Overdue', value: 'true' },
 	{ label: 'Not overdue', value: 'false' },
+];
+
+const reversalOptions = [
+	{ label: 'Reversals only', value: 'true' },
+	{ label: 'Originals only', value: 'false' },
 ];
 
 export const DataTableFiltersInvoice = (): JSX.Element => {
@@ -101,13 +105,13 @@ export const DataTableFiltersInvoice = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<InvoiceDataTableFiltersType>
-				labelText="Type"
-				fieldName="type"
-				fieldValue={filters.type.value}
-				options={types}
+				labelText="Scope"
+				fieldName="scope"
+				fieldValue={filters.scope.value}
+				options={scopes}
 				onChange={(value) =>
 					setFilterValues({
-						type: value as InvoiceType,
+						scope: value as InvoiceScope,
 					})
 				}
 			/>
@@ -149,6 +153,22 @@ export const DataTableFiltersInvoice = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<InvoiceDataTableFiltersType>
+				labelText="Storno"
+				fieldName="is_reversal"
+				fieldValue={
+					filters.is_reversal.value === null
+						? null
+						: String(filters.is_reversal.value)
+				}
+				options={reversalOptions}
+				onChange={(value) =>
+					setFilterValues({
+						is_reversal: value === null ? null : value === 'true',
+					})
+				}
+			/>
+
+			<FormFiltersSelect<InvoiceDataTableFiltersType>
 				labelText="Overdue"
 				fieldName="is_overdue"
 				fieldValue={
@@ -182,16 +202,6 @@ export const DataTableFiltersInvoice = (): JSX.Element => {
 							issued_at_end: value,
 						}),
 				}}
-			/>
-
-			<FormFiltersShowDeleted
-				dataSource="invoice"
-				checked={filters.is_deleted.value ?? false}
-				onCheckedChange={(value) =>
-					setFilterValues({
-						is_deleted: value,
-					})
-				}
 			/>
 
 			<FormFiltersReset dataSource="invoice" />

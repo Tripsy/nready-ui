@@ -3,10 +3,7 @@
  * what an allocation resolves on - mirrors `DocumentTypeEnum` on the backend entity.
  */
 export const DocumentTypeEnum = {
-	INVOICE: 'invoice',
-	// Its own series: a credit note is a document in its own right and must not spend an
-	// invoice number
-	CREDIT_NOTE: 'credit_note',
+	INVOICE: 'invoice', // Reversals included - they number from the invoice series
 	ORDER: 'order',
 	GRN: 'grn',
 	SUBSCRIPTION: 'subscription',
@@ -21,7 +18,6 @@ export type DocumentType =
  */
 export const DocumentTypeLabels: Record<DocumentType, string> = {
 	[DocumentTypeEnum.INVOICE]: 'Invoice',
-	[DocumentTypeEnum.CREDIT_NOTE]: 'Credit Note',
 	[DocumentTypeEnum.ORDER]: 'Order',
 	[DocumentTypeEnum.GRN]: 'GRN',
 	[DocumentTypeEnum.SUBSCRIPTION]: 'Subscription',

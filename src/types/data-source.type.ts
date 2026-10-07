@@ -1,5 +1,6 @@
 import type React from 'react';
 import type { JSX } from 'react';
+import type { ActionIconKey } from '@/components/icon.component';
 import type { MapApiErrorFnType } from '@/helpers/form-process.helper';
 import type { AccountModel } from '@/models/account.model';
 import type {
@@ -239,9 +240,14 @@ export type ActionConfigType<
 	| OtherActionConfig<Entry, FormValues>
 	| LinkActionConfig<Entry, FormValues>;
 
+/**
+ * Keyed by `Icons.Action` names: the data-table button takes its icon from the key, so an action
+ * registered under a key with no icon fails here rather than throwing when the page renders. A new
+ * action needs its entry in `Icons.Action` - under its own key, even when `button.icon` overrides it.
+ */
 export type ActionsType<Entry> = {
 	// biome-ignore lint/suspicious/noExplicitAny: It's fine
-	[key: string]: ActionConfigType<Entry, any, any>;
+	[K in ActionIconKey]?: ActionConfigType<Entry, any, any>;
 } & {
 	// biome-ignore lint/suspicious/noExplicitAny: It's fine
 	create?: FormCreateActionConfig<Entry, any, any>;

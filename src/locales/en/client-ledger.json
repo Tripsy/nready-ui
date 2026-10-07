@@ -1,0 +1,33 @@
+{
+	"meta": {
+		"title": "Client Ledger - Dashboard | {{app_name}}"
+	},
+	"action": {
+		"guide": {
+			"title": "How the client ledger works",
+			"label": "Usage guide"
+		}
+	},
+	"balance": {
+		"select_client": "Select a client to see the money moved with them.",
+		"empty": "No money has moved with this client yet.",
+		"received": "Received",
+		"refunded": "Refunded",
+		"net": "Net",
+		"net_base": "Net in base currency"
+	},
+	"help": {
+		"intro": "The ledger is the record of money that actually changed hands with a client - one signed row per completed cash flow. Nothing on this screen writes to it: rows are added by the settlement chain as payments and refunds complete, and never edited after.",
+		"step_1_title": "Pick the client",
+		"step_1_body": "The ledger is always read for one client, so the list stays empty until the client filter names one. Entry type, currency and the date range narrow it from there.",
+		"step_2_title": "Read the balance",
+		"step_2_body": "Above the list, one card per currency: what was received, what was paid back and the net of the two. Currencies are never added together - the base-currency figure is converted at the rate frozen on each row, for reporting only.",
+		"step_3_title": "Read the sign",
+		"step_3_body": "A payment received from the client is positive, a refund paid back to them negative. A refund is filed under the client of the payment it reverses.",
+		"step_4_title": "Follow an entry to its cash flow",
+		"step_4_body": "Each row points at the cash flow that wrote it - open it to see the method, the reference and the documents it settled. Pending, failed or canceled movements write nothing here.",
+		"note": "The net is money moved, not money owed: what a client still has to pay is read from their invoices. A nightly job books any completed movement the ledger is missing, so a payment completed while the feature was not installed shows up by the next morning.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
+	}
+}

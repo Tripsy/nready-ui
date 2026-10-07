@@ -1,4 +1,5 @@
-import { type OrderModel, OrderStatusEnum } from '@/models/order.model';
+import type { OrderModel } from '@/models/order.model';
+import { roundMoney } from '@/models/product.model';
 import type { Currency, StatusTransitions } from '@/types/common.type';
 
 export const InvoiceStatusEnum = {
@@ -11,8 +12,8 @@ export type InvoiceStatus =
 	(typeof InvoiceStatusEnum)[keyof typeof InvoiceStatusEnum];
 
 /**
- * A document moves one way only, and `canceled` is terminal: a cancellation that has to undo
- * money already taken is a credit note, not a way back up this list. Mirrors
+ * A document moves one way only, and `canceled` is terminal; an issued document is taken back
+ * by a reversal, not by a way back up this list. Mirrors
  * `STATUS_TRANSITIONS` in the API's `invoice.entity.ts` - the backend refuses anything else.
  */
 export const STATUS_TRANSITIONS: StatusTransitions<InvoiceStatus> = {
@@ -21,7 +22,8 @@ export const STATUS_TRANSITIONS: StatusTransitions<InvoiceStatus> = {
 		InvoiceStatusEnum.CANCELLED,
 	],
 
-	[InvoiceStatusEnum.ISSUED]: [InvoiceStatusEnum.CANCELLED],
+	// An issued invoice is taken back only by a reversal, never canceled
+	[InvoiceStatusEnum.ISSUED]: [],
 
 	[InvoiceStatusEnum.CANCELLED]: [],
 };
@@ -43,30 +45,28 @@ export type InvoicePaymentStatus =
 	(typeof InvoicePaymentStatusEnum)[keyof typeof InvoicePaymentStatusEnum];
 
 /**
- * Each type draws its number from its own series, so a credit note never spends a number out of
- * the invoice series.
+ * What a document bills, which decides how it reads. Mirrors `InvoiceScopeEnum` in the API's
+ * `invoice.entity.ts`.
  *
- * `credit_note` is absent from the create form on purpose: it is raised against the charge it
- * reverses, through the credit note action, and the API refuses it on the plain create route -
- * which leaves `charge` as the only type a document can be raised as, so the form does not ask.
+ * - `order` - an order's goods; an order may carry several (partial shipments, goods and
+ *   services billed apart, a corrected document after a reversal).
+ * - `shipping` - one movement of goods, billed for its fee.
+ * - `subscription` - a subscription period, itemized by hand.
+ * - `custom` - built by hand for a client, with no order behind it: a one-off service, a charge
+ *   agreed off-system. Its lines are `adjustment` lines.
+ *
+ * A reversal (storno) is not a scope: it carries `is_reversal` and the scope of the document it
+ * reverses, and every invoice - reversals included - is numbered from the invoice series.
  */
-export const InvoiceTypeEnum = {
-	CHARGE: 'charge',
-	CREDIT_NOTE: 'credit_note',
+export const InvoiceScopeEnum = {
+	ORDER: 'order',
+	SHIPPING: 'shipping',
+	SUBSCRIPTION: 'subscription',
+	CUSTOM: 'custom',
 } as const;
 
-export type InvoiceType =
-	(typeof InvoiceTypeEnum)[keyof typeof InvoiceTypeEnum];
-
-/**
- * The order states a document may be raised from, mirroring `INVOICEABLE_ORDER_STATUSES` on the
- * API: one the business has agreed to, and one it has fulfilled. The API refuses the rest, so the
- * order picker offers only these.
- */
-export const INVOICEABLE_ORDER_STATUSES = [
-	OrderStatusEnum.CONFIRMED,
-	OrderStatusEnum.COMPLETED,
-];
+export type InvoiceScope =
+	(typeof InvoiceScopeEnum)[keyof typeof InvoiceScopeEnum];
 
 /**
  * What a line bills for. Only `adjustment` can be added by hand - a `product` or `shipping` line
@@ -86,7 +86,7 @@ export type InvoiceLineKind =
  * the client may move office or change bank afterwards, and a document already handed to a buyer
  * has to keep showing what it showed on the day.
  */
-type PartyDetails = {
+export type PartyDetails = {
 	address_country: string;
 	address_region: string | null;
 	address_city: string | null;
@@ -128,6 +128,27 @@ export type InvoiceLineModel<D = Date | string> = {
 	// Where the line came from; all null on an adjustment
 	order_line_id: number | null;
 	shipping_id: number | null;
+	/** On a reversal, the line of the original this one takes back. */
+	parent_line_id: number | null;
+	/**
+	 * On a reversal, whether this line takes back value (a net price correction on goods the
+	 * client keeps) rather than quantity.
+	 */
+	is_value_reversal: boolean;
+
+	/*
+	 * Only on an original read through `view`: how much of the line earlier reversals took back -
+	 * quantity by quantity reversals, net by every reversal. What the reverse form caps at.
+	 */
+	reversed_quantity?: number;
+	reversed_net?: number;
+	/**
+	 * Only on a draft read through `view`: how far a line raised from a source row may be
+	 * restated - what that row has left to invoice, this line included, and its unit price.
+	 * `null` on a line with no source to measure against.
+	 */
+	max_quantity?: number | null;
+	max_unit_price?: number | null;
 	product_id: number | null;
 	variant_id: number | null;
 
@@ -172,6 +193,9 @@ export type InvoicePaymentModel<D = Date | string> = {
 export type InvoiceModel<D = Date | string> = {
 	id: number;
 
+	/** Who is billed - what the client ledger and payment allocation read by. */
+	client_id: number;
+
 	/*
 	 * Null when there is no order behind the document: a revenue cash flow entry may be invoiced
 	 * on its own, and such an invoice carries a single line worth what the movement was worth
@@ -186,11 +210,22 @@ export type InvoiceModel<D = Date | string> = {
 	ref_code: string | null;
 	ref_number: number | null;
 
+	/** The subscription a `subscription` document bills; null on every other type. */
+	subscription_id: number | null;
+	/** The movement a `shipping` document bills; a reversal carries its original's. */
+	shipping_id: number | null;
+
 	status: InvoiceStatus;
 	payment_status: InvoicePaymentStatus;
-	type: InvoiceType;
+	scope: InvoiceScope;
 
-	/** The charge a credit note reverses; null on everything else. */
+	/**
+	 * A storno of `parent_invoice_id`. Its figures stay positive like any other document's - the
+	 * flag carries the sign - and it is settled by money going back out.
+	 */
+	is_reversal: boolean;
+
+	/** The document a reversal takes back; null on everything else. */
 	parent_invoice_id: number | null;
 
 	currency: Currency;
@@ -214,6 +249,29 @@ export type InvoiceModel<D = Date | string> = {
 
 	billing_details: BillingDetails | null;
 	seller_details: SellerDetails | null;
+
+	/**
+	 * Only on a listing row: on an issued original, its net less what every non-canceled
+	 * reversal already took back - 0 once nothing is left to reverse. `null` on drafts, canceled
+	 * documents and reversals.
+	 */
+	reversible_net?: number | null;
+
+	/**
+	 * What an issued document still asks for: `total_gross` less its allocations and, on an
+	 * original, less its issued reversals, floored at 0. A reversal counts only the refunds
+	 * allocated to it. `null` on drafts and canceled documents. Computed by the API on the list
+	 * and `view` reads - never stored.
+	 */
+	amount_outstanding?: number | null;
+
+	/**
+	 * Only on a draft read through `view`: the parties issuing would freeze if nothing were stated
+	 * by hand - the buyer from the order's billing address (`null` while there is none), the
+	 * seller from configuration. What the edit form starts from.
+	 */
+	resolved_billing_details?: BillingDetails | null;
+	resolved_seller_details?: SellerDetails;
 
 	notes: string | null;
 
@@ -242,4 +300,31 @@ export function displayInvoiceLabel(entry: InvoiceModel): string {
 	}
 
 	return `#${entry.id}`;
+}
+
+/**
+ * A line's total as the API stores it - `InvoiceService.computeLine`, rounded per step the same
+ * way, so the figure shown while typing is the one the save returns. `null` when the discount is
+ * larger than the line value, which the API refuses, or a figure is not a number.
+ */
+export function computeInvoiceLineTotal(input: {
+	quantity: number;
+	unit_price: number;
+	vat_rate: number;
+	discount_reduction: number;
+}): number | null {
+	if (Object.values(input).some((value) => !Number.isFinite(value))) {
+		return null;
+	}
+
+	const gross = roundMoney(input.unit_price * input.quantity);
+	const discount = roundMoney(input.discount_reduction);
+
+	if (discount > gross) {
+		return null;
+	}
+
+	const net = roundMoney(gross - discount);
+
+	return roundMoney(net + roundMoney((net * input.vat_rate) / 100));
 }

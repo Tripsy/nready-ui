@@ -9,30 +9,26 @@ import {
 	type InvoiceCreateFormValuesType,
 } from '@/app/(dashboard)/dashboard/invoice/form-create-invoice.component';
 import {
-	FormUpdateInvoice,
-	type InvoiceUpdateFormValuesType,
-} from '@/app/(dashboard)/dashboard/invoice/form-update-invoice.component';
+	FormReverseInvoice,
+	type InvoiceReverseFormValuesType,
+	type ReverseLineFormType,
+	ReverseLineModeEnum,
+} from '@/app/(dashboard)/dashboard/invoice/form-reverse-invoice.component';
 import { ManageInvoice } from '@/app/(dashboard)/dashboard/invoice/manage-invoice.component';
+import { StatusTransitionInvoice } from '@/app/(dashboard)/dashboard/invoice/status-transition-invoice.component';
 import { UsageGuideInvoice } from '@/app/(dashboard)/dashboard/invoice/usage-guide-invoice.component';
 import { ViewInvoice } from '@/app/(dashboard)/dashboard/invoice/view-invoice.component';
 import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
-import { toCalendarValue } from '@/helpers/date.helper';
 import { DisplayAmount } from '@/helpers/display.helper';
 import {
+	getFormDataAsJsonList,
 	getFormDataAsNumber,
 	getFormDataAsString,
 } from '@/helpers/form.helper';
 import { getStatusTransitions } from '@/helpers/model.helper';
 import { arrayHasValue } from '@/helpers/objects.helper';
-import {
-	requestCreate,
-	requestDelete,
-	requestFind,
-	requestUpdate,
-	requestUpdateStatus,
-	requestView,
-} from '@/helpers/services.helper';
+import { requestFind, requestView } from '@/helpers/services.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import {
 	BaseValidator,
@@ -44,33 +40,38 @@ import {
 	displayInvoiceLabel,
 	type InvoiceModel,
 	type InvoicePaymentStatus,
+	InvoicePaymentStatusEnum,
+	type InvoiceScope,
 	type InvoiceStatus,
 	InvoiceStatusEnum,
-	type InvoiceType,
-	InvoiceTypeEnum,
 	MUTABLE_STATUSES,
 	STATUS_TRANSITIONS,
 } from '@/models/invoice.model';
 import { displayOrderReference } from '@/models/order.model';
 import {
-	requestInvoiceCreditNote,
+	requestInvoiceCustomCreate,
+	requestInvoicePaymentClear,
 	requestInvoicePaymentCreate,
+	requestInvoiceReverse,
 } from '@/services/invoice.service';
+import { useModalStore } from '@/stores/window.store';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type { Currency } from '@/types/common.type';
-import type {
-	DataSourceConfigType,
-	DataTableValueOptionsType,
+import {
+	type DataSourceConfigType,
+	DataSourceSectionEnum,
+	type DataTableValueOptionsType,
 } from '@/types/data-source.type';
 import type { FormStateType, ValidatorOutput } from '@/types/form.type';
 
 const validatorMessages = [
 	...sharedValidatorMessages,
-	'invalid_order_id',
+	'invalid_client_id',
 	'invalid_due_at',
 	'invalid_notes',
 	'invalid_cash_flow_id',
 	'invalid_amount',
+	'invalid_reverse_lines',
 ] as const;
 
 class InvoiceValidator extends BaseValidator<typeof validatorMessages> {
@@ -87,23 +88,37 @@ class InvoiceValidator extends BaseValidator<typeof validatorMessages> {
 	}
 
 	/**
-	 * The document is raised from an order; its lines are generated from that order. No `type`:
-	 * `charge` is the only one the API raises this way, and it applies that default itself.
+	 * A custom document - the one raised by hand; orders, deliveries and subscriptions are
+	 * invoiced as they happen. Only the client is asked for: the rest is written in the update
+	 * window the draft opens in, the same one every draft is edited in.
 	 */
 	create = z.object({
-		order_id: this.validateId(this.getMessage('invalid_order_id')),
-		due_at: this.dueAt(),
-		notes: this.notes(),
+		client_id: this.validateId(this.getMessage('invalid_client_id')),
 	});
 
 	/**
-	 * Deliberately short, and it mirrors the backend: the money on a document comes from its
-	 * lines, so a total is never submitted, and the currency cannot change - every stored figure
-	 * is quoted in it.
+	 * At least one line with a figure, each within what earlier reversals left - the API enforces
+	 * the same caps; checking here keeps the operator in the form instead of a 409. A line left
+	 * empty or at zero is simply not reversed.
 	 */
-	update = z.object({
-		due_at: this.dueAt(),
+	reverse = z.object({
+		lines: z.array(z.custom<ReverseLineFormType>()).refine(
+			(lines) => {
+				const picked = lines.filter(isReversedLine);
+
+				return (
+					picked.length > 0 &&
+					picked.every((line) =>
+						line.mode === ReverseLineModeEnum.QUANTITY
+							? Number(line.quantity) <= line.max_quantity
+							: Number(line.amount) <= line.max_net,
+					)
+				);
+			},
+			{ message: this.getMessage('invalid_reverse_lines') },
+		),
 		notes: this.notes(),
+		currency: z.string().nullable(),
 	});
 
 	allocatePayment = z.object({
@@ -127,7 +142,7 @@ async function buildValidator() {
 }
 
 type InvoiceCreateOutput = ValidatorOutput<InvoiceValidator, 'create'>;
-type InvoiceUpdateOutput = ValidatorOutput<InvoiceValidator, 'update'>;
+type InvoiceReverseOutput = ValidatorOutput<InvoiceValidator, 'reverse'>;
 type InvoiceAllocatePaymentOutput = ValidatorOutput<
 	InvoiceValidator,
 	'allocatePayment'
@@ -138,12 +153,12 @@ export type InvoiceDataTableFiltersType = {
 	order_id: { value: number | null; matchMode: 'equals' };
 	status: { value: InvoiceStatus | null; matchMode: 'equals' };
 	payment_status: { value: InvoicePaymentStatus | null; matchMode: 'equals' };
-	type: { value: InvoiceType | null; matchMode: 'equals' };
+	scope: { value: InvoiceScope | null; matchMode: 'equals' };
+	is_reversal: { value: boolean | null; matchMode: 'equals' };
 	currency: { value: Currency | null; matchMode: 'equals' };
 	is_overdue: { value: boolean | null; matchMode: 'equals' };
 	issued_at_start: { value: string | null; matchMode: 'equals' };
 	issued_at_end: { value: string | null; matchMode: 'equals' };
-	is_deleted: { value: boolean; matchMode: 'equals' };
 };
 
 export default async function dataSourceConfig(): Promise<
@@ -152,15 +167,13 @@ export default async function dataSourceConfig(): Promise<
 	const translations = await translateBatch(
 		[
 			'create.title',
-			'update.title',
+			'manage.title',
 			'view.title',
 			'viewOrder.title',
-			'delete.title',
-			'issue.title',
-			'cancel.title',
-			'creditNote.title',
+			'statusTransition.title',
+			'reverse.title',
 			'allocatePayment.title',
-			'manage.title',
+			'clearPayments.title',
 			'guide.title',
 		] as const,
 		'invoice.action',
@@ -196,9 +209,9 @@ export default async function dataSourceConfig(): Promise<
 	}
 
 	/**
-	 * The status cell offers the one move the document can still make: a draft is issued, an
-	 * issued document can only be invalidated. `STATUS_TRANSITIONS` decides, so a status with
-	 * nothing left (`canceled`) shows no button at all.
+	 * The status badge opens the transition window rather than performing a move: a draft can be
+	 * issued or canceled, so the badge cannot pick one. `STATUS_TRANSITIONS` decides, so a status
+	 * with nothing left (`canceled`) shows no button at all.
 	 */
 	function displayButtonStatus(
 		auth: AccountModel | null,
@@ -213,18 +226,10 @@ export default async function dataSourceConfig(): Promise<
 					return undefined;
 				}
 
-				const statusTransitions = getStatusTransitions(
-					entry.status,
-					STATUS_TRANSITIONS,
-				);
-
-				if (statusTransitions.length === 0) {
-					return undefined;
-				}
-
-				return entry.status === InvoiceStatusEnum.DRAFT
-					? 'issue'
-					: 'cancel';
+				return getStatusTransitions(entry.status, STATUS_TRANSITIONS)
+					.length > 0
+					? 'statusTransition'
+					: undefined;
 			},
 		};
 	}
@@ -241,12 +246,12 @@ export default async function dataSourceConfig(): Promise<
 					order_id: { value: null, matchMode: 'equals' },
 					status: { value: null, matchMode: 'equals' },
 					payment_status: { value: null, matchMode: 'equals' },
-					type: { value: null, matchMode: 'equals' },
+					scope: { value: null, matchMode: 'equals' },
+					is_reversal: { value: null, matchMode: 'equals' },
 					currency: { value: null, matchMode: 'equals' },
 					is_overdue: { value: null, matchMode: 'equals' },
 					issued_at_start: { value: null, matchMode: 'equals' },
 					issued_at_end: { value: null, matchMode: 'equals' },
-					is_deleted: { value: false, matchMode: 'equals' },
 				} satisfies InvoiceDataTableFiltersType,
 			},
 			columns: [
@@ -275,11 +280,14 @@ export default async function dataSourceConfig(): Promise<
 						}),
 				},
 				{
-					field: 'type',
-					header: 'Type',
+					field: 'scope',
+					header: 'Scope',
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: formatEnumLabel(entry.type),
+							// A reversal reads as the scope it reverses, marked as a storno
+							customValue: entry.is_reversal
+								? `${formatEnumLabel(entry.scope)} (storno)`
+								: formatEnumLabel(entry.scope),
 						}),
 				},
 				{
@@ -288,10 +296,12 @@ export default async function dataSourceConfig(): Promise<
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							// The joined order, falling back to the id when the listing was
-							// served without it
+							// served without it. No order at all on a document raised from a bare cash flow entry
 							customValue: entry.order
 								? displayOrderReference(entry.order)
-								: `#${entry.order_id}`,
+								: entry.order_id
+									? `#${entry.order_id}`
+									: '-',
 							displayButton: displayButtonViewOrder(auth, entry),
 						}),
 				},
@@ -305,6 +315,20 @@ export default async function dataSourceConfig(): Promise<
 								amount: entry.total_gross,
 								currencyCode: entry.currency,
 							}),
+						}),
+				},
+				{
+					field: 'amount_outstanding',
+					header: 'Outstanding',
+					body: (entry, column) =>
+						DataTableValue(entry, column, {
+							customValue:
+								entry.amount_outstanding == null
+									? undefined
+									: DisplayAmount({
+											amount: entry.amount_outstanding,
+											currencyCode: entry.currency,
+										}),
 						}),
 				},
 				{
@@ -363,10 +387,28 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['invoice', 'create'],
 				entriesSelection: 'free',
 				operationFunction: (values: InvoiceCreateOutput) =>
-					requestCreate<InvoiceModel, InvoiceCreateOutput>(
-						'invoice',
-						values,
-					),
+					requestInvoiceCustomCreate({
+						// `validateId` resolves to `number | null` here; the schema has already
+						// established it is present
+						client_id: Number(values.client_id),
+					}),
+				events: {
+					// The draft is empty: straight into the window its lines and parties are
+					// written in
+					success: (entry?: InvoiceModel) => {
+						if (!entry?.id) {
+							return;
+						}
+
+						useModalStore.getState().open({
+							minimized: false,
+							section: DataSourceSectionEnum.DASHBOARD,
+							dataSource: 'invoice',
+							action: 'manage',
+							data: { entries: [entry] },
+						});
+					},
+				},
 				buttonPosition: 'right',
 				button: {
 					variant: 'default',
@@ -375,79 +417,48 @@ export default async function dataSourceConfig(): Promise<
 				validateForm: validateCreateForm,
 				getFormState: getCreateFormState,
 			},
-			update: {
-				windowType: 'form',
-				windowTitle: translations['update.title'],
-				windowComponent: FormUpdateInvoice,
+			manage: {
+				windowType: 'other',
+				windowTitle: translations['manage.title'],
+				windowComponent: ManageInvoice,
+				windowConfigProps: {
+					size: 'xl4',
+					closeOnBackdrop: true,
+					closeOnEscape: true,
+				},
 				permission: ['invoice', 'update'],
 				entriesSelection: 'single',
+				// Drafts only: an issued document is the record of what was charged, so there
+				// is nothing here to restate, add or drop
 				customEntryCheck: (entry: InvoiceModel) =>
 					arrayHasValue(entry.status, MUTABLE_STATUSES) &&
 					!entry.deleted_at,
-				operationFunction: (values: InvoiceUpdateOutput, id: number) =>
-					requestUpdate<InvoiceModel, InvoiceUpdateOutput>(
-						'invoice',
-						values,
-						id,
-					),
 				buttonPosition: 'left',
 				button: {
 					variant: 'outline',
 					hover: 'success',
+					// The key is `manage` only because `update` is reserved for a form window; to
+					// the operator it is the update action, so it wears that icon
+					icon: Icons.Action.Update,
 				},
-				getFormValues: getUpdateFormValues,
-				validateForm: validateUpdateForm,
-				getFormState: getUpdateFormState,
 			},
-			issue: {
-				windowType: 'action',
-				windowTitle: translations['issue.title'],
+			statusTransition: {
+				windowType: 'other',
+				windowTitle: translations['statusTransition.title'],
+				windowComponent: StatusTransitionInvoice,
+				windowConfigProps: {
+					size: 'lg',
+				},
 				permission: ['invoice', 'update'],
 				entriesSelection: 'single',
 				customEntryCheck: (entry: InvoiceModel) =>
 					!entry.deleted_at &&
-					entry.status === InvoiceStatusEnum.DRAFT,
-				operationFunction: (entry: InvoiceModel) =>
-					requestUpdateStatus(
-						'invoice',
-						entry,
-						InvoiceStatusEnum.ISSUED,
-					),
+					getStatusTransitions(entry.status, STATUS_TRANSITIONS)
+						.length > 0,
 				buttonPosition: 'left',
 				button: {
 					variant: 'outline',
-					hover: 'success',
-				},
-			},
-			cancel: {
-				windowType: 'action',
-				windowTitle: translations['cancel.title'],
-				permission: ['invoice', 'update'],
-				entriesSelection: 'single',
-				customEntryCheck: (entry: InvoiceModel) => {
-					const statusTransitions = getStatusTransitions(
-						entry.status,
-						STATUS_TRANSITIONS,
-					);
-
-					return (
-						!entry.deleted_at &&
-						arrayHasValue(
-							InvoiceStatusEnum.CANCELLED,
-							statusTransitions,
-						)
-					);
-				},
-				operationFunction: (entry: InvoiceModel) =>
-					requestUpdateStatus(
-						'invoice',
-						entry,
-						InvoiceStatusEnum.CANCELLED,
-					),
-				buttonPosition: 'left',
-				button: {
-					variant: 'outline',
-					hover: 'error',
+					hover: 'default',
 				},
 			},
 			allocatePayment: {
@@ -456,10 +467,12 @@ export default async function dataSourceConfig(): Promise<
 				windowComponent: FormAllocatePaymentInvoice,
 				permission: ['invoice', 'update'],
 				entriesSelection: 'single',
-				// A draft has no number and nothing to settle against
+				// A draft has no number and nothing to settle against; a paid document has nothing
+				// left outstanding, so the API refuses any amount
 				customEntryCheck: (entry: InvoiceModel) =>
 					!entry.deleted_at &&
-					entry.status === InvoiceStatusEnum.ISSUED,
+					entry.status === InvoiceStatusEnum.ISSUED &&
+					entry.payment_status !== InvoicePaymentStatusEnum.PAID,
 				operationFunction: (
 					values: InvoiceAllocatePaymentOutput,
 					id: number,
@@ -479,74 +492,79 @@ export default async function dataSourceConfig(): Promise<
 				validateForm: validateAllocatePaymentForm,
 				getFormState: getAllocatePaymentFormState,
 			},
-			creditNote: {
+			clearPayments: {
 				windowType: 'action',
-				windowTitle: translations['creditNote.title'],
+				windowTitle: translations['clearPayments.title'],
+				permission: ['invoice', 'update'],
+				entriesSelection: 'single',
+				/*
+				 * Only an original with money on it. A reversal's payments are refunds already paid
+				 * out, and the API also refuses an original with an issued reversal - which the row
+				 * does not carry, so that refusal comes back as the API's message.
+				 */
+				customEntryCheck: (entry: InvoiceModel) =>
+					entry.status === InvoiceStatusEnum.ISSUED &&
+					!entry.is_reversal &&
+					entry.payment_status !== InvoicePaymentStatusEnum.UNPAID,
+				operationFunction: (entry: InvoiceModel) =>
+					requestInvoicePaymentClear(entry.id),
+				buttonPosition: 'left',
+				button: {
+					variant: 'outline',
+					hover: 'error',
+				},
+			},
+			reverse: {
+				windowType: 'form',
+				windowTitle: translations['reverse.title'],
+				windowComponent: FormReverseInvoice,
+				windowConfigProps: {
+					size: 'xl3',
+				},
 				permission: ['invoice', 'create'],
 				entriesSelection: 'single',
-				// Only an issued charge can be credited - a credit note cannot be credited
-				// in turn
+				// Only an issued original with something left to take back - a reversal cannot be
+				// reversed in turn, and one reversed in full has nothing left. A row without the
+				// figure (not from a listing) is not refused here; the API refuses an empty reversal
 				customEntryCheck: (entry: InvoiceModel) =>
 					!entry.deleted_at &&
 					entry.status === InvoiceStatusEnum.ISSUED &&
-					entry.type === InvoiceTypeEnum.CHARGE,
-				operationFunction: async (entry: InvoiceModel) => {
-					const response = await requestInvoiceCreditNote(entry.id);
-
-					/*
-					 * The window reports the outcome and reloads the list; the created note
-					 * is not rendered here, so its payload is dropped rather than widening
-					 * what an action window is allowed to answer with.
-					 */
-					return response
-						? { ...response, data: undefined }
-						: undefined;
-				},
+					!entry.is_reversal &&
+					(entry.reversible_net === undefined ||
+						(entry.reversible_net ?? 0) > 0),
+				/*
+				 * Re-read: the listing row carries no lines, and the read is what reports how
+				 * much of each line earlier reversals already took back.
+				 */
+				reloadEntry: (id: number) =>
+					requestView<InvoiceModel>('invoice', id),
+				operationFunction: (values: InvoiceReverseOutput, id: number) =>
+					requestInvoiceReverse(id, {
+						notes: values.notes,
+						lines: values.lines
+							.filter(isReversedLine)
+							.map((line) =>
+								line.mode === ReverseLineModeEnum.QUANTITY
+									? {
+											invoice_line_id:
+												line.invoice_line_id,
+											quantity: Number(line.quantity),
+										}
+									: {
+											invoice_line_id:
+												line.invoice_line_id,
+											amount: Number(line.amount),
+										},
+							),
+					}),
 				buttonPosition: 'left',
 				button: {
 					variant: 'outline',
 					hover: 'error',
 				},
-			},
-			delete: {
-				windowType: 'action',
-				windowTitle: translations['delete.title'],
-				permission: ['invoice', 'delete'],
-				entriesSelection: 'single',
-				// An issued document is the record of what was charged; it leaves service
-				// through `canceled` rather than being removed
-				customEntryCheck: (entry: InvoiceModel) =>
-					!entry.deleted_at &&
-					entry.status === InvoiceStatusEnum.DRAFT,
-				operationFunction: (entry: InvoiceModel) =>
-					requestDelete('invoice', entry),
-				buttonPosition: 'left',
-				button: {
-					variant: 'outline',
-					hover: 'error',
-				},
-			},
-			manage: {
-				windowType: 'other',
-				windowTitle: translations['manage.title'],
-				windowComponent: ManageInvoice,
-				windowConfigProps: {
-					size: 'xl3',
-					closeOnBackdrop: true,
-					closeOnEscape: true,
-				},
-				permission: ['invoice', 'update'],
-				entriesSelection: 'single',
-				// Drafts only: an issued document is the record of what was charged, so there
-				// is nothing here to add, restate or drop
-				customEntryCheck: (entry: InvoiceModel) =>
-					arrayHasValue(entry.status, MUTABLE_STATUSES) &&
-					!entry.deleted_at,
-				buttonPosition: 'left',
-				button: {
-					variant: 'outline',
-					hover: 'default',
-				},
+				getFormValues: getReverseFormValues,
+				validateForm: validateReverseForm,
+				getFormState: getReverseFormState,
 			},
 			view: {
 				windowType: 'view',
@@ -596,11 +614,9 @@ async function validateCreateForm(values: InvoiceCreateFormValuesType) {
 
 function getCreateFormValues(formData: FormData): InvoiceCreateFormValuesType {
 	return {
-		order_id: getFormDataAsNumber(formData, 'order_id'),
-		due_at: getFormDataAsString(formData, 'due_at'),
-		notes: getFormDataAsString(formData, 'notes'),
+		client_id: getFormDataAsNumber(formData, 'client_id'),
 		// display-only, not submitted to the validator
-		order: getFormDataAsString(formData, 'order'),
+		client: getFormDataAsString(formData, 'client'),
 	};
 }
 
@@ -610,39 +626,85 @@ function getCreateFormState(): FormStateType<InvoiceCreateFormValuesType> {
 		message: null,
 		situation: null,
 		values: {
-			order_id: null,
-			// Left empty on purpose: the API stamps the configured payment term from the day
-			// the document is issued, which is not knowable while it is still a draft
-			due_at: null,
-			notes: null,
-			order: null,
+			client_id: null,
+			client: null,
 		},
 	};
 }
 
-async function validateUpdateForm(values: InvoiceUpdateFormValuesType) {
-	return (await buildValidator()).update.safeParse(values);
+/** A line the operator is taking back: the figure for its chosen mode is above zero. */
+function isReversedLine(line: ReverseLineFormType): boolean {
+	const figure =
+		line.mode === ReverseLineModeEnum.QUANTITY
+			? line.quantity
+			: line.amount;
+
+	return figure !== null && figure > 0;
 }
 
-function getUpdateFormValues(formData: FormData): InvoiceUpdateFormValuesType {
+/** Two decimals, the precision every invoice figure is stored at. */
+function toCents(value: number): number {
+	return Math.round(value * 100) / 100;
+}
+
+async function validateReverseForm(values: InvoiceReverseFormValuesType) {
+	return (await buildValidator()).reverse.safeParse(values);
+}
+
+function getReverseFormValues(
+	formData: FormData,
+): InvoiceReverseFormValuesType {
 	return {
-		due_at: getFormDataAsString(formData, 'due_at'),
+		lines: getFormDataAsJsonList<ReverseLineFormType>(formData, 'lines'),
 		notes: getFormDataAsString(formData, 'notes'),
+		currency: getFormDataAsString(formData, 'currency'),
 	};
 }
 
-function getUpdateFormState(
+function getReverseFormState(
 	data?: InvoiceModel,
-): FormStateType<InvoiceUpdateFormValuesType> {
+): FormStateType<InvoiceReverseFormValuesType> {
+	const lines = (data?.lines ?? [])
+		.map((line): ReverseLineFormType => {
+			const maxQuantity = toCents(
+				line.quantity - (line.reversed_quantity ?? 0),
+			);
+			const maxNet = toCents(line.line_net - (line.reversed_net ?? 0));
+
+			// The units left priced as the line priced them, discount shared out
+			const quantityNet =
+				line.quantity > 0
+					? toCents(
+							line.unit_price * maxQuantity -
+								(line.discount_reduction * maxQuantity) /
+									line.quantity,
+						)
+					: 0;
+
+			const quantityFits =
+				maxQuantity > 0 && quantityNet <= maxNet + 0.005;
+
+			return {
+				invoice_line_id: line.id,
+				label: line.label,
+				mode: ReverseLineModeEnum.QUANTITY,
+				quantity: quantityFits ? maxQuantity : null,
+				amount: null,
+				max_quantity: Math.max(maxQuantity, 0),
+				max_net: Math.max(maxNet, 0),
+				unit_price: line.unit_price,
+			};
+		})
+		.filter((line) => line.max_net > 0);
+
 	return {
 		errors: {},
 		message: null,
 		situation: null,
 		values: {
-			// The calendar field reads `YYYY-MM-DD` and nothing else - `parseDate` throws on a
-			// full ISO timestamp, which is what the document carries
-			due_at: toCalendarValue(data?.due_at ?? null),
-			notes: data?.notes ?? null,
+			lines: lines,
+			notes: null,
+			currency: data?.currency ?? null,
 		},
 	};
 }
@@ -675,7 +737,7 @@ function getAllocatePaymentFormState(
 		values: {
 			cash_flow_id: null,
 			// What is still owed, which is what a single transfer usually settles
-			amount: data ? data.total_gross : null,
+			amount: data ? (data.amount_outstanding ?? data.total_gross) : null,
 			notes: null,
 			cash_flow: null,
 		},

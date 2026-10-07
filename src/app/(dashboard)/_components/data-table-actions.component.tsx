@@ -8,6 +8,7 @@ import {
 	ActionButton,
 	type ButtonCommand,
 } from '@/components/action-button.component';
+import type { ActionIconKey } from '@/components/icon.component';
 import { getDataSourceConfig } from '@/config/data-source.config';
 import { getErrorMessage } from '@/helpers/error.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
@@ -233,17 +234,20 @@ export function DataTableActions<K extends DataSourceKey>() {
 	const handleAction: HandleActionType<K> = useCallback(
 		(action, targetDataSource, entries, actionConfig) => {
 			const execute = async () => {
+				// The name arrives as a string - from another data source, or a restored window -
+				// so a key no definition registers is caught by the check below
+				const actionKey = action as ActionIconKey;
 				const resolvedActionConfig =
 					actionConfig ??
 					(targetDataSource === dataSource
-						? actions?.[action]
+						? actions?.[actionKey]
 						: (
 								await getDataSourceConfig(
 									DataSourceSectionEnum.DASHBOARD,
 									targetDataSource,
 									'actions',
 								)
-							)?.[action]);
+							)?.[actionKey]);
 
 				if (!resolvedActionConfig) {
 					throw new Error(`Action "${action}" is not defined`);

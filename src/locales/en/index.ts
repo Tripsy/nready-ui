@@ -20,6 +20,7 @@ import category_tree from '@/locales/en/category-tree.json';
 import checkout from '@/locales/en/checkout.json';
 import client from '@/locales/en/client.json';
 import client_address from '@/locales/en/client-address.json';
+import client_ledger from '@/locales/en/client-ledger.json';
 import comment from '@/locales/en/comment.json';
 import complaint from '@/locales/en/complaint.json';
 import cron_history from '@/locales/en/cron-history.json';
@@ -84,6 +85,7 @@ const en = {
 	checkout,
 	client,
 	'client-address': client_address,
+	'client-ledger': client_ledger,
 	comment,
 	complaint,
 	'cron-history': cron_history,

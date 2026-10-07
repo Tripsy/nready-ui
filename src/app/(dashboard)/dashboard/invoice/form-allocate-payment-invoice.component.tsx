@@ -15,7 +15,7 @@ import {
 	type CashFlowModel,
 	CashFlowStatusEnum,
 } from '@/models/cash-flow.model';
-import { type InvoiceModel, InvoiceTypeEnum } from '@/models/invoice.model';
+import type { InvoiceModel } from '@/models/invoice.model';
 import { useWindowForm } from '@/providers/window-form.provider';
 import { useModalStore } from '@/stores/window.store';
 import type { FindFunctionResponseType } from '@/types/action.type';
@@ -32,7 +32,7 @@ export type InvoiceAllocatePaymentFormValuesType = {
  * Settles part or all of an issued document against a cash movement.
  *
  * Only completed movements in the direction the document settles are offered - money that
- * actually moved, in for a charge and out for a credit note. The API refuses what cannot be
+ * actually moved, in for an invoice and out for a reversal. The API refuses what cannot be
  * narrowed here: a movement in another currency, and an amount past what is left of it after its
  * other allocations.
  *
@@ -54,23 +54,29 @@ export function FormAllocatePaymentInvoice() {
 	const invoice = entry as InvoiceModel | undefined;
 
 	/*
-	 * A charge is settled by money coming in and a credit note by money going back out. Offering
+	 * An invoice is settled by money coming in and a reversal by money going back out. Offering
 	 * the wrong half would hand the operator entries the API refuses on submit - and every `out`
-	 * movement reads as a negative amount, which is not what settles a charge.
+	 * movement reads as a negative amount, which is not what settles an invoice.
 	 */
-	const direction =
-		invoice?.type === InvoiceTypeEnum.CREDIT_NOTE
-			? CashFlowDirectionEnum.OUT
-			: CashFlowDirectionEnum.IN;
+	const direction = invoice?.is_reversal
+		? CashFlowDirectionEnum.OUT
+		: CashFlowDirectionEnum.IN;
 
 	const elementIds = useElementIds(['cashFlow', 'amount', 'notes'] as const);
+
+	/*
+	 * Money stays with its client. A reversal is settled by refunds, which are filed under no
+	 * client of their own (the API reads the client off the payment they return), so the filter
+	 * would hide every one of them - there the API's client check is what holds the line.
+	 */
+	const clientId = invoice?.is_reversal ? undefined : invoice?.client_id;
 
 	const [searchCashFlow, setSearchCashFlow] = useState('');
 
 	const { suggestions: cashFlowSuggestions, isFetching: isCashFlowFetching } =
 		useRemoteAutocomplete<CashFlowModel>({
 			query: searchCashFlow,
-			queryKey: ['s-cash-flow', direction, invoice?.currency],
+			queryKey: ['s-cash-flow', direction, invoice?.currency, clientId],
 			queryFn: async (q) => {
 				const res: FindFunctionResponseType<CashFlowModel> | undefined =
 					await requestFind('cash-flow', {
@@ -79,6 +85,7 @@ export function FormAllocatePaymentInvoice() {
 							status: CashFlowStatusEnum.COMPLETED,
 							direction: direction,
 							currency: invoice?.currency,
+							client_id: clientId,
 						},
 						limit: 10,
 					});

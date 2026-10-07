@@ -3,11 +3,12 @@
 		"title": "Invoices - Dashboard | {{app_name}}"
 	},
 	"validation": {
-		"invalid_order_id": "Select a valid order",
 		"invalid_due_at": "Enter a valid due date",
 		"invalid_notes": "Enter a valid notes",
 		"invalid_cash_flow_id": "Select a valid cash flow entry",
-		"invalid_amount": "Enter a valid amount"
+		"invalid_amount": "Enter a valid amount",
+		"invalid_reverse_lines": "Enter a quantity or net value on at least one line, each within what is left to reverse",
+		"invalid_client_id": "Select a valid client"
 	},
 	"status": {
 		"draft": "Draft",
@@ -20,47 +21,37 @@
 	},
 	"action": {
 		"create": {
-			"title": "Raise an invoice",
+			"title": "New custom invoice",
 			"label": "Add",
 			"success": "Invoice created successfully"
 		},
-		"update": {
+		"manage": {
 			"title": "Update invoice - {{entry}}",
-			"label": "Update",
-			"success": "Invoice updated successfully"
+			"label": "Update"
 		},
-		"issue": {
-			"title": "Issue invoice - {{entry}}",
-			"label": "Issue",
-			"success": "Invoice issued successfully",
-			"confirm": "Issuing allocates the document number and freezes the buyer and seller details. It cannot be undone - an issued invoice can only be canceled. Continue?"
+		"statusTransition": {
+			"title": "Update status - {{entry}}",
+			"label": "Status",
+			"confirm_issued": "Issuing allocates the document number and freezes the buyer and seller details. It cannot be undone - an issued invoice can only be reversed. Continue?",
+			"confirm_canceled": "Are you sure you want to cancel this draft? A canceled draft cannot be reopened.",
+			"success_issued": "Invoice issued successfully",
+			"success_canceled": "Invoice canceled successfully"
 		},
-		"cancel": {
-			"title": "Cancel invoice - {{entry}}",
-			"label": "Cancel",
-			"success": "Invoice canceled successfully",
-			"confirm": "Are you sure you want to cancel this invoice? A canceled document cannot be reopened."
-		},
-		"creditNote": {
-			"title": "Raise a credit note - {{entry}}",
-			"label": "Credit note",
-			"success": "Credit note created successfully",
-			"confirm": "This creates a draft credit note mirroring the lines of this invoice. Continue?"
+		"reverse": {
+			"title": "Reverse invoice - {{entry}}",
+			"label": "Reverse",
+			"success": "Reversal created successfully"
 		},
 		"allocatePayment": {
 			"title": "Allocate payment - {{entry}}",
 			"label": "Allocate payment",
 			"success": "Payment allocated successfully"
 		},
-		"delete": {
-			"title": "Delete invoice - {{entry}}",
-			"label": "Delete",
-			"success": "Invoice deleted successfully",
-			"confirm": "Are you sure you want to delete this draft invoice?"
-		},
-		"manage": {
-			"title": "Lines - {{entry}}",
-			"label": "Lines"
+		"clearPayments": {
+			"title": "Clear payments - {{entry}}",
+			"label": "Clear payments",
+			"success": "Payments cleared successfully",
+			"confirm": "Remove every payment allocated to this invoice? The money goes back to the client's cash flow entries, to be allocated to another of their invoices."
 		},
 		"view": {
 			"title": "Invoice details - {{entry}}",
@@ -76,7 +67,7 @@
 	},
 	"field": {
 		"order": "Order",
-		"type": "Type",
+		"scope": "Scope",
 		"due_at": "Due At",
 		"label": "Label",
 		"quantity": "Quantity",
@@ -89,19 +80,19 @@
 	},
 	"help": {
 		"intro": "An invoice is the frozen record of what an order was charged. It is assembled as a draft, and everything that makes it a document - its number, its dates, the buyer and seller details printed on it - is written the moment it is issued.",
-		"step_1_title": "Raise it from an order",
-		"step_1_body": "Pick a confirmed order and the lines are generated from it: one per order line, plus one per shipping movement that did not fail, each carrying the label, price, VAT rate and discount as they read that day. The currency and exchange rate are the order's own and cannot be changed afterwards.",
+		"step_1_title": "Most invoices raise themselves",
+		"step_1_body": "Orders, deliveries and subscriptions are invoiced as they happen - a checkout raises and issues its documents, and a confirmed order or a new delivery bills whatever is left. Add raises the one document nobody else does: a custom invoice for a client, with no order behind it. Pick the client and it opens in the update window, where its lines, buyer and seller are written like on any draft.",
 		"step_2_title": "Adjust it while it is a draft",
-		"step_2_body": "Only a draft accepts changes - the due date, the notes, and adjustment lines for rounding or a manual correction. Product and shipping lines cannot be added by hand: each names the row it was raised from. Every line write re-sums the totals, which are never entered directly.",
+		"step_2_body": "Only a draft accepts changes - the due date, the notes, the buyer and seller details, and adjustment lines for rounding, a manual correction or a custom invoice's charges. Product and shipping lines cannot be added by hand: each names the row it was raised from. Every line write re-sums the totals, which are never entered directly.",
 		"step_3_title": "Issue it",
 		"step_3_body": "Issuing spends a number from the series and stamps the issue and due dates, then copies the client and the company onto the document so a later change of address or bank cannot rewrite what the buyer holds. It needs at least one line and a billing address with a country on the order. There is no way back to draft: a number handed out is never returned.",
 		"step_4_title": "Settle it against cash flow",
-		"step_4_body": "Allocate a completed cash flow entry against the issued document. The amount is gross, in the invoice currency, and cannot exceed what is left of that movement after its other allocations - one transfer can clear several invoices. Money in settles a charge, money out settles a credit note. The payment status follows the allocations: unpaid, partial, then paid.",
-		"step_5_title": "Correct it with a credit note",
-		"step_5_body": "An issued charge is reversed by a credit note, which mirrors its lines and is numbered from its own series once issued. Every figure on it stays positive - the type carries the sign. Cancel only invalidates a document nothing has been allocated against; once money has moved, the credit note is the only correction.",
+		"step_4_body": "Allocate a completed cash flow entry against the issued document. The amount is gross, in the invoice currency, and cannot exceed what is left of that movement after its other allocations - one transfer can clear several invoices. Money in settles an invoice, money out settles a reversal. A completed client payment is also allocated automatically, oldest document first. The payment status follows the allocations: unpaid, partial, then paid.",
+		"step_5_title": "Correct it with a reversal",
+		"step_5_body": "An issued invoice is corrected by a reversal (storno): a document of the same scope that takes back all or part of its lines and is numbered from the invoice series once issued. Every figure on it stays positive - the reversal flag carries the sign. Issuing the reversal pays back whatever the client is left overpaid on the original. An issued invoice is never canceled - the reversal is the only correction.",
 		"step_6_title": "Watch what goes overdue",
 		"step_6_body": "A nightly job stamps issued documents that pass their due date unsettled. The stamp is never cleared, so it records that this client paid late even after they pay. The Overdue filter therefore reads late right now - stamped and still unsettled - rather than late at some point.",
-		"note": "Deleting is available on drafts only and is a soft delete; an issued document leaves service through Cancel instead, since it is the record of what was charged. A credit note is raised from the charge it reverses and cannot be created from the Add button.",
+		"note": "Deleting and canceling are available on drafts only; an issued document stays the record of what was charged and is taken back by a reversal. A reversal is raised from the invoice it reverses and cannot be created from the Add button.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
 	}

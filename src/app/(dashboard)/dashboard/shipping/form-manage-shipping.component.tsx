@@ -234,7 +234,7 @@ function ShippingLinesEditor({
 			))}
 
 			{error?.map((message) => (
-				<p key={message} className="text-sm text-error">
+				<p key={message} className="text-sm text-danger">
 					{message}
 				</p>
 			))}
