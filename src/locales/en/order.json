@@ -5,7 +5,6 @@
 	"validation": {
 		"invalid_client_id": "Select a client",
 		"invalid_currency": "Invalid currency",
-		"invalid_type": "Invalid order type",
 		"invalid_lines": "Add at least one line",
 		"invalid_variant_id": "Pick a product variant",
 		"invalid_product_id": "Invalid product",

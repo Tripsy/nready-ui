@@ -521,10 +521,6 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 							value={displayOrderClient(entry)}
 						/>
 						<ViewField
-							label="Type"
-							value={formatEnumLabel(entry.type)}
-						/>
-						<ViewField
 							label="Contact"
 							value={entry.client?.contact_email ?? '-'}
 						/>

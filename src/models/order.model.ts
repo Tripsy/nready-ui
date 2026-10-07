@@ -36,13 +36,6 @@ export const ORDER_STATUS_TRANSITIONS: StatusTransitions<OrderStatus> = {
 	[OrderStatusEnum.CANCELLED]: [],
 };
 
-export const OrderTypeEnum = {
-	STANDARD: 'standard',
-	SUBSCRIPTION: 'subscription',
-} as const;
-
-export type OrderType = (typeof OrderTypeEnum)[keyof typeof OrderTypeEnum];
-
 /**
  * How the client said they will pay, mirroring `OrderPaymentMethodEnum` on the entity. A recorded
  * choice only - nothing charges or captures a payment yet. Null on a back-office document.
@@ -172,7 +165,6 @@ export type OrderModel<D = Date | string> = {
 	ref_code: string;
 	ref_number: number;
 	status: OrderStatus;
-	type: OrderType;
 	payment_method: OrderPaymentMethod | null;
 	notes: string | null;
 

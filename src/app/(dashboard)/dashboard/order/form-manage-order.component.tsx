@@ -19,7 +19,6 @@ import {
 	toOptionsFromEnum,
 } from '@/helpers/form.helper';
 import { requestFind, requestView } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
 import { type ClientModel, displayClientLabel } from '@/models/client.model';
@@ -28,7 +27,6 @@ import {
 	ORDER_LINES_MAX,
 	type OrderStatus,
 	OrderStatusEnum,
-	OrderTypeEnum,
 } from '@/models/order.model';
 import {
 	displayOptionLabel,
@@ -85,7 +83,6 @@ export function nextOrderLineKey(): string {
 export type OrderFormValuesType = {
 	client_id: number | null;
 	currency: string | null;
-	type: string | null;
 	notes: string | null;
 	lines: OrderLineFormType[];
 	// display-only fields, not part of validation
@@ -116,8 +113,6 @@ export const emptyOrderLine = (): OrderLineFormType => ({
 });
 
 const currencies = toOptionsFromEnum(CurrencyEnum);
-
-const types = toOptionsFromEnum(OrderTypeEnum, { formatter: formatEnumLabel });
 
 /**
  * The catalog price for a variant in the order's currency, when the listing carried one.
@@ -637,7 +632,7 @@ type FormTabId = (typeof FORM_TABS)[number]['id'];
  * entities and takes a per-language error list and a content tab, neither of which an order has.
  */
 const TAB_FIELDS: Record<FormTabId, readonly (keyof OrderFormValuesType)[]> = {
-	details: ['client_id', 'type', 'notes'],
+	details: ['client_id', 'notes'],
 	lines: ['currency', 'lines'],
 };
 
@@ -645,12 +640,7 @@ export function FormManageOrder() {
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<OrderFormValuesType>();
 
-	const elementIds = useElementIds([
-		'client',
-		'currency',
-		'type',
-		'notes',
-	] as const);
+	const elementIds = useElementIds(['client', 'currency', 'notes'] as const);
 
 	const [searchClient, setSearchClient] = useState('');
 
@@ -788,21 +778,6 @@ export function FormManageOrder() {
 							),
 						}}
 					/>
-
-					<div className="flex flex-wrap gap-3">
-						<FormComponentSelect<OrderFormValuesType>
-							labelText="Type"
-							id={elementIds.type}
-							fieldName="type"
-							fieldValue={formValues.type ?? ''}
-							isRequired={false}
-							disabled={pending}
-							className="w-48"
-							options={types}
-							onChange={(value) => handleChange('type', value)}
-							error={errors.type}
-						/>
-					</div>
 
 					<FormComponentTextarea<OrderFormValuesType>
 						labelText="Notes"

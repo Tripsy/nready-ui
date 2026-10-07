@@ -25,7 +25,6 @@ import {
 	requestUpdate,
 	requestView,
 } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
@@ -37,8 +36,6 @@ import {
 	type OrderModel,
 	type OrderStatus,
 	OrderStatusEnum,
-	type OrderType,
-	OrderTypeEnum,
 } from '@/models/order.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type {
@@ -50,7 +47,6 @@ import type { FormStateType, ValidatorOutput } from '@/types/form.type';
 const validatorMessages = [
 	'invalid_client_id',
 	'invalid_currency',
-	'invalid_type',
 	'invalid_lines',
 	'invalid_variant_id',
 	'invalid_product_id',
@@ -114,9 +110,6 @@ class OrderValidator extends BaseValidator<typeof validatorMessages> {
 				minChars: 3,
 				maxChars: 3,
 			}),
-			type: z.enum(Object.values(OrderTypeEnum), {
-				message: this.getMessage('invalid_type'),
-			}),
 			notes: this.validateString(this.getMessage('invalid_notes'), {
 				required: false,
 			}),
@@ -167,7 +160,6 @@ function prepareParamsFromFormValues(
 
 	return {
 		client_id: data.client_id,
-		type: data.type,
 		notes: data.notes,
 		...(isEditable
 			? {
@@ -191,7 +183,6 @@ function getFormValues(formData: FormData): OrderFormValuesType {
 		client_id: getFormDataAsNumber(formData, 'client_id'),
 		client: getFormDataAsString(formData, 'client_label'),
 		currency: getFormDataAsString(formData, 'currency'),
-		type: getFormDataAsString(formData, 'type'),
 		notes: getFormDataAsString(formData, 'notes'),
 		/*
 		 * Defaulted rather than trusted: the list is parsed back from the hidden JSON field the
@@ -215,7 +206,6 @@ function getFormState(data?: OrderModel): FormStateType<OrderFormValuesType> {
 			client_id: data?.client_id ?? null,
 			client: data ? displayOrderClient(data) : null,
 			currency: data?.totals?.currency ?? null,
-			type: data?.type ?? OrderTypeEnum.STANDARD,
 			notes: data?.notes ?? null,
 			/*
 			 * A create opens with one empty line, since an order with none cannot be saved. An
@@ -257,7 +247,6 @@ function getFormState(data?: OrderModel): FormStateType<OrderFormValuesType> {
 export type OrderDataTableFiltersType = {
 	global: { value: string | null; matchMode: 'contains' };
 	status: { value: OrderStatus | null; matchMode: 'equals' };
-	type: { value: OrderType | null; matchMode: 'equals' };
 	create_at_start: { value: string | null; matchMode: 'equals' };
 	create_at_end: { value: string | null; matchMode: 'equals' };
 	is_deleted: { value: boolean; matchMode: 'equals' };
@@ -334,7 +323,6 @@ export default async function dataSourceConfig(): Promise<
 				filters: {
 					global: { value: null, matchMode: 'contains' },
 					status: { value: null, matchMode: 'equals' },
-					type: { value: null, matchMode: 'equals' },
 					create_at_start: { value: null, matchMode: 'equals' },
 					create_at_end: { value: null, matchMode: 'equals' },
 					is_deleted: { value: false, matchMode: 'equals' },
@@ -370,16 +358,6 @@ export default async function dataSourceConfig(): Promise<
 						DataTableValue(entry, column, {
 							customValue: displayOrderClient(entry),
 						}),
-				},
-				{
-					field: 'type',
-					header: 'Type',
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
-							customValue: formatEnumLabel(entry.type),
-						}),
-					minWidth: 120,
-					maxWidth: 140,
 				},
 				{
 					field: 'status',
