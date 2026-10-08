@@ -188,6 +188,7 @@ function OrderShipment({ shipment }: { readonly shipment: ShippingModel }) {
 						shipment.pickup_data,
 						shipment.pickup_warehouse,
 						shipment.pickup_client_address_id,
+						shipment.pickup_client_address_label,
 					)}
 				/>
 				<ViewField

@@ -511,7 +511,8 @@ export default async function dataSourceConfig(): Promise<
 								entry.pickup_data,
 								entry.pickup_warehouse,
 								entry.pickup_client_address_id,
-							)} → ${displayShippingDestination(entry)}`,
+								entry.pickup_client_address_label,
+							)} →${displayShippingDestination(entry)}`,
 						}),
 				},
 				{
@@ -659,7 +660,7 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['view.title'],
 				windowComponent: ViewShipping,
 				windowConfigProps: {
-					size: 'xl',
+					size: 'xl3',
 				},
 				permission: ['shipping', 'read'],
 				entriesSelection: 'single',

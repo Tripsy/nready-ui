@@ -18,6 +18,7 @@ import {
 } from '@/models/cash-flow.model';
 import { displayClientLabel } from '@/models/client.model';
 import type { OperationalRecordModel } from '@/models/operational-record.model';
+import { displayOrderReference } from '@/models/order.model';
 import { displayVendorLabel } from '@/models/vendor.model';
 import { requestOperationalRecords } from '@/services/cash-flow.service';
 
@@ -111,6 +112,10 @@ function ViewCashFlowOperationalRecords({
 											return m.vendor
 												? displayVendorLabel(m.vendor)
 												: '-';
+										case 'order':
+											return m.order
+												? displayOrderReference(m.order)
+												: `#${m.entity_id}`;
 									}
 								})()}
 							</td>
@@ -217,7 +222,7 @@ export function ViewCashFlow({ entry }: { entry: CashFlowModel }) {
 				{entry.external_reference && (
 					<ViewRow>
 						<ViewField
-							label="Reference"
+							label="External Reference"
 							value={entry.external_reference}
 						/>
 					</ViewRow>

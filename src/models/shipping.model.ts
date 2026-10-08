@@ -223,7 +223,7 @@ export type ShippingModel<D = Date | string> = {
 	carrier?: { id: number; name: string } | null;
 
 	lines?: ShippingLineModel<D>[];
-	/** The client-address ends in one line each - attached by the dashboard read only. */
+	/** The client-address ends in one line each - attached by the dashboard read and list. */
 	pickup_client_address_label?: string | null;
 	destination_client_address_label?: string | null;
 
@@ -267,12 +267,15 @@ export const displayAddressSnapshot = (
  * One end of a movement in words, preferring the frozen copy once there is one.
  *
  * Before dispatch the live reference is the better answer - a correction still reaches the goods -
- * so an unfrozen end reports the row it points at rather than pretending to be a snapshot.
+ * so an unfrozen end reports the row it points at rather than pretending to be a snapshot. A client
+ * address is named by the label the dashboard read and list attach; a payload without it falls
+ * back to the id.
  */
 export const displayShippingEnd = (
 	snapshot: ShippingAddressSnapshot | null,
 	warehouse: { code: string; name: string } | null | undefined,
 	clientAddressId: number | null,
+	clientAddressLabel?: string | null,
 ): string => {
 	if (snapshot) {
 		return displayAddressSnapshot(snapshot);
@@ -280,6 +283,10 @@ export const displayShippingEnd = (
 
 	if (warehouse) {
 		return `${warehouse.code} - ${warehouse.name}`;
+	}
+
+	if (clientAddressLabel) {
+		return clientAddressLabel;
 	}
 
 	return clientAddressId ? `Client address #${clientAddressId}` : '-';
@@ -298,6 +305,7 @@ export const displayShippingDestination = (
 		| 'destination_data'
 		| 'destination_warehouse'
 		| 'destination_client_address_id'
+		| 'destination_client_address_label'
 	>,
 ): string => {
 	if (
@@ -311,6 +319,7 @@ export const displayShippingDestination = (
 		entry.destination_data,
 		entry.destination_warehouse,
 		entry.destination_client_address_id,
+		entry.destination_client_address_label,
 	);
 };
 

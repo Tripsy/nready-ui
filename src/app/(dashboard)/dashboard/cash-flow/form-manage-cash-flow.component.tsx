@@ -9,11 +9,7 @@ import {
 } from '@/components/form/form-element.component';
 import { Icons } from '@/components/icon.component';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import {
-	requestCreate,
-	requestFind,
-	requestView,
-} from '@/helpers/services.helper';
+import { requestCreate, requestFind } from '@/helpers/services.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import { resolveWindowEntries } from '@/helpers/window.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
@@ -34,7 +30,11 @@ import {
 	ClientStatusEnum,
 	displayClientLabel,
 } from '@/models/client.model';
-import { displayOrderLabel, type OrderModel } from '@/models/order.model';
+import {
+	displayOrderLabel,
+	displayOrderReference,
+	type OrderModel,
+} from '@/models/order.model';
 import {
 	displayVendorLabel,
 	type VendorModel,
@@ -264,49 +264,25 @@ export function FormManageCashFlow({ action }: { action: string }) {
 					}
 					break;
 				/*
-				 * Only an id here, unlike the two above: `cash_flow` does not import the shop, so
-				 * the endpoint hydrates the client and the vendor but never the order. The
-				 * reference an operator reads is resolved separately, below.
+				 * Linked by `entity_id` rather than the hydrated row: the API names the order only
+				 * while `invoice` is installed to answer for it, and the link has to survive the
+				 * form either way - the bare id stands in for the label.
 				 */
 				case OperationalRecordTypeEnum.ORDER:
 					updatedOperationalRecords[OperationalRecordTypeEnum.ORDER] =
 						record.entity_id;
+					handleChange(
+						'order',
+						record.order
+							? displayOrderReference(record.order)
+							: `#${record.entity_id}`,
+					);
 					break;
 			}
 		}
 
 		handleChange('operational_records', updatedOperationalRecords);
 	}, [entryId, operationalRecords, handleChange]);
-
-	const linkedOrderId =
-		formValues.operational_records?.[OperationalRecordTypeEnum.ORDER] ??
-		null;
-
-	/*
-	 * Fills in the label for an order already on the movement. Skipped once the field carries
-	 * one - whether from here or from the operator picking an order - so this runs once per
-	 * window rather than on every keystroke.
-	 *
-	 * Gated on the permission: without `order` read the request would only turn into a refusal,
-	 * and the field is left showing the bare link rather than an error the operator cannot act on.
-	 */
-	const { data: linkedOrder } = useQuery({
-		queryKey: ['cash-flow', 'linked-order', linkedOrderId],
-		// biome-ignore lint/style/noNonNullAssertion: `enabled` covers the null case
-		queryFn: () => requestView<OrderModel>('order', linkedOrderId!),
-		enabled:
-			!!linkedOrderId &&
-			!formValues.order &&
-			hasPermission(auth, 'order', 'read'),
-	});
-
-	useEffect(() => {
-		if (!linkedOrder) {
-			return;
-		}
-
-		handleChange('order', displayOrderLabel(linkedOrder));
-	}, [linkedOrder, handleChange]);
 
 	const createVendorMutation = useMutation({
 		mutationFn: async (name: string) => {

@@ -406,7 +406,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'external_reference',
-					header: 'Reference',
+					header: 'External Reference',
 				},
 				{
 					field: 'status',

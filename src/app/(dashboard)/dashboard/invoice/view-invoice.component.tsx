@@ -259,12 +259,6 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 									value={`#${entry.order_id}`}
 								/>
 							)}
-							{entry.shipping_id && (
-								<ViewField
-									label="Shipment"
-									value={`#${entry.shipping_id}`}
-								/>
-							)}
 							{entry.parent_invoice_id && (
 								<ViewField
 									label="Credits Invoice"
@@ -273,7 +267,14 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 							)}
 						</ViewRow>
 
-						<ViewRow>
+						{/* Four across when the discount joins them, so Total stays on the same line */}
+						<ViewRow
+							className={
+								entry.total_discount_reduction > 0
+									? 'lg:grid-cols-4'
+									: undefined
+							}
+						>
 							<ViewField
 								label="Net"
 								value={
@@ -292,6 +293,19 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 									/>
 								}
 							/>
+							{entry.total_discount_reduction > 0 && (
+								<ViewField
+									label="Discount"
+									value={
+										<DisplayAmount
+											amount={
+												entry.total_discount_reduction
+											}
+											currencyCode={entry.currency}
+										/>
+									}
+								/>
+							)}
 							<ViewField
 								label="Total"
 								value={
@@ -348,29 +362,12 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 							/>
 						</ViewRow>
 
-						{(entry.total_discount_reduction > 0 ||
-							entry.currency !== Configuration.currency()) && (
+						{entry.currency !== Configuration.currency() && (
 							<ViewRow>
-								{entry.total_discount_reduction > 0 && (
-									<ViewField
-										label="Discount"
-										value={
-											<DisplayAmount
-												amount={
-													entry.total_discount_reduction
-												}
-												currencyCode={entry.currency}
-											/>
-										}
-									/>
-								)}
-								{entry.currency !==
-									Configuration.currency() && (
-									<ViewField
-										label="Exchange Rate"
-										value={entry.exchange_rate}
-									/>
-								)}
+								<ViewField
+									label="Exchange Rate"
+									value={entry.exchange_rate}
+								/>
 							</ViewRow>
 						)}
 
