@@ -12,7 +12,8 @@
 		"invalid_price": "Price must be 0 or more",
 		"invalid_vat_rate": "VAT rate must be between 0 and 100",
 		"invalid_options": "Invalid product options",
-		"invalid_notes": "Invalid notes"
+		"invalid_notes": "Invalid notes",
+		"invalid_discount": "Invalid discount: percent must be between 0 and 100, amount must be positive"
 	},
 	"status": {
 		"pending": "Pending",

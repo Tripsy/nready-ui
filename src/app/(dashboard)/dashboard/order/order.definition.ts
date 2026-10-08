@@ -27,12 +27,14 @@ import {
 } from '@/helpers/services.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
+import { type DiscountType, DiscountTypeEnum } from '@/models/discount.model';
 import {
 	displayOrderClient,
 	displayOrderLabel,
 	displayOrderReference,
 	ORDER_LINES_MAX,
 	ORDER_STATUS_TRANSITIONS,
+	type OrderLineModel,
 	type OrderModel,
 	type OrderStatus,
 	OrderStatusEnum,
@@ -55,7 +57,35 @@ const validatorMessages = [
 	'invalid_vat_rate',
 	'invalid_options',
 	'invalid_notes',
+	'invalid_discount',
 ] as const;
+
+/**
+ * The discount the backend takes - `{ type, value }` or null - from the pair of fields the form
+ * holds it in. A type without a value never gets here: the validator refuses it first.
+ */
+function toManualDiscount(
+	type: DiscountType | null,
+	value: number | null,
+): { type: DiscountType; value: number } | null {
+	return type && value !== null ? { type: type, value: value } : null;
+}
+
+/**
+ * The discount typed on a stored line, read back off its snapshots - the only place a line's own
+ * lives. The order-wide one is `order.discount`.
+ */
+function readLineManualDiscount(
+	snapshots: OrderLineModel['discount'] | undefined,
+): { type: DiscountType | null; value: number | null } {
+	const found = snapshots?.find(
+		(snapshot) => snapshot.manual && snapshot.scope === 'variant',
+	);
+
+	return found
+		? { type: found.type as DiscountType, value: Number(found.value) }
+		: { type: null, value: null };
+}
 
 /** Mirrors the backend's `order.validator.ts` - see `../nready-api/src/features/order`. */
 class OrderValidator extends BaseValidator<typeof validatorMessages> {
@@ -66,65 +96,115 @@ class OrderValidator extends BaseValidator<typeof validatorMessages> {
 	 * inconsistently rather than that anybody mistyped anything - which is why it reports under its
 	 * own message rather than pointing at the variant picker.
 	 */
+	/**
+	 * Mirrors the backend's `discountSchema`: no type means the catalog decides, and a type needs a
+	 * positive value - a percentage no larger than 100.
+	 */
+	private discountFields = () => ({
+		discount_type: z
+			.enum(Object.values(DiscountTypeEnum), {
+				message: this.getMessage('invalid_discount'),
+			})
+			.nullable(),
+		discount_value: z.number().nullable(),
+	});
+
+	/** Checked on the pair, reported under the value so the message sits beside the box to fix. */
+	private isValidDiscount = (data: {
+		discount_type: DiscountType | null;
+		discount_value: number | null;
+	}) =>
+		data.discount_type === null ||
+		(data.discount_value !== null &&
+			data.discount_value > 0 &&
+			(data.discount_type !== DiscountTypeEnum.PERCENT ||
+				data.discount_value <= 100));
+
+	private discountIssue = () => ({
+		message: this.getMessage('invalid_discount'),
+		path: ['discount_value'],
+	});
+
 	private line = () =>
-		z.object({
-			variant_id: this.validateId(this.getMessage('invalid_variant_id')),
-			product_id: this.validateId(this.getMessage('invalid_product_id')),
-			quantity: this.validateNumber(this.getMessage('invalid_quantity'), {
-				required: true,
-				onlyPositive: true,
-				allowDecimals: 2,
-			}),
-			/*
-			 * Zero is legal, and not an oversight: a bundle header line carries no money of its
-			 * own while the component lines beneath it carry all of it.
-			 */
-			price: this.validateNumber(this.getMessage('invalid_price'), {
-				required: true,
-				onlyPositive: false,
-				allowDecimals: 2,
-			}).refine((value) => value >= 0, {
-				message: this.getMessage('invalid_price'),
-			}),
-			vat_rate: this.validateNumber(this.getMessage('invalid_vat_rate'), {
-				required: true,
-				onlyPositive: false,
-				allowDecimals: 2,
-			}).refine((value) => value >= 0 && value <= 100, {
-				message: this.getMessage('invalid_vat_rate'),
-			}),
-			/** `product_option` ids; the backend checks they belong to the product and fit its questions. */
-			options: z.array(z.number(), {
-				message: this.getMessage('invalid_options'),
-			}),
-			notes: this.validateString(this.getMessage('invalid_notes'), {
-				required: false,
-			}),
-			key: z.string(),
-		});
+		z
+			.object({
+				variant_id: this.validateId(
+					this.getMessage('invalid_variant_id'),
+				),
+				product_id: this.validateId(
+					this.getMessage('invalid_product_id'),
+				),
+				quantity: this.validateNumber(
+					this.getMessage('invalid_quantity'),
+					{
+						required: true,
+						onlyPositive: true,
+						allowDecimals: 2,
+					},
+				),
+				/*
+				 * Zero is legal, and not an oversight: a bundle header line carries no money of its
+				 * own while the component lines beneath it carry all of it.
+				 */
+				price: this.validateNumber(this.getMessage('invalid_price'), {
+					required: true,
+					onlyPositive: false,
+					allowDecimals: 2,
+				}).refine((value) => value >= 0, {
+					message: this.getMessage('invalid_price'),
+				}),
+				vat_rate: this.validateNumber(
+					this.getMessage('invalid_vat_rate'),
+					{
+						required: true,
+						onlyPositive: false,
+						allowDecimals: 2,
+					},
+				).refine((value) => value >= 0 && value <= 100, {
+					message: this.getMessage('invalid_vat_rate'),
+				}),
+				/** `product_option` ids; the backend checks they belong to the product and fit its questions. */
+				options: z.array(z.number(), {
+					message: this.getMessage('invalid_options'),
+				}),
+				...this.discountFields(),
+				notes: this.validateString(this.getMessage('invalid_notes'), {
+					required: false,
+				}),
+				key: z.string(),
+			})
+			.refine(this.isValidDiscount, this.discountIssue());
 
 	manage = () =>
-		z.object({
-			client_id: this.validateId(this.getMessage('invalid_client_id')),
-			currency: this.validateString(this.getMessage('invalid_currency'), {
-				minChars: 3,
-				maxChars: 3,
-			}),
-			notes: this.validateString(this.getMessage('invalid_notes'), {
-				required: false,
-			}),
-			/*
-			 * Validated, though it is never sent: the submit has to know whether the document is
-			 * still pending to decide whether the lines go with it, and `operationFunction` is
-			 * handed the validated output rather than the raw form values. It is stripped in
-			 * `prepareParamsFromFormValues` with the other display-only fields.
-			 */
-			status: z.enum(Object.values(OrderStatusEnum)).nullable(),
-			lines: z
-				.array(this.line())
-				.min(1, this.getMessage('invalid_lines'))
-				.max(ORDER_LINES_MAX, this.getMessage('invalid_lines')),
-		});
+		z
+			.object({
+				client_id: this.validateId(
+					this.getMessage('invalid_client_id'),
+				),
+				currency: this.validateString(
+					this.getMessage('invalid_currency'),
+					{
+						minChars: 3,
+						maxChars: 3,
+					},
+				),
+				notes: this.validateString(this.getMessage('invalid_notes'), {
+					required: false,
+				}),
+				/*
+				 * Validated, though it is never sent: the submit has to know whether the document is
+				 * still pending to decide whether the lines go with it, and `operationFunction` is
+				 * handed the validated output rather than the raw form values. It is stripped in
+				 * `prepareParamsFromFormValues` with the other display-only fields.
+				 */
+				status: z.enum(Object.values(OrderStatusEnum)).nullable(),
+				lines: z
+					.array(this.line())
+					.min(1, this.getMessage('invalid_lines'))
+					.max(ORDER_LINES_MAX, this.getMessage('invalid_lines')),
+				...this.discountFields(),
+			})
+			.refine(this.isValidDiscount, this.discountIssue());
 }
 
 async function validateForm(values: OrderFormValuesType) {
@@ -171,8 +251,16 @@ function prepareParamsFromFormValues(
 						price: line.price,
 						vat_rate: line.vat_rate,
 						options: line.options,
+						discount: toManualDiscount(
+							line.discount_type,
+							line.discount_value,
+						),
 						notes: line.notes,
 					})),
+					discount: toManualDiscount(
+						data.discount_type,
+						data.discount_value,
+					),
 				}
 			: {}),
 	};
@@ -186,14 +274,29 @@ function getFormValues(formData: FormData): OrderFormValuesType {
 		notes: getFormDataAsString(formData, 'notes'),
 		/*
 		 * Defaulted rather than trusted: the list is parsed back from the hidden JSON field the
-		 * form wrote, and a restored window draft can predate the key entirely. The validator
-		 * requires it, so an absent one would fail the submit on a field nobody can see.
+		 * form wrote, and a restored window draft can predate the key or the discount pair
+		 * entirely. The validator requires them, so an absent one would fail the submit on a field
+		 * nobody can see.
 		 */
 		lines: getFormDataAsJsonList<OrderFormValuesType['lines'][number]>(
 			formData,
 			'lines',
-		),
+		).map((line) => ({
+			...line,
+			discount_type: line.discount_type ?? null,
+			discount_value: line.discount_value ?? null,
+			key: line.key ?? nextOrderLineKey(),
+		})),
 		status: getFormDataAsString(formData, 'status') as OrderStatus | null,
+		/*
+		 * Read from the hidden pair the Lines tab always writes, not from the picker - which is
+		 * not rendered on a locked order and leaves `FormData` when disabled.
+		 */
+		discount_type: getFormDataAsString(
+			formData,
+			'order_discount_type',
+		) as DiscountType | null,
+		discount_value: getFormDataAsNumber(formData, 'order_discount_value'),
 	};
 }
 
@@ -213,33 +316,47 @@ function getFormState(data?: OrderModel): FormStateType<OrderFormValuesType> {
 			 * row carries no lines at all.
 			 */
 			lines: data
-				? (data.lines ?? []).map((line) => ({
-						variant_id: line.variant_id,
-						product_id: line.product_id,
-						quantity: line.quantity,
-						price: line.price,
-						vat_rate: line.vat_rate,
-						/*
-						 * The ids read back off the stored snapshots, so saving the line keeps what was
-						 * chosen. A snapshot written before ids were recorded has none to give, and its
-						 * option is dropped on the next save of the line set.
-						 */
-						options: (line.options ?? []).flatMap((option) =>
-							option.option_id ? [option.option_id] : [],
-						),
-						notes: line.notes,
-						label: line.variant?.sku ?? `#${line.variant_id}`,
-						discount_reduction: line.discount_reduction,
-						discount_label:
-							line.discount && line.discount.length > 0
-								? line.discount
-										.map((entry) => entry.label)
-										.join(', ')
-								: null,
-						key: nextOrderLineKey(),
-					}))
+				? (data.lines ?? []).map((line) => {
+						const lineDiscount = readLineManualDiscount(
+							line.discount,
+						);
+
+						return {
+							variant_id: line.variant_id,
+							product_id: line.product_id,
+							quantity: line.quantity,
+							price: line.price,
+							vat_rate: line.vat_rate,
+							/*
+							 * The ids read back off the stored snapshots, so saving the line keeps what was
+							 * chosen. A snapshot written before ids were recorded has none to give, and its
+							 * option is dropped on the next save of the line set.
+							 */
+							options: (line.options ?? []).flatMap((option) =>
+								option.option_id ? [option.option_id] : [],
+							),
+							discount_type: lineDiscount.type,
+							discount_value: lineDiscount.value,
+							notes: line.notes,
+							label: line.variant?.sku ?? `#${line.variant_id}`,
+							discount_reduction: line.discount_reduction,
+							discount_label:
+								line.discount && line.discount.length > 0
+									? line.discount
+											.map((entry) => entry.label)
+											.join(', ')
+									: null,
+							key: nextOrderLineKey(),
+						};
+					})
 				: [emptyOrderLine()],
 			status: data?.status ?? null,
+			discount_type: data?.discount?.manual
+				? (data.discount.type as DiscountType)
+				: null,
+			discount_value: data?.discount?.manual
+				? Number(data.discount.value)
+				: null,
 		},
 	};
 }
@@ -502,7 +619,7 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['view.title'],
 				windowComponent: ViewOrder,
 				windowConfigProps: {
-					size: 'xl3',
+					size: 'xl4',
 					closeOnBackdrop: true,
 					closeOnEscape: true,
 				},

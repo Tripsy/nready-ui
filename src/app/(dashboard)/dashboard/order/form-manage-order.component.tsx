@@ -21,7 +21,9 @@ import {
 import { requestFind, requestView } from '@/helpers/services.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { hasPermission } from '@/models/account.model';
 import { type ClientModel, displayClientLabel } from '@/models/client.model';
+import { type DiscountType, DiscountTypeEnum } from '@/models/discount.model';
 import {
 	displayOrderMoney,
 	ORDER_LINES_MAX,
@@ -37,7 +39,9 @@ import {
 	displayProductVariantLabel,
 	type ProductVariantModel,
 } from '@/models/product-variant.model';
+import { useAuth } from '@/providers/auth.provider';
 import { useWindowForm } from '@/providers/window-form.provider';
+import { findVariantsByIds } from '@/services/product.service';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import { CurrencyEnum } from '@/types/common.type';
 
@@ -50,15 +54,21 @@ export type OrderLineFormType = {
 	vat_rate: number | null;
 	/** The `product_option` ids chosen on the line; the backend turns them into snapshots. */
 	options: number[];
+	/**
+	 * A discount the operator typed for this line, in the order's currency - an `amount` is per
+	 * unit. Replaces the catalog's rule for the line; null leaves the catalog to decide.
+	 */
+	discount_type: DiscountType | null;
+	discount_value: number | null;
 	notes: string | null;
 	// display-only fields, not part of validation
 	/** What the picked variant is called, so a redrawn row still names what it holds. */
 	label: string | null;
 	/**
-	 * What the catalog's discount took off this line when the order was raised, and the rule that
-	 * did it. Read-only in both directions: the operator states a price, the backend resolves what
-	 * comes off it, and a line set being edited has not been through that pass yet - so on the editor
-	 * these are null until the document is saved and re-read.
+	 * What the discounts took off this line when the order was raised, and what they were called.
+	 * Read-only in both directions: even a typed discount is clamped by the backend against the
+	 * market's floor, and a line set being edited has not been through that pass yet - so on the
+	 * editor these are null until the document is saved and re-read.
 	 */
 	discount_reduction: number | null;
 	discount_label: string | null;
@@ -85,6 +95,13 @@ export type OrderFormValuesType = {
 	currency: string | null;
 	notes: string | null;
 	lines: OrderLineFormType[];
+	/**
+	 * An order-wide discount the operator typed, apportioned over the lines in place of the
+	 * catalog's campaign. Its terms are `order.discount`, but the money sits in the lines, so the
+	 * backend accepts it only together with the line set - which this form always sends.
+	 */
+	discount_type: DiscountType | null;
+	discount_value: number | null;
 	// display-only fields, not part of validation
 	/** The autocomplete's visible text. Submitted as `client_label` and never sent on. */
 	client: string | null;
@@ -105,6 +122,8 @@ export const emptyOrderLine = (): OrderLineFormType => ({
 	price: null,
 	vat_rate: Configuration.get('app.vatRate'),
 	options: [],
+	discount_type: null,
+	discount_value: null,
 	notes: null,
 	label: null,
 	discount_reduction: null,
@@ -113,6 +132,74 @@ export const emptyOrderLine = (): OrderLineFormType => ({
 });
 
 const currencies = toOptionsFromEnum(CurrencyEnum);
+
+/**
+ * The discount picker's choices. `none` stands for null because a list item cannot be keyed by
+ * an empty string; `toDiscountType` maps it back.
+ */
+const DISCOUNT_TYPE_NONE = 'none';
+
+function discountTypeOptions(currency: string | null) {
+	return [
+		{ label: 'Catalog rules', value: DISCOUNT_TYPE_NONE },
+		{ label: 'Percent (%)', value: DiscountTypeEnum.PERCENT },
+		{
+			label: `Amount${currency ? ` (${currency})` : ''}`,
+			value: DiscountTypeEnum.AMOUNT,
+		},
+	];
+}
+
+function toDiscountType(value: string): DiscountType | null {
+	return value === DiscountTypeEnum.PERCENT ||
+		value === DiscountTypeEnum.AMOUNT
+		? value
+		: null;
+}
+
+/**
+ * Why a line's typed discount will take off less than it says, or null when it applies in full.
+ *
+ * Mirrors the backend's `computeReduction`: per unit, a discount stops at the market's
+ * `min_price`, and a line with no floor in this currency stops only at zero. A preview, not the
+ * verdict - the backend clamps again on save, against the floor as it stands then.
+ */
+function describeDiscountClamp(
+	line: OrderLineFormType,
+	minPrice: number | null,
+	currency: string | null,
+): string | null {
+	if (!line.discount_type || !line.discount_value || line.price === null) {
+		return null;
+	}
+
+	const wanted =
+		line.discount_type === DiscountTypeEnum.PERCENT
+			? (line.price * line.discount_value) / 100
+			: line.discount_value;
+
+	const allowed =
+		minPrice === null ? line.price : Math.max(0, line.price - minPrice);
+
+	if (wanted <= allowed) {
+		return null;
+	}
+
+	const money = (value: number) => displayOrderMoney(value, currency ?? '');
+
+	if (allowed <= 0) {
+		return minPrice === null
+			? 'The unit price is zero, so this discount takes nothing off.'
+			: `The unit price is at or below this market's minimum of ${money(minPrice)}, so this discount takes nothing off.`;
+	}
+
+	return `Capped at ${money(allowed)} per unit - this market's minimum price is ${money(minPrice ?? 0)}.`;
+}
+
+/** An emptied number field is no figure at all, not zero. */
+function toNullableNumber(value: string): number | null {
+	return value.trim() === '' ? null : Number(value);
+}
 
 /**
  * The catalog price for a variant in the order's currency, when the listing carried one.
@@ -246,6 +333,8 @@ function OrderLineRow({
 	index,
 	currency,
 	disabled,
+	canDiscount,
+	minPrice,
 	errors,
 	onChange,
 	onRemove,
@@ -254,6 +343,13 @@ function OrderLineRow({
 	readonly index: number;
 	readonly currency: string | null;
 	readonly disabled: boolean;
+	/** Without `order.discount` the fields still show what was typed, but cannot change it. */
+	readonly canDiscount: boolean;
+	/**
+	 * The variant's `min_price` in the order's currency, null when the market states none.
+	 * Undefined while it loads, which shows no warning rather than a premature one.
+	 */
+	readonly minPrice: number | null | undefined;
 	readonly errors: { [K in keyof OrderLineFormType]?: unknown } | undefined;
 	readonly onChange: (patch: Partial<OrderLineFormType>) => void;
 	readonly onRemove: () => void;
@@ -263,8 +359,15 @@ function OrderLineRow({
 		`line-${index}-quantity`,
 		`line-${index}-price`,
 		`line-${index}-vat`,
+		`line-${index}-discount-type`,
+		`line-${index}-discount-value`,
 		`line-${index}-notes`,
 	] as const);
+
+	const clampWarning =
+		minPrice === undefined
+			? null
+			: describeDiscountClamp(line, minPrice, currency);
 
 	const [search, setSearch] = useState('');
 
@@ -376,7 +479,7 @@ function OrderLineRow({
 				</div>
 			</div>
 
-			<div className="mt-2 flex flex-wrap items-start gap-3">
+			<div className="mt-4 flex flex-wrap items-start gap-3">
 				<FormComponentInput<OrderLineFormType>
 					labelText="Quantity"
 					id={elementIds[`line-${index}-quantity`]}
@@ -421,6 +524,60 @@ function OrderLineRow({
 				/>
 			</div>
 
+			{/*
+			 * A row of its own, so the picker and the figure it asks for stay side by side - beside
+			 * the three figures above, the value box wraps away from its picker on all but the
+			 * widest window.
+			 */}
+			<div className="mt-4 flex flex-wrap items-start gap-3">
+				<FormComponentSelect<OrderLineFormType>
+					labelText="Discount"
+					id={elementIds[`line-${index}-discount-type`]}
+					fieldName="discount_type"
+					fieldValue={line.discount_type ?? DISCOUNT_TYPE_NONE}
+					disabled={disabled || !canDiscount}
+					className="w-40"
+					options={discountTypeOptions(currency)}
+					onChange={(value) => {
+						const type = toDiscountType(value);
+
+						onChange({
+							discount_type: type,
+							...(type ? {} : { discount_value: null }),
+						});
+					}}
+					error={ownErrorMessages(errors?.discount_type)}
+				/>
+
+				{line.discount_type && (
+					<FormComponentInput<OrderLineFormType>
+						labelText={
+							line.discount_type === DiscountTypeEnum.PERCENT
+								? 'Percent'
+								: 'Per unit'
+						}
+						id={elementIds[`line-${index}-discount-value`]}
+						fieldName="discount_value"
+						fieldValue={line.discount_value ?? ''}
+						isRequired={true}
+						disabled={disabled || !canDiscount}
+						className="w-28"
+						onChange={(e) =>
+							onChange({
+								discount_value: toNullableNumber(
+									e.target.value,
+								),
+							})
+						}
+						error={ownErrorMessages(errors?.discount_value)}
+					/>
+				)}
+			</div>
+
+			{clampWarning && (
+				<p className="mt-2 text-sm text-warning">{clampWarning}</p>
+			)}
+
 			{line.product_id && (
 				<OrderLineOptions
 					index={index}
@@ -438,7 +595,7 @@ function OrderLineRow({
 			 * their line gets whatever is left over - which on a narrow window is nothing, and it
 			 * wraps to a full row anyway. Here it is always the width of the card.
 			 */}
-			<div className="mt-2">
+			<div className="mt-4">
 				<FormComponentInput<OrderLineFormType>
 					labelText="Notes"
 					id={elementIds[`line-${index}-notes`]}
@@ -516,7 +673,7 @@ function OrderLineOptions({
 	});
 
 	if (isLoading) {
-		return <p className="mt-2 text-sm text-muted">Loading options...</p>;
+		return <p className="my-4 text-sm text-muted">Loading options...</p>;
 	}
 
 	if (!groups || groups.length === 0) {
@@ -549,7 +706,7 @@ function OrderLineOptions({
 	};
 
 	return (
-		<div className="mt-2 space-y-2">
+		<div className="my-4 space-y-4">
 			{groups.map((group) => (
 				<fieldset key={group.id ?? group.label_id}>
 					<legend className="text-sm font-semibold">
@@ -568,7 +725,7 @@ function OrderLineOptions({
 						</span>
 					</legend>
 
-					<div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+					<div className="mt-2 flex flex-wrap gap-x-6 gap-y-2">
 						{group.options.map((option) => {
 							const optionId = option.id;
 
@@ -633,14 +790,29 @@ type FormTabId = (typeof FORM_TABS)[number]['id'];
  */
 const TAB_FIELDS: Record<FormTabId, readonly (keyof OrderFormValuesType)[]> = {
 	details: ['client_id', 'notes'],
-	lines: ['currency', 'lines'],
+	lines: ['currency', 'lines', 'discount_type', 'discount_value'],
 };
 
 export function FormManageOrder() {
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<OrderFormValuesType>();
 
-	const elementIds = useElementIds(['client', 'currency', 'notes'] as const);
+	const elementIds = useElementIds([
+		'client',
+		'currency',
+		'notes',
+		'discount-type',
+		'discount-value',
+	] as const);
+
+	const { auth } = useAuth();
+
+	/*
+	 * Mirrors `OrderPolicy.mayDiscount`. The backend refuses only a change to what the document
+	 * already carries, so without it the fields stay on screen, locked, and their values go back
+	 * untouched.
+	 */
+	const canDiscount = hasPermission(auth, 'order', 'discount');
 
 	const [searchClient, setSearchClient] = useState('');
 
@@ -671,6 +843,22 @@ export function FormManageOrder() {
 
 	const lines = formValues.lines ?? [];
 	const lineErrors = errors.lines;
+
+	/*
+	 * Every line's floor in one request, for the clamp warning. Keyed on the sorted ids so editing
+	 * a quantity does not refetch, and picking another variant does.
+	 */
+	const variantIds = [
+		...new Set(
+			lines.flatMap((line) => (line.variant_id ? [line.variant_id] : [])),
+		),
+	].sort((left, right) => left - right);
+
+	const { data: variantsById } = useQuery({
+		queryKey: ['order-line-variants', variantIds],
+		queryFn: () => findVariantsByIds(variantIds),
+		enabled: isEditable && variantIds.length > 0,
+	});
 
 	const updateLine = (index: number, patch: Partial<OrderLineFormType>) => {
 		handleChange(
@@ -837,16 +1025,86 @@ export function FormManageOrder() {
 						)}
 					</div>
 
+					{/*
+					 * Always submitted, whatever is on screen: the picker below is not rendered
+					 * once the lines lock, and a disabled field leaves `FormData` - either way the
+					 * order-wide discount would read as cleared, which the backend takes as a
+					 * change only `order.discount` may make.
+					 */}
+					<input
+						type="hidden"
+						name="order_discount_type"
+						value={formValues.discount_type ?? ''}
+					/>
+					<input
+						type="hidden"
+						name="order_discount_value"
+						value={formValues.discount_value ?? ''}
+					/>
+
+					{isEditable && (
+						<div className="flex flex-wrap items-start gap-3">
+							<FormComponentSelect<OrderFormValuesType>
+								labelText="Order discount"
+								id={elementIds['discount-type']}
+								fieldName="discount_type"
+								fieldValue={
+									formValues.discount_type ??
+									DISCOUNT_TYPE_NONE
+								}
+								disabled={pending || !canDiscount}
+								className="w-40"
+								options={discountTypeOptions(
+									formValues.currency,
+								)}
+								onChange={(value) => {
+									const type = toDiscountType(value);
+
+									handleChange('discount_type', type);
+
+									if (!type) {
+										handleChange('discount_value', null);
+									}
+								}}
+								error={errors.discount_type}
+							/>
+
+							{formValues.discount_type && (
+								<FormComponentInput<OrderFormValuesType>
+									labelText={
+										formValues.discount_type ===
+										DiscountTypeEnum.PERCENT
+											? 'Percent'
+											: 'Amount'
+									}
+									id={elementIds['discount-value']}
+									fieldName="discount_value"
+									fieldValue={formValues.discount_value ?? ''}
+									isRequired={true}
+									disabled={pending || !canDiscount}
+									className="w-28"
+									onChange={(e) =>
+										handleChange(
+											'discount_value',
+											toNullableNumber(e.target.value),
+										)
+									}
+									error={errors.discount_value}
+								/>
+							)}
+						</div>
+					)}
+
 					{isEditable && (
 						/*
-						 * Said once, at the top: the prices below are the operator's and the
-						 * discounts are not, so a row offers no field for one and the figures
-						 * only appear after the save that resolved them.
+						 * Said once, at the top. A discount left on "Catalog rules" is resolved by
+						 * the backend on save; a typed one replaces that pass - and either way the
+						 * figures only appear after the save, because both are clamped there.
 						 */
 						<p className="text-sm text-muted">
-							Discounts are not typed here - the catalog's own
-							rules are applied to the lines when the order is
-							saved, clamped against each market's minimum price.
+							{canDiscount
+								? "Leave a discount on Catalog rules and the catalog's own rules apply when the order is saved. A typed discount replaces them - on a line in place of its rule, order-wide in place of a campaign - and is still clamped against each market's minimum price."
+								: "Discounts come from the catalog's own rules, applied when the order is saved and clamped against each market's minimum price. Typing one needs the order discount permission."}
 						</p>
 					)}
 
@@ -890,6 +1148,19 @@ export function FormManageOrder() {
 									index={index}
 									currency={formValues.currency}
 									disabled={pending}
+									canDiscount={canDiscount}
+									minPrice={
+										line.variant_id === null ||
+										variantsById === undefined
+											? undefined
+											: (variantsById
+													.get(line.variant_id)
+													?.prices?.find(
+														(price) =>
+															price.currency ===
+															formValues.currency,
+													)?.min_price ?? null)
+									}
 									errors={rowErrorsAt<OrderLineFormType>(
 										lineErrors,
 										index,

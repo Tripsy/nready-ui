@@ -45,12 +45,13 @@ export type PermissionEntityType =
 const CrudOperations = ['create', 'update', 'read', 'find', 'delete'] as const;
 
 /**
- * Operations beyond the CRUD five, keyed by the entity that gates them. `cash-flow` is the only
- * one: `CashFlowPolicy.canRefund` checks `refund` and no other policy does, so offering it for
- * every entity would let an admin grant a row nothing will ever read.
+ * Operations beyond the CRUD five, keyed by the entity that gates them - `CashFlowPolicy.canRefund`
+ * checks `refund`, `OrderPolicy.mayDiscount` checks `discount`. Keyed rather than shared so an admin
+ * cannot grant a row on an entity whose policy will never read it.
  */
 const ExtraOperations = {
 	'cash-flow': ['refund'],
+	order: ['discount'],
 } as const satisfies Partial<Record<PermissionEntityType, readonly string[]>>;
 
 export type PermissionOperationType =

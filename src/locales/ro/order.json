@@ -12,7 +12,8 @@
 		"invalid_price": "Prețul trebuie să fie 0 sau mai mare",
 		"invalid_vat_rate": "Cota TVA trebuie să fie între 0 și 100",
 		"invalid_options": "Opțiuni de produs invalide",
-		"invalid_notes": "Notițe invalide"
+		"invalid_notes": "Notițe invalide",
+		"invalid_discount": "Reducere invalidă: procentul trebuie să fie între 0 și 100, suma trebuie să fie pozitivă"
 	},
 	"status": {
 		"pending": "În așteptare",

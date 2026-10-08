@@ -63,8 +63,13 @@ export type OrderDiscountSnapshot = {
 	reference?: string | null;
 	type: string;
 	value: number;
-	/** The rule it came from; absent on snapshots written before it was recorded. */
+	/** The rule it came from; absent on snapshots written before it was recorded, and on a manual one. */
 	discount_id?: number;
+	/**
+	 * An operator typed it rather than a catalog rule granting it. `type` and `value` are then what
+	 * was typed, in the order's currency - scope `variant` for a line's own, `order` for order-wide.
+	 */
+	manual?: boolean;
 	/**
 	 * What this rule alone took off the line. A line may carry its own discount and, stacked on
 	 * top, its share of an order-wide campaign - `discount_reduction` is their sum.
@@ -167,6 +172,11 @@ export type OrderModel<D = Date | string> = {
 	status: OrderStatus;
 	payment_method: OrderPaymentMethod | null;
 	notes: string | null;
+	/**
+	 * The order-wide discount an operator typed, as the snapshot each line carries a share of -
+	 * `reduction` is what it took off the whole order. Null when the catalog decided.
+	 */
+	discount?: OrderDiscountSnapshot | null;
 
 	/*
 	 * The narrow select the backend joins onto a listing row, declared inline rather than picked
