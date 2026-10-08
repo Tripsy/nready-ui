@@ -36,12 +36,15 @@ import {
 	groupOrderComponents,
 	ORDER_LINES_MAX,
 	ORDER_STATUS_TRANSITIONS,
+	type OrderBillingAddressType,
 	type OrderLineModel,
 	type OrderModel,
+	type OrderShipmentType,
 	type OrderStatus,
 	OrderStatusEnum,
 } from '@/models/order.model';
 import { roundMoney } from '@/models/product.model';
+import { type ShippingModel, ShippingScopeEnum } from '@/models/shipping.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type {
 	DataSourceConfigType,
@@ -222,6 +225,21 @@ class OrderValidator extends BaseValidator<typeof validatorMessages> {
 				status: z.enum(Object.values(OrderStatusEnum)).nullable(),
 				// Carried the way `status` is: it decides whether the lines may go with the update
 				is_invoiced: z.boolean(),
+				/*
+				 * Free text the backend bounds; the country travels as its code, and the name the
+				 * read carries is display-only (`address_country`) and dropped on the way out.
+				 */
+				billing_address: z
+					.object({
+						details: z.string().nullable(),
+						postal_code: z.string().nullable(),
+						address_city: z.string().nullable(),
+						address_region: z.string().nullable(),
+						address_country: z.string().nullable().optional(),
+						country_code: z.string().length(2).nullable(),
+						notes: z.string().nullable(),
+					})
+					.nullable(),
 				is_client_locked: z.boolean(),
 				lines: z
 					.array(this.line())
@@ -273,6 +291,22 @@ function prepareParamsFromFormValues(
 		notes: data.notes,
 		...(isEditable
 			? {
+					/*
+					 * With the lines, and only with them: the backend refuses a change under an
+					 * issued invoice, and the discounts re-resolved with the lines read the
+					 * billing country. Null clears it.
+					 */
+					billing_address: data.billing_address
+						? {
+								details: data.billing_address.details,
+								postal_code: data.billing_address.postal_code,
+								address_city: data.billing_address.address_city,
+								address_region:
+									data.billing_address.address_region,
+								country_code: data.billing_address.country_code,
+								notes: data.billing_address.notes,
+							}
+						: null,
 					currency: data.currency,
 					lines: data.lines.map((line) => ({
 						variant_id: line.variant_id,
@@ -302,6 +336,12 @@ function prepareParamsFromFormValues(
 function getFormValues(formData: FormData): OrderFormValuesType {
 	return {
 		client_id: getFormDataAsNumber(formData, 'client_id'),
+		// Written as a one-entry JSON list by the form - see its hidden `billing_address` field
+		billing_address:
+			getFormDataAsJsonList<OrderBillingAddressType>(
+				formData,
+				'billing_address',
+			)[0] ?? null,
 		client: getFormDataAsString(formData, 'client_label'),
 		currency: getFormDataAsString(formData, 'currency'),
 		notes: getFormDataAsString(formData, 'notes'),
@@ -456,6 +496,7 @@ function getFormState(data?: OrderModel): FormStateType<OrderFormValuesType> {
 		situation: null,
 		values: {
 			client_id: data?.client_id ?? null,
+			billing_address: data?.billing_address ?? null,
 			client: data ? displayOrderClient(data) : null,
 			currency: data?.totals?.currency ?? null,
 			notes: data?.notes ?? null,
@@ -476,6 +517,59 @@ function getFormState(data?: OrderModel): FormStateType<OrderFormValuesType> {
 				: null,
 		},
 	};
+}
+
+/**
+ * The order listing with each row's shipments attached, for the Shipping column.
+ *
+ * Two requests rather than one per row: the API's order listing cannot join shipments (`shipping`
+ * depends on `order`, not the other way round), so the page's orders are read first and their
+ * shipments after, in one request through the shipping listing's `order_id` list filter.
+ */
+async function findOrdersWithShipments(params: FindFunctionParamsType) {
+	const orders = await requestFind<OrderModel>('order', params);
+	const ids = (orders?.entries ?? []).map((order) => order.id);
+
+	if (!orders || ids.length === 0) {
+		return orders;
+	}
+
+	const shipments = await requestFind<ShippingModel>('shipping', {
+		filter: { order_id: ids },
+		order_by: 'id',
+		direction: 'DESC',
+		limit: 100,
+	});
+
+	const byOrder = new Map<number, ShippingModel[]>();
+
+	for (const shipment of shipments?.entries ?? []) {
+		if (shipment.order_id === null) {
+			continue;
+		}
+
+		const list = byOrder.get(shipment.order_id) ?? [];
+
+		list.push(shipment);
+		byOrder.set(shipment.order_id, list);
+	}
+
+	return {
+		...orders,
+		entries: orders.entries.map((order) => ({
+			...order,
+			shipments: byOrder.get(order.id) ?? [],
+		})),
+	};
+}
+
+/** The movement the Shipping column stands for: the newest delivery to the client. */
+function latestDelivery(order: OrderModel): OrderShipmentType | null {
+	return (
+		(order.shipments ?? []).find(
+			(shipment) => shipment.scope === ShippingScopeEnum.DELIVERY,
+		) ?? null
+	);
 }
 
 export type OrderDataTableFiltersType = {
@@ -594,6 +688,46 @@ export default async function dataSourceConfig(): Promise<
 						}),
 				},
 				{
+					field: 'shipments',
+					header: 'Shipping',
+					body: (entry, column, auth) => {
+						const shipment = latestDelivery(entry);
+
+						if (!shipment) {
+							return '-';
+						}
+
+						return DataTableValue(entry, column, {
+							customValue: shipment.status,
+							isStatus: true,
+							dataSource: 'shipping',
+							displayButton: {
+								dataSource: 'shipping',
+								action: () =>
+									shipment.deleted_at
+										? undefined
+										: hasPermission(
+													auth,
+													'shipping',
+													'update',
+												)
+											? 'update'
+											: hasPermission(
+														auth,
+														'shipping',
+														'read',
+													)
+												? 'view'
+												: undefined,
+								// The listing row carries no lines - the window re-reads the shipment
+								alternateEntryId: shipment.id,
+							},
+						});
+					},
+					minWidth: 128,
+					maxWidth: 128,
+				},
+				{
 					field: 'status',
 					header: 'Status',
 					body: (entry, column, auth) =>
@@ -616,8 +750,7 @@ export default async function dataSourceConfig(): Promise<
 						}),
 				},
 			],
-			find: (params: FindFunctionParamsType) =>
-				requestFind<OrderModel>('order', params),
+			find: findOrdersWithShipments,
 		},
 		displayEntryLabel: (entry: OrderModel) => displayOrderLabel(entry),
 		actions: {

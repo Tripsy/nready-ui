@@ -712,7 +712,12 @@ export function FormManageShipping() {
 								fieldValue={formValues.order ?? ''}
 								className="pl-8"
 								isRequired={true}
-								disabled={pending}
+								/*
+								 * Fixed once the movement exists: the backend does not take
+								 * `order_id` on an update, and its lines are allocated against
+								 * this order's - moving it would be a different movement.
+								 */
+								disabled={pending || formValues.is_existing}
 								error={errors.order_id}
 								onInputChange={(value) => {
 									handleChange('order', value);

@@ -223,6 +223,9 @@ export type ShippingModel<D = Date | string> = {
 	carrier?: { id: number; name: string } | null;
 
 	lines?: ShippingLineModel<D>[];
+	/** The client-address ends in one line each - attached by the dashboard read only. */
+	pickup_client_address_label?: string | null;
+	destination_client_address_label?: string | null;
 
 	created_at: D;
 	updated_at: D;

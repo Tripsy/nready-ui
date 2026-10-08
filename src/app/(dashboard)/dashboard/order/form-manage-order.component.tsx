@@ -27,6 +27,7 @@ import { type DiscountType, DiscountTypeEnum } from '@/models/discount.model';
 import {
 	displayOrderMoney,
 	ORDER_LINES_MAX,
+	type OrderBillingAddressType,
 	type OrderStatus,
 	OrderStatusEnum,
 } from '@/models/order.model';
@@ -46,6 +47,7 @@ import { useWindowForm } from '@/providers/window-form.provider';
 import { findVariantsByIds } from '@/services/product.service';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import { CurrencyEnum } from '@/types/common.type';
+import { OrderBillingAddress } from './order-billing-address.component';
 import { OrderLineBundle } from './order-line-bundle.component';
 
 /** One line as the form holds it, before it is sent as part of the `lines` payload. */
@@ -108,6 +110,11 @@ export function nextOrderLineKey(): string {
 
 export type OrderFormValuesType = {
 	client_id: number | null;
+	/**
+	 * The order's own billing address, edited field by field. Editable while the lines are; an
+	 * issued invoice froze it.
+	 */
+	billing_address: OrderBillingAddressType | null;
 	currency: string | null;
 	notes: string | null;
 	lines: OrderLineFormType[];
@@ -1051,6 +1058,10 @@ export function FormManageOrder() {
 									displayClientLabel(client),
 								);
 								handleChange('client_id', client.id);
+								// The address on file belongs to the previous client
+								if (client.id !== formValues.client_id) {
+									handleChange('billing_address', null);
+								}
 							},
 							getOptionLabel: (client) =>
 								displayClientLabel(client),
@@ -1061,6 +1072,30 @@ export function FormManageOrder() {
 								<Icons.Client className="opacity-40 h-4.5 w-4.5" />
 							),
 						}}
+					/>
+
+					{/*
+					 * One hidden field for the whole address, read back as a one-entry JSON list -
+					 * the inputs below are disabled once the order is invoiced, and a disabled
+					 * field leaves `FormData`.
+					 */}
+					<input
+						type="hidden"
+						name="billing_address"
+						value={JSON.stringify(
+							formValues.billing_address
+								? [formValues.billing_address]
+								: [],
+						)}
+					/>
+					<OrderBillingAddress
+						clientId={formValues.client_id}
+						value={formValues.billing_address}
+						disabled={pending || !isEditable}
+						error={ownErrorMessages(errors.billing_address)}
+						onChange={(next) =>
+							handleChange('billing_address', next)
+						}
 					/>
 
 					{formValues.is_client_locked && (

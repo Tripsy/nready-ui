@@ -52,6 +52,32 @@ export type OrderPaymentMethod =
 /** Mirrors `varchar(10)` on the backend `order.ref_code` column. */
 export const ORDER_REF_CODE_MAX_LENGTH = 10;
 
+/**
+ * The order's billing address snapshot. `address_country` is the country's name, filled in by the
+ * backend from `country_code` (ISO 3166-1 alpha-2) - the payload sends the code alone.
+ */
+export type OrderBillingAddressType = {
+	details: string | null;
+	postal_code: string | null;
+	address_city: string | null;
+	address_region: string | null;
+	address_country?: string | null;
+	country_code: string | null;
+	notes: string | null;
+};
+
+/**
+ * What the order listing needs of a movement - typed here rather than as `ShippingModel`, which
+ * imports this module and would close a cycle. A `ShippingModel` satisfies it.
+ */
+export type OrderShipmentType = {
+	id: number;
+	order_id: number | null;
+	scope: string;
+	status: string;
+	deleted_at?: Date | string | null;
+};
+
 /** What one request may compose, mirroring `ORDER_LINES_MAX` in the backend validator. */
 export const ORDER_LINES_MAX = 200;
 
@@ -162,13 +188,10 @@ export type OrderModel<D = Date | string> = {
 
 	client_id: number;
 	/**
-	 * The client address the order is billed to, referenced rather than copied.
-	 *
-	 * Null on a back-office document raised before one is agreed, and null again once that address
-	 * is deleted - the backend key is `SET NULL`. An invoice raised from the order is where the
-	 * billing details get frozen.
+	 * Where the order is billed - the order's own copy, which checkout takes from the buyer's
+	 * address book and an operator may correct while it is unbilled. Null when none was agreed.
 	 */
-	billing_address_id: number | null;
+	billing_address: OrderBillingAddressType | null;
 	ref_code: string;
 	ref_number: number;
 	status: OrderStatus;
@@ -189,6 +212,11 @@ export type OrderModel<D = Date | string> = {
 	 * filed under the client it names. Dashboard read only, past the cache.
 	 */
 	is_client_locked?: boolean;
+	/**
+	 * The order's movements, newest first - attached by the dashboard's order listing, which reads
+	 * them in a second request (`findOrdersWithShipments`). Absent on every other read.
+	 */
+	shipments?: OrderShipmentType[];
 
 	/*
 	 * The narrow select the backend joins onto a listing row, declared inline rather than picked

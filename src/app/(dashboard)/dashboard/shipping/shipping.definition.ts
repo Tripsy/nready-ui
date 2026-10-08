@@ -334,14 +334,17 @@ function getFormState(
 			pickup_warehouse: data?.pickup_warehouse
 				? `${data.pickup_warehouse.code} - ${data.pickup_warehouse.name}`
 				: null,
+			// Named by the read; the id stands in only when the address no longer resolves
 			pickup_client_address: data?.pickup_client_address_id
-				? `#${data.pickup_client_address_id}`
+				? (data.pickup_client_address_label ??
+					`#${data.pickup_client_address_id}`)
 				: null,
 			destination_warehouse: data?.destination_warehouse
 				? `${data.destination_warehouse.code} - ${data.destination_warehouse.name}`
 				: null,
 			destination_client_address: data?.destination_client_address_id
-				? `#${data.destination_client_address_id}`
+				? (data.destination_client_address_label ??
+					`#${data.destination_client_address_id}`)
 				: null,
 			carrier: data?.carrier?.name ?? null,
 			is_existing: !!data,
