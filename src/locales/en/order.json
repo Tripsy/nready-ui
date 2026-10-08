@@ -13,7 +13,8 @@
 		"invalid_vat_rate": "VAT rate must be between 0 and 100",
 		"invalid_options": "Invalid product options",
 		"invalid_notes": "Invalid notes",
-		"invalid_discount": "Invalid discount: percent must be between 0 and 100, amount must be positive"
+		"invalid_discount": "Invalid discount: percent must be between 0 and 100, amount must be positive",
+		"invalid_components": "Choose the bundle's components"
 	},
 	"status": {
 		"pending": "Pending",

@@ -32,9 +32,11 @@ import {
 } from '@/models/order.model';
 import {
 	displayOptionLabel,
+	ProductCompositionEnum,
 	type ProductModel,
 	type ProductOptionGroupType,
 } from '@/models/product.model';
+import type { BundleChoiceType } from '@/models/product-bundle.model';
 import {
 	displayProductVariantLabel,
 	type ProductVariantModel,
@@ -44,6 +46,7 @@ import { useWindowForm } from '@/providers/window-form.provider';
 import { findVariantsByIds } from '@/services/product.service';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import { CurrencyEnum } from '@/types/common.type';
+import { OrderLineBundle } from './order-line-bundle.component';
 
 /** One line as the form holds it, before it is sent as part of the `lines` payload. */
 export type OrderLineFormType = {
@@ -61,6 +64,17 @@ export type OrderLineFormType = {
 	discount_type: DiscountType | null;
 	discount_value: number | null;
 	notes: string | null;
+	/**
+	 * A bundle is one row here: `price` is what one bundle costs as composed, and the backend
+	 * explodes it into its components on save (`rules/product.md` §8.3). Set from the picked
+	 * variant's product, or from a stored header that has components.
+	 */
+	is_bundle: boolean;
+	/**
+	 * The bundle's choices in the payload shape - null on a bundle just picked, until its picker
+	 * loads the composition and fills in the defaults. Always `[]` on an ordinary line.
+	 */
+	components: BundleChoiceType[] | null;
 	// display-only fields, not part of validation
 	/** What the picked variant is called, so a redrawn row still names what it holds. */
 	label: string | null;
@@ -72,6 +86,8 @@ export type OrderLineFormType = {
 	 */
 	discount_reduction: number | null;
 	discount_label: string | null;
+	/** A stored bundle's components as written, "1 × SKU" each, for the read-only table. */
+	bundle_summary: string | null;
 	/** This row's identity while it is being edited - see `nextOrderLineKey`. */
 	key: string;
 };
@@ -113,6 +129,17 @@ export type OrderFormValuesType = {
 	 * be collecting work it knows will be refused.
 	 */
 	status: OrderStatus | null;
+	/**
+	 * Whether a live goods document bills the order - read past the API's cache. The backend
+	 * refuses a new line set under one, so the editor locks exactly as it does for a confirmed
+	 * order and sends only what may still change.
+	 */
+	is_invoiced: boolean;
+	/**
+	 * Whether the client is pinned: an invoice is raised for one client and a payment filed under
+	 * one, so once either exists the backend refuses a different `client_id`.
+	 */
+	is_client_locked: boolean;
 };
 
 export const emptyOrderLine = (): OrderLineFormType => ({
@@ -125,9 +152,12 @@ export const emptyOrderLine = (): OrderLineFormType => ({
 	discount_type: null,
 	discount_value: null,
 	notes: null,
+	is_bundle: false,
+	components: [],
 	label: null,
 	discount_reduction: null,
 	discount_label: null,
+	bundle_summary: null,
 	key: nextOrderLineKey(),
 });
 
@@ -269,6 +299,11 @@ function OrderLinesReadOnly({
 									{line.label ??
 										`Variant #${line.variant_id}`}
 								</div>
+								{line.bundle_summary && (
+									<div className="mt-1 text-xs text-muted">
+										{line.bundle_summary}
+									</div>
+								)}
 								{line.notes && (
 									<div className="mt-1 text-xs italic text-muted">
 										“{line.notes}”
@@ -287,9 +322,11 @@ function OrderLinesReadOnly({
 										)}
 							</td>
 							<td className="py-2 pr-4 text-right align-top">
-								{line.vat_rate === null
-									? '-'
-									: `${line.vat_rate}%`}
+								{line.is_bundle
+									? 'mixed'
+									: line.vat_rate === null
+										? '-'
+										: `${line.vat_rate}%`}
 							</td>
 							<td className="py-2 pr-4 text-right align-top">
 								{line.discount_reduction ? (
@@ -424,6 +461,8 @@ function OrderLineRow({
 								variant_id: null,
 								product_id: null,
 								options: [],
+								is_bundle: false,
+								components: [],
 							});
 							setSearch(value);
 						}}
@@ -431,14 +470,34 @@ function OrderLineRow({
 							suggestions: suggestions,
 							isLoading: isFetching,
 							onSelect: (variant) => {
+								const isBundle =
+									variant.product?.composition ===
+									ProductCompositionEnum.BUNDLE;
+								const sameProduct =
+									variant.product_id === line.product_id;
+
 								onChange({
 									label: displayProductVariantLabel(variant),
 									variant_id: variant.id,
 									product_id: variant.product_id,
 									// Answers belong to a product's questions; another product asks others
-									...(variant.product_id !== line.product_id
-										? { options: [] }
-										: {}),
+									...(sameProduct ? {} : { options: [] }),
+									is_bundle: isBundle,
+									/*
+									 * A bundle starts unanswered and its picker fills in the
+									 * defaults - and the price they quote - once it loads. The
+									 * components carry their own VAT, so the header's is 0.
+									 */
+									...(isBundle
+										? {
+												components: sameProduct
+													? line.components
+													: null,
+												vat_rate: 0,
+												discount_type: null,
+												discount_value: null,
+											}
+										: { components: [] }),
 									price:
 										line.price ??
 										suggestPrice(variant, currency),
@@ -495,7 +554,7 @@ function OrderLineRow({
 				/>
 
 				<FormComponentInput<OrderLineFormType>
-					labelText={`Unit price${currency ? ` (${currency})` : ''}`}
+					labelText={`${line.is_bundle ? 'Bundle price' : 'Unit price'}${currency ? ` (${currency})` : ''}`}
 					id={elementIds[`line-${index}-price`]}
 					fieldName="price"
 					fieldValue={line.price ?? ''}
@@ -509,27 +568,53 @@ function OrderLineRow({
 					error={ownErrorMessages(errors?.price)}
 				/>
 
-				<FormComponentInput<OrderLineFormType>
-					labelText="VAT %"
-					id={elementIds[`line-${index}-vat`]}
-					fieldName="vat_rate"
-					fieldValue={line.vat_rate ?? ''}
-					isRequired={true}
-					disabled={disabled}
-					className="w-28"
-					onChange={(e) =>
-						onChange({ vat_rate: Number(e.target.value) })
-					}
-					error={ownErrorMessages(errors?.vat_rate)}
-				/>
+				{/* A bundle's components each carry their own rate - the header has none */}
+				{!line.is_bundle && (
+					<FormComponentInput<OrderLineFormType>
+						labelText="VAT %"
+						id={elementIds[`line-${index}-vat`]}
+						fieldName="vat_rate"
+						fieldValue={line.vat_rate ?? ''}
+						isRequired={true}
+						disabled={disabled}
+						className="w-28"
+						onChange={(e) =>
+							onChange({ vat_rate: Number(e.target.value) })
+						}
+						error={ownErrorMessages(errors?.vat_rate)}
+					/>
+				)}
 			</div>
+
+			{line.is_bundle && line.product_id && line.variant_id && (
+				<OrderLineBundle
+					index={index}
+					productId={line.product_id}
+					variantId={line.variant_id}
+					currency={currency}
+					choices={line.components}
+					disabled={disabled}
+					error={ownErrorMessages(errors?.components)}
+					onChange={(patch) => onChange(patch)}
+				/>
+			)}
 
 			{/*
 			 * A row of its own, so the picker and the figure it asks for stay side by side - beside
 			 * the three figures above, the value box wraps away from its picker on all but the
 			 * widest window.
 			 */}
-			<div className="mt-4 flex flex-wrap items-start gap-3">
+			{/*
+			 * Not on a bundle: a typed discount would have to be divided over components taxed at
+			 * different rates, which the order-wide discount already does - the backend refuses it.
+			 */}
+			<div
+				className={
+					line.is_bundle
+						? 'hidden'
+						: 'mt-4 flex flex-wrap items-start gap-3'
+				}
+			>
 				<FormComponentSelect<OrderLineFormType>
 					labelText="Discount"
 					id={elementIds[`line-${index}-discount-type`]}
@@ -574,7 +659,7 @@ function OrderLineRow({
 				)}
 			</div>
 
-			{clampWarning && (
+			{!line.is_bundle && clampWarning && (
 				<p className="mt-2 text-sm text-warning">{clampWarning}</p>
 			)}
 
@@ -838,8 +923,9 @@ export function FormManageOrder() {
 	 * yet.
 	 */
 	const isEditable =
-		formValues.status === null ||
-		formValues.status === OrderStatusEnum.PENDING;
+		!formValues.is_invoiced &&
+		(formValues.status === null ||
+			formValues.status === OrderStatusEnum.PENDING);
 
 	const lines = formValues.lines ?? [];
 	const lineErrors = errors.lines;
@@ -929,6 +1015,16 @@ export function FormManageOrder() {
 					/>
 					<input
 						type="hidden"
+						name="is_invoiced"
+						value={formValues.is_invoiced ? '1' : ''}
+					/>
+					<input
+						type="hidden"
+						name="is_client_locked"
+						value={formValues.is_client_locked ? '1' : ''}
+					/>
+					<input
+						type="hidden"
 						name="client_label"
 						value={formValues.client ?? ''}
 					/>
@@ -939,7 +1035,7 @@ export function FormManageOrder() {
 						fieldValue={formValues.client ?? ''}
 						className="pl-8"
 						isRequired={true}
-						disabled={pending}
+						disabled={pending || formValues.is_client_locked}
 						error={errors.client_id}
 						onInputChange={(value) => {
 							handleChange('client', value);
@@ -966,6 +1062,14 @@ export function FormManageOrder() {
 							),
 						}}
 					/>
+
+					{formValues.is_client_locked && (
+						<p className="text-sm text-muted">
+							The client is locked: this order already has an
+							invoice or a payment under it, and both belong to
+							that client.
+						</p>
+					)}
 
 					<FormComponentTextarea<OrderFormValuesType>
 						labelText="Notes"
@@ -1121,9 +1225,9 @@ export function FormManageOrder() {
 					{!isEditable && (
 						<>
 							<p className="text-sm text-muted">
-								An order that has been confirmed keeps the lines
-								it was accepted with - only a pending order can
-								have them changed.
+								{formValues.is_invoiced
+									? 'This order has been invoiced, so its lines are locked - reverse or cancel its invoice to change them.'
+									: 'An order that has been confirmed keeps the lines it was accepted with - only a pending order can have them changed.'}
 							</p>
 
 							<OrderLinesReadOnly

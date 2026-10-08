@@ -13,7 +13,8 @@
 		"invalid_vat_rate": "Cota TVA trebuie să fie între 0 și 100",
 		"invalid_options": "Opțiuni de produs invalide",
 		"invalid_notes": "Notițe invalide",
-		"invalid_discount": "Reducere invalidă: procentul trebuie să fie între 0 și 100, suma trebuie să fie pozitivă"
+		"invalid_discount": "Reducere invalidă: procentul trebuie să fie între 0 și 100, suma trebuie să fie pozitivă",
+		"invalid_components": "Alege componentele pachetului"
 	},
 	"status": {
 		"pending": "În așteptare",

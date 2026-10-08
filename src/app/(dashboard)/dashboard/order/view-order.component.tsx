@@ -18,6 +18,7 @@ import {
 	displayOrderClient,
 	displayOrderMoney,
 	displayOrderReference,
+	groupOrderComponents,
 	type OrderLineModel,
 	type OrderModel,
 } from '@/models/order.model';
@@ -384,6 +385,7 @@ function OrderPayments({ payments }: { readonly payments: CashFlowModel[] }) {
 
 export function ViewOrder({ entry }: { entry: OrderModel }) {
 	const lines = entry.lines ?? [];
+	const componentsByParent = groupOrderComponents(lines);
 	const totals = entry.totals;
 	const currency = totals?.currency ?? lines[0]?.currency ?? '';
 
@@ -661,13 +663,30 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 										</tr>
 									</thead>
 									<tbody className="divide-y divide-line">
-										{lines.map((line) => (
-											<OrderLineRow
-												key={line.id}
-												line={line}
-												currency={currency}
-											/>
-										))}
+										{/*
+										 * Each header followed by its own components: the API returns
+										 * every child after every header (they are written in a second
+										 * pass), so its order alone would file a component under the
+										 * wrong bundle.
+										 */}
+										{lines
+											.filter(
+												(line) =>
+													line.parent_id === null,
+											)
+											.flatMap((line) => [
+												line,
+												...(componentsByParent.get(
+													line.id,
+												) ?? []),
+											])
+											.map((line) => (
+												<OrderLineRow
+													key={line.id}
+													line={line}
+													currency={currency}
+												/>
+											))}
 									</tbody>
 								</table>
 							</div>

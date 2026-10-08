@@ -5,6 +5,7 @@ import {
 	FormManageOrder,
 	nextOrderLineKey,
 	type OrderFormValuesType,
+	type OrderLineFormType,
 } from '@/app/(dashboard)/dashboard/order/form-manage-order.component';
 import { StatusTransitionOrder } from '@/app/(dashboard)/dashboard/order/status-transition-order.component';
 import { UsageGuideOrder } from '@/app/(dashboard)/dashboard/order/usage-guide-order.component';
@@ -32,6 +33,7 @@ import {
 	displayOrderClient,
 	displayOrderLabel,
 	displayOrderReference,
+	groupOrderComponents,
 	ORDER_LINES_MAX,
 	ORDER_STATUS_TRANSITIONS,
 	type OrderLineModel,
@@ -39,6 +41,7 @@ import {
 	type OrderStatus,
 	OrderStatusEnum,
 } from '@/models/order.model';
+import { roundMoney } from '@/models/product.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type {
 	DataSourceConfigType,
@@ -58,6 +61,7 @@ const validatorMessages = [
 	'invalid_options',
 	'invalid_notes',
 	'invalid_discount',
+	'invalid_components',
 ] as const;
 
 /**
@@ -171,9 +175,27 @@ class OrderValidator extends BaseValidator<typeof validatorMessages> {
 				notes: this.validateString(this.getMessage('invalid_notes'), {
 					required: false,
 				}),
+				is_bundle: z.boolean(),
+				/*
+				 * Null only while a freshly picked bundle's composition loads; the picker fills in
+				 * the defaults. Refused then, rather than sent as no choices at all, which the
+				 * backend would read as a group left unanswered.
+				 */
+				components: z
+					.array(
+						z.object({
+							item_id: z.number(),
+							units: z.number().optional(),
+						}),
+					)
+					.nullable(),
 				key: z.string(),
 			})
-			.refine(this.isValidDiscount, this.discountIssue());
+			.refine(this.isValidDiscount, this.discountIssue())
+			.refine((line) => !line.is_bundle || line.components !== null, {
+				message: this.getMessage('invalid_components'),
+				path: ['components'],
+			});
 
 	manage = () =>
 		z
@@ -198,6 +220,9 @@ class OrderValidator extends BaseValidator<typeof validatorMessages> {
 				 * `prepareParamsFromFormValues` with the other display-only fields.
 				 */
 				status: z.enum(Object.values(OrderStatusEnum)).nullable(),
+				// Carried the way `status` is: it decides whether the lines may go with the update
+				is_invoiced: z.boolean(),
+				is_client_locked: z.boolean(),
 				lines: z
 					.array(this.line())
 					.min(1, this.getMessage('invalid_lines'))
@@ -224,9 +249,12 @@ type OrderManageOutput = ValidatorOutput<OrderValidator, 'manage'>;
  * `client` and the per-line `label` are the autocompletes' visible text and are never sent on;
  * `status` is carried only so the form can decide whether the lines are editable.
  *
- * **The lines are dropped for anything but a pending order.** The backend refuses a line set on a
- * confirmed order with a 409, and the form does not offer the editor there - so sending the set back
- * unchanged would be asking for a refusal on work nobody did.
+ * **The lines are dropped for anything but a pending, unbilled order.** The backend refuses a line
+ * set on a confirmed or invoiced order with a 409, and the form does not offer the editor there - so
+ * sending the set back unchanged would be asking for a refusal on work nobody did.
+ *
+ * **A bundle goes as one line**: its bundle price and its choices, which the backend explodes into
+ * the components. Its `vat_rate` is sent as 0 - the components carry their own.
  *
  * **The currency travels with them, and only with them.** No order row holds one: each line
  * carries its own, so the backend refuses a currency that arrives without a line set to stamp it
@@ -235,8 +263,10 @@ type OrderManageOutput = ValidatorOutput<OrderValidator, 'manage'>;
 function prepareParamsFromFormValues(
 	data: OrderManageOutput,
 	status: OrderStatus | null,
+	isInvoiced: boolean,
 ) {
-	const isEditable = status === null || status === OrderStatusEnum.PENDING;
+	const isEditable =
+		!isInvoiced && (status === null || status === OrderStatusEnum.PENDING);
 
 	return {
 		client_id: data.client_id,
@@ -249,8 +279,11 @@ function prepareParamsFromFormValues(
 						product_id: line.product_id,
 						quantity: line.quantity,
 						price: line.price,
-						vat_rate: line.vat_rate,
+						vat_rate: line.is_bundle ? 0 : line.vat_rate,
 						options: line.options,
+						...(line.is_bundle
+							? { components: line.components ?? [] }
+							: {}),
 						discount: toManualDiscount(
 							line.discount_type,
 							line.discount_value,
@@ -285,9 +318,14 @@ function getFormValues(formData: FormData): OrderFormValuesType {
 			...line,
 			discount_type: line.discount_type ?? null,
 			discount_value: line.discount_value ?? null,
+			is_bundle: line.is_bundle ?? false,
+			components: line.components === undefined ? [] : line.components,
 			key: line.key ?? nextOrderLineKey(),
 		})),
 		status: getFormDataAsString(formData, 'status') as OrderStatus | null,
+		is_invoiced: getFormDataAsString(formData, 'is_invoiced') === '1',
+		is_client_locked:
+			getFormDataAsString(formData, 'is_client_locked') === '1',
 		/*
 		 * Read from the hidden pair the Lines tab always writes, not from the picker - which is
 		 * not rendered on a locked order and leaves `FormData` when disabled.
@@ -298,6 +336,117 @@ function getFormValues(formData: FormData): OrderFormValuesType {
 		) as DiscountType | null,
 		discount_value: getFormDataAsNumber(formData, 'order_discount_value'),
 	};
+}
+
+/** What a stored line's discounts are called, for the read-only table. */
+function describeDiscounts(lines: readonly OrderLineModel[]): string | null {
+	const labels = [
+		...new Set(
+			lines.flatMap((line) =>
+				(line.discount ?? []).map((entry) => entry.label),
+			),
+		),
+	];
+
+	return labels.length > 0 ? labels.join(', ') : null;
+}
+
+/**
+ * One editor row per stored line - and one per **bundle**, which the document holds as a header
+ * plus its components (`rules/product.md` §8.3). The bundle row carries what one bundle cost (its
+ * components' money over the header's quantity) and the components as choices, every one of them:
+ * the row's picker drops the kit and defaults anything unanswered once the composition loads.
+ */
+function toFormLines(lines: readonly OrderLineModel[]): OrderLineFormType[] {
+	const componentsByParent = groupOrderComponents(lines);
+
+	return lines
+		.filter((line) => line.parent_id === null)
+		.map((line) => {
+			const components = componentsByParent.get(line.id) ?? [];
+			const lineDiscount = readLineManualDiscount(line.discount);
+			const quantity = Number(line.quantity);
+
+			const base = {
+				variant_id: line.variant_id,
+				product_id: line.product_id,
+				quantity: line.quantity,
+				/*
+				 * The ids read back off the stored snapshots, so saving the line keeps what was
+				 * chosen. A snapshot written before ids were recorded has none to give, and its
+				 * option is dropped on the next save of the line set.
+				 */
+				options: (line.options ?? []).flatMap((option) =>
+					option.option_id ? [option.option_id] : [],
+				),
+				notes: line.notes,
+				label: line.variant?.sku ?? `#${line.variant_id}`,
+				key: nextOrderLineKey(),
+			};
+
+			if (components.length === 0) {
+				return {
+					...base,
+					price: line.price,
+					vat_rate: line.vat_rate,
+					discount_type: lineDiscount.type,
+					discount_value: lineDiscount.value,
+					discount_reduction: line.discount_reduction,
+					discount_label: describeDiscounts([line]),
+					is_bundle: false,
+					components: [],
+					bundle_summary: null,
+				};
+			}
+
+			return {
+				...base,
+				price:
+					quantity > 0
+						? roundMoney(
+								components.reduce(
+									(sum, component) =>
+										sum +
+										Number(component.price) *
+											Number(component.quantity),
+									0,
+								) / quantity,
+							)
+						: 0,
+				vat_rate: 0,
+				discount_type: null,
+				discount_value: null,
+				discount_reduction: roundMoney(
+					components.reduce(
+						(sum, component) =>
+							sum + Number(component.discount_reduction),
+						0,
+					),
+				),
+				discount_label: describeDiscounts(components),
+				is_bundle: true,
+				components: components.flatMap((component) =>
+					component.bundle_item_id
+						? [
+								{
+									item_id: component.bundle_item_id,
+									units:
+										quantity > 0
+											? Number(component.quantity) /
+												quantity
+											: 1,
+								},
+							]
+						: [],
+				),
+				bundle_summary: components
+					.map(
+						(component) =>
+							`${Number(component.quantity)} × ${component.variant?.sku ?? `#${component.variant_id}`}`,
+					)
+					.join(', '),
+			};
+		});
 }
 
 function getFormState(data?: OrderModel): FormStateType<OrderFormValuesType> {
@@ -315,42 +464,10 @@ function getFormState(data?: OrderModel): FormStateType<OrderFormValuesType> {
 			 * update starts from the stored set, which the window re-reads to get - the listing
 			 * row carries no lines at all.
 			 */
-			lines: data
-				? (data.lines ?? []).map((line) => {
-						const lineDiscount = readLineManualDiscount(
-							line.discount,
-						);
-
-						return {
-							variant_id: line.variant_id,
-							product_id: line.product_id,
-							quantity: line.quantity,
-							price: line.price,
-							vat_rate: line.vat_rate,
-							/*
-							 * The ids read back off the stored snapshots, so saving the line keeps what was
-							 * chosen. A snapshot written before ids were recorded has none to give, and its
-							 * option is dropped on the next save of the line set.
-							 */
-							options: (line.options ?? []).flatMap((option) =>
-								option.option_id ? [option.option_id] : [],
-							),
-							discount_type: lineDiscount.type,
-							discount_value: lineDiscount.value,
-							notes: line.notes,
-							label: line.variant?.sku ?? `#${line.variant_id}`,
-							discount_reduction: line.discount_reduction,
-							discount_label:
-								line.discount && line.discount.length > 0
-									? line.discount
-											.map((entry) => entry.label)
-											.join(', ')
-									: null,
-							key: nextOrderLineKey(),
-						};
-					})
-				: [emptyOrderLine()],
+			lines: data ? toFormLines(data.lines ?? []) : [emptyOrderLine()],
 			status: data?.status ?? null,
+			is_invoiced: data?.is_invoiced ?? false,
+			is_client_locked: data?.is_client_locked ?? false,
 			discount_type: data?.discount?.manual
 				? (data.discount.type as DiscountType)
 				: null,
@@ -514,7 +631,11 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['order', 'create'],
 				entriesSelection: 'free',
 				operationFunction: (values: OrderManageOutput) => {
-					const params = prepareParamsFromFormValues(values, null);
+					const params = prepareParamsFromFormValues(
+						values,
+						null,
+						false,
+					);
 
 					return requestCreate<OrderModel, typeof params>(
 						'order',
@@ -550,6 +671,7 @@ export default async function dataSourceConfig(): Promise<
 					const params = prepareParamsFromFormValues(
 						values,
 						values.status ?? null,
+						values.is_invoiced,
 					);
 
 					return requestUpdate<OrderModel, typeof params>(

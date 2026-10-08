@@ -98,6 +98,8 @@ export type OrderLineModel<D = Date | string> = {
 	id: number;
 	order_id: number;
 	parent_id: number | null;
+	/** On a bundle component, the `product_bundle_item` it was taken from - null elsewhere. */
+	bundle_item_id?: number | null;
 
 	variant_id: number;
 	product_id: number;
@@ -177,6 +179,16 @@ export type OrderModel<D = Date | string> = {
 	 * `reduction` is what it took off the whole order. Null when the catalog decided.
 	 */
 	discount?: OrderDiscountSnapshot | null;
+	/**
+	 * Whether a live goods document bills the order, which locks its lines. Attached by the
+	 * dashboard read only, past the cache.
+	 */
+	is_invoiced?: boolean;
+	/**
+	 * Whether the order may no longer move to another client - invoiced, or holding a payment
+	 * filed under the client it names. Dashboard read only, past the cache.
+	 */
+	is_client_locked?: boolean;
 
 	/*
 	 * The narrow select the backend joins onto a listing row, declared inline rather than picked
