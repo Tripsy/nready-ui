@@ -9,6 +9,8 @@ import {
 import { ProductBundleBuilder } from '@/app/(public)/_components/product/product-bundle-builder.component';
 import { PRODUCT_BUNDLE_BUILDER_TRANSLATION_KEYS } from '@/app/(public)/_components/product/product-bundle-builder.definition';
 import { ProductGallery } from '@/app/(public)/_components/product/product-gallery.component';
+import { ProductOptionsBuilder } from '@/app/(public)/_components/product/product-options-builder.component';
+import { PRODUCT_OPTIONS_BUILDER_TRANSLATION_KEYS } from '@/app/(public)/_components/product/product-options-builder.definition';
 import {
 	ProductRelated,
 	toRelatedCategories,
@@ -79,6 +81,7 @@ const TRANSLATION_KEYS = [
 	...PRODUCT_ATTRIBUTE_TRANSLATION_KEYS,
 	...PRODUCT_VARIANT_CHOOSER_TRANSLATION_KEYS,
 	...PRODUCT_BUNDLE_BUILDER_TRANSLATION_KEYS,
+	...PRODUCT_OPTIONS_BUILDER_TRANSLATION_KEYS,
 ] as const;
 
 /**
@@ -628,16 +631,42 @@ export default async function Page(props: Props) {
 								 * The one client island on the page, under the price it is about
 								 * to charge. The variant is already decided by the chooser in the
 								 * left column (or by the product's default), so this only carries
-								 * the quantity.
+								 * the quantity - and the answers, when the product asks questions
+								 * at order time, which the cart refuses the line without.
 								 */}
-								<AddToCart
-									productId={entry.id}
-									variantId={selected.id}
-									isAvailable={
-										entry.sale_status ===
-										ProductSaleStatusEnum.AVAILABLE
-									}
-								/>
+								{(entry.option_groups ?? []).length > 0 ? (
+									<ProductOptionsBuilder
+										productId={entry.id}
+										variantId={selected.id}
+										isAvailable={
+											entry.sale_status ===
+											ProductSaleStatusEnum.AVAILABLE
+										}
+										price={
+											selectedPrice
+												? {
+														currency:
+															selectedPrice.currency,
+														net_sale_price:
+															selectedPrice.net_sale_price,
+													}
+												: null
+										}
+										vatRate={entry.vat_rate}
+										groups={entry.option_groups ?? []}
+										language={language}
+										translations={translations}
+									/>
+								) : (
+									<AddToCart
+										productId={entry.id}
+										variantId={selected.id}
+										isAvailable={
+											entry.sale_status ===
+											ProductSaleStatusEnum.AVAILABLE
+										}
+									/>
+								)}
 							</div>
 						)}
 

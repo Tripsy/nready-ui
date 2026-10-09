@@ -265,6 +265,13 @@ export type ProductPublicModel = Omit<
 	attributes?: ProductAttributeDisplayType[];
 	/** The product's own gallery, of which `cover_image` is the first entry. */
 	images?: ProductCoverImageType[];
+	/**
+	 * The product's own VAT rate in percent - what a simple line is taxed at once its options are
+	 * folded into the unit price. The storefront knows no rates of its own, so this is what lets a
+	 * page quote a configured product the way the cart will charge it. Unused on a bundle, whose
+	 * price is taxed per component.
+	 */
+	vat_rate?: number;
 };
 
 /**

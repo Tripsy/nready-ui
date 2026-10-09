@@ -18,6 +18,7 @@
 	},
 	"status": {
 		"pending": "Pending",
+		"awaiting_payment": "Awaiting payment",
 		"confirmed": "Confirmed",
 		"completed": "Completed",
 		"canceled": "Canceled",
@@ -91,6 +92,7 @@
 		"filter_all": "All",
 		"placed_on": "Placed on",
 		"billed_to": "Billed to",
+		"billing": "Billing details",
 		"payment_method": "Payment",
 		"total": "Total",
 		"view": "View order",
@@ -108,6 +110,7 @@
 		"discount": "Discount",
 		"vat_included": "VAT included:",
 		"notes": "Your notes",
+		"jump_to": "Jump to",
 		"shipments": "Delivery",
 		"shipments_empty": "Nothing has been scheduled for delivery yet.",
 		"shipment_method": "Method",
@@ -118,6 +121,7 @@
 		"deliver_to": "Delivered to",
 		"shipped_at": "Shipped on",
 		"delivered_at": "Delivered on",
+		"updated_at": "Last update",
 		"estimated_delivery_at": "Estimated delivery",
 		"scope_return": "Return",
 		"delivery_cost": "Delivery",
@@ -127,6 +131,58 @@
 		"cancel_title": "Cancel this order?",
 		"cancel_confirm": "The order and its delivery will be canceled. This cannot be undone.",
 		"cancel_success": "Your order has been canceled",
-		"cancel_failed": "The order could not be canceled"
+		"cancel_failed": "The order could not be canceled",
+		"invoices_payments": "Invoices & payments",
+		"invoices": "Invoices",
+		"payments": "Payments",
+		"invoices_empty": "No invoice has been issued yet.",
+		"payments_empty": "No payment has been recorded yet.",
+		"invoice_scope_order": "Products",
+		"invoice_scope_shipping": "Delivery",
+		"invoice_reversal": "Credit note",
+		"issued_on": "Issued {{date}}",
+		"due_on": "Due {{date}}",
+		"refund": "Refund",
+		"payment_methods": {
+			"credit_card": "Credit card",
+			"debit_card": "Debit card",
+			"paypal": "PayPal",
+			"cash": "Cash",
+			"bank_transfer": "Bank transfer",
+			"check": "Check",
+			"crypto": "Crypto",
+			"gift_card": "Gift card"
+		},
+		"shipment_carrier_fallback": "courier",
+		"shipment_warehouse_fallback": "our warehouse",
+		"shipment_line": {
+			"courier": {
+				"pending": "Awaiting preparation for delivery via {{carrier}}",
+				"preparing": "Being prepared for delivery via {{carrier}}",
+				"shipped": "On its way to you via {{carrier}}",
+				"delivered": "Delivered via {{carrier}}",
+				"failed": "Delivery via {{carrier}} failed",
+				"returned": "Returned to us by {{carrier}}",
+				"canceled": "Delivery canceled"
+			},
+			"self_pickup": {
+				"pending": "Awaiting preparation for pickup from {{warehouse}}",
+				"preparing": "Being prepared for pickup from {{warehouse}}",
+				"shipped": "Ready for pickup from {{warehouse}}",
+				"delivered": "Picked up from {{warehouse}}",
+				"failed": "Pickup from {{warehouse}} failed",
+				"returned": "Not picked up, returned to stock",
+				"canceled": "Pickup canceled"
+			},
+			"return": {
+				"pending": "Return requested",
+				"preparing": "Return being arranged",
+				"shipped": "Return on its way back via {{carrier}}",
+				"delivered": "Return received",
+				"failed": "Return via {{carrier}} failed",
+				"returned": "Return sent back to you",
+				"canceled": "Return canceled"
+			}
+		}
 	}
 }

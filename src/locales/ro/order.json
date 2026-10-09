@@ -18,6 +18,7 @@
 	},
 	"status": {
 		"pending": "În așteptare",
+		"awaiting_payment": "Așteaptă plata",
 		"confirmed": "Confirmată",
 		"completed": "Finalizată",
 		"canceled": "Anulată",
@@ -91,6 +92,7 @@
 		"filter_all": "Toate",
 		"placed_on": "Plasată pe",
 		"billed_to": "Facturată către",
+		"billing": "Date de facturare",
 		"payment_method": "Plată",
 		"total": "Total",
 		"view": "Vezi comanda",
@@ -108,6 +110,7 @@
 		"discount": "Reducere",
 		"vat_included": "TVA inclus:",
 		"notes": "Notele tale",
+		"jump_to": "Mergi la",
 		"shipments": "Livrare",
 		"shipments_empty": "Nimic nu a fost programat încă pentru livrare.",
 		"shipment_method": "Metodă",
@@ -118,6 +121,7 @@
 		"deliver_to": "Livrată la",
 		"shipped_at": "Expediată pe",
 		"delivered_at": "Livrată pe",
+		"updated_at": "Ultima actualizare",
 		"estimated_delivery_at": "Livrare estimată",
 		"scope_return": "Retur",
 		"delivery_cost": "Livrare",
@@ -127,6 +131,58 @@
 		"cancel_title": "Anulezi această comandă?",
 		"cancel_confirm": "Comanda și livrarea ei vor fi anulate. Acțiunea nu poate fi refăcută.",
 		"cancel_success": "Comanda ta a fost anulată",
-		"cancel_failed": "Comanda nu a putut fi anulată"
+		"cancel_failed": "Comanda nu a putut fi anulată",
+		"invoices_payments": "Facturi și plăți",
+		"invoices": "Facturi",
+		"payments": "Plăți",
+		"invoices_empty": "Nu a fost emisă încă nicio factură.",
+		"payments_empty": "Nu a fost înregistrată încă nicio plată.",
+		"invoice_scope_order": "Produse",
+		"invoice_scope_shipping": "Livrare",
+		"invoice_reversal": "Factură storno",
+		"issued_on": "Emisă {{date}}",
+		"due_on": "Scadentă {{date}}",
+		"refund": "Rambursare",
+		"payment_methods": {
+			"credit_card": "Card de credit",
+			"debit_card": "Card de debit",
+			"paypal": "PayPal",
+			"cash": "Numerar",
+			"bank_transfer": "Transfer bancar",
+			"check": "Cec",
+			"crypto": "Criptomonede",
+			"gift_card": "Card cadou"
+		},
+		"shipment_carrier_fallback": "curier",
+		"shipment_warehouse_fallback": "depozitul nostru",
+		"shipment_line": {
+			"courier": {
+				"pending": "În așteptarea pregătirii pentru livrare prin {{carrier}}",
+				"preparing": "În pregătire pentru livrare prin {{carrier}}",
+				"shipped": "În drum spre tine prin {{carrier}}",
+				"delivered": "Livrat prin {{carrier}}",
+				"failed": "Livrarea prin {{carrier}} a eșuat",
+				"returned": "Returnat de {{carrier}}",
+				"canceled": "Livrare anulată"
+			},
+			"self_pickup": {
+				"pending": "În așteptarea pregătirii pentru ridicare de la {{warehouse}}",
+				"preparing": "În pregătire pentru ridicare de la {{warehouse}}",
+				"shipped": "Gata de ridicare de la {{warehouse}}",
+				"delivered": "Ridicat de la {{warehouse}}",
+				"failed": "Ridicarea de la {{warehouse}} a eșuat",
+				"returned": "Neridicat, returnat în stoc",
+				"canceled": "Ridicare anulată"
+			},
+			"return": {
+				"pending": "Retur solicitat",
+				"preparing": "Retur în pregătire",
+				"shipped": "Retur în drum spre noi prin {{carrier}}",
+				"delivered": "Retur recepționat",
+				"failed": "Returul prin {{carrier}} a eșuat",
+				"returned": "Retur trimis înapoi către tine",
+				"canceled": "Retur anulat"
+			}
+		}
 	}
 }

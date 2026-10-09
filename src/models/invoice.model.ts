@@ -5,7 +5,7 @@ import type { Currency, StatusTransitions } from '@/types/common.type';
 export const InvoiceStatusEnum = {
 	DRAFT: 'draft', // Being assembled, holds no number yet, still editable
 	ISSUED: 'issued', // Number allocated, document frozen
-	CANCELLED: 'canceled', // Invalidated before it was ever settled
+	CANCELED: 'canceled', // Invalidated before it was ever settled
 } as const;
 
 export type InvoiceStatus =
@@ -19,13 +19,13 @@ export type InvoiceStatus =
 export const STATUS_TRANSITIONS: StatusTransitions<InvoiceStatus> = {
 	[InvoiceStatusEnum.DRAFT]: [
 		InvoiceStatusEnum.ISSUED,
-		InvoiceStatusEnum.CANCELLED,
+		InvoiceStatusEnum.CANCELED,
 	],
 
 	// An issued invoice is taken back only by a reversal, never canceled
 	[InvoiceStatusEnum.ISSUED]: [],
 
-	[InvoiceStatusEnum.CANCELLED]: [],
+	[InvoiceStatusEnum.CANCELED]: [],
 };
 
 /** Only a draft may be changed, deleted, or have its lines edited. */

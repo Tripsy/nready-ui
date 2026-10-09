@@ -15,7 +15,13 @@ import { ApiError } from '@/exceptions/api.error';
 import { getResponseData } from '@/helpers/api.helper';
 import { formatDate } from '@/helpers/date.helper';
 import { DisplayStatus } from '@/helpers/display.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
+import { CashFlowDirectionEnum } from '@/models/cash-flow.model';
+import {
+	InvoicePaymentStatusEnum,
+	InvoiceScopeEnum,
+} from '@/models/invoice.model';
 import {
 	displayOrderClient,
 	displayOrderMoney,
@@ -38,7 +44,10 @@ import {
 } from '@/models/shipping.model';
 import {
 	OWN_ORDERS_QUERY_KEY,
+	type OwnOrderInvoice,
+	type OwnOrderPayment,
 	requestOwnOrder,
+	requestOwnOrderBilling,
 	requestOwnOrderShipments,
 } from '@/services/order.service';
 
@@ -49,6 +58,7 @@ const TRANSLATION_KEYS = [
 	'order.storefront.back',
 	'order.storefront.placed_on',
 	'order.storefront.billed_to',
+	'order.storefront.billing',
 	'order.storefront.payment_method',
 	'order.storefront.items',
 	'order.storefront.quantity',
@@ -60,6 +70,7 @@ const TRANSLATION_KEYS = [
 	'order.storefront.total',
 	'order.storefront.vat_included',
 	'order.storefront.notes',
+	'order.storefront.jump_to',
 	'order.storefront.shipments',
 	'order.storefront.shipments_empty',
 	'order.storefront.shipment_method',
@@ -70,6 +81,7 @@ const TRANSLATION_KEYS = [
 	'order.storefront.deliver_to',
 	'order.storefront.shipped_at',
 	'order.storefront.delivered_at',
+	'order.storefront.updated_at',
 	'order.storefront.estimated_delivery_at',
 	'order.storefront.scope_return',
 	'order.storefront.delivery_cost',
@@ -80,6 +92,30 @@ const TRANSLATION_KEYS = [
 	'checkout.payment.cash_on_delivery',
 	'checkout.payment.card',
 	'checkout.payment.bank_transfer',
+	'checkout.billing.company_cui',
+	'checkout.billing.company_reg_com',
+	'checkout.billing.contact_email',
+	'checkout.billing.contact_phone',
+	'checkout.address.billing_title',
+	'order.storefront.invoices_payments',
+	'order.storefront.invoices',
+	'order.storefront.payments',
+	'order.storefront.invoices_empty',
+	'order.storefront.payments_empty',
+	'order.storefront.invoice_scope_order',
+	'order.storefront.invoice_scope_shipping',
+	'order.storefront.invoice_reversal',
+	'order.storefront.issued_on',
+	'order.storefront.due_on',
+	'order.storefront.refund',
+	'order.storefront.payment_methods.credit_card',
+	'order.storefront.payment_methods.debit_card',
+	'order.storefront.payment_methods.paypal',
+	'order.storefront.payment_methods.cash',
+	'order.storefront.payment_methods.bank_transfer',
+	'order.storefront.payment_methods.check',
+	'order.storefront.payment_methods.crypto',
+	'order.storefront.payment_methods.gift_card',
 ] as const;
 
 type Translations = Record<(typeof TRANSLATION_KEYS)[number], string>;
@@ -94,15 +130,32 @@ const DATE_FORMAT = 'D MMMM YYYY, HH:mm';
  */
 const DATE_ONLY_FORMAT = 'D MMMM YYYY';
 
+/**
+ * The page's sections, in the order they render - each one a shortcut under the header box.
+ * `scroll-mt-24` on every target clears the sticky site header a jump would otherwise land under.
+ */
+const SECTION_IDS = {
+	items: 'order-items',
+	delivery: 'order-delivery',
+	billing: 'order-billing',
+	invoices: 'order-invoices',
+	summary: 'order-summary',
+} as const;
+
 function Card({
+	id,
 	title,
 	children,
 }: {
+	readonly id: string;
 	readonly title: string;
 	readonly children: React.ReactNode;
 }) {
 	return (
-		<section className="space-y-4 rounded-2xl border border-border bg-surface p-6">
+		<section
+			id={id}
+			className="scroll-mt-24 space-y-4 rounded-2xl border border-border bg-surface p-6"
+		>
 			<h2 className="text-lg font-semibold">{title}</h2>
 			{children}
 		</section>
@@ -239,7 +292,149 @@ function ShipmentCard({
 						</Detail>
 					)
 				)}
+
+				{/* `updated_at` is null on a movement never edited since it was created */}
+				<Detail label={translations['order.storefront.updated_at']}>
+					{formatDate(
+						shipment.updated_at ?? shipment.created_at,
+						undefined,
+						{
+							customFormat: DATE_FORMAT,
+							language: language,
+						},
+					)}
+				</Detail>
 			</dl>
+		</li>
+	);
+}
+
+/**
+ * What a document bills, as its buyer reads it: the goods or a delivery fee, and a credit note for
+ * either when it is a reversal. A subscription or custom document is never raised for an order, so
+ * the scope alone is enough.
+ */
+function displayInvoiceKind(
+	invoice: OwnOrderInvoice,
+	translations: Translations,
+): string {
+	if (invoice.is_reversal) {
+		return translations['order.storefront.invoice_reversal'];
+	}
+
+	return invoice.scope === InvoiceScopeEnum.SHIPPING
+		? translations['order.storefront.invoice_scope_shipping']
+		: translations['order.storefront.invoice_scope_order'];
+}
+
+function InvoiceRow({
+	invoice,
+	translations,
+}: {
+	readonly invoice: OwnOrderInvoice;
+	readonly translations: Translations;
+}) {
+	const language = getLanguageClient();
+	const format = (date: string) =>
+		formatDate(date, undefined, {
+			customFormat: DATE_ONLY_FORMAT,
+			language: language,
+		}) ?? '';
+	// Only an original is settled; a credit note is money handed back, with no balance of its own
+	const isOpen =
+		!invoice.is_reversal &&
+		invoice.payment_status !== InvoicePaymentStatusEnum.PAID;
+
+	return (
+		<li className="flex items-start justify-between gap-3 py-3 first:pt-0 last:pb-0">
+			<div className="min-w-0">
+				<p>
+					<span className="font-medium tabular-nums">
+						{invoice.ref_code}-{invoice.ref_number}
+					</span>
+					<span className="text-muted">
+						{' · '}
+						{displayInvoiceKind(invoice, translations)}
+					</span>
+				</p>
+				<p className="text-xs text-muted">
+					{invoice.issued_at &&
+						replaceVars(
+							translations['order.storefront.issued_on'],
+							{
+								date: format(invoice.issued_at),
+							},
+						)}
+					{isOpen && invoice.due_at && (
+						<>
+							{' · '}
+							{replaceVars(
+								translations['order.storefront.due_on'],
+								{
+									date: format(invoice.due_at),
+								},
+							)}
+						</>
+					)}
+				</p>
+			</div>
+
+			<div className="flex shrink-0 flex-col items-end gap-1">
+				<span className="tabular-nums">
+					{invoice.is_reversal && '-'}
+					{displayOrderMoney(invoice.total_gross, invoice.currency)}
+				</span>
+				{!invoice.is_reversal && (
+					<DisplayStatus
+						status={invoice.payment_status}
+						dataSource="invoice"
+					/>
+				)}
+			</div>
+		</li>
+	);
+}
+
+/**
+ * One payment on a line: how it is made and what it asks for, VAT included, with where it stands
+ * beside it.
+ * A payment has no due date of its own - the one the buyer is held to is the invoice's, on the
+ * invoice row.
+ */
+function PaymentRow({
+	payment,
+	translations,
+}: {
+	readonly payment: OwnOrderPayment;
+	readonly translations: Translations;
+}) {
+	const isRefund = payment.direction === CashFlowDirectionEnum.OUT;
+
+	return (
+		<li className="flex flex-wrap items-center gap-x-6 gap-y-2 py-3 first:pt-0 last:pb-0">
+			<div>
+				<p>
+					<span className="font-medium">
+						{
+							translations[
+								`order.storefront.payment_methods.${payment.method}`
+							]
+						}
+					</span>
+					{isRefund && (
+						<span className="text-muted">
+							{' · '}
+							{translations['order.storefront.refund']}
+						</span>
+					)}
+				</p>
+				<p className="tabular-nums">
+					{isRefund && '-'}
+					{displayOrderMoney(payment.gross_amount, payment.currency)}
+				</p>
+			</div>
+
+			<DisplayStatus status={payment.status} dataSource="cash-flow" />
 		</li>
 	);
 }
@@ -278,6 +473,17 @@ export function AccountOrderView({
 		queryFn: async () =>
 			getResponseData(await requestOwnOrderShipments(id))?.entries ?? [],
 		// Behind the order read: a foreign id would only fetch the same 404 a second time
+		enabled: orderQuery.isSuccess,
+	});
+
+	const billingQuery = useQuery({
+		queryKey: [...OWN_ORDERS_QUERY_KEY, 'billing', id],
+		queryFn: async () =>
+			getResponseData(await requestOwnOrderBilling(id)) ?? {
+				invoices: [],
+				payments: [],
+			},
+		// Behind the order read, for the reason the shipments are
 		enabled: orderQuery.isSuccess,
 	});
 
@@ -380,7 +586,14 @@ export function AccountOrderView({
 				<h1 className="text-2xl font-semibold tabular-nums md:text-3xl">
 					{displayOrderReference(order)}
 				</h1>
-				<DisplayStatus status={order.status} dataSource="order" />
+				<DisplayStatus
+					status={
+						order.awaiting_payment
+							? 'awaiting_payment'
+							: order.status
+					}
+					dataSource="order"
+				/>
 				{order.status === OrderStatusEnum.PENDING && (
 					<div className="ml-auto">
 						<CancelOrderButton orderId={order.id} />
@@ -388,32 +601,77 @@ export function AccountOrderView({
 				)}
 			</div>
 
-			<dl className="grid gap-4 rounded-2xl border border-border bg-surface p-6 text-sm sm:grid-cols-3">
-				<Detail label={translations['order.storefront.placed_on']}>
-					{formatDate(order.created_at, undefined, {
-						customFormat: DATE_FORMAT,
-						language: getLanguageClient(),
-					})}
-				</Detail>
-				<Detail label={translations['order.storefront.billed_to']}>
-					{displayOrderClient(order)}
-				</Detail>
-				{order.payment_method && (
-					<Detail
-						label={translations['order.storefront.payment_method']}
-					>
-						{
-							translations[
-								`checkout.payment.${order.payment_method}`
-							]
-						}
+			<div className="space-y-5 rounded-2xl border border-border bg-surface p-6 text-sm">
+				<dl className="grid gap-4 sm:grid-cols-2">
+					<Detail label={translations['order.storefront.placed_on']}>
+						{formatDate(order.created_at, undefined, {
+							customFormat: DATE_FORMAT,
+							language: getLanguageClient(),
+						})}
 					</Detail>
-				)}
-			</dl>
+					{order.payment_method && (
+						<Detail
+							label={
+								translations['order.storefront.payment_method']
+							}
+						>
+							{
+								translations[
+									`checkout.payment.${order.payment_method}`
+								]
+							}
+						</Detail>
+					)}
+					{order.notes && (
+						<div className="sm:col-span-2">
+							<Detail
+								label={translations['order.storefront.notes']}
+							>
+								<span className="whitespace-pre-line">
+									{order.notes}
+								</span>
+							</Detail>
+						</div>
+					)}
+				</dl>
+
+				{/* Anchors rather than tabs: every section stays on the page, these only jump to it */}
+				<nav
+					aria-label={translations['order.storefront.jump_to']}
+					className="flex flex-wrap gap-2 border-t border-border pt-4"
+				>
+					{(
+						[
+							[SECTION_IDS.items, 'order.storefront.items'],
+							[
+								SECTION_IDS.delivery,
+								'order.storefront.shipments',
+							],
+							[SECTION_IDS.billing, 'order.storefront.billing'],
+							[
+								SECTION_IDS.invoices,
+								'order.storefront.invoices_payments',
+							],
+							[SECTION_IDS.summary, 'order.storefront.summary'],
+						] as const
+					).map(([target, key]) => (
+						<a
+							key={target}
+							href={`#${target}`}
+							className="rounded-full border border-border px-3 py-1 transition-colors hover:border-accent hover:text-accent"
+						>
+							{translations[key]}
+						</a>
+					))}
+				</nav>
+			</div>
 
 			<div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
 				<div className="space-y-6">
-					<Card title={translations['order.storefront.items']}>
+					<Card
+						id={SECTION_IDS.items}
+						title={translations['order.storefront.items']}
+					>
 						<ul className="divide-y divide-border text-sm">
 							{lines
 								.filter((line) => line.parent_id === null)
@@ -508,7 +766,10 @@ export function AccountOrderView({
 						</ul>
 					</Card>
 
-					<Card title={translations['order.storefront.shipments']}>
+					<Card
+						id={SECTION_IDS.delivery}
+						title={translations['order.storefront.shipments']}
+					>
 						{shipmentsQuery.isPending ? (
 							<p className="text-sm text-muted">
 								{translations['order.storefront.loading']}
@@ -538,16 +799,181 @@ export function AccountOrderView({
 						)}
 					</Card>
 
-					{order.notes && (
-						<Card title={translations['order.storefront.notes']}>
-							<p className="whitespace-pre-line text-sm">
-								{order.notes}
+					<Card
+						id={SECTION_IDS.billing}
+						title={translations['order.storefront.billing']}
+					>
+						<dl className="grid gap-3 text-sm sm:grid-cols-2">
+							<Detail
+								label={
+									translations['order.storefront.billed_to']
+								}
+							>
+								{displayOrderClient(order)}
+							</Detail>
+
+							{order.client?.company_cui && (
+								<Detail
+									label={
+										translations[
+											'checkout.billing.company_cui'
+										]
+									}
+								>
+									<span className="tabular-nums">
+										{order.client.company_cui}
+									</span>
+								</Detail>
+							)}
+
+							{order.client?.company_reg_com && (
+								<Detail
+									label={
+										translations[
+											'checkout.billing.company_reg_com'
+										]
+									}
+								>
+									{order.client.company_reg_com}
+								</Detail>
+							)}
+
+							{order.client?.contact_email && (
+								<Detail
+									label={
+										translations[
+											'checkout.billing.contact_email'
+										]
+									}
+								>
+									{order.client.contact_email}
+								</Detail>
+							)}
+
+							{order.client?.contact_phone && (
+								<Detail
+									label={
+										translations[
+											'checkout.billing.contact_phone'
+										]
+									}
+								>
+									<span className="tabular-nums">
+										{order.client.contact_phone}
+									</span>
+								</Detail>
+							)}
+
+							{/* The address as it was billed - a snapshot, so a later edit to the client's address does not move it */}
+							{order.billing_address && (
+								<Detail
+									label={
+										translations[
+											'checkout.address.billing_title'
+										]
+									}
+								>
+									{displayAddressSnapshot({
+										...order.billing_address,
+										address_country:
+											order.billing_address
+												.address_country ?? null,
+									})}
+								</Detail>
+							)}
+						</dl>
+					</Card>
+
+					<Card
+						id={SECTION_IDS.invoices}
+						title={
+							translations['order.storefront.invoices_payments']
+						}
+					>
+						{billingQuery.isPending ? (
+							<p className="text-sm text-muted">
+								{translations['order.storefront.loading']}
 							</p>
-						</Card>
-					)}
+						) : billingQuery.isError ? (
+							<p className="text-sm text-danger">
+								{translations['order.storefront.error']}
+							</p>
+						) : (
+							<div className="space-y-6 text-sm">
+								<div>
+									<h3 className="text-xs uppercase tracking-wide text-muted">
+										{
+											translations[
+												'order.storefront.invoices'
+											]
+										}
+									</h3>
+									{billingQuery.data.invoices.length === 0 ? (
+										<p className="mt-2 text-muted">
+											{
+												translations[
+													'order.storefront.invoices_empty'
+												]
+											}
+										</p>
+									) : (
+										<ul className="mt-2 divide-y divide-border">
+											{billingQuery.data.invoices.map(
+												(invoice) => (
+													<InvoiceRow
+														key={invoice.id}
+														invoice={invoice}
+														translations={
+															translations
+														}
+													/>
+												),
+											)}
+										</ul>
+									)}
+								</div>
+
+								<div>
+									<h3 className="text-xs uppercase tracking-wide text-muted">
+										{
+											translations[
+												'order.storefront.payments'
+											]
+										}
+									</h3>
+									{billingQuery.data.payments.length === 0 ? (
+										<p className="mt-2 text-muted">
+											{
+												translations[
+													'order.storefront.payments_empty'
+												]
+											}
+										</p>
+									) : (
+										<ul className="mt-2 divide-y divide-border">
+											{billingQuery.data.payments.map(
+												(payment) => (
+													<PaymentRow
+														key={payment.id}
+														payment={payment}
+														translations={
+															translations
+														}
+													/>
+												),
+											)}
+										</ul>
+									)}
+								</div>
+							</div>
+						)}
+					</Card>
 				</div>
 
-				<aside className="h-fit rounded-2xl border border-border bg-surface p-6">
+				<aside
+					id={SECTION_IDS.summary}
+					className="h-fit scroll-mt-24 rounded-2xl border border-border bg-surface p-6"
+				>
 					<h2 className="font-semibold">
 						{translations['order.storefront.summary']}
 					</h2>

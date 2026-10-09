@@ -77,8 +77,14 @@ export const statusList: Record<
 		variant: 'error',
 		icon: Icons.Status.Failed,
 	},
+	// Not an order status: a pending order whose buyer has a payment still open, shown in its
+	// place on the storefront so "pending" does not read as the business's delay
+	awaiting_payment: {
+		variant: 'info',
+		icon: Icons.Status.AwaitingPayment,
+	},
 	canceled: {
-		variant: 'warning',
+		variant: 'error',
 		icon: Icons.Status.Canceled,
 	},
 	expired: {

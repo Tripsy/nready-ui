@@ -33,6 +33,7 @@ import {
 	Code,
 	Coins,
 	CornerRightDown,
+	CreditCard,
 	Cuboid,
 	Ellipsis,
 	EllipsisVertical,
@@ -298,6 +299,7 @@ export const Icons = {
 		Canceled: createIcon(CircleX),
 		Expired: createIcon(ClockFading),
 		RequiresAction: createIcon(TriangleAlert),
+		AwaitingPayment: createIcon(CreditCard),
 
 		Verified: createIcon(Check),
 		Draft: createIcon(FilePenLine),

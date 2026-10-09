@@ -13,7 +13,7 @@ export const OrderStatusEnum = {
 	PENDING: 'pending',
 	CONFIRMED: 'confirmed',
 	COMPLETED: 'completed',
-	CANCELLED: 'canceled',
+	CANCELED: 'canceled',
 } as const;
 
 export type OrderStatus =
@@ -26,14 +26,14 @@ export type OrderStatus =
 export const ORDER_STATUS_TRANSITIONS: StatusTransitions<OrderStatus> = {
 	[OrderStatusEnum.PENDING]: [
 		OrderStatusEnum.CONFIRMED,
-		OrderStatusEnum.CANCELLED,
+		OrderStatusEnum.CANCELED,
 	],
 	[OrderStatusEnum.CONFIRMED]: [
 		OrderStatusEnum.COMPLETED,
-		OrderStatusEnum.CANCELLED,
+		OrderStatusEnum.CANCELED,
 	],
 	[OrderStatusEnum.COMPLETED]: [],
-	[OrderStatusEnum.CANCELLED]: [],
+	[OrderStatusEnum.CANCELED]: [],
 };
 
 /**
@@ -231,6 +231,10 @@ export type OrderModel<D = Date | string> = {
 		company_name: string | null;
 		person_name: string | null;
 		contact_email: string | null;
+		/** The buyer's own detail read alone (`GET /public/orders/:id`) carries these three. */
+		company_cui?: string | null;
+		company_reg_com?: string | null;
+		contact_phone?: string | null;
 	} | null;
 
 	lines?: OrderLineModel<D>[];

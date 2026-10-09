@@ -351,6 +351,7 @@ export type OrderShipmentModel<D = Date | string> = Pick<
 	| 'delivered_at'
 	| 'estimated_delivery_at'
 	| 'created_at'
+	| 'updated_at'
 	| 'price'
 	| 'vat_rate'
 	| 'currency'

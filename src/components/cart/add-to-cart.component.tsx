@@ -5,6 +5,7 @@ import { type JSX, useState } from 'react';
 import { Icons } from '@/components/icon.component';
 import { Button } from '@/components/ui/button';
 import Routes from '@/config/routes.setup';
+import { getErrorMessage } from '@/helpers/error.helper';
 import { useCart } from '@/hooks/use-cart.hook';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import type { CartAddItemParams } from '@/models/cart.model';
@@ -33,16 +34,16 @@ const QUANTITY_MAX = 999;
  * through links that put the SKU in the query string, so by the time this renders the choice is
  * already made and it only has to carry the quantity.
  *
- * **Options are not offered here.** A product's option groups are not in the public read
- * (`getPublicEntryById` joins the catalog and the translations, not `product_option_group`), so
- * there is nothing to render them from - the line is added without any, which the backend accepts.
- * Exposing them is a change to the product endpoint, not to this component.
+ * Choices are made above it and handed in: a bundle's picks from `ProductBundleBuilder`, a simple
+ * product's answers from `ProductOptionsBuilder`. Either keeps `isReady` false until the backend
+ * would accept the line.
  */
 export function AddToCart({
 	productId,
 	variantId,
 	isAvailable = true,
 	components,
+	options,
 	isReady = true,
 }: {
 	readonly productId: number;
@@ -51,6 +52,8 @@ export function AddToCart({
 	readonly isAvailable?: boolean;
 	/** A bundle's picks, from `ProductBundleBuilder`; omitted on a simple product. */
 	readonly components?: CartAddItemParams['components'];
+	/** The chosen `product_option` ids, from `ProductOptionsBuilder`; omitted when the product asks nothing. */
+	readonly options?: number[];
 	/** False while a bundle still has a choice unanswered - the backend would refuse the line. */
 	readonly isReady?: boolean;
 }): JSX.Element {
@@ -72,6 +75,7 @@ export function AddToCart({
 				...(components && components.length > 0
 					? { components: components }
 					: {}),
+				...(options && options.length > 0 ? { options: options } : {}),
 			},
 			{
 				onSuccess: () => {
@@ -93,10 +97,13 @@ export function AddToCart({
 					// leaving the stepper at four silently adds four of it.
 					setQuantity(1);
 				},
-				onError: () => {
+				onError: (error) => {
+					// The backend's reason says what to do instead - a choice still to make, a
+					// product gone from sale - where the summary alone only says it failed
 					showToast({
 						severity: 'error',
 						summary: translations['cart.storefront.add_failed'],
+						detail: getErrorMessage(error),
 					});
 				},
 			},
