@@ -55,6 +55,11 @@ export const statusList: Record<
 		variant: 'warning',
 		icon: Icons.Status.Warning,
 	},
+	// A cron run in progress - or, past its lock lease, one the API is about to close as an error
+	running: {
+		variant: 'info',
+		icon: Icons.Status.Pending,
+	},
 	sent: {
 		variant: 'success',
 		icon: Icons.Status.Sent,
