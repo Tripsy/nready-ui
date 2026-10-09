@@ -1,5 +1,9 @@
 import { ApiRequest } from '@/helpers/api.helper';
-import type { InvoiceModel, InvoicePaymentModel } from '@/models/invoice.model';
+import type {
+	InvoiceDocumentModel,
+	InvoiceModel,
+	InvoicePaymentModel,
+} from '@/models/invoice.model';
 import type { ApiResponseFetch } from '@/types/api.type';
 
 /**
@@ -7,6 +11,18 @@ import type { ApiResponseFetch } from '@/types/api.type';
  * generic `services.helper` requests cannot address. Issuing and canceling are not here: both are
  * plain status transitions and go through `requestUpdateStatus`.
  */
+
+/**
+ * The document as it prints - the same shape the buyer's copy reads, with the order it bills and,
+ * on a shipping document, the movement.
+ */
+export async function requestInvoiceDocument(
+	id: number,
+): Promise<ApiResponseFetch<InvoiceDocumentModel>> {
+	return await new ApiRequest().doFetch(`/invoices/${id}/document`, {
+		method: 'GET',
+	});
+}
 
 /**
  * Raise and issue the document a revenue cash flow entry is owed, then allocate the client's

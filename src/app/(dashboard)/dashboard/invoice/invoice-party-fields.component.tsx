@@ -410,7 +410,7 @@ export function SellerDetailsFields({
 			isCustom={isCustom}
 			onReset={onReset}
 		>
-			<div className="grid gap-3 sm:grid-cols-3">
+			<div className="grid gap-3 sm:grid-cols-2">
 				<PartyInput
 					idPrefix={idPrefix}
 					field="company_name"
@@ -433,6 +433,15 @@ export function SellerDetailsFields({
 					field="company_reg_com"
 					label="Trade register no."
 					value={current.company_reg_com}
+					disabled={disabled}
+					onChange={setField}
+				/>
+				{/* Empty states the seller is not registered for VAT - the printed copy says so */}
+				<PartyInput
+					idPrefix={idPrefix}
+					field="company_vat_number"
+					label="VAT number"
+					value={current.company_vat_number}
 					disabled={disabled}
 					onChange={setField}
 				/>

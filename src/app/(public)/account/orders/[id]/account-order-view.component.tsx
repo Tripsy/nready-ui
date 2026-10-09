@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { FileText } from 'lucide-react';
 import NextLink from 'next/link';
 import type React from 'react';
 import type { JSX } from 'react';
@@ -105,6 +106,7 @@ const TRANSLATION_KEYS = [
 	'order.storefront.invoice_scope_order',
 	'order.storefront.invoice_scope_shipping',
 	'order.storefront.invoice_reversal',
+	'order.storefront.invoice_view',
 	'order.storefront.issued_on',
 	'order.storefront.due_on',
 	'order.storefront.refund',
@@ -328,9 +330,11 @@ function displayInvoiceKind(
 }
 
 function InvoiceRow({
+	orderId,
 	invoice,
 	translations,
 }: {
+	readonly orderId: number;
 	readonly invoice: OwnOrderInvoice;
 	readonly translations: Translations;
 }) {
@@ -347,7 +351,7 @@ function InvoiceRow({
 
 	return (
 		<li className="flex items-start justify-between gap-3 py-3 first:pt-0 last:pb-0">
-			<div className="min-w-0">
+			<div className="min-w-0 space-y-2">
 				<p>
 					<span className="font-medium tabular-nums">
 						{invoice.ref_code}-{invoice.ref_number}
@@ -377,6 +381,18 @@ function InvoiceRow({
 						</>
 					)}
 				</p>
+				{/* A new tab: the printable copy is a page of its own, outside the site layout */}
+				<NextLink
+					href={Routes.get('account-order-invoice', {
+						order_id: orderId,
+						id: invoice.id,
+					})}
+					target="_blank"
+					className="flex w-fit items-center gap-1 text-xs underline underline-offset-4 hover:text-accent"
+				>
+					<FileText aria-hidden="true" className="size-3.5" />
+					{translations['order.storefront.invoice_view']}
+				</NextLink>
 			</div>
 
 			<div className="flex shrink-0 flex-col items-end gap-1">
@@ -922,6 +938,7 @@ export function AccountOrderView({
 												(invoice) => (
 													<InvoiceRow
 														key={invoice.id}
+														orderId={order.id}
 														invoice={invoice}
 														translations={
 															translations

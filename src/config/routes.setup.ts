@@ -224,6 +224,11 @@ Routes.group('account')
 	})
 	.add('account-order-view', '/account/orders/:id', {
 		auth: RouteAuthEnum.AUTHENTICATED,
+	})
+	// The printable copy of one of the order's invoices. Outside `/account` in the file tree so
+	// it renders without the site's header and footer - the page is the document.
+	.add('account-order-invoice', '/document/invoice/:order_id/:id', {
+		auth: RouteAuthEnum.AUTHENTICATED,
 	});
 
 // Dashboard
@@ -268,6 +273,11 @@ Routes.group('dashboard')
 		permissionEntity: 'client-ledger',
 	})
 	.add('invoice', '/dashboard/invoice', {
+		permissionEntity: 'invoice',
+	})
+	// The back office's printable copy - outside `/dashboard` in the file tree, for the reason
+	// `account-order-invoice` is: the page is the document, with no dashboard chrome around it
+	.add('invoice-print', '/document/dashboard/invoice/:id', {
 		permissionEntity: 'invoice',
 	})
 	.add('discount', '/dashboard/discount', {

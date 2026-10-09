@@ -140,6 +140,7 @@
 		"invoice_scope_order": "Products",
 		"invoice_scope_shipping": "Delivery",
 		"invoice_reversal": "Credit note",
+		"invoice_view": "View / download",
 		"issued_on": "Issued {{date}}",
 		"due_on": "Due {{date}}",
 		"refund": "Refund",

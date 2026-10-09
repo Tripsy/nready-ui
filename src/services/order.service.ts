@@ -5,6 +5,7 @@ import type {
 	CashFlowStatus,
 } from '@/models/cash-flow.model';
 import type {
+	InvoiceDocumentModel,
 	InvoicePaymentStatus,
 	InvoiceScope,
 	InvoiceStatus,
@@ -128,6 +129,22 @@ export async function requestOwnOrderBilling(id: number): Promise<
 	return await new ApiRequest().doFetch(`/public/orders/${id}/billing`, {
 		method: 'GET',
 	});
+}
+
+/**
+ * One issued document of the account's order. A draft, a canceled document or one of another order
+ * answers 404, the same as a missing id.
+ */
+export async function requestOwnOrderInvoice(
+	orderId: number,
+	invoiceId: number,
+): Promise<ApiResponseFetch<InvoiceDocumentModel>> {
+	return await new ApiRequest().doFetch(
+		`/public/orders/${orderId}/invoices/${invoiceId}`,
+		{
+			method: 'GET',
+		},
+	);
 }
 
 /**

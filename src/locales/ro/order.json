@@ -140,6 +140,7 @@
 		"invoice_scope_order": "Produse",
 		"invoice_scope_shipping": "Livrare",
 		"invoice_reversal": "Factură storno",
+		"invoice_view": "Vezi / descarcă",
 		"issued_on": "Emisă {{date}}",
 		"due_on": "Scadentă {{date}}",
 		"refund": "Rambursare",

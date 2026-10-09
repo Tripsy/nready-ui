@@ -1,11 +1,14 @@
 'use client';
 
+import { Printer } from 'lucide-react';
 import {
 	ViewField,
 	ViewRow,
 	ViewSection,
 } from '@/app/(dashboard)/_components/view-detail';
+import { Link } from '@/components/ui/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
 import { formatDate } from '@/helpers/date.helper';
 import { DisplayAmount, DisplayStatus } from '@/helpers/display.helper';
@@ -17,7 +20,7 @@ import type {
 	InvoicePaymentModel,
 	SellerDetails,
 } from '@/models/invoice.model';
-import { displayInvoiceLabel } from '@/models/invoice.model';
+import { displayInvoiceLabel, InvoiceStatusEnum } from '@/models/invoice.model';
 import type { Currency } from '@/types/common.type';
 
 function ViewInvoiceLines({
@@ -176,6 +179,13 @@ function ViewInvoiceParty({
 			{'company_reg_com' in details && details.company_reg_com && (
 				<ViewField label="Reg. Com." value={details.company_reg_com} />
 			)}
+			{/* `null` states the seller is not VAT-registered; an older snapshot lacks the key */}
+			{'company_vat_number' in details && (
+				<ViewField
+					label="VAT"
+					value={details.company_vat_number ?? 'Not registered'}
+				/>
+			)}
 			<ViewField label="Address" value={address || '-'} full />
 			{details.contact_email && (
 				<ViewField label="Email" value={details.contact_email} />
@@ -215,6 +225,20 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 						dataSource="invoice"
 					/>
 				</div>
+				{/* Only an issued document prints - a draft holds no number and no frozen parties */}
+				{entry.status === InvoiceStatusEnum.ISSUED && (
+					<Link
+						href={Routes.get('invoice-print', { id: entry.id })}
+						target="_blank"
+						prefetch={false}
+						variant="outline"
+						size="xs"
+						className="ml-auto"
+					>
+						<Printer aria-hidden="true" className="size-3.5" />
+						Print / PDF
+					</Link>
+				)}
 			</div>
 
 			<Tabs defaultSelectedKey="details" className="w-full">

@@ -1,5 +1,10 @@
 import type { OrderModel } from '@/models/order.model';
 import { roundMoney } from '@/models/product.model';
+import type {
+	ShippingAddressSnapshot,
+	ShippingMethod,
+	ShippingScope,
+} from '@/models/shipping.model';
 import type { Currency, StatusTransitions } from '@/types/common.type';
 
 export const InvoiceStatusEnum = {
@@ -118,6 +123,11 @@ export type SellerDetails = PartyDetails & {
 	company_name: string;
 	company_cui?: string | null;
 	company_reg_com?: string | null;
+	/**
+	 * The VAT registration code; `null` states the seller is not registered for VAT. Absent on a
+	 * snapshot frozen before the API recorded it, which then states nothing either way.
+	 */
+	company_vat_number?: string | null;
 };
 
 export type InvoiceLineModel<D = Date | string> = {
@@ -288,6 +298,82 @@ export type InvoiceModel<D = Date | string> = {
 	// Only on `read` - the list projection carries neither
 	lines?: InvoiceLineModel<D>[];
 	payments?: InvoicePaymentModel<D>[];
+};
+
+/**
+ * A document as it prints - the API's `buildDocument`, answered by `GET /invoices/:id/document`
+ * and by the buyer's `GET /public/orders/:order_id/invoices/:id` alike. Back-office notes are not
+ * sent, nor where each line came from.
+ */
+export type InvoiceDocumentModel = {
+	id: number;
+	ref_code: string | null;
+	ref_number: number | null;
+	status: InvoiceStatus;
+	payment_status: InvoicePaymentStatus;
+	scope: InvoiceScope;
+	is_reversal: boolean;
+	parent_invoice_id: number | null;
+	currency: string;
+	total_net: number;
+	total_discount_reduction: number;
+	total_vat: number;
+	total_gross: number;
+	issued_at: string | null;
+	due_at: string | null;
+	paid_at: string | null;
+	billing_details: BillingDetails | null;
+	seller_details: SellerDetails | null;
+	/** The document a reversal takes back; null on an original. */
+	parent_invoice: {
+		id: number;
+		ref_code: string | null;
+		ref_number: number | null;
+		issued_at: string | null;
+	} | null;
+	/** The order billed - a shipping document's is its movement's. Null on a custom document. */
+	order: {
+		id: number;
+		ref_code: string;
+		ref_number: number;
+		created_at: string;
+	} | null;
+	/**
+	 * On a shipping document, the movement billed, read live. An end is named by its snapshot once
+	 * the movement shipped, before that by its warehouse or client address.
+	 */
+	shipping: {
+		id: number;
+		scope: ShippingScope;
+		order_id: number | null;
+		method: ShippingMethod;
+		pickup_client_address_id: number | null;
+		destination_client_address_id: number | null;
+		pickup_client_address_label: string | null;
+		destination_client_address_label: string | null;
+		pickup_data: ShippingAddressSnapshot | null;
+		destination_data: ShippingAddressSnapshot | null;
+		pickup_warehouse: { id: number; name: string } | null;
+		destination_warehouse: { id: number; name: string } | null;
+		carrier: { id: number; name: string } | null;
+		tracking_number: string | null;
+		shipped_at: string | null;
+		delivered_at: string | null;
+		estimated_delivery_at: string | null;
+	} | null;
+	lines: {
+		id: number;
+		kind: InvoiceLineKind;
+		is_value_reversal: boolean;
+		label: string;
+		quantity: number;
+		unit_price: number; // excluding VAT
+		vat_rate: number;
+		discount_reduction: number; // money off the whole line, excluding VAT
+		line_net: number;
+		line_vat: number;
+		line_total: number;
+	}[];
 };
 
 /**
