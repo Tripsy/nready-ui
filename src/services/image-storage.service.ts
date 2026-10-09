@@ -21,6 +21,16 @@ export interface ImageStorageService {
 	getStorageType(): ImageStorage;
 
 	/**
+	 * The storage key a stored `path` names, as `<section>/<entity_id>/<uuid>.<ext>` - or `null`
+	 * when the path is not one this storage could have written.
+	 *
+	 * This is the gate for anything that acts on a client-supplied path: the key's leading
+	 * segment is the section the caller's permission is checked against, so a path that does
+	 * not parse to a well-formed key must not reach `delete`.
+	 */
+	resolveKey(filePath: string): string | null;
+
+	/**
 	 * A URL the browser can fetch the object from.
 	 *
 	 * For local storage this is the static path Next already serves. For S3 the bucket is
@@ -35,6 +45,14 @@ export interface ImageStorageService {
 // it. The browser caches the fetched bytes, not the signature, so this is not a per-render
 // cost for the user.
 const SIGNED_URL_TTL_SECONDS = 300;
+
+/*
+ * `<section>/<entity_id>/<name>.<ext>`. Uploads name the file with a `randomUUID()` and the MIME
+ * subtype (`jpeg`, `svg+xml`); the backend's `image.seed.ts` files rows as `cover.jpg`, so the
+ * name is any plain stem rather than a uuid. Anchored, with no `.` or `/` allowed outside the
+ * single extension separator, so no accepted key can climb out of its section directory.
+ */
+const IMAGE_KEY_PATTERN = /^[a-z_]+\/\d+\/[A-Za-z0-9_-]+\.[a-z0-9+]+$/;
 
 function getBaseStoragePath() {
 	return path.join(process.cwd(), Configuration.get('images.local.save'));
@@ -95,7 +113,7 @@ class S3StorageService implements ImageStorageService {
 	}
 
 	async delete(filePath: string): Promise<void> {
-		const key = this.resolveS3Key(filePath);
+		const key = this.resolveKey(filePath);
 
 		if (!key) {
 			throw new Error('Invalid S3 path');
@@ -125,6 +143,32 @@ class S3StorageService implements ImageStorageService {
 
 	getStorageType(): ImageStorage {
 		return ImageStorageEnum.S3;
+	}
+
+	/**
+	 * Stricter than `resolveS3Key`: the URL must name this bucket's host, exactly as `upload`
+	 * builds it. `resolveS3Key` reads the pathname alone, so any host would map onto a key in
+	 * this bucket - acceptable for signing a read, not for a delete.
+	 */
+	resolveKey(filePath: string): string | null {
+		let url: URL;
+
+		try {
+			url = new URL(filePath);
+		} catch {
+			return null;
+		}
+
+		if (
+			url.protocol !== 'https:' ||
+			url.host !== `${this.bucket}.s3.${this.region}.amazonaws.com`
+		) {
+			return null;
+		}
+
+		const key = this.resolveS3Key(filePath);
+
+		return key && IMAGE_KEY_PATTERN.test(key) ? key : null;
 	}
 
 	private generateKey(
@@ -185,10 +229,17 @@ class LocalStorageService implements ImageStorageService {
 	}
 
 	async delete(filePath: string): Promise<void> {
-		const fileStoragePath = path.join(this.baseStoragePath, filePath);
+		const key = this.resolveKey(filePath);
 
-		// Path traversal guard - filePath comes from client input
-		if (!fileStoragePath.startsWith(this.baseStoragePath)) {
+		if (!key) {
+			throw new Error('Invalid local path');
+		}
+
+		const fileStoragePath = path.join(this.baseStoragePath, key);
+
+		// Second line behind the key pattern, which already rules out traversal. The separator
+		// matters: a bare prefix check would accept a sibling such as `uploads-old/`.
+		if (!fileStoragePath.startsWith(this.baseStoragePath + path.sep)) {
 			throw new Error('Invalid local path');
 		}
 
@@ -205,6 +256,11 @@ class LocalStorageService implements ImageStorageService {
 
 	getStorageType(): ImageStorage {
 		return ImageStorageEnum.LOCAL;
+	}
+
+	// The stored path is the key itself, relative to `baseStoragePath`.
+	resolveKey(filePath: string): string | null {
+		return IMAGE_KEY_PATTERN.test(filePath) ? filePath : null;
 	}
 }
 
@@ -269,6 +325,11 @@ export const imageStorage = {
 		const service = ImageStorageFactory.getInstance().getService(storage);
 
 		return service.delete(filePath);
+	},
+	resolveKey: (filePath: string, storage: ImageStorage): string | null => {
+		const service = ImageStorageFactory.getInstance().getService(storage);
+
+		return service.resolveKey(filePath);
 	},
 	resolveUrl: async (
 		filePath: string,

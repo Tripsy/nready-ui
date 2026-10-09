@@ -1,6 +1,5 @@
 import Routes from '@/config/routes.setup';
 import { ApiRequest, resolveRequestPath } from '@/helpers/api.helper';
-import { CSRF_HEADER, getCsrfToken } from '@/helpers/csrf.helper';
 import type {
 	ImageModel,
 	ImageSection,
@@ -39,29 +38,27 @@ export async function orderUpdate(
 }
 
 /**
- * Remove image file from storage
+ * Remove an image's file from storage. Throws when the route refuses or fails.
  *
- * @param path
- * @param storage
- * @param section
+ * Call it only after the image row is deleted: the route cannot tell whether a row still
+ * references the file. A failure here leaves an orphaned file rather than a broken image, so
+ * callers that already deleted the row log it instead of reporting the whole delete as failed.
+ *
+ * `custom` mode keeps the origin-relative URL, which is what lets `ApiRequest` attach the CSRF
+ * header and retry once on a stale token - a tab left open past the cookie's hour would
+ * otherwise fail every delete.
  */
 export async function removeImageFile(
 	path: string,
 	storage: ImageStorage,
-	section: ImageSection,
-) {
-	await fetch(Routes.get('api-image'), {
-		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-			// Raw fetch rather than ApiRequest, so the CSRF header the middleware requires
-			// on mutating /api/* requests has to be set by hand.
-			[CSRF_HEADER]: await getCsrfToken(),
-		},
-		body: JSON.stringify({
-			path,
-			storage,
-			section,
-		}),
-	});
+): Promise<void> {
+	await new ApiRequest()
+		.setRequestMode('custom')
+		.doFetch(Routes.get('api-image'), {
+			method: 'DELETE',
+			body: JSON.stringify({
+				path,
+				storage,
+			}),
+		});
 }

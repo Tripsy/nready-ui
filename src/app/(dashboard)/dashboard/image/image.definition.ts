@@ -4,6 +4,7 @@ import { ViewImage } from '@/app/(dashboard)/dashboard/image/view-image.componen
 import { Icons } from '@/components/icon.component';
 import { getLanguageClient, translateBatch } from '@/config/translate.setup';
 import { displayImage } from '@/helpers/display.helper';
+import { logRejection } from '@/helpers/logger.helper';
 import {
 	requestDelete,
 	requestFind,
@@ -204,10 +205,12 @@ export default async function dataSourceConfig(): Promise<
 				operationFunction: async (entry: ImageModel) => {
 					const result = await requestDelete('image', entry);
 
-					await removeImageFile(
-						entry.path,
-						entry.storage,
-						entry.section,
+					// The row is gone; a file left behind is an orphan, not a failed delete.
+					await removeImageFile(entry.path, entry.storage).catch(
+						logRejection('Image file removal failed', {
+							id: entry.id,
+							storage: entry.storage,
+						}),
 					);
 
 					return result;

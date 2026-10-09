@@ -221,12 +221,23 @@ export class ApiRequest {
 	/**
 	 * The middleware gates mutating `/api/*` requests on the CSRF header, so only requests
 	 * that actually go through it need a token - `remote-api` calls leave the app entirely.
+	 *
+	 * A `custom` URL gets one only when it is origin-relative (`/api/...`), which is what a
+	 * call to one of this app's own route handlers looks like. An absolute or
+	 * protocol-relative URL may point anywhere, and the token must not travel off-origin.
 	 */
-	private needsCsrfToken(requestOptions: RequestInit): boolean {
+	private needsCsrfToken(
+		requestUrl: string,
+		requestOptions: RequestInit,
+	): boolean {
 		const method = (requestOptions.method || 'GET').toUpperCase();
 
 		if (['GET', 'HEAD', 'OPTIONS'].includes(method)) {
 			return false;
+		}
+
+		if (this.requestMode === 'custom') {
+			return requestUrl.startsWith('/') && !requestUrl.startsWith('//');
 		}
 
 		return (
@@ -303,7 +314,7 @@ export class ApiRequest {
 			}
 		}
 
-		const withCsrf = this.needsCsrfToken(requestOptions);
+		const withCsrf = this.needsCsrfToken(requestUrl, requestOptions);
 
 		/*
 		 * Two attempts at most. The CSRF cookie lives an hour, so a tab left open past
