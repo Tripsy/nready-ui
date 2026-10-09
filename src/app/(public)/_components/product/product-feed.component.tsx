@@ -74,6 +74,8 @@ export function ProductFeed({
 	language,
 	categoryId,
 	brandId,
+	term,
+	emptyMessage,
 	translations,
 }: {
 	initialEntries: ProductListEntryType[] | null;
@@ -82,6 +84,10 @@ export function ProductFeed({
 	language: Language;
 	categoryId?: number;
 	brandId?: number;
+	/** Search term, already checked against the backend's minimum length by the page. */
+	term?: string;
+	/** Replaces `text.no_entries` - a search with no hits must not read as an empty catalog. */
+	emptyMessage?: string;
 	translations: ProductListTranslations;
 }) {
 	const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -92,6 +98,7 @@ export function ProductFeed({
 			'feed',
 			categoryId ?? null,
 			brandId ?? null,
+			term ?? null,
 			language,
 		],
 		queryFn: async ({ pageParam }) => {
@@ -99,6 +106,7 @@ export function ProductFeed({
 				language,
 				category_id: categoryId,
 				brand_id: brandId,
+				term,
 				page: pageParam,
 				limit: pageSize,
 			});
@@ -187,7 +195,7 @@ export function ProductFeed({
 	if (entries.length === 0) {
 		return (
 			<p className="mt-10 text-muted">
-				{translations['text.no_entries']}
+				{emptyMessage ?? translations['text.no_entries']}
 			</p>
 		);
 	}

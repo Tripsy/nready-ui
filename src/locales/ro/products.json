@@ -35,6 +35,11 @@
 		"attribute_yes": "Da",
 		"attribute_no": "Nu",
 		"related_heading": "Mai multe din {{category}}",
-		"related_more": "Vezi mai multe produse din {{category}}"
+		"related_more": "Vezi mai multe produse din {{category}}",
+		"search_placeholder": "Caută produse",
+		"search_submit": "Caută",
+		"search_clear": "Șterge căutarea",
+		"no_results": "Niciun produs nu se potrivește cu „{{term}}”.",
+		"term_too_short": "Scrie cel puțin {{min}} caractere pentru a căuta."
 	}
 }

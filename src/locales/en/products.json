@@ -35,6 +35,11 @@
 		"attribute_yes": "Yes",
 		"attribute_no": "No",
 		"related_heading": "More from {{category}}",
-		"related_more": "See more products from {{category}}"
+		"related_more": "See more products from {{category}}",
+		"search_placeholder": "Search products",
+		"search_submit": "Search",
+		"search_clear": "Clear search",
+		"no_results": "No products match “{{term}}”.",
+		"term_too_short": "Type at least {{min}} characters to search."
 	}
 }

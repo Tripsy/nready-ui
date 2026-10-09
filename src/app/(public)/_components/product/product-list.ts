@@ -23,6 +23,10 @@ export const PRODUCT_PAGE_SIZE = 12;
 // listing and the detail view together.
 const REVALIDATE_SECONDS = 600;
 
+// Mirrors the backend's `filter.termMinLength`: `publicFind` rejects a shorter `term` with a 400,
+// so a shorter one must never reach it - the page would read that as the backend being down.
+export const PRODUCT_SEARCH_MIN_LENGTH = 3;
+
 export const PRODUCT_LIST_TRANSLATION_KEYS = [
 	'text.no_entries',
 	'text.list_unavailable',
@@ -48,7 +52,9 @@ export async function loadPublicProducts(
 		const response = await requestPublicProducts({
 			...params,
 			limit: params.limit ?? PRODUCT_PAGE_SIZE,
-			revalidate: REVALIDATE_SECONDS,
+			// A search term is visitor input, so caching per term would let anyone grow Next's
+			// shared data cache without bound - those requests skip it.
+			revalidate: params.term ? 0 : REVALIDATE_SECONDS,
 		});
 
 		if (!response?.success) {
@@ -65,6 +71,7 @@ export async function loadPublicProducts(
 		logger.error('Failed to load the public product list', error, {
 			category_id: params.category_id,
 			brand_id: params.brand_id,
+			termLength: params.term?.length,
 		});
 
 		return null;
