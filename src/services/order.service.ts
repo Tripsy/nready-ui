@@ -62,3 +62,30 @@ export async function requestOwnOrderShipments(
 		method: 'GET',
 	});
 }
+
+/**
+ * The deliveries and returns against several of the account's orders - one page of the history -
+ * in one request. An id the account does not own simply has no entries; group by `order_id`.
+ */
+export async function requestOwnOrdersShipments(
+	orderIds: readonly number[],
+): Promise<ApiResponseFetch<{ entries: OrderShipmentModel[] }>> {
+	const query = buildQueryString({ order_id: [...orderIds] });
+
+	return await new ApiRequest().doFetch(`/public/shipments?${query}`, {
+		method: 'GET',
+	});
+}
+
+/**
+ * Withdraws one of the account's pending orders, with its pending payment request and the
+ * deliveries that have not left. Answers 409 - with a message saying why - once the order is no
+ * longer pending, has been invoiced or has a payment under way.
+ */
+export async function requestCancelOwnOrder(
+	id: number,
+): Promise<ApiResponseFetch<null>> {
+	return await new ApiRequest().doFetch(`/public/orders/${id}/cancel`, {
+		method: 'PATCH',
+	});
+}

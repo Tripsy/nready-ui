@@ -121,6 +121,12 @@
 		"estimated_delivery_at": "Livrare estimată",
 		"scope_return": "Retur",
 		"delivery_cost": "Livrare",
-		"delivery_free": "Gratuit"
+		"delivery_free": "Gratuit",
+		"delivery_canceled": "Anulată",
+		"cancel": "Anulează comanda",
+		"cancel_title": "Anulezi această comandă?",
+		"cancel_confirm": "Comanda și livrarea ei vor fi anulate. Acțiunea nu poate fi refăcută.",
+		"cancel_success": "Comanda ta a fost anulată",
+		"cancel_failed": "Comanda nu a putut fi anulată"
 	}
 }

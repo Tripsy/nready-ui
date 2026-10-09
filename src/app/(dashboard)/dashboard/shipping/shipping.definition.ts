@@ -40,6 +40,7 @@ import {
 	type ShippingScope,
 	ShippingScopeEnum,
 	type ShippingStatus,
+	ShippingStatusEnum,
 } from '@/models/shipping.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type {
@@ -587,7 +588,10 @@ export default async function dataSourceConfig(): Promise<
 				},
 				permission: ['shipping', 'update'],
 				entriesSelection: 'single',
-				customEntryCheck: (entry: ShippingModel) => !entry.deleted_at,
+				// A canceled movement was withdrawn with its order - the backend refuses any edit
+				customEntryCheck: (entry: ShippingModel) =>
+					!entry.deleted_at &&
+					entry.status !== ShippingStatusEnum.CANCELED,
 				/*
 				 * The listing carries no `lines` - only the read does - so the form has to re-fetch
 				 * the row first. Seeding it from the table row would submit an empty allocation and

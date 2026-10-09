@@ -8,6 +8,7 @@ import {
 	Breadcrumb,
 	type BreadcrumbItem,
 } from '@/app/(public)/_components/breadcrumb.component';
+import { CancelOrderButton } from '@/app/(public)/account/orders/cancel-order-button.component';
 import Routes from '@/config/routes.setup';
 import { getLanguageClient } from '@/config/translate.setup';
 import { ApiError } from '@/exceptions/api.error';
@@ -24,14 +25,16 @@ import {
 	getOrderLineGrossUnitPrice,
 	groupOrderComponents,
 	type OrderLineModel,
+	OrderStatusEnum,
 } from '@/models/order.model';
 import { roundMoney } from '@/models/product.model';
 import {
 	displayAddressSnapshot,
-	getShippingGrossTotal,
+	getDeliveryGrossTotal,
 	type OrderShipmentModel,
 	ShippingMethodEnum,
 	ShippingScopeEnum,
+	ShippingStatusEnum,
 } from '@/models/shipping.model';
 import {
 	OWN_ORDERS_QUERY_KEY,
@@ -71,6 +74,7 @@ const TRANSLATION_KEYS = [
 	'order.storefront.scope_return',
 	'order.storefront.delivery_cost',
 	'order.storefront.delivery_free',
+	'order.storefront.delivery_canceled',
 	'checkout.delivery.self_pickup',
 	'checkout.delivery.courier',
 	'checkout.payment.cash_on_delivery',
@@ -347,29 +351,24 @@ export function AccountOrderView({
 	const shipments = shipmentsQuery.data ?? [];
 
 	/*
-	 * The order's own totals are the goods; what delivery cost lives on its shipments. Deliveries
-	 * only - a return is its own charge, raised later against the order, not part of what was paid
-	 * at checkout. Null until the shipments arrive, so the total is not shown without it.
+	 * The order's own totals are the goods; what delivery cost lives on its shipments. Null until
+	 * the shipments arrive, so the total is not shown without it.
 	 */
 	const delivery = shipmentsQuery.isSuccess
-		? shipments
-				.filter(
-					(shipment) => shipment.scope === ShippingScopeEnum.DELIVERY,
-				)
-				.reduce(
-					(sum, shipment) => {
-						const gross = getShippingGrossTotal(shipment);
-
-						return {
-							total: roundMoney(sum.total + gross.total),
-							vat_amount: roundMoney(
-								sum.vat_amount + gross.vat_amount,
-							),
-						};
-					},
-					{ total: 0, vat_amount: 0 },
-				)
+		? getDeliveryGrossTotal(shipments)
 		: null;
+	/*
+	 * Every delivery withdrawn with a canceled order: it charges nothing, but "free" would say it
+	 * was given away rather than called off.
+	 */
+	const deliveries = shipments.filter(
+		(shipment) => shipment.scope === ShippingScopeEnum.DELIVERY,
+	);
+	const isDeliveryCanceled =
+		deliveries.length > 0 &&
+		deliveries.every(
+			(shipment) => shipment.status === ShippingStatusEnum.CANCELED,
+		);
 	const orderTotal = roundMoney(totals.total + (delivery?.total ?? 0));
 	const orderVat = roundMoney(
 		totals.vat_amount + (delivery?.vat_amount ?? 0),
@@ -382,6 +381,11 @@ export function AccountOrderView({
 					{displayOrderReference(order)}
 				</h1>
 				<DisplayStatus status={order.status} dataSource="order" />
+				{order.status === OrderStatusEnum.PENDING && (
+					<div className="ml-auto">
+						<CancelOrderButton orderId={order.id} />
+					</div>
+				)}
 			</div>
 
 			<dl className="grid gap-4 rounded-2xl border border-border bg-surface p-6 text-sm sm:grid-cols-3">
@@ -583,14 +587,18 @@ export function AccountOrderView({
 							<dd className="tabular-nums">
 								{delivery === null
 									? '…'
-									: delivery.total === 0
+									: isDeliveryCanceled
 										? translations[
-												'order.storefront.delivery_free'
+												'order.storefront.delivery_canceled'
 											]
-										: displayOrderMoney(
-												delivery.total,
-												totals.currency,
-											)}
+										: delivery.total === 0
+											? translations[
+													'order.storefront.delivery_free'
+												]
+											: displayOrderMoney(
+													delivery.total,
+													totals.currency,
+												)}
 							</dd>
 						</div>
 

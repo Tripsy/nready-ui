@@ -12,6 +12,7 @@ export const ShippingStatusEnum = {
 	DELIVERED: 'delivered',
 	FAILED: 'failed',
 	RETURNED: 'returned',
+	CANCELED: 'canceled',
 } as const;
 
 export type ShippingStatus =
@@ -60,16 +61,19 @@ export type ShippingMethod =
  * into `pickup_data` and `destination_data` there, which is why nothing returns to an earlier state.
  *
  * `delivered`, `failed` and `returned` are all terminal - goods that have arrived, gone missing or
- * come back are finished, and anything after that is a new movement.
+ * come back are finished, and anything after that is a new movement. So is `canceled`: a movement
+ * withdrawn before it left, set by the backend when its order is canceled.
  */
 export const SHIPPING_STATUS_TRANSITIONS: StatusTransitions<ShippingStatus> = {
 	[ShippingStatusEnum.PENDING]: [
 		ShippingStatusEnum.PREPARING,
 		ShippingStatusEnum.FAILED,
+		ShippingStatusEnum.CANCELED,
 	],
 	[ShippingStatusEnum.PREPARING]: [
 		ShippingStatusEnum.SHIPPED,
 		ShippingStatusEnum.FAILED,
+		ShippingStatusEnum.CANCELED,
 	],
 	[ShippingStatusEnum.SHIPPED]: [
 		ShippingStatusEnum.DELIVERED,
@@ -79,6 +83,7 @@ export const SHIPPING_STATUS_TRANSITIONS: StatusTransitions<ShippingStatus> = {
 	[ShippingStatusEnum.DELIVERED]: [],
 	[ShippingStatusEnum.FAILED]: [],
 	[ShippingStatusEnum.RETURNED]: [],
+	[ShippingStatusEnum.CANCELED]: [],
 };
 
 /** What one request may carry, mirroring `SHIPPING_LINES_MAX` in the backend validator. */
@@ -324,7 +329,8 @@ export const displayShippingDestination = (
 };
 
 /**
- * A movement as the buyer it is delivered to is shown it (`GET /public/orders/:id/shipments`) -
+ * A movement as the buyer it is delivered to is shown it (`GET /public/orders/:id/shipments`, or
+ * `GET /public/shipments` for a page of orders at once) -
  * where it stands, how it travels and how to follow it. The business's own side (the operational
  * cost, internal notes, contact snapshot, allocation ids) is not in the payload.
  *
@@ -367,4 +373,40 @@ export function getShippingGrossTotal(
 	const vatAmount = roundMoney((net * Number(entry.vat_rate)) / 100);
 
 	return { total: roundMoney(net + vatAmount), vat_amount: vatAmount };
+}
+
+/** Movements that carried nothing, so charge nothing - mirrors `UNBILLED_STATUSES` in the backend. */
+const UNBILLED_SHIPPING_STATUSES: readonly ShippingStatus[] = [
+	ShippingStatusEnum.FAILED,
+	ShippingStatusEnum.CANCELED,
+];
+
+/**
+ * What delivery added to an order, VAT included. Deliveries only - a return is its own charge,
+ * raised later against the order, not part of what was paid at checkout - and only those that
+ * carried something, on the terms the backend asks payment for them.
+ */
+export function getDeliveryGrossTotal(
+	shipments: readonly Pick<
+		ShippingModel,
+		'scope' | 'status' | 'price' | 'vat_rate' | 'discount_reduction'
+	>[],
+): { total: number; vat_amount: number } {
+	return shipments
+		.filter(
+			(shipment) =>
+				shipment.scope === ShippingScopeEnum.DELIVERY &&
+				!UNBILLED_SHIPPING_STATUSES.includes(shipment.status),
+		)
+		.reduce(
+			(sum, shipment) => {
+				const gross = getShippingGrossTotal(shipment);
+
+				return {
+					total: roundMoney(sum.total + gross.total),
+					vat_amount: roundMoney(sum.vat_amount + gross.vat_amount),
+				};
+			},
+			{ total: 0, vat_amount: 0 },
+		);
 }

@@ -121,6 +121,12 @@
 		"estimated_delivery_at": "Estimated delivery",
 		"scope_return": "Return",
 		"delivery_cost": "Delivery",
-		"delivery_free": "Free"
+		"delivery_free": "Free",
+		"delivery_canceled": "Canceled",
+		"cancel": "Cancel order",
+		"cancel_title": "Cancel this order?",
+		"cancel_confirm": "The order and its delivery will be canceled. This cannot be undone.",
+		"cancel_success": "Your order has been canceled",
+		"cancel_failed": "The order could not be canceled"
 	}
 }
