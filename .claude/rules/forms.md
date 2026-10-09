@@ -203,3 +203,52 @@ Notes specific to them:
   `PermissionEntitiesSuggestions` only as a virtual key (`// NOT an entity`, like `dashboard`) so it satisfies
   `DataSourceKey ⊆ PermissionEntityType`.
 - Post-submit side effects (refreshAuth, redirect after delete) go through the window's `events.success`.
+
+## 8. Server Actions vs. the Form Pipeline
+
+**Never call a server action from inside a form pipeline.** A server action is POSTed to the
+*current* URL and its response carries a re-rendered tree for that page. Applying that tree
+**resets the submitting form's state**: `useActionState` reverts to its initial value, so the
+result the action just returned is discarded, and the field values derived from it go with it.
+
+The scope is narrow, and worth knowing before ripping out unrelated actions: a server action
+called *outside* a form pipeline is fine. Measured on production - the `refreshAuth` interval
+in `auth.provider.tsx` fires `getAuth` every 10 minutes app-wide, and after one such call the
+React-rendered nodes were still attached and untouched, so the tree reconciles rather than
+remounts and ordinary `useState` survives. It is the nesting inside `useActionState` that
+destroys the result. A form that calls an action from its `operationFunction` therefore
+completes its work server-side and then comes back pristine - no message, no result, nothing
+to act on, and only a reload reveals that anything happened. Whatever the pipeline needs
+server-side goes in a **route handler under `/api/`** instead, which answers with plain JSON
+and no tree; `POST /api/auth/session` (`requestCreateSession`) exists for exactly this, and
+being a mutating `/api/` request it also passes the CSRF gate an action bypasses.
+
+The weaker form of the same problem hits navigation: applying that tree makes the action's URL
+canonical again, so a `router.push`/`replace` racing it is undone. `await`ing the action does
+not fix it - the promise resolves on the return value while the tree patch is a separate
+commit. Post-sign-in redirects therefore leave the page with `window.location.replace(...)`,
+which cannot be reverted, and the destination is server-rendered with the session cookie so
+`providers.tsx` seeds `AuthProvider` from `x-auth-data` with no `refreshAuth` needed
+(`login.component.tsx`, `oauth-callback.component.tsx`).
+
+## 9. Creating a Related Record from Inside a Form
+
+A form that picks a foreign entity also offers to create it, by opening that entity's own window
+rather than collecting a name inline - that window is what makes the new row complete (slug,
+per-language content, the fields the picker has nowhere to ask for). The pattern is three parts,
+and it is broken if any one is missing:
+
+1. capture `getCurrentWindow()` *before* `open()`, and `focus(parentWindow.uid)` in the `success`
+   event - `open` minimizes the caller, so without it the editor lands on an empty desktop with a
+   half-filled form parked in the dock;
+2. seed the child through `data.prefillEntry`, passing the caller's own context so the child can
+   ask what the caller cannot decide (`form-manage-product`/`form-bundle-product` hand
+   `product-category-attribute` a `category_id` when there is exactly one category and always a
+   `category_options` list for when there are several);
+3. refresh whatever the new row feeds - `refetchResolved()` for attributes, an
+   `invalidateQueries` on the picker's suggestion key for a brand, whose cache still holds the
+   empty result that prompted the create.
+
+Gate the button on the permission the *backend* policy checks, not the one the current form needs:
+a product-category-attribute is written under `product`/`create`. Offering a create the account
+cannot perform only defers the refusal to the submit.
