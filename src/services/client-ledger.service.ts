@@ -19,9 +19,7 @@ import type { ApiResponseFetch, QueryFiltersType } from '@/types/api.type';
  */
 
 /** The money moved with the client, one row per currency - received, refunded, net. */
-export async function requestClientLedgerBalance(
-	clientId: number,
-): Promise<
+export async function requestClientLedgerBalance(clientId: number): Promise<
 	ApiResponseFetch<{
 		client_id: number;
 		balances: ClientLedgerBalanceModel[];
