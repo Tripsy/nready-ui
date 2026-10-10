@@ -40,6 +40,7 @@ import {
 	type ShippingScope,
 	ShippingScopeEnum,
 	type ShippingStatus,
+	ShippingStatusEnum,
 } from '@/models/shipping.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type {
@@ -334,14 +335,17 @@ function getFormState(
 			pickup_warehouse: data?.pickup_warehouse
 				? `${data.pickup_warehouse.code} - ${data.pickup_warehouse.name}`
 				: null,
+			// Named by the read; the id stands in only when the address no longer resolves
 			pickup_client_address: data?.pickup_client_address_id
-				? `#${data.pickup_client_address_id}`
+				? (data.pickup_client_address_label ??
+					`#${data.pickup_client_address_id}`)
 				: null,
 			destination_warehouse: data?.destination_warehouse
 				? `${data.destination_warehouse.code} - ${data.destination_warehouse.name}`
 				: null,
 			destination_client_address: data?.destination_client_address_id
-				? `#${data.destination_client_address_id}`
+				? (data.destination_client_address_label ??
+					`#${data.destination_client_address_id}`)
 				: null,
 			carrier: data?.carrier?.name ?? null,
 			is_existing: !!data,
@@ -508,7 +512,8 @@ export default async function dataSourceConfig(): Promise<
 								entry.pickup_data,
 								entry.pickup_warehouse,
 								entry.pickup_client_address_id,
-							)} → ${displayShippingDestination(entry)}`,
+								entry.pickup_client_address_label,
+							)} →${displayShippingDestination(entry)}`,
 						}),
 				},
 				{
@@ -583,7 +588,10 @@ export default async function dataSourceConfig(): Promise<
 				},
 				permission: ['shipping', 'update'],
 				entriesSelection: 'single',
-				customEntryCheck: (entry: ShippingModel) => !entry.deleted_at,
+				// A canceled movement was withdrawn with its order - the backend refuses any edit
+				customEntryCheck: (entry: ShippingModel) =>
+					!entry.deleted_at &&
+					entry.status !== ShippingStatusEnum.CANCELED,
 				/*
 				 * The listing carries no `lines` - only the read does - so the form has to re-fetch
 				 * the row first. Seeding it from the table row would submit an empty allocation and
@@ -656,7 +664,7 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['view.title'],
 				windowComponent: ViewShipping,
 				windowConfigProps: {
-					size: 'xl',
+					size: 'xl3',
 				},
 				permission: ['shipping', 'read'],
 				entriesSelection: 'single',

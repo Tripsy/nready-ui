@@ -9,6 +9,8 @@ import {
 	Ban,
 	BanknoteArrowDown,
 	BanknoteArrowUp,
+	BanknoteX,
+	BookOpenCheck,
 	BookText,
 	Boxes,
 	Building2,
@@ -31,6 +33,7 @@ import {
 	Code,
 	Coins,
 	CornerRightDown,
+	CreditCard,
 	Cuboid,
 	Ellipsis,
 	EllipsisVertical,
@@ -209,6 +212,8 @@ export const Icons = {
 	Content: createIcon(FileStack),
 	Location: createIcon(MapPin),
 	CashFlow: createIcon(PiggyBank),
+	ClientLedger: createIcon(BookOpenCheck),
+	Invoice: createIcon(FileDigit),
 	Discount: createIcon(TicketPercent),
 	ExchangeRate: createIcon(ArrowRightLeft),
 	OperationalRecord: createIcon(BanknoteArrowUp),
@@ -294,6 +299,7 @@ export const Icons = {
 		Canceled: createIcon(CircleX),
 		Expired: createIcon(ClockFading),
 		RequiresAction: createIcon(TriangleAlert),
+		AwaitingPayment: createIcon(CreditCard),
 
 		Verified: createIcon(Check),
 		Draft: createIcon(FilePenLine),
@@ -340,6 +346,12 @@ export const Icons = {
 		Complete: createIcon(Check),
 		Drop: createIcon(CircleX),
 		Refund: createIcon(BanknoteArrowDown),
+		Issue: createIcon(Send),
+		Invoice: createIcon(FileDigit),
+		Reverse: createIcon(BanknoteArrowDown),
+		AllocatePayment: createIcon(BanknoteArrowUp),
+		ClearPayments: createIcon(BanknoteX),
+		Manage: createIcon(ListChecks),
 		Verified: createIcon(Check),
 		Draft: createIcon(FilePenLine),
 		StatusTransition: createIcon(TrendingUp),
@@ -367,8 +379,31 @@ export const Icons = {
 		Archive: createIcon(Archive),
 		Pin: createIcon(Pin),
 		Unpin: createIcon(PinOff),
+		// Keys an action is registered under whose icon is named for something else - every
+		// action key resolves to an entry here, which is what `ActionIconKey` checks
+		Guide: createIcon(Info),
+		ManagerImages: createIcon(Camera),
+		LinkAccount: createIcon(Link),
+		UnlinkAccount: createIcon(Unlink),
+		Addresses: createIcon(MapPinHouse),
+		Bundle: createIcon(PackagePlus),
+		BundleEdit: createIcon(PackagePlus),
+		Edit: createIcon(SquarePen),
+		EmailUpdate: createIcon(SquarePen),
+		PasswordUpdate: createIcon(SquarePen),
+		DeleteAccount: createIcon(CircleX),
 	},
 };
+
+/** An `Icons.Action` entry, as `getActionIcon` resolves it - by name, first letter either case. */
+export type ActionIconName = keyof typeof Icons.Action;
+
+/**
+ * What an action may be registered under in a definition's `actions`: the button's icon is looked
+ * up from the key (`getActionIcon`), so a key with no `Icons.Action` entry fails the typecheck
+ * instead of throwing when the page renders.
+ */
+export type ActionIconKey = Uncapitalize<ActionIconName>;
 
 export function getActionIcon(action: string) {
 	action = capitalizeFirstLetter(action);

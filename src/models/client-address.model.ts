@@ -30,6 +30,19 @@ export type ClientAddressModel<D = Date | string> = {
 	/** Joined by the read and the listing, with the city in the requested language. */
 	address?: AddressModel<D> | null;
 	client?: ClientModel<D> | null;
+	/**
+	 * The address flattened the way an order copies it, country code included - attached by the
+	 * single read only, for the order form to fill a billing address from.
+	 */
+	snapshot?: {
+		details: string | null;
+		postal_code: string | null;
+		address_city: string | null;
+		address_region: string | null;
+		address_country: string | null;
+		country_code: string | null;
+		notes: string | null;
+	} | null;
 
 	created_at: D;
 	updated_at: D | null;

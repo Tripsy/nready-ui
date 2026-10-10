@@ -1,8 +1,18 @@
 import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 
+/*
+ * The CloudFront distribution public S3 images render from (`showImage`). Listed so next/image
+ * optimizes them - resized, WebP/AVIF - instead of refusing an unconfigured host. Read at build
+ * time, like every `NEXT_PUBLIC_` value.
+ */
+const imagesCdnUrl = process.env.NEXT_PUBLIC_IMAGES_CDN_URL;
+
 const nextConfig: NextConfig = {
 	trailingSlash: false,
+	images: {
+		remotePatterns: imagesCdnUrl ? [new URL(`${imagesCdnUrl}/**`)] : [],
+	},
 	output: 'standalone', // Recommended for Amplify
 	allowedDevOrigins: ['nready-ui.test'],
 	// reactStrictMode: false,

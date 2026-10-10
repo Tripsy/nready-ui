@@ -27,7 +27,7 @@ import {
  *
  * Checkout is the exception: a basket priced against a client - and quoted for a delivery choice -
  * is a different quote, so it holds its own entry keyed `[...CART_QUERY_KEY, clientId, method,
- * addressId]`. The base key stays this array's prefix, so invalidating it reaches those too.
+ * addressId, billingAddressId]`. The base key stays this array's prefix, so invalidating it reaches those too.
  */
 export const CART_QUERY_KEY = ['cart'] as const;
 
@@ -53,6 +53,7 @@ const STALE_TIME_MS = 30_000;
 export function useCart(
 	clientId?: number | null,
 	delivery?: CartDeliveryChoice | null,
+	billingAddressId?: number | null,
 ) {
 	const queryClient = useQueryClient();
 
@@ -60,17 +61,19 @@ export function useCart(
 	 * Naming a client asks the backend to price the basket against that buyer, which is what makes
 	 * a client-scoped discount visible before the order is raised. It is a different quote of the
 	 * same lines, so it gets its own entry rather than overwriting the one every other page reads -
-	 * and the delivery choice is part of that quote, since the address decides the rate.
+	 * and the delivery choice is part of that quote, since the address decides the rate. So is the
+	 * billing address, whose country decides a country-limited discount.
 	 */
 	const method = delivery?.method ?? null;
 	const addressId = delivery?.addressId ?? null;
+	const billingId = billingAddressId ?? null;
 
 	const queryKey = useMemo(
 		() =>
 			clientId
-				? [...CART_QUERY_KEY, clientId, method, addressId]
+				? [...CART_QUERY_KEY, clientId, method, addressId, billingId]
 				: CART_QUERY_KEY,
-		[clientId, method, addressId],
+		[clientId, method, addressId, billingId],
 	);
 
 	const query = useQuery({
@@ -80,6 +83,7 @@ export function useCart(
 				await requestCart(
 					clientId,
 					method ? { method: method, addressId: addressId } : null,
+					billingId,
 				),
 			),
 		staleTime: STALE_TIME_MS,

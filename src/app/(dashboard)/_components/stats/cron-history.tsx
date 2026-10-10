@@ -36,6 +36,7 @@ const STATUS_VARIANT: Record<CronHistoryStatus, BadgeVariant> = {
 	// `warning` means the job ran but overran its expected time - not a failure, still worth a look.
 	[CronHistoryStatusEnum.WARNING]: 'warning',
 	[CronHistoryStatusEnum.OK]: 'success',
+	[CronHistoryStatusEnum.RUNNING]: 'info',
 };
 
 export function useCronHistoryPanel(): PanelView {

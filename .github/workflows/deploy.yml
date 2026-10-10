@@ -76,6 +76,13 @@ jobs:
                       NEXT_PUBLIC_APP_VAT_RATE=19
                       NEXT_PUBLIC_SENTRY_DSN=${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
                       NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE=0.1
+                      # Empty until CloudFront is set up - S3 images then use the signed route
+                      NEXT_PUBLIC_IMAGES_CDN_URL=${{ vars.NEXT_PUBLIC_IMAGES_CDN_URL }}
+                      NEXT_PUBLIC_API_DOCS_ENABLED=false
+                      # Empty hides that provider's sign-in button
+                      NEXT_PUBLIC_OAUTH_GOOGLE_CLIENT_ID=${{ vars.NEXT_PUBLIC_OAUTH_GOOGLE_CLIENT_ID }}
+                      NEXT_PUBLIC_OAUTH_FACEBOOK_CLIENT_ID=${{ vars.NEXT_PUBLIC_OAUTH_FACEBOOK_CLIENT_ID }}
+                      NEXT_PUBLIC_PRODUCT_VARIANT_DISPLAY=collapsed
                   # Passed as BuildKit secrets, not build args: a build arg is recorded in
                   # the image history and would publish the token to anyone who can pull.
                   # Absent values are fine - the build then skips the source map upload and

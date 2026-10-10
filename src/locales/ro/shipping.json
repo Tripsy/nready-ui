@@ -35,7 +35,8 @@
 		"delivered": "Livrat",
 		"failed": "Eșuat",
 		"returned": "Returnat",
-		"deleted": "Șters"
+		"deleted": "Șters",
+		"canceled": "Anulat"
 	},
 	"action": {
 		"create": {
@@ -83,7 +84,7 @@
 		"step_3_title": "Spune ce călătorește",
 		"step_3_body": "Conținutul este listat pe variantă și cantitate. Pentru o mișcare cu o comandă în spate, fiecare variantă trebuie să fie pe acea comandă, iar cantitatea nu poate depăși ce a rămas neexpediat pentru acea variantă, ținând cont de celelalte mișcări ale comenzii - astfel nimic nu este trimis de două ori. O relocare se raportează la stocul existent și conținutul ei nu poate fi ales până când documentul de relocare nu există.",
 		"step_4_title": "Mută mișcarea prin stări",
-		"step_4_body": "În așteptare, în pregătire, expediat, iar din expediat în livrat sau returnat; eșuat este accesibil din orice stare dinainte de sosire. Marcarea ca expediat îngheață ambele capete în mișcare și înregistrează data expedierii; livrat își înregistrează propria dată. Niciuna nu se rescrie, nimic nu revine la o stare anterioară, iar livrat, returnat și eșuat sunt toate finale.",
+		"step_4_body": "În așteptare, în pregătire, expediat, iar din expediat în livrat sau returnat; eșuat este accesibil din orice stare dinainte de sosire. Marcarea ca expediat îngheață ambele capete în mișcare și înregistrează data expedierii; livrat își înregistrează propria dată. Niciuna nu se rescrie, nimic nu revine la o stare anterioară, iar livrat, returnat și eșuat sunt toate finale. O livrare neexpediată trece singură în anulat când comanda ei este anulată, stare de asemenea finală.",
 		"step_5_title": "Găsește mișcarea din nou",
 		"step_5_body": "Căutarea se face după numărul de urmărire, de la trei caractere. Un termen format doar din cifre este căutat exact după id-ul expedierii, id-ul comenzii și numărul comenzii; o referință de comandă precum ORD-1183 afișează expedierile acelei comenzi. Poți filtra după tip, stare și metodă.",
 		"note": "Odată marcată ca expediată, niciunul dintre capete nu mai poate fi schimbat - copiile înghețate sunt ceea ce documentul continuă să spună, indiferent ce se modifică sau se șterge ulterior. Ștergerea unei mișcări este una logică și eliberează ce transporta, astfel încât acele cantități redevin disponibile pentru celelalte mișcări ale documentului.",

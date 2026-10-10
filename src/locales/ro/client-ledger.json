@@ -1,0 +1,33 @@
+{
+	"meta": {
+		"title": "Registru clienți - Dashboard | {{app_name}}"
+	},
+	"action": {
+		"guide": {
+			"title": "Cum funcționează registrul clienților",
+			"label": "Ghid de utilizare"
+		}
+	},
+	"balance": {
+		"select_client": "Selectează un client pentru a vedea banii mișcați cu acesta.",
+		"empty": "Nu s-au mișcat încă bani cu acest client.",
+		"received": "Încasat",
+		"refunded": "Rambursat",
+		"net": "Net",
+		"net_base": "Net în moneda de bază"
+	},
+	"help": {
+		"intro": "Registrul este evidența banilor care chiar au circulat cu un client - câte un rând cu semn pentru fiecare flux de numerar finalizat. Nimic de pe acest ecran nu scrie în el: rândurile sunt adăugate de lanțul de decontare pe măsură ce plățile și rambursările se finalizează și nu se mai modifică ulterior.",
+		"step_1_title": "Alege clientul",
+		"step_1_body": "Registrul se citește mereu pentru un singur client, așa că lista rămâne goală până când filtrul de client indică unul. Tipul înregistrării, moneda și intervalul de date o restrâng mai departe.",
+		"step_2_title": "Citește soldul",
+		"step_2_body": "Deasupra listei, câte un card pe monedă: cât s-a încasat, cât s-a rambursat și diferența dintre ele. Monedele nu se adună niciodată între ele - suma în moneda de bază este convertită la cursul înghețat pe fiecare rând, doar pentru raportare.",
+		"step_3_title": "Citește semnul",
+		"step_3_body": "O plată primită de la client este pozitivă, o rambursare către acesta negativă. O rambursare este înregistrată la clientul plății pe care o anulează.",
+		"step_4_title": "Urmărește o înregistrare până la fluxul ei",
+		"step_4_body": "Fiecare rând indică fluxul de numerar care l-a scris - deschide-l pentru a vedea metoda, referința și documentele pe care le-a decontat. Mișcările în așteptare, eșuate sau anulate nu scriu nimic aici.",
+		"note": "Netul înseamnă bani mișcați, nu bani datorați: ce mai are de plătit un client se citește din facturile sale. Un job nocturn înregistrează orice mișcare finalizată care lipsește din registru, așa că o plată finalizată cât timp funcționalitatea nu era instalată apare până dimineața următoare.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API"
+	}
+}

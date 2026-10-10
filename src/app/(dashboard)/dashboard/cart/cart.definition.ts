@@ -131,7 +131,9 @@ export default async function dataSourceConfig(): Promise<
 						 * sweep has not come round yet.
 						 */
 						DataTableValue(entry, column, {
-							customValue: formatDate(entry.expires_at) ?? '-',
+							customValue:
+								formatDate(entry.expires_at, 'date-time') ??
+								'-',
 						}),
 				},
 				{

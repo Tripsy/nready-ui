@@ -23,6 +23,7 @@ import { CSRF_HEADER, getCsrfToken } from '@/helpers/csrf.helper';
 import { cn } from '@/helpers/css.helper';
 import { displayImage } from '@/helpers/display.helper';
 import { getErrorMessage } from '@/helpers/error.helper';
+import { logRejection } from '@/helpers/logger.helper';
 import {
 	requestDelete,
 	requestFind,
@@ -1116,21 +1117,26 @@ export function ManagerImages({
 		}
 
 		if (['existing', 'existing_dirty'].includes(entry.situation)) {
+			if (!entry.id || !entry.storage) {
+				throw new Error('Image removal failed');
+			}
+
 			try {
-				if (!entry.storage) {
-					return;
-				}
-
-				if (entry.id) {
-					await requestDelete('image', {
-						id: entry.id,
-					});
-				}
-
-				await removeImageFile(entry.path, entry.storage, section);
+				await requestDelete('image', {
+					id: entry.id,
+				});
 			} catch {
 				throw new Error('Image removal failed');
 			}
+
+			// The row is gone, so the entry has to leave the list either way - a file left
+			// behind is an orphan, not a failed delete.
+			await removeImageFile(entry.path, entry.storage).catch(
+				logRejection('Image file removal failed', {
+					id: entry.id,
+					storage: entry.storage,
+				}),
+			);
 		}
 	}
 
@@ -1181,7 +1187,9 @@ export function ManagerImages({
 				entity_id,
 			);
 		} catch {
-			await removeImageFile(path, storage, section);
+			await removeImageFile(path, storage).catch(
+				logRejection('Image upload rollback failed', { storage }),
+			);
 
 			throw new Error('Image creation failed');
 		}

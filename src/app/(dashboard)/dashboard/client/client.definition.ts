@@ -11,6 +11,7 @@ import {
 import { ManagerAddressesClient } from '@/app/(dashboard)/dashboard/client/manager-addresses-client.component';
 import { UsageGuideClient } from '@/app/(dashboard)/dashboard/client/usage-guide-client.component';
 import { ViewClient } from '@/app/(dashboard)/dashboard/client/view-client.component';
+import { LinkClientLedger } from '@/app/(dashboard)/dashboard/client-ledger/link-client-ledger.component';
 import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import {
@@ -400,10 +401,21 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'name',
 					header: 'Name',
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
-							customValue: displayClientLabel(entry),
-						}),
+					body: (entry, column, auth) => {
+						const label = displayClientLabel(entry);
+
+						// The name opens the client's ledger, for whoever may read it
+						return DataTableValue(entry, column, {
+							customValue:
+								label &&
+								hasPermission(auth, 'client-ledger', 'find')
+									? LinkClientLedger({
+											clientId: entry.id,
+											label,
+										})
+									: label,
+						});
+					},
 				},
 				{
 					field: 'user_id',

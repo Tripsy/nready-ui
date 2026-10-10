@@ -220,6 +220,38 @@ export default function DataTableList(props: { dataKey: string }) {
 		[dataKey],
 	);
 
+	/*
+	 * The store holds whole entries, captured when they were selected, and the action buttons
+	 * decide what to offer from them. After an action reloads the page those copies are stale -
+	 * a deleted row still offers its buttons, an issued draft still offers Issue - so the
+	 * selection is rebuilt from every fresh page: rows that are gone drop out, the rest are
+	 * swapped for their current copy. Skipped while fetching, when `entries` is still the
+	 * previous page held by `keepPreviousData`.
+	 */
+	useEffect(() => {
+		if (isFetching || selectedEntries.length === 0) {
+			return;
+		}
+
+		const freshByKey = new Map(
+			entries.map((entry) => [getRowKey(entry), entry]),
+		);
+
+		const refreshed = selectedEntries.flatMap((entry) => {
+			const fresh = freshByKey.get(getRowKey(entry));
+
+			return fresh ? [fresh] : [];
+		});
+
+		const unchanged =
+			refreshed.length === selectedEntries.length &&
+			refreshed.every((entry, index) => entry === selectedEntries[index]);
+
+		if (!unchanged) {
+			setSelectedEntries(refreshed);
+		}
+	}, [entries, isFetching, selectedEntries, getRowKey, setSelectedEntries]);
+
 	const selectedKeys = useMemo<Selection>(
 		() => new Set(selectedEntries.map(getRowKey)),
 		[selectedEntries, getRowKey],

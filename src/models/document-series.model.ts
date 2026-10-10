@@ -3,7 +3,7 @@
  * what an allocation resolves on - mirrors `DocumentTypeEnum` on the backend entity.
  */
 export const DocumentTypeEnum = {
-	INVOICE: 'invoice',
+	INVOICE: 'invoice', // Reversals included - they number from the invoice series
 	ORDER: 'order',
 	GRN: 'grn',
 	SUBSCRIPTION: 'subscription',

@@ -159,6 +159,27 @@ export function CheckoutForm(): JSX.Element {
 	);
 
 	/*
+	 * Addresses are filed under a client, so the ones picked for the previous client are dropped
+	 * in the same update: the quote sends them with the client id, and another client's address
+	 * answers 404 until `CheckoutAddresses` picks the new client's own.
+	 */
+	const selectClient = useCallback(
+		(clientId: number) => {
+			if (clientId === selectedClientId) {
+				return;
+			}
+
+			setSelectedClientId(clientId);
+			setValues((current) => ({
+				...current,
+				billing_address_id: null,
+				delivery_address_id: null,
+			}));
+		},
+		[selectedClientId],
+	);
+
+	/*
 	 * Priced against the client being billed, so a discount scoped to that buyer shows on the
 	 * summary here rather than appearing for the first time on the order - and quoted for the
 	 * delivery chosen, whose address decides the rate. Declared below the selections it reads, and
@@ -180,6 +201,7 @@ export function CheckoutForm(): JSX.Element {
 							: null,
 				}
 			: null,
+		values.billing_address_id,
 	);
 	const [editor, setEditor] = useState<BillingEditor | null>(null);
 	const [billingValues, setBillingValues] = useState<BillingValues>(() =>
@@ -208,14 +230,14 @@ export function CheckoutForm(): JSX.Element {
 		const newest = clients[0];
 
 		if (newest) {
-			setSelectedClientId(newest.id);
+			selectClient(newest.id);
 
 			return;
 		}
 
 		setBillingValues(getDefaultBillingValues(auth));
 		setEditor({ mode: 'create' });
-	}, [clients, auth]);
+	}, [clients, auth, selectClient]);
 
 	const checkoutErrors = validateCheckout(values);
 	const billingErrors = validateBilling(billingValues);
@@ -266,7 +288,7 @@ export function CheckoutForm(): JSX.Element {
 			throw new Error(translations['checkout.billing.save_failed']);
 		}
 
-		setSelectedClientId(saved.id);
+		selectClient(saved.id);
 		setEditor(null);
 		setShowBillingErrors(false);
 
@@ -275,7 +297,7 @@ export function CheckoutForm(): JSX.Element {
 		});
 
 		return saved;
-	}, [billingValues, editor, queryClient, translations]);
+	}, [billingValues, editor, queryClient, translations, selectClient]);
 
 	const saveMutation = useMutation({
 		mutationFn: saveBilling,
@@ -523,7 +545,7 @@ export function CheckoutForm(): JSX.Element {
 						translations={translations}
 						disabled={isBusy}
 						onSelect={(clientId) => {
-							setSelectedClientId(clientId);
+							selectClient(clientId);
 							setEditor(null);
 						}}
 						onChange={(field, value) =>
@@ -542,7 +564,7 @@ export function CheckoutForm(): JSX.Element {
 								getBillingValuesFromClient(client),
 							);
 							setShowBillingErrors(false);
-							setSelectedClientId(client.id);
+							selectClient(client.id);
 							setEditor({ mode: 'edit', clientId: client.id });
 						}}
 						onCancel={() => setEditor(null)}

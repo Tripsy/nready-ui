@@ -13,6 +13,7 @@
 		"invalid_notes": "Enter a valid notes",
 		"invalid_client": "Select a valid client",
 		"invalid_vendor": "Select a valid vendor",
+		"invalid_order": "Select a valid order",
 		"required_operational_record_type": "For selected category operational record is required (e.g.: {{type}})"
 	},
 	"status": {
@@ -64,6 +65,12 @@
 			"label": "Cancel",
 			"success": "Cash flow status marked as canceled",
 			"confirm": "Are you sure you want to mark this cash flow as canceled?"
+		},
+		"invoice": {
+			"title": "Generate invoice - {{entry}}",
+			"label": "Generate invoice",
+			"success": "Invoice generated successfully",
+			"confirm": "Generate the invoice for this cash flow and allocate the payment against it?"
 		},
 		"view": {
 			"title": "Cash flow details - {{entry}}",

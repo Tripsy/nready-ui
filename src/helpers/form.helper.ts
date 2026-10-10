@@ -430,13 +430,22 @@ export function mergeNormalizedValues<T>(raw: T, validated: unknown): T {
 		) as T;
 	}
 
+	/*
+	 * Folded over the raw object rather than replacing it: a schema strips the keys it does not
+	 * declare, and those are the display-only ones a field still renders - an autocomplete's
+	 * visible label, a figure shown beside an input. Dropping them would blank the field the
+	 * moment a server rejection redraws the form.
+	 */
 	if (isPlainObject(validated) && isPlainObject(raw)) {
-		return Object.fromEntries(
-			Object.entries(validated).map(([key, entry]) => [
-				key,
-				mergeNormalizedValues(raw[key], entry),
-			]),
-		) as T;
+		return {
+			...raw,
+			...Object.fromEntries(
+				Object.entries(validated).map(([key, entry]) => [
+					key,
+					mergeNormalizedValues(raw[key], entry),
+				]),
+			),
+		} as T;
 	}
 
 	// `typeof null` is `'object'`, so an emptied optional folded to `null` reads as a type

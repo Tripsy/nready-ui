@@ -55,6 +55,11 @@ export const statusList: Record<
 		variant: 'warning',
 		icon: Icons.Status.Warning,
 	},
+	// A cron run in progress - or, past its lock lease, one the API is about to close as an error
+	running: {
+		variant: 'info',
+		icon: Icons.Status.Pending,
+	},
 	sent: {
 		variant: 'success',
 		icon: Icons.Status.Sent,
@@ -77,8 +82,14 @@ export const statusList: Record<
 		variant: 'error',
 		icon: Icons.Status.Failed,
 	},
+	// Not an order status: a pending order whose buyer has a payment still open, shown in its
+	// place on the storefront so "pending" does not read as the business's delay
+	awaiting_payment: {
+		variant: 'info',
+		icon: Icons.Status.AwaitingPayment,
+	},
 	canceled: {
-		variant: 'warning',
+		variant: 'error',
 		icon: Icons.Status.Canceled,
 	},
 	expired: {
@@ -92,6 +103,22 @@ export const statusList: Record<
 	verified: {
 		variant: 'success',
 		icon: Icons.Status.Verified,
+	},
+	issued: {
+		variant: 'info',
+		icon: Icons.Status.Ok,
+	},
+	unpaid: {
+		variant: 'warning',
+		icon: Icons.Status.Pending,
+	},
+	partial: {
+		variant: 'warning',
+		icon: Icons.Status.Pending,
+	},
+	paid: {
+		variant: 'success',
+		icon: Icons.Status.Success,
 	},
 	draft: {
 		variant: 'warning',

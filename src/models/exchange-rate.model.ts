@@ -33,8 +33,9 @@ const SECONDS_PER_DAY = 86400;
  * means 1 EUR = 5.2575 RON.
  *
  * `base_currency` is the deployment's own currency, not the priced one, matching how the word is
- * used everywhere else in this stack (`invoice.base_currency`, the "rate to the base currency" a
- * document freezes). It is filled in by the backend from its `app.currency`, so no form sends it.
+ * used everywhere else in this stack - the "rate to the base currency" every document freezes in
+ * its own `exchange_rate` (`order_line`, `shipping`, `invoice`, `cash_flow`). It is filled in by
+ * the backend from its `app.currency`, so no form sends it.
  *
  * No `deleted_at`: the backend table has no soft delete, so there is no restore either - a
  * soft-deleted row would keep its (currency, day) key occupied while disappearing from every

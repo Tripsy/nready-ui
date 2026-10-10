@@ -341,7 +341,7 @@ export type CartCheckoutModel = {
 	ref_code: string;
 	ref_number: number;
 	status: string;
-	issued_at: string;
+	created_at: string;
 };
 
 /** The payload for adding a line. `product_id` must be the variant's own - the backend refuses a mismatch. */

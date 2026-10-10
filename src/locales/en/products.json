@@ -25,10 +25,21 @@
 		"bundle_price": "Bundle price",
 		"bundle_free": "included",
 		"bundle_unavailable": "This bundle is not available to configure right now.",
+		"options_optional": "Optional",
+		"options_choose_exactly": "Choose {{min}}",
+		"options_choose_at_least": "Choose at least {{min}}",
+		"options_choose_at_most": "Choose up to {{max}}",
+		"options_choose_between": "Choose {{min}} to {{max}}",
+		"options_price": "Price with your choices",
 		"attributes": "Specifications",
 		"attribute_yes": "Yes",
 		"attribute_no": "No",
 		"related_heading": "More from {{category}}",
-		"related_more": "See more products from {{category}}"
+		"related_more": "See more products from {{category}}",
+		"search_placeholder": "Search products",
+		"search_submit": "Search",
+		"search_clear": "Clear search",
+		"no_results": "No products match “{{term}}”.",
+		"term_too_short": "Type at least {{min}} characters to search."
 	}
 }

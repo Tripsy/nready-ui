@@ -180,6 +180,17 @@ function loadSettings() {
 			},
 			s3: {
 				bucket: process.env.AWS_S3_BUCKET ?? '',
+				/*
+				 * The CloudFront distribution in front of the private bucket, e.g.
+				 * `https://dxxxxxxxx.cloudfront.net` - no trailing slash. Public sections
+				 * (`PUBLIC_IMAGE_SECTIONS`) render straight from it. `NEXT_PUBLIC_` because
+				 * `showImage()` runs in client components, so it is fixed at build time; empty
+				 * keeps every S3 image on the signed route.
+				 */
+				cdnUrl: (process.env.NEXT_PUBLIC_IMAGES_CDN_URL ?? '').replace(
+					/\/+$/,
+					'',
+				),
 			},
 			maxSizeBytes: 10 * 1024 * 1024,
 		},

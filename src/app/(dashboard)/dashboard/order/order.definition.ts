@@ -5,13 +5,13 @@ import {
 	FormManageOrder,
 	nextOrderLineKey,
 	type OrderFormValuesType,
+	type OrderLineFormType,
 } from '@/app/(dashboard)/dashboard/order/form-manage-order.component';
 import { StatusTransitionOrder } from '@/app/(dashboard)/dashboard/order/status-transition-order.component';
 import { UsageGuideOrder } from '@/app/(dashboard)/dashboard/order/usage-guide-order.component';
 import { ViewOrder } from '@/app/(dashboard)/dashboard/order/view-order.component';
 import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
-import { toCalendarValue } from '@/helpers/date.helper';
 import {
 	getFormDataAsJsonList,
 	getFormDataAsNumber,
@@ -26,21 +26,25 @@ import {
 	requestUpdate,
 	requestView,
 } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
+import { type DiscountType, DiscountTypeEnum } from '@/models/discount.model';
 import {
 	displayOrderClient,
 	displayOrderLabel,
 	displayOrderReference,
+	groupOrderComponents,
 	ORDER_LINES_MAX,
 	ORDER_STATUS_TRANSITIONS,
+	type OrderBillingAddressType,
+	type OrderLineModel,
 	type OrderModel,
+	type OrderShipmentType,
 	type OrderStatus,
 	OrderStatusEnum,
-	type OrderType,
-	OrderTypeEnum,
 } from '@/models/order.model';
+import { roundMoney } from '@/models/product.model';
+import { type ShippingModel, ShippingScopeEnum } from '@/models/shipping.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type {
 	DataSourceConfigType,
@@ -51,8 +55,6 @@ import type { FormStateType, ValidatorOutput } from '@/types/form.type';
 const validatorMessages = [
 	'invalid_client_id',
 	'invalid_currency',
-	'invalid_type',
-	'invalid_issued_at',
 	'invalid_lines',
 	'invalid_variant_id',
 	'invalid_product_id',
@@ -61,7 +63,36 @@ const validatorMessages = [
 	'invalid_vat_rate',
 	'invalid_options',
 	'invalid_notes',
+	'invalid_discount',
+	'invalid_components',
 ] as const;
+
+/**
+ * The discount the backend takes - `{ type, value }` or null - from the pair of fields the form
+ * holds it in. A type without a value never gets here: the validator refuses it first.
+ */
+function toManualDiscount(
+	type: DiscountType | null,
+	value: number | null,
+): { type: DiscountType; value: number } | null {
+	return type && value !== null ? { type: type, value: value } : null;
+}
+
+/**
+ * The discount typed on a stored line, read back off its snapshots - the only place a line's own
+ * lives. The order-wide one is `order.discount`.
+ */
+function readLineManualDiscount(
+	snapshots: OrderLineModel['discount'] | undefined,
+): { type: DiscountType | null; value: number | null } {
+	const found = snapshots?.find(
+		(snapshot) => snapshot.manual && snapshot.scope === 'variant',
+	);
+
+	return found
+		? { type: found.type as DiscountType, value: Number(found.value) }
+		: { type: null, value: null };
+}
 
 /** Mirrors the backend's `order.validator.ts` - see `../nready-api/src/features/order`. */
 class OrderValidator extends BaseValidator<typeof validatorMessages> {
@@ -72,69 +103,151 @@ class OrderValidator extends BaseValidator<typeof validatorMessages> {
 	 * inconsistently rather than that anybody mistyped anything - which is why it reports under its
 	 * own message rather than pointing at the variant picker.
 	 */
+	/**
+	 * Mirrors the backend's `discountSchema`: no type means the catalog decides, and a type needs a
+	 * positive value - a percentage no larger than 100.
+	 */
+	private discountFields = () => ({
+		discount_type: z
+			.enum(Object.values(DiscountTypeEnum), {
+				message: this.getMessage('invalid_discount'),
+			})
+			.nullable(),
+		discount_value: z.number().nullable(),
+	});
+
+	/** Checked on the pair, reported under the value so the message sits beside the box to fix. */
+	private isValidDiscount = (data: {
+		discount_type: DiscountType | null;
+		discount_value: number | null;
+	}) =>
+		data.discount_type === null ||
+		(data.discount_value !== null &&
+			data.discount_value > 0 &&
+			(data.discount_type !== DiscountTypeEnum.PERCENT ||
+				data.discount_value <= 100));
+
+	private discountIssue = () => ({
+		message: this.getMessage('invalid_discount'),
+		path: ['discount_value'],
+	});
+
 	private line = () =>
-		z.object({
-			variant_id: this.validateId(this.getMessage('invalid_variant_id')),
-			product_id: this.validateId(this.getMessage('invalid_product_id')),
-			quantity: this.validateNumber(this.getMessage('invalid_quantity'), {
-				required: true,
-				onlyPositive: true,
-				allowDecimals: 2,
-			}),
-			/*
-			 * Zero is legal, and not an oversight: a bundle header line carries no money of its
-			 * own while the component lines beneath it carry all of it.
-			 */
-			price: this.validateNumber(this.getMessage('invalid_price'), {
-				required: true,
-				onlyPositive: false,
-				allowDecimals: 2,
-			}).refine((value) => value >= 0, {
-				message: this.getMessage('invalid_price'),
-			}),
-			vat_rate: this.validateNumber(this.getMessage('invalid_vat_rate'), {
-				required: true,
-				onlyPositive: false,
-				allowDecimals: 2,
-			}).refine((value) => value >= 0 && value <= 100, {
-				message: this.getMessage('invalid_vat_rate'),
-			}),
-			/** `product_option` ids; the backend checks they belong to the product and fit its questions. */
-			options: z.array(z.number(), {
-				message: this.getMessage('invalid_options'),
-			}),
-			notes: this.validateString(this.getMessage('invalid_notes'), {
-				required: false,
-			}),
-			key: z.string(),
-		});
+		z
+			.object({
+				variant_id: this.validateId(
+					this.getMessage('invalid_variant_id'),
+				),
+				product_id: this.validateId(
+					this.getMessage('invalid_product_id'),
+				),
+				quantity: this.validateNumber(
+					this.getMessage('invalid_quantity'),
+					{
+						required: true,
+						onlyPositive: true,
+						allowDecimals: 2,
+					},
+				),
+				/*
+				 * Zero is legal, and not an oversight: a bundle header line carries no money of its
+				 * own while the component lines beneath it carry all of it.
+				 */
+				price: this.validateNumber(this.getMessage('invalid_price'), {
+					required: true,
+					onlyPositive: false,
+					allowDecimals: 2,
+				}).refine((value) => value >= 0, {
+					message: this.getMessage('invalid_price'),
+				}),
+				vat_rate: this.validateNumber(
+					this.getMessage('invalid_vat_rate'),
+					{
+						required: true,
+						onlyPositive: false,
+						allowDecimals: 2,
+					},
+				).refine((value) => value >= 0 && value <= 100, {
+					message: this.getMessage('invalid_vat_rate'),
+				}),
+				/** `product_option` ids; the backend checks they belong to the product and fit its questions. */
+				options: z.array(z.number(), {
+					message: this.getMessage('invalid_options'),
+				}),
+				...this.discountFields(),
+				notes: this.validateString(this.getMessage('invalid_notes'), {
+					required: false,
+				}),
+				is_bundle: z.boolean(),
+				/*
+				 * Null only while a freshly picked bundle's composition loads; the picker fills in
+				 * the defaults. Refused then, rather than sent as no choices at all, which the
+				 * backend would read as a group left unanswered.
+				 */
+				components: z
+					.array(
+						z.object({
+							item_id: z.number(),
+							units: z.number().optional(),
+						}),
+					)
+					.nullable(),
+				key: z.string(),
+			})
+			.refine(this.isValidDiscount, this.discountIssue())
+			.refine((line) => !line.is_bundle || line.components !== null, {
+				message: this.getMessage('invalid_components'),
+				path: ['components'],
+			});
 
 	manage = () =>
-		z.object({
-			client_id: this.validateId(this.getMessage('invalid_client_id')),
-			currency: this.validateString(this.getMessage('invalid_currency'), {
-				minChars: 3,
-				maxChars: 3,
-			}),
-			type: z.enum(Object.values(OrderTypeEnum), {
-				message: this.getMessage('invalid_type'),
-			}),
-			issued_at: z.string().nullable(),
-			notes: this.validateString(this.getMessage('invalid_notes'), {
-				required: false,
-			}),
-			/*
-			 * Validated, though it is never sent: the submit has to know whether the document is
-			 * still pending to decide whether the lines go with it, and `operationFunction` is
-			 * handed the validated output rather than the raw form values. It is stripped in
-			 * `prepareParamsFromFormValues` with the other display-only fields.
-			 */
-			status: z.enum(Object.values(OrderStatusEnum)).nullable(),
-			lines: z
-				.array(this.line())
-				.min(1, this.getMessage('invalid_lines'))
-				.max(ORDER_LINES_MAX, this.getMessage('invalid_lines')),
-		});
+		z
+			.object({
+				client_id: this.validateId(
+					this.getMessage('invalid_client_id'),
+				),
+				currency: this.validateString(
+					this.getMessage('invalid_currency'),
+					{
+						minChars: 3,
+						maxChars: 3,
+					},
+				),
+				notes: this.validateString(this.getMessage('invalid_notes'), {
+					required: false,
+				}),
+				/*
+				 * Validated, though it is never sent: the submit has to know whether the document is
+				 * still pending to decide whether the lines go with it, and `operationFunction` is
+				 * handed the validated output rather than the raw form values. It is stripped in
+				 * `prepareParamsFromFormValues` with the other display-only fields.
+				 */
+				status: z.enum(Object.values(OrderStatusEnum)).nullable(),
+				// Carried the way `status` is: it decides whether the lines may go with the update
+				is_invoiced: z.boolean(),
+				/*
+				 * Free text the backend bounds; the country travels as its code, and the name the
+				 * read carries is display-only (`address_country`) and dropped on the way out.
+				 */
+				billing_address: z
+					.object({
+						details: z.string().nullable(),
+						postal_code: z.string().nullable(),
+						address_city: z.string().nullable(),
+						address_region: z.string().nullable(),
+						address_country: z.string().nullable().optional(),
+						country_code: z.string().length(2).nullable(),
+						notes: z.string().nullable(),
+					})
+					.nullable(),
+				is_client_locked: z.boolean(),
+				lines: z
+					.array(this.line())
+					.min(1, this.getMessage('invalid_lines'))
+					.max(ORDER_LINES_MAX, this.getMessage('invalid_lines')),
+				...this.discountFields(),
+			})
+			.refine(this.isValidDiscount, this.discountIssue());
 }
 
 async function validateForm(values: OrderFormValuesType) {
@@ -154,9 +267,12 @@ type OrderManageOutput = ValidatorOutput<OrderValidator, 'manage'>;
  * `client` and the per-line `label` are the autocompletes' visible text and are never sent on;
  * `status` is carried only so the form can decide whether the lines are editable.
  *
- * **The lines are dropped for anything but a pending order.** The backend refuses a line set on a
- * confirmed order with a 409, and the form does not offer the editor there - so sending the set back
- * unchanged would be asking for a refusal on work nobody did.
+ * **The lines are dropped for anything but a pending, unbilled order.** The backend refuses a line
+ * set on a confirmed or invoiced order with a 409, and the form does not offer the editor there - so
+ * sending the set back unchanged would be asking for a refusal on work nobody did.
+ *
+ * **A bundle goes as one line**: its bundle price and its choices, which the backend explodes into
+ * the components. Its `vat_rate` is sent as 0 - the components carry their own.
  *
  * **The currency travels with them, and only with them.** No order row holds one: each line
  * carries its own, so the backend refuses a currency that arrives without a line set to stamp it
@@ -165,26 +281,53 @@ type OrderManageOutput = ValidatorOutput<OrderValidator, 'manage'>;
 function prepareParamsFromFormValues(
 	data: OrderManageOutput,
 	status: OrderStatus | null,
+	isInvoiced: boolean,
 ) {
-	const isEditable = status === null || status === OrderStatusEnum.PENDING;
+	const isEditable =
+		!isInvoiced && (status === null || status === OrderStatusEnum.PENDING);
 
 	return {
 		client_id: data.client_id,
-		type: data.type,
-		issued_at: data.issued_at,
 		notes: data.notes,
 		...(isEditable
 			? {
+					/*
+					 * With the lines, and only with them: the backend refuses a change under an
+					 * issued invoice, and the discounts re-resolved with the lines read the
+					 * billing country. Null clears it.
+					 */
+					billing_address: data.billing_address
+						? {
+								details: data.billing_address.details,
+								postal_code: data.billing_address.postal_code,
+								address_city: data.billing_address.address_city,
+								address_region:
+									data.billing_address.address_region,
+								country_code: data.billing_address.country_code,
+								notes: data.billing_address.notes,
+							}
+						: null,
 					currency: data.currency,
 					lines: data.lines.map((line) => ({
 						variant_id: line.variant_id,
 						product_id: line.product_id,
 						quantity: line.quantity,
 						price: line.price,
-						vat_rate: line.vat_rate,
+						vat_rate: line.is_bundle ? 0 : line.vat_rate,
 						options: line.options,
+						...(line.is_bundle
+							? { components: line.components ?? [] }
+							: {}),
+						discount: toManualDiscount(
+							line.discount_type,
+							line.discount_value,
+						),
 						notes: line.notes,
 					})),
+					discount: toManualDiscount(
+						data.discount_type,
+						data.discount_value,
+					),
 				}
 			: {}),
 	};
@@ -193,22 +336,157 @@ function prepareParamsFromFormValues(
 function getFormValues(formData: FormData): OrderFormValuesType {
 	return {
 		client_id: getFormDataAsNumber(formData, 'client_id'),
+		// Written as a one-entry JSON list by the form - see its hidden `billing_address` field
+		billing_address:
+			getFormDataAsJsonList<OrderBillingAddressType>(
+				formData,
+				'billing_address',
+			)[0] ?? null,
 		client: getFormDataAsString(formData, 'client_label'),
 		currency: getFormDataAsString(formData, 'currency'),
-		type: getFormDataAsString(formData, 'type'),
-		issued_at: getFormDataAsString(formData, 'issued_at'),
 		notes: getFormDataAsString(formData, 'notes'),
 		/*
 		 * Defaulted rather than trusted: the list is parsed back from the hidden JSON field the
-		 * form wrote, and a restored window draft can predate the key entirely. The validator
-		 * requires it, so an absent one would fail the submit on a field nobody can see.
+		 * form wrote, and a restored window draft can predate the key or the discount pair
+		 * entirely. The validator requires them, so an absent one would fail the submit on a field
+		 * nobody can see.
 		 */
 		lines: getFormDataAsJsonList<OrderFormValuesType['lines'][number]>(
 			formData,
 			'lines',
-		),
+		).map((line) => ({
+			...line,
+			discount_type: line.discount_type ?? null,
+			discount_value: line.discount_value ?? null,
+			is_bundle: line.is_bundle ?? false,
+			components: line.components === undefined ? [] : line.components,
+			key: line.key ?? nextOrderLineKey(),
+		})),
 		status: getFormDataAsString(formData, 'status') as OrderStatus | null,
+		is_invoiced: getFormDataAsString(formData, 'is_invoiced') === '1',
+		is_client_locked:
+			getFormDataAsString(formData, 'is_client_locked') === '1',
+		/*
+		 * Read from the hidden pair the Lines tab always writes, not from the picker - which is
+		 * not rendered on a locked order and leaves `FormData` when disabled.
+		 */
+		discount_type: getFormDataAsString(
+			formData,
+			'order_discount_type',
+		) as DiscountType | null,
+		discount_value: getFormDataAsNumber(formData, 'order_discount_value'),
 	};
+}
+
+/** What a stored line's discounts are called, for the read-only table. */
+function describeDiscounts(lines: readonly OrderLineModel[]): string | null {
+	const labels = [
+		...new Set(
+			lines.flatMap((line) =>
+				(line.discount ?? []).map((entry) => entry.label),
+			),
+		),
+	];
+
+	return labels.length > 0 ? labels.join(', ') : null;
+}
+
+/**
+ * One editor row per stored line - and one per **bundle**, which the document holds as a header
+ * plus its components (`rules/product.md` §8.3). The bundle row carries what one bundle cost (its
+ * components' money over the header's quantity) and the components as choices, every one of them:
+ * the row's picker drops the kit and defaults anything unanswered once the composition loads.
+ */
+function toFormLines(lines: readonly OrderLineModel[]): OrderLineFormType[] {
+	const componentsByParent = groupOrderComponents(lines);
+
+	return lines
+		.filter((line) => line.parent_id === null)
+		.map((line) => {
+			const components = componentsByParent.get(line.id) ?? [];
+			const lineDiscount = readLineManualDiscount(line.discount);
+			const quantity = Number(line.quantity);
+
+			const base = {
+				variant_id: line.variant_id,
+				product_id: line.product_id,
+				quantity: line.quantity,
+				/*
+				 * The ids read back off the stored snapshots, so saving the line keeps what was
+				 * chosen. A snapshot written before ids were recorded has none to give, and its
+				 * option is dropped on the next save of the line set.
+				 */
+				options: (line.options ?? []).flatMap((option) =>
+					option.option_id ? [option.option_id] : [],
+				),
+				notes: line.notes,
+				label: line.variant?.sku ?? `#${line.variant_id}`,
+				key: nextOrderLineKey(),
+			};
+
+			if (components.length === 0) {
+				return {
+					...base,
+					price: line.price,
+					vat_rate: line.vat_rate,
+					discount_type: lineDiscount.type,
+					discount_value: lineDiscount.value,
+					discount_reduction: line.discount_reduction,
+					discount_label: describeDiscounts([line]),
+					is_bundle: false,
+					components: [],
+					bundle_summary: null,
+				};
+			}
+
+			return {
+				...base,
+				price:
+					quantity > 0
+						? roundMoney(
+								components.reduce(
+									(sum, component) =>
+										sum +
+										Number(component.price) *
+											Number(component.quantity),
+									0,
+								) / quantity,
+							)
+						: 0,
+				vat_rate: 0,
+				discount_type: null,
+				discount_value: null,
+				discount_reduction: roundMoney(
+					components.reduce(
+						(sum, component) =>
+							sum + Number(component.discount_reduction),
+						0,
+					),
+				),
+				discount_label: describeDiscounts(components),
+				is_bundle: true,
+				components: components.flatMap((component) =>
+					component.bundle_item_id
+						? [
+								{
+									item_id: component.bundle_item_id,
+									units:
+										quantity > 0
+											? Number(component.quantity) /
+												quantity
+											: 1,
+								},
+							]
+						: [],
+				),
+				bundle_summary: components
+					.map(
+						(component) =>
+							`${Number(component.quantity)} × ${component.variant?.sku ?? `#${component.variant_id}`}`,
+					)
+					.join(', '),
+			};
+		});
 }
 
 function getFormState(data?: OrderModel): FormStateType<OrderFormValuesType> {
@@ -218,56 +496,87 @@ function getFormState(data?: OrderModel): FormStateType<OrderFormValuesType> {
 		situation: null,
 		values: {
 			client_id: data?.client_id ?? null,
+			billing_address: data?.billing_address ?? null,
 			client: data ? displayOrderClient(data) : null,
 			currency: data?.totals?.currency ?? null,
-			type: data?.type ?? OrderTypeEnum.STANDARD,
-			// The calendar field reads `YYYY-MM-DD` and nothing else - `parseDate` throws on a
-			// full ISO timestamp, which is what the document carries
-			issued_at: toCalendarValue(data?.issued_at ?? null),
 			notes: data?.notes ?? null,
 			/*
 			 * A create opens with one empty line, since an order with none cannot be saved. An
 			 * update starts from the stored set, which the window re-reads to get - the listing
 			 * row carries no lines at all.
 			 */
-			lines: data
-				? (data.lines ?? []).map((line) => ({
-						variant_id: line.variant_id,
-						product_id: line.product_id,
-						quantity: line.quantity,
-						price: line.price,
-						vat_rate: line.vat_rate,
-						/*
-						 * The ids read back off the stored snapshots, so saving the line keeps what was
-						 * chosen. A snapshot written before ids were recorded has none to give, and its
-						 * option is dropped on the next save of the line set.
-						 */
-						options: (line.options ?? []).flatMap((option) =>
-							option.option_id ? [option.option_id] : [],
-						),
-						notes: line.notes,
-						label: line.variant?.sku ?? `#${line.variant_id}`,
-						discount_reduction: line.discount_reduction,
-						discount_label:
-							line.discount && line.discount.length > 0
-								? line.discount
-										.map((entry) => entry.label)
-										.join(', ')
-								: null,
-						key: nextOrderLineKey(),
-					}))
-				: [emptyOrderLine()],
+			lines: data ? toFormLines(data.lines ?? []) : [emptyOrderLine()],
 			status: data?.status ?? null,
+			is_invoiced: data?.is_invoiced ?? false,
+			is_client_locked: data?.is_client_locked ?? false,
+			discount_type: data?.discount?.manual
+				? (data.discount.type as DiscountType)
+				: null,
+			discount_value: data?.discount?.manual
+				? Number(data.discount.value)
+				: null,
 		},
 	};
+}
+
+/**
+ * The order listing with each row's shipments attached, for the Shipping column.
+ *
+ * Two requests rather than one per row: the API's order listing cannot join shipments (`shipping`
+ * depends on `order`, not the other way round), so the page's orders are read first and their
+ * shipments after, in one request through the shipping listing's `order_id` list filter.
+ */
+async function findOrdersWithShipments(params: FindFunctionParamsType) {
+	const orders = await requestFind<OrderModel>('order', params);
+	const ids = (orders?.entries ?? []).map((order) => order.id);
+
+	if (!orders || ids.length === 0) {
+		return orders;
+	}
+
+	const shipments = await requestFind<ShippingModel>('shipping', {
+		filter: { order_id: ids },
+		order_by: 'id',
+		direction: 'DESC',
+		limit: 100,
+	});
+
+	const byOrder = new Map<number, ShippingModel[]>();
+
+	for (const shipment of shipments?.entries ?? []) {
+		if (shipment.order_id === null) {
+			continue;
+		}
+
+		const list = byOrder.get(shipment.order_id) ?? [];
+
+		list.push(shipment);
+		byOrder.set(shipment.order_id, list);
+	}
+
+	return {
+		...orders,
+		entries: orders.entries.map((order) => ({
+			...order,
+			shipments: byOrder.get(order.id) ?? [],
+		})),
+	};
+}
+
+/** The movement the Shipping column stands for: the newest delivery to the client. */
+function latestDelivery(order: OrderModel): OrderShipmentType | null {
+	return (
+		(order.shipments ?? []).find(
+			(shipment) => shipment.scope === ShippingScopeEnum.DELIVERY,
+		) ?? null
+	);
 }
 
 export type OrderDataTableFiltersType = {
 	global: { value: string | null; matchMode: 'contains' };
 	status: { value: OrderStatus | null; matchMode: 'equals' };
-	type: { value: OrderType | null; matchMode: 'equals' };
-	issued_at_start: { value: string | null; matchMode: 'equals' };
-	issued_at_end: { value: string | null; matchMode: 'equals' };
+	create_at_start: { value: string | null; matchMode: 'equals' };
+	create_at_end: { value: string | null; matchMode: 'equals' };
 	is_deleted: { value: boolean; matchMode: 'equals' };
 
 	client: { value: string | null; matchMode: 'equals' };
@@ -337,14 +646,13 @@ export default async function dataSourceConfig(): Promise<
 			state: {
 				first: 0,
 				rows: 10,
-				sortField: 'issued_at',
+				sortField: 'created_at',
 				sortOrder: -1 as const,
 				filters: {
 					global: { value: null, matchMode: 'contains' },
 					status: { value: null, matchMode: 'equals' },
-					type: { value: null, matchMode: 'equals' },
-					issued_at_start: { value: null, matchMode: 'equals' },
-					issued_at_end: { value: null, matchMode: 'equals' },
+					create_at_start: { value: null, matchMode: 'equals' },
+					create_at_end: { value: null, matchMode: 'equals' },
 					is_deleted: { value: false, matchMode: 'equals' },
 					client: { value: null, matchMode: 'equals' },
 					client_id: { value: null, matchMode: 'equals' },
@@ -380,14 +688,44 @@ export default async function dataSourceConfig(): Promise<
 						}),
 				},
 				{
-					field: 'type',
-					header: 'Type',
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
-							customValue: formatEnumLabel(entry.type),
-						}),
-					minWidth: 120,
-					maxWidth: 140,
+					field: 'shipments',
+					header: 'Shipping',
+					body: (entry, column, auth) => {
+						const shipment = latestDelivery(entry);
+
+						if (!shipment) {
+							return '-';
+						}
+
+						return DataTableValue(entry, column, {
+							customValue: shipment.status,
+							isStatus: true,
+							dataSource: 'shipping',
+							displayButton: {
+								dataSource: 'shipping',
+								action: () =>
+									shipment.deleted_at
+										? undefined
+										: hasPermission(
+													auth,
+													'shipping',
+													'update',
+												)
+											? 'update'
+											: hasPermission(
+														auth,
+														'shipping',
+														'read',
+													)
+												? 'view'
+												: undefined,
+								// The listing row carries no lines - the window re-reads the shipment
+								alternateEntryId: shipment.id,
+							},
+						});
+					},
+					minWidth: 128,
+					maxWidth: 128,
 				},
 				{
 					field: 'status',
@@ -403,8 +741,8 @@ export default async function dataSourceConfig(): Promise<
 					maxWidth: 128,
 				},
 				{
-					field: 'issued_at',
-					header: 'Issued At',
+					field: 'created_at',
+					header: 'Created At',
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -412,8 +750,7 @@ export default async function dataSourceConfig(): Promise<
 						}),
 				},
 			],
-			find: (params: FindFunctionParamsType) =>
-				requestFind<OrderModel>('order', params),
+			find: findOrdersWithShipments,
 		},
 		displayEntryLabel: (entry: OrderModel) => displayOrderLabel(entry),
 		actions: {
@@ -427,7 +764,11 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['order', 'create'],
 				entriesSelection: 'free',
 				operationFunction: (values: OrderManageOutput) => {
-					const params = prepareParamsFromFormValues(values, null);
+					const params = prepareParamsFromFormValues(
+						values,
+						null,
+						false,
+					);
 
 					return requestCreate<OrderModel, typeof params>(
 						'order',
@@ -463,6 +804,7 @@ export default async function dataSourceConfig(): Promise<
 					const params = prepareParamsFromFormValues(
 						values,
 						values.status ?? null,
+						values.is_invoiced,
 					);
 
 					return requestUpdate<OrderModel, typeof params>(
@@ -532,7 +874,7 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['view.title'],
 				windowComponent: ViewOrder,
 				windowConfigProps: {
-					size: 'xl3',
+					size: 'xl4',
 					closeOnBackdrop: true,
 					closeOnEscape: true,
 				},

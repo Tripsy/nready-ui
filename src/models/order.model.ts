@@ -13,7 +13,7 @@ export const OrderStatusEnum = {
 	PENDING: 'pending',
 	CONFIRMED: 'confirmed',
 	COMPLETED: 'completed',
-	CANCELLED: 'canceled',
+	CANCELED: 'canceled',
 } as const;
 
 export type OrderStatus =
@@ -26,22 +26,15 @@ export type OrderStatus =
 export const ORDER_STATUS_TRANSITIONS: StatusTransitions<OrderStatus> = {
 	[OrderStatusEnum.PENDING]: [
 		OrderStatusEnum.CONFIRMED,
-		OrderStatusEnum.CANCELLED,
+		OrderStatusEnum.CANCELED,
 	],
 	[OrderStatusEnum.CONFIRMED]: [
 		OrderStatusEnum.COMPLETED,
-		OrderStatusEnum.CANCELLED,
+		OrderStatusEnum.CANCELED,
 	],
 	[OrderStatusEnum.COMPLETED]: [],
-	[OrderStatusEnum.CANCELLED]: [],
+	[OrderStatusEnum.CANCELED]: [],
 };
-
-export const OrderTypeEnum = {
-	STANDARD: 'standard',
-	SUBSCRIPTION: 'subscription',
-} as const;
-
-export type OrderType = (typeof OrderTypeEnum)[keyof typeof OrderTypeEnum];
 
 /**
  * How the client said they will pay, mirroring `OrderPaymentMethodEnum` on the entity. A recorded
@@ -59,6 +52,32 @@ export type OrderPaymentMethod =
 /** Mirrors `varchar(10)` on the backend `order.ref_code` column. */
 export const ORDER_REF_CODE_MAX_LENGTH = 10;
 
+/**
+ * The order's billing address snapshot. `address_country` is the country's name, filled in by the
+ * backend from `country_code` (ISO 3166-1 alpha-2) - the payload sends the code alone.
+ */
+export type OrderBillingAddressType = {
+	details: string | null;
+	postal_code: string | null;
+	address_city: string | null;
+	address_region: string | null;
+	address_country?: string | null;
+	country_code: string | null;
+	notes: string | null;
+};
+
+/**
+ * What the order listing needs of a movement - typed here rather than as `ShippingModel`, which
+ * imports this module and would close a cycle. A `ShippingModel` satisfies it.
+ */
+export type OrderShipmentType = {
+	id: number;
+	order_id: number | null;
+	scope: string;
+	status: string;
+	deleted_at?: Date | string | null;
+};
+
 /** What one request may compose, mirroring `ORDER_LINES_MAX` in the backend validator. */
 export const ORDER_LINES_MAX = 200;
 
@@ -70,8 +89,13 @@ export type OrderDiscountSnapshot = {
 	reference?: string | null;
 	type: string;
 	value: number;
-	/** The rule it came from; absent on snapshots written before it was recorded. */
+	/** The rule it came from; absent on snapshots written before it was recorded, and on a manual one. */
 	discount_id?: number;
+	/**
+	 * An operator typed it rather than a catalog rule granting it. `type` and `value` are then what
+	 * was typed, in the order's currency - scope `variant` for a line's own, `order` for order-wide.
+	 */
+	manual?: boolean;
 	/**
 	 * What this rule alone took off the line. A line may carry its own discount and, stacked on
 	 * top, its share of an order-wide campaign - `discount_reduction` is their sum.
@@ -100,6 +124,8 @@ export type OrderLineModel<D = Date | string> = {
 	id: number;
 	order_id: number;
 	parent_id: number | null;
+	/** On a bundle component, the `product_bundle_item` it was taken from - null elsewhere. */
+	bundle_item_id?: number | null;
 
 	variant_id: number;
 	product_id: number;
@@ -162,20 +188,35 @@ export type OrderModel<D = Date | string> = {
 
 	client_id: number;
 	/**
-	 * The client address the order is billed to, referenced rather than copied.
-	 *
-	 * Null on a back-office document raised before one is agreed, and null again once that address
-	 * is deleted - the backend key is `SET NULL`. An invoice raised from the order is where the
-	 * billing details get frozen.
+	 * Where the order is billed - the order's own copy, which checkout takes from the buyer's
+	 * address book and an operator may correct while it is unbilled. Null when none was agreed.
 	 */
-	billing_address_id: number | null;
+	billing_address: OrderBillingAddressType | null;
 	ref_code: string;
 	ref_number: number;
 	status: OrderStatus;
-	type: OrderType;
 	payment_method: OrderPaymentMethod | null;
-	issued_at: D;
 	notes: string | null;
+	/**
+	 * The order-wide discount an operator typed, as the snapshot each line carries a share of -
+	 * `reduction` is what it took off the whole order. Null when the catalog decided.
+	 */
+	discount?: OrderDiscountSnapshot | null;
+	/**
+	 * Whether a live goods document bills the order, which locks its lines. Attached by the
+	 * dashboard read only, past the cache.
+	 */
+	is_invoiced?: boolean;
+	/**
+	 * Whether the order may no longer move to another client - invoiced, or holding a payment
+	 * filed under the client it names. Dashboard read only, past the cache.
+	 */
+	is_client_locked?: boolean;
+	/**
+	 * The order's movements, newest first - attached by the dashboard's order listing, which reads
+	 * them in a second request (`findOrdersWithShipments`). Absent on every other read.
+	 */
+	shipments?: OrderShipmentType[];
 
 	/*
 	 * The narrow select the backend joins onto a listing row, declared inline rather than picked
@@ -190,6 +231,10 @@ export type OrderModel<D = Date | string> = {
 		company_name: string | null;
 		person_name: string | null;
 		contact_email: string | null;
+		/** The buyer's own detail read alone (`GET /public/orders/:id`) carries these three. */
+		company_cui?: string | null;
+		company_reg_com?: string | null;
+		contact_phone?: string | null;
 	} | null;
 
 	lines?: OrderLineModel<D>[];

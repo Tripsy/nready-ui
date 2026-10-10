@@ -94,13 +94,29 @@ function readApiIssues(error: ApiError): ValidationIssueType[] {
 /**
  * The issues as one line for the form's message.
  *
- * Deduplicated, because one rule breaking across several entries of a list repeats its wording
- * per index and a user reads that as the same complaint three times. The path is left out: these
- * messages come from the same catalog the client validator uses and are written to name their own
- * subject, so prefixing `contents.0.meta.title` adds nothing a reader can act on.
+ * The field path is left out: these messages come from the same catalog the client validator uses
+ * and are written to name their own subject, so prefixing `contents.0.meta.title` adds nothing a
+ * reader can act on. **Which entry of a list is the exception** - "Invalid price" on a form with
+ * four lines leaves the reader to guess - so an issue inside a list says its row, counted from 1
+ * off the first index in its path.
+ *
+ * Deduplicated after that, so one rule breaking on the same row twice reads once, while the same
+ * rule on two rows reads as the two complaints it is.
  */
 function joinIssueMessages(issues: ValidationIssueType[]): string {
-	return [...new Set(issues.map((issue) => issue.message))].join(' · ');
+	return [
+		...new Set(
+			issues.map((issue) => {
+				const index = issue.path.find(
+					(segment) => typeof segment === 'number',
+				);
+
+				return typeof index === 'number'
+					? `${issue.message} (row ${index + 1})`
+					: issue.message;
+			}),
+		),
+	].join(' · ');
 }
 
 /**

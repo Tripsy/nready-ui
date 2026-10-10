@@ -111,11 +111,43 @@ export const createDataTableStore = <K extends DataSourceKey, Model>(
 					// v3: the product listing swapped `is_sellable` for `sale_status` and gained
 					// `brand`/`brand_id`; a rehydrated filter set missing a key the component
 					// reads throws on `filters.<key>.value` before the table renders.
-					version: 3,
+					// v4: the order listing swapped `issued_at_start`/`_end` for `create_at_start`/
+					// `_end` and stopped sorting by `issued_at` - both fail the same two ways.
+					// v5: the invoice type lost `charge` and `credit_note`; a rehydrated type filter
+					// holding either is refused by the API.
+					version: 5,
 					partialize: (state) => ({
 						tableState: state.tableState,
 						selectedEntries: state.selectedEntries,
 					}),
+					/*
+					 * Persisted filters laid over the defaults rather than replacing them, so a
+					 * filter key added to a listing is present on rehydrate and a component reading
+					 * `filters.<key>.value` does not throw. A key that was removed or a value that
+					 * became invalid still needs a `version` bump.
+					 */
+					merge: (persisted, current) => {
+						const saved = persisted as Partial<
+							DataTableStore<Model>
+						>;
+
+						if (!saved?.tableState) {
+							return current;
+						}
+
+						return {
+							...current,
+							...saved,
+							tableState: {
+								...current.tableState,
+								...saved.tableState,
+								filters: {
+									...current.tableState.filters,
+									...saved.tableState.filters,
+								},
+							},
+						};
+					},
 				},
 			),
 		),

@@ -32,6 +32,7 @@ import type { ApiResponseFetch } from '@/types/api.type';
 export async function requestCart(
 	clientId?: number | null,
 	delivery?: CartDeliveryChoice | null,
+	billingAddressId?: number | null,
 ): Promise<ApiResponseFetch<CartWithPricingModel>> {
 	/*
 	 * `clientId` is a preview: it prices the basket against a client the caller holds, so a
@@ -40,11 +41,15 @@ export async function requestCart(
 	 *
 	 * `delivery` asks for the delivery to be quoted too, and is only read with a client - the
 	 * address has to be proven one of theirs before its country decides the rate.
+	 *
+	 * `billingAddressId` names the buyer's country, so a discount limited to some countries shows
+	 * here as the order will apply it. Also read only with a client, whose billing address it is.
 	 */
 	const query = buildQueryString({
 		client_id: clientId,
 		delivery_method: clientId ? delivery?.method : null,
 		delivery_address_id: clientId ? delivery?.addressId : null,
+		billing_address_id: clientId ? billingAddressId : null,
 	});
 
 	return await new ApiRequest().doFetch(

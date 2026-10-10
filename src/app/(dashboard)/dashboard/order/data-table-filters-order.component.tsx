@@ -19,18 +19,9 @@ import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hoo
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
 import { type ClientModel, displayClientLabel } from '@/models/client.model';
-import {
-	type OrderStatus,
-	OrderStatusEnum,
-	type OrderType,
-	OrderTypeEnum,
-} from '@/models/order.model';
+import { type OrderStatus, OrderStatusEnum } from '@/models/order.model';
 
 const statuses = toOptionsFromEnum(OrderStatusEnum, {
-	formatter: formatEnumLabel,
-});
-
-const types = toOptionsFromEnum(OrderTypeEnum, {
 	formatter: formatEnumLabel,
 });
 
@@ -118,29 +109,19 @@ export const DataTableFiltersOrder = (): JSX.Element => {
 				}
 			/>
 
-			<FormFiltersSelect<OrderDataTableFiltersType>
-				labelText="Type"
-				fieldName="type"
-				fieldValue={filters.type.value}
-				options={types}
-				onChange={(value) =>
-					setFilterValues({ type: value as OrderType })
-				}
-			/>
-
 			<FormFiltersDateRange<OrderDataTableFiltersType>
-				labelText="Issued"
+				labelText="Created"
 				start={{
-					fieldName: 'issued_at_start',
-					fieldValue: filters.issued_at_start.value,
+					fieldName: 'create_at_start',
+					fieldValue: filters.create_at_start.value,
 					onSelect: (value) =>
-						setFilterValues({ issued_at_start: value }),
+						setFilterValues({ create_at_start: value }),
 				}}
 				end={{
-					fieldName: 'issued_at_end',
-					fieldValue: filters.issued_at_end.value,
+					fieldName: 'create_at_end',
+					fieldValue: filters.create_at_end.value,
 					onSelect: (value) =>
-						setFilterValues({ issued_at_end: value }),
+						setFilterValues({ create_at_end: value }),
 				}}
 			/>
 

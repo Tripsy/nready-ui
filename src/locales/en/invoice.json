@@ -1,0 +1,152 @@
+{
+	"meta": {
+		"title": "Invoices - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_notes": "Enter a valid notes",
+		"invalid_cash_flow_id": "Select a valid cash flow entry",
+		"invalid_amount": "Enter a valid amount",
+		"invalid_reverse_lines": "Enter a quantity or net value on at least one line, each within what is left to reverse",
+		"invalid_client_id": "Select a valid client"
+	},
+	"status": {
+		"draft": "Draft",
+		"issued": "Issued",
+		"canceled": "Canceled",
+		"unpaid": "Unpaid",
+		"partial": "Partially paid",
+		"paid": "Paid",
+		"deleted": "Deleted"
+	},
+	"action": {
+		"create": {
+			"title": "New custom invoice",
+			"label": "Add",
+			"success": "Invoice created successfully"
+		},
+		"manage": {
+			"title": "Update invoice - {{entry}}",
+			"label": "Update"
+		},
+		"statusTransition": {
+			"title": "Update status - {{entry}}",
+			"label": "Status",
+			"confirm_issued": "Issuing allocates the document number and freezes the buyer and seller details. It cannot be undone - an issued invoice can only be reversed. Continue?",
+			"confirm_canceled": "Are you sure you want to cancel this draft? A canceled draft cannot be reopened.",
+			"success_issued": "Invoice issued successfully",
+			"success_canceled": "Invoice canceled successfully"
+		},
+		"reverse": {
+			"title": "Reverse invoice - {{entry}}",
+			"label": "Reverse",
+			"success": "Reversal created successfully"
+		},
+		"allocatePayment": {
+			"title": "Allocate payment - {{entry}}",
+			"label": "Allocate payment",
+			"success": "Payment allocated successfully"
+		},
+		"clearPayments": {
+			"title": "Clear payments - {{entry}}",
+			"label": "Clear payments",
+			"success": "Payments cleared successfully",
+			"confirm": "Remove every payment allocated to this invoice? The money goes back to the client's cash flow entries, to be allocated to another of their invoices."
+		},
+		"view": {
+			"title": "Invoice details - {{entry}}",
+			"label": "View details"
+		},
+		"viewOrder": {
+			"title": "View order"
+		},
+		"guide": {
+			"title": "How invoicing works",
+			"label": "Usage guide"
+		}
+	},
+	"field": {
+		"order": "Order",
+		"scope": "Scope",
+		"due_at": "Due At",
+		"label": "Label",
+		"quantity": "Quantity",
+		"unit_price": "Unit Price",
+		"vat_rate": "VAT Rate",
+		"discount_reduction": "Discount",
+		"cash_flow": "Cash Flow",
+		"amount": "Amount",
+		"notes": "Notes"
+	},
+	"help": {
+		"intro": "An invoice is the frozen record of what an order was charged. It is assembled as a draft, and everything that makes it a document - its number, its dates, the buyer and seller details printed on it - is written the moment it is issued.",
+		"step_1_title": "Most invoices raise themselves",
+		"step_1_body": "Orders, deliveries and subscriptions are invoiced as they happen - a checkout raises and issues its documents, and a confirmed order or a new delivery bills whatever is left. Add raises the one document nobody else does: a custom invoice for a client, with no order behind it. Pick the client and it opens in the update window, where its lines, buyer and seller are written like on any draft.",
+		"step_2_title": "Adjust it while it is a draft",
+		"step_2_body": "Only a draft accepts changes - the due date, the notes, the buyer and seller details, and adjustment lines for rounding, a manual correction or a custom invoice's charges. Product and shipping lines cannot be added by hand: each names the row it was raised from. Every line write re-sums the totals, which are never entered directly.",
+		"step_3_title": "Issue it",
+		"step_3_body": "Issuing spends a number from the series and stamps the issue and due dates, then copies the client and the company onto the document so a later change of address or bank cannot rewrite what the buyer holds. It needs at least one line and a billing address with a country on the order. There is no way back to draft: a number handed out is never returned.",
+		"step_4_title": "Settle it against cash flow",
+		"step_4_body": "Allocate a completed cash flow entry against the issued document. The amount is gross, in the invoice currency, and cannot exceed what is left of that movement after its other allocations - one transfer can clear several invoices. Money in settles an invoice, money out settles a reversal. A completed client payment is also allocated automatically, oldest document first. The payment status follows the allocations: unpaid, partial, then paid.",
+		"step_5_title": "Correct it with a reversal",
+		"step_5_body": "An issued invoice is corrected by a reversal (storno): a document of the same scope that takes back all or part of its lines and is numbered from the invoice series once issued. Every figure on it stays positive - the reversal flag carries the sign. Issuing the reversal pays back whatever the client is left overpaid on the original. An issued invoice is never canceled - the reversal is the only correction.",
+		"step_6_title": "Watch what goes overdue",
+		"step_6_body": "A nightly job stamps issued documents that pass their due date unsettled. The stamp is never cleared, so it records that this client paid late even after they pay. The Overdue filter therefore reads late right now - stamped and still unsettled - rather than late at some point.",
+		"note": "Deleting and canceling are available on drafts only; an issued document stays the record of what was charged and is taken back by a reversal. A reversal is raised from the invoice it reverses and cannot be created from the Add button.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
+	},
+	"document": {
+		"meta_title": "Invoice | {{app_name}}",
+		"title": "Invoice",
+		"title_reversal": "Credit note",
+		"number": "No. {{reference}}",
+		"reverses": "Reverses invoice {{reference}} of {{date}}",
+		"issued_at": "Issue date",
+		"due_at": "Due date",
+		"paid_at": "Paid on",
+		"currency": "Currency",
+		"seller": "Seller",
+		"buyer": "Buyer",
+		"company_cui": "Tax ID",
+		"company_reg_com": "Trade register no.",
+		"person_identification_number": "Personal ID no.",
+		"iban": "IBAN",
+		"bank_name": "Bank",
+		"contact_email": "Email",
+		"contact_phone": "Phone",
+		"col_index": "#",
+		"col_label": "Description",
+		"col_quantity": "Qty",
+		"col_unit_price": "Unit price",
+		"col_vat_rate": "VAT %",
+		"col_net": "Net",
+		"col_vat": "VAT",
+		"col_total": "Total",
+		"line_discount": "Discount -{{amount}}",
+		"total_discount": "Discounts included",
+		"total_net": "Total excl. VAT",
+		"total_vat": "VAT",
+		"total_gross": "Total",
+		"total_gross_reversal": "Total credited",
+		"print": "Print / Save PDF",
+		"back": "Back to order",
+		"loading": "Loading…",
+		"error": "The invoice could not be loaded. Try again in a moment.",
+		"not_found": "This invoice does not exist or does not belong to your account.",
+		"not_issued": "Only an issued invoice can be printed - a draft holds no number yet, and a canceled one was never valid.",
+		"company_vat_number": "VAT no.",
+		"not_vat_registered": "Not registered for VAT",
+		"registered_office": "Registered office",
+		"order": "Order",
+		"order_value": "{{reference}} of {{date}}",
+		"shipping_method": "Delivery",
+		"shipping_courier": "Courier",
+		"shipping_self_pickup": "Self pickup",
+		"shipping_from": "From",
+		"shipping_to": "To",
+		"shipping_tracking": "Tracking no.",
+		"shipping_shipped_at": "Shipped on",
+		"shipping_delivered_at": "Delivered on",
+		"back_dashboard": "Back to invoices"
+	}
+}

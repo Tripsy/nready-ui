@@ -12,6 +12,7 @@ export const ShippingStatusEnum = {
 	DELIVERED: 'delivered',
 	FAILED: 'failed',
 	RETURNED: 'returned',
+	CANCELED: 'canceled',
 } as const;
 
 export type ShippingStatus =
@@ -60,16 +61,19 @@ export type ShippingMethod =
  * into `pickup_data` and `destination_data` there, which is why nothing returns to an earlier state.
  *
  * `delivered`, `failed` and `returned` are all terminal - goods that have arrived, gone missing or
- * come back are finished, and anything after that is a new movement.
+ * come back are finished, and anything after that is a new movement. So is `canceled`: a movement
+ * withdrawn before it left, set by the backend when its order is canceled.
  */
 export const SHIPPING_STATUS_TRANSITIONS: StatusTransitions<ShippingStatus> = {
 	[ShippingStatusEnum.PENDING]: [
 		ShippingStatusEnum.PREPARING,
 		ShippingStatusEnum.FAILED,
+		ShippingStatusEnum.CANCELED,
 	],
 	[ShippingStatusEnum.PREPARING]: [
 		ShippingStatusEnum.SHIPPED,
 		ShippingStatusEnum.FAILED,
+		ShippingStatusEnum.CANCELED,
 	],
 	[ShippingStatusEnum.SHIPPED]: [
 		ShippingStatusEnum.DELIVERED,
@@ -79,6 +83,7 @@ export const SHIPPING_STATUS_TRANSITIONS: StatusTransitions<ShippingStatus> = {
 	[ShippingStatusEnum.DELIVERED]: [],
 	[ShippingStatusEnum.FAILED]: [],
 	[ShippingStatusEnum.RETURNED]: [],
+	[ShippingStatusEnum.CANCELED]: [],
 };
 
 /** What one request may carry, mirroring `SHIPPING_LINES_MAX` in the backend validator. */
@@ -223,6 +228,9 @@ export type ShippingModel<D = Date | string> = {
 	carrier?: { id: number; name: string } | null;
 
 	lines?: ShippingLineModel<D>[];
+	/** The client-address ends in one line each - attached by the dashboard read and list. */
+	pickup_client_address_label?: string | null;
+	destination_client_address_label?: string | null;
 
 	created_at: D;
 	updated_at: D;
@@ -264,12 +272,15 @@ export const displayAddressSnapshot = (
  * One end of a movement in words, preferring the frozen copy once there is one.
  *
  * Before dispatch the live reference is the better answer - a correction still reaches the goods -
- * so an unfrozen end reports the row it points at rather than pretending to be a snapshot.
+ * so an unfrozen end reports the row it points at rather than pretending to be a snapshot. A client
+ * address is named by the label the dashboard read and list attach; a payload without it falls
+ * back to the id.
  */
 export const displayShippingEnd = (
 	snapshot: ShippingAddressSnapshot | null,
 	warehouse: { code: string; name: string } | null | undefined,
 	clientAddressId: number | null,
+	clientAddressLabel?: string | null,
 ): string => {
 	if (snapshot) {
 		return displayAddressSnapshot(snapshot);
@@ -277,6 +288,10 @@ export const displayShippingEnd = (
 
 	if (warehouse) {
 		return `${warehouse.code} - ${warehouse.name}`;
+	}
+
+	if (clientAddressLabel) {
+		return clientAddressLabel;
 	}
 
 	return clientAddressId ? `Client address #${clientAddressId}` : '-';
@@ -295,6 +310,7 @@ export const displayShippingDestination = (
 		| 'destination_data'
 		| 'destination_warehouse'
 		| 'destination_client_address_id'
+		| 'destination_client_address_label'
 	>,
 ): string => {
 	if (
@@ -308,11 +324,13 @@ export const displayShippingDestination = (
 		entry.destination_data,
 		entry.destination_warehouse,
 		entry.destination_client_address_id,
+		entry.destination_client_address_label,
 	);
 };
 
 /**
- * A movement as the buyer it is delivered to is shown it (`GET /public/orders/:id/shipments`) -
+ * A movement as the buyer it is delivered to is shown it (`GET /public/orders/:id/shipments`, or
+ * `GET /public/shipments` for a page of orders at once) -
  * where it stands, how it travels and how to follow it. The business's own side (the operational
  * cost, internal notes, contact snapshot, allocation ids) is not in the payload.
  *
@@ -333,6 +351,7 @@ export type OrderShipmentModel<D = Date | string> = Pick<
 	| 'delivered_at'
 	| 'estimated_delivery_at'
 	| 'created_at'
+	| 'updated_at'
 	| 'price'
 	| 'vat_rate'
 	| 'currency'
@@ -355,4 +374,40 @@ export function getShippingGrossTotal(
 	const vatAmount = roundMoney((net * Number(entry.vat_rate)) / 100);
 
 	return { total: roundMoney(net + vatAmount), vat_amount: vatAmount };
+}
+
+/** Movements that carried nothing, so charge nothing - mirrors `UNBILLED_STATUSES` in the backend. */
+const UNBILLED_SHIPPING_STATUSES: readonly ShippingStatus[] = [
+	ShippingStatusEnum.FAILED,
+	ShippingStatusEnum.CANCELED,
+];
+
+/**
+ * What delivery added to an order, VAT included. Deliveries only - a return is its own charge,
+ * raised later against the order, not part of what was paid at checkout - and only those that
+ * carried something, on the terms the backend asks payment for them.
+ */
+export function getDeliveryGrossTotal(
+	shipments: readonly Pick<
+		ShippingModel,
+		'scope' | 'status' | 'price' | 'vat_rate' | 'discount_reduction'
+	>[],
+): { total: number; vat_amount: number } {
+	return shipments
+		.filter(
+			(shipment) =>
+				shipment.scope === ShippingScopeEnum.DELIVERY &&
+				!UNBILLED_SHIPPING_STATUSES.includes(shipment.status),
+		)
+		.reduce(
+			(sum, shipment) => {
+				const gross = getShippingGrossTotal(shipment);
+
+				return {
+					total: roundMoney(sum.total + gross.total),
+					vat_amount: roundMoney(sum.vat_amount + gross.vat_amount),
+				};
+			},
+			{ total: 0, vat_amount: 0 },
+		);
 }

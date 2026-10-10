@@ -15,6 +15,7 @@ import {
 	type ProductBundleItemType,
 	roundMoney,
 } from '@/models/product.model';
+import { quoteBundleNet, toBundleChoices } from '@/models/product-bundle.model';
 import type { Language } from '@/types/common.type';
 
 /** A component as the storefront read hands it back - `id` is always present there. */
@@ -168,18 +169,23 @@ export function ProductBundleBuilder({
 		(group) => picks[group.id] !== undefined,
 	);
 
-	let netTotal: number | null =
-		bundlePrice && currency ? bundlePrice.sale_price : null;
+	const netTotal =
+		bundlePrice && currency
+			? quoteBundleNet(
+					bundlePrice.sale_price,
+					chosen,
+					(item) => {
+						const sale = item.variant?.prices?.find(
+							(price) => price.currency === currency,
+						)?.sale_price;
 
-	for (const { item, units } of chosen) {
-		const addition =
-			netTotal !== null && currency
-				? resolveAddition(item, units, currency)
-				: null;
-
-		netTotal =
-			addition === null || netTotal === null ? null : netTotal + addition;
-	}
+						return sale === null || sale === undefined
+							? null
+							: Number(sale);
+					},
+					currency,
+				)
+			: null;
 
 	/*
 	 * VAT-inclusive the way `CartPricingService.buildBundle` gets there: the net total apportioned
@@ -218,12 +224,7 @@ export function ProductBundleBuilder({
 		);
 	}
 
-	const payload: CartAddItemParams['components'] = chosen.map(
-		({ item, units }) =>
-			item.group_id === null
-				? { item_id: item.id, units: units }
-				: { item_id: item.id },
-	);
+	const payload: CartAddItemParams['components'] = toBundleChoices(chosen);
 
 	const renderAddition = (item: BundleComponent, units: number) => {
 		if (!currency) {

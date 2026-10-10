@@ -95,31 +95,57 @@ export async function POST(request: NextRequest) {
 	}
 }
 
+/**
+ * Removes a stored file. The image row is deleted separately, against the backend, before this
+ * is called - see `removeImageFile`.
+ *
+ * The section the permission is checked against is read off the key, not taken from the
+ * caller: a client-named section would let `article.update` authorize deleting a product's
+ * file. `image.delete` (the dashboard's image list) or the owning section's `update` (the image
+ * manager on that entity's form) each authorize it, matching the two places a delete starts.
+ */
 export async function DELETE(request: NextRequest) {
-	const {
-		path: filePath,
-		storage,
-		section,
-	} = (await request.json()) as {
-		path: string;
-		storage: ImageStorage;
-		section: string;
-	};
+	const body = (await request.json().catch(() => null)) as {
+		path?: unknown;
+		storage?: unknown;
+	} | null;
 
-	if (!filePath || !isValidStorage(storage) || !section) {
+	const filePath = body?.path;
+	const storage = body?.storage;
+
+	if (typeof filePath !== 'string' || !isValidStorage(storage)) {
 		return NextResponse.json(
-			{ error: 'Missing or invalid path/storage/section' },
+			{ error: 'Missing or invalid path/storage' },
 			{ status: 400 },
 		);
 	}
 
-	const permissionEntity = imagePermissionEntity(section);
+	let key: string | null;
 
-	if (!permissionEntity) {
-		return NextResponse.json({ error: 'Invalid section' }, { status: 400 });
+	try {
+		key = imageStorage.resolveKey(filePath, storage);
+	} catch (error) {
+		// The storage named is not configured here (e.g. `s3` without a bucket).
+		logger.error('Image storage unavailable', error, { storage });
+
+		return NextResponse.json({ error: 'Delete failed' }, { status: 500 });
 	}
 
-	if (!(await requirePermission(permissionEntity, 'update'))) {
+	const permissionEntity = key
+		? imagePermissionEntity(key.split('/')[0])
+		: null;
+
+	if (!key || !permissionEntity) {
+		return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
+	}
+
+	const authResponse = await getAuth();
+	const auth = authResponse?.success ? (authResponse.data ?? null) : null;
+
+	if (
+		!hasPermission(auth, 'image', 'delete') &&
+		!hasPermission(auth, permissionEntity, 'update')
+	) {
 		return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 	}
 
@@ -128,7 +154,7 @@ export async function DELETE(request: NextRequest) {
 
 		return NextResponse.json({ success: true });
 	} catch (error) {
-		logger.error('Image delete failed', error, { filePath, storage });
+		logger.error('Image delete failed', error, { key, storage });
 
 		return NextResponse.json({ error: 'Delete failed' }, { status: 500 });
 	}

@@ -35,7 +35,8 @@
 		"delivered": "Delivered",
 		"failed": "Failed",
 		"returned": "Returned",
-		"deleted": "Deleted"
+		"deleted": "Deleted",
+		"canceled": "Canceled"
 	},
 	"action": {
 		"create": {
@@ -83,7 +84,7 @@
 		"step_3_title": "Say what travels",
 		"step_3_body": "Contents are listed by variant and quantity. On a movement with an order behind it, each variant must be on that order and the quantity cannot exceed what the order still has unshipped for that variant across its other movements - so nothing is sent twice. A relocation is measured against stock on hand instead, and its contents cannot be chosen until the relocation document exists.",
 		"step_4_title": "Move it through its statuses",
-		"step_4_body": "Pending to preparing to shipped, and from shipped to delivered or returned; failed is reachable from any state before arrival. Marking it shipped freezes both ends into the movement and stamps the shipped date; delivered stamps its own. Neither stamp is ever rewritten, nothing returns to an earlier state, and delivered, returned and failed are all final.",
+		"step_4_body": "Pending to preparing to shipped, and from shipped to delivered or returned; failed is reachable from any state before arrival. Marking it shipped freezes both ends into the movement and stamps the shipped date; delivered stamps its own. Neither stamp is ever rewritten, nothing returns to an earlier state, and delivered, returned and failed are all final. A delivery that has not shipped moves to canceled on its own when its order is canceled, which is final too.",
 		"step_5_title": "Find it again",
 		"step_5_body": "Search matches the tracking number from three characters. An all-digit term is matched exactly against the shipment id, the order id and the order number; an order reference such as ORD-1183 lists that order's shipments. Filter by type, status and method.",
 		"note": "Once a movement is marked shipped neither end can be changed - the frozen copies are what the document keeps saying, whatever is edited or deleted afterwards. Deleting a movement is a soft delete and releases what it carried, so those quantities become available to the document's other movements again.",

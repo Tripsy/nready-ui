@@ -74,7 +74,7 @@ function CartLineRow({
 				)}
 
 				{line.issue && (
-					<div className="mt-1 text-xs font-medium text-error">
+					<div className="mt-1 text-xs font-medium text-danger">
 						{formatEnumLabel(line.issue)}
 					</div>
 				)}
@@ -134,12 +134,14 @@ export function ViewCart({ entry }: { entry: CartModel }) {
 				    deleted, lines and all. */}
 				<ViewField
 					label="Expires At"
-					value={formatDate(entry.expires_at)}
+					value={formatDate(entry.expires_at, 'date-time')}
 				/>
 				<ViewField
 					label="Last Activity"
 					value={
-						entry.updated_at ? formatDate(entry.updated_at) : '-'
+						entry.updated_at
+							? formatDate(entry.updated_at, 'date-time')
+							: '-'
 					}
 				/>
 			</ViewSection>
