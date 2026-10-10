@@ -18,23 +18,82 @@ import {
 } from '@/models/account.model';
 import type { ApiResponseFetch } from '@/types/api.type';
 
+/**
+ * The resolved account, handed to server components (`Providers`, the home page) through
+ * `headers()`. Server-only: it travels on the forwarded request, never on the response.
+ */
+const AUTH_DATA_HEADER = 'x-auth-data';
+const LANGUAGE_HEADER = 'x-language';
+
 class MiddlewareContext {
 	req: NextRequest;
 	res: NextResponse;
+	private authData: AccountModel | null = null;
 
 	constructor(req: NextRequest) {
 		this.req = req;
 		this.res = NextResponse.next();
 	}
 
+	/**
+	 * Server components read the account from the request headers, so the request the page
+	 * renders from is rebuilt here rather than passed through:
+	 *
+	 * - A client-sent `x-auth-data` is dropped. Passed through, it reaches `headers()` as if
+	 *   this middleware had set it, and an anonymous visitor could render the page as anyone.
+	 * - The verified account is set on the request only. On the response it would ship the
+	 *   account and its permission map to the browser with every page, and a shared cache
+	 *   in front would store one user's header for the next visitor.
+	 *
+	 * Cookies and headers already set on `this.res` are carried over to the rebuilt response.
+	 */
+	private forwardResponse(): NextResponse {
+		const requestHeaders = new Headers(this.req.headers);
+
+		requestHeaders.delete(AUTH_DATA_HEADER);
+
+		// `getLanguage()` reads the resolved language through `headers()` as well
+		const language = this.res.headers.get(LANGUAGE_HEADER);
+
+		if (language) {
+			requestHeaders.set(LANGUAGE_HEADER, language);
+		}
+
+		if (this.authData) {
+			requestHeaders.set(AUTH_DATA_HEADER, JSON.stringify(this.authData));
+		}
+
+		const response = NextResponse.next({
+			request: { headers: requestHeaders },
+		});
+
+		this.res.headers.forEach((value, name) => {
+			if (name !== 'set-cookie') {
+				response.headers.set(name, value);
+			}
+		});
+
+		for (const cookie of this.res.cookies.getAll()) {
+			response.cookies.set(cookie);
+		}
+
+		return response;
+	}
+
+	setAuthData(authData: AccountModel) {
+		this.authData = authData;
+	}
+
 	success() {
+		const response = this.forwardResponse();
+
 		// MIME sniffing protection
-		this.res.headers.set('X-Content-Type-Options', 'nosniff');
+		response.headers.set('X-Content-Type-Options', 'nosniff');
 
 		// Clickjacking protection
-		this.res.headers.set('X-Frame-Options', 'DENY');
+		response.headers.set('X-Frame-Options', 'DENY');
 
-		return this.res;
+		return response;
 	}
 
 	redirect(url: URL) {
@@ -102,7 +161,7 @@ class MiddlewareContext {
 				});
 			}
 
-			this.res.headers.set('x-language', language);
+			this.res.headers.set(LANGUAGE_HEADER, language);
 		}
 	}
 
@@ -261,7 +320,7 @@ class MiddlewareContext {
 			}
 		}
 
-		this.res.headers.set('x-auth-data', JSON.stringify(authResult));
+		this.setAuthData(authResult);
 
 		if (sessionToken.action === 'set' && sessionToken.value) {
 			const cookieName = Configuration.get('user.sessionToken');

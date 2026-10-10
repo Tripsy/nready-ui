@@ -245,3 +245,84 @@ Dev only:
 - [typescript](https://www.typescriptlang.org/)
 - [tailwindcss](https://tailwindcss.com/)
 - [biome](https://biomejs.dev/) - Biome is a fast formatter for JavaScript, TypeScript, JSX, TSX, JSON, HTML, CSS and GraphQL - its `noImportCycles` rule also covers circular dependencies
+
+# 🚢 Deployment
+
+The production image is `docker/Dockerfile.prod` (Next's standalone output). Every
+`NEXT_PUBLIC_*` value is inlined into the client bundle by `next build`, so it goes in as a
+`--build-arg` and the image is tied to one environment. Everything the server reads per request -
+`REMOTE_API_URL`, `SESSION_TOKEN`, `REDIS_*`, `AWS_*` - is a runtime variable and must not be a
+build arg: build args are recorded in the image history.
+
+### Image storage - private S3 bucket behind CloudFront
+
+Development stores uploads on disk (`IMAGE_STORAGE=local`, served off `/public/uploads`).
+Production uses a **private** bucket, with two ways in:
+
+| Images | Served by | Access |
+|---|---|---|
+| Public sections - `product`, `product_variant`, `article` (`PUBLIC_IMAGE_SECTIONS`) | CloudFront, stable URL, cached for a year | anyone |
+| Every other section (`brand`, `category`, ...) | `/api/image/view` -> presigned S3 URL, 5 minutes | `read` permission on the section |
+
+Keys are `<section>/<entity_id>/<uuid>.<ext>`, so the section is the first path segment - which is
+what both the bucket policy below and `showImage()` key on.
+
+**1. Bucket.** Create it with *Block all public access* on, no static website hosting. Nothing
+reaches it anonymously.
+
+**2. App permissions.** The UI uploads, deletes and signs reads itself. Give its instance role (or
+the user behind `AWS_ACCESS_KEY_ID`) `s3:PutObject`, `s3:DeleteObject` and `s3:GetObject` on
+`arn:aws:s3:::<bucket>/*`. With an instance role, leave both `AWS_*_KEY` variables empty.
+
+**3. CloudFront distribution.**
+- Origin: the bucket's REST endpoint (`<bucket>.s3.<region>.amazonaws.com`), not a website endpoint
+- Origin access: **Origin Access Control**, signing requests always
+- Viewer protocol policy: redirect HTTP to HTTPS; allowed methods `GET, HEAD`
+- Cache policy: `CachingOptimized`; compression on
+
+**4. Bucket policy** - CloudFront may read the public prefixes and nothing else, so a guessed
+CloudFront URL for a private section answers 403:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CloudFrontReadsPublicImages",
+      "Effect": "Allow",
+      "Principal": { "Service": "cloudfront.amazonaws.com" },
+      "Action": "s3:GetObject",
+      "Resource": [
+        "arn:aws:s3:::<bucket>/product/*",
+        "arn:aws:s3:::<bucket>/product_variant/*",
+        "arn:aws:s3:::<bucket>/article/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "AWS:SourceArn": "arn:aws:cloudfront::<account-id>:distribution/<distribution-id>"
+        }
+      }
+    }
+  ]
+}
+```
+
+**5. Configuration.**
+- Runtime: `IMAGE_STORAGE=s3`, `AWS_S3_BUCKET`, `AWS_REGION`
+- Build arg: `NEXT_PUBLIC_IMAGES_CDN_URL=https://<distribution>.cloudfront.net` (no trailing slash).
+  `next.config.ts` turns it into `images.remotePatterns`, so `next/image` resizes and converts
+  public images; left empty, every S3 image falls back to the signed route. In CI it comes from
+  the repository variable `NEXT_PUBLIC_IMAGES_CDN_URL` (`.github/workflows/deploy.yml`), so set it
+  there and redeploy - the image has to be rebuilt to pick it up
+
+**6. Verify** after the first deploy:
+- a product image URL on the storefront points at the distribution and answers `200` signed out
+- the same distribution answers `403` for a private section's key (`/brand/...`)
+- a brand or category image in the dashboard still loads through `/api/image/view`
+
+Notes:
+- Uploads carry `Cache-Control: public, max-age=31536000, immutable` - a key is never rewritten,
+  a replaced image is a new key. A deleted image can stay in CloudFront's cache until it expires;
+  invalidate `/<key>` if it must disappear at once
+- **Making another section public** means adding it to `PUBLIC_IMAGE_SECTIONS`
+  (`src/models/image.model.ts`) *and* its prefix to the bucket policy - either alone serves 403s

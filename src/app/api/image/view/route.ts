@@ -5,6 +5,7 @@ import {
 	type ImageStorage,
 	ImageStorageEnum,
 	imagePermissionEntity,
+	isPublicImageSection,
 } from '@/models/image.model';
 import type { PermissionEntityType } from '@/models/permission.model';
 import { getAuth } from '@/services/auth.service';
@@ -76,13 +77,19 @@ export async function GET(request: NextRequest) {
 		return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
 	}
 
-	const authResponse = await getAuth();
-	const auth = authResponse?.success ? (authResponse.data ?? null) : null;
+	/*
+	 * Same gate the rest of the section is behind: someone who cannot read the record an image
+	 * belongs to must not reach its file by hitting this route directly. Public sections - what
+	 * the storefront shows a visitor - skip it; they normally render from CloudFront and only
+	 * land here while no distribution is configured (`showImage`).
+	 */
+	if (!isPublicImageSection(key.split('/')[0])) {
+		const authResponse = await getAuth();
+		const auth = authResponse?.success ? (authResponse.data ?? null) : null;
 
-	// Same gate the rest of the section is behind: someone who cannot read the record an
-	// image belongs to must not reach its file by hitting this route directly.
-	if (!hasPermission(auth, section, 'read')) {
-		return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+		if (!hasPermission(auth, section, 'read')) {
+			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+		}
 	}
 
 	try {

@@ -105,6 +105,12 @@ class S3StorageService implements ImageStorageService {
 				Key: key,
 				Body: buffer,
 				ContentType: file.type,
+				/*
+				 * Keys end in a fresh `randomUUID()`, so an object's bytes never change under
+				 * its URL - CloudFront and browsers may keep it for good. A replaced image is a
+				 * new key, never an overwrite.
+				 */
+				CacheControl: 'public, max-age=31536000, immutable',
 			}),
 		);
 

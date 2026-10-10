@@ -21,6 +21,37 @@ export type ImageSection =
 	(typeof ImageSectionEnum)[keyof typeof ImageSectionEnum];
 
 /**
+ * Sections whose images anyone may see - what the storefront shows a visitor. On S3 they are
+ * served through CloudFront (`showImage`), and the signed route hands them out without a
+ * permission check; every other section stays behind its entity's `read` permission.
+ *
+ * The production bucket policy grants CloudFront read access to these prefixes and no other
+ * (README, "Deployment"), so a section added here also needs its prefix added there, or its
+ * CloudFront URLs answer 403.
+ */
+export const PUBLIC_IMAGE_SECTIONS: readonly ImageSection[] = [
+	ImageSectionEnum.PRODUCT,
+	ImageSectionEnum.PRODUCT_VARIANT,
+	ImageSectionEnum.ARTICLE,
+];
+
+export function isPublicImageSection(section: unknown): boolean {
+	return PUBLIC_IMAGE_SECTIONS.includes(section as ImageSection);
+}
+
+/**
+ * The object key an S3 `path` names - `<section>/<entity_id>/<name>.<ext>`, as
+ * `S3StorageService.upload` builds the URL. `null` when the path is not a URL.
+ */
+export function s3KeyFromPath(path: string): string | null {
+	try {
+		return decodeURIComponent(new URL(path).pathname.replace(/^\//, ''));
+	} catch {
+		return null;
+	}
+}
+
+/**
  * The permission an image's section is gated by.
  *
  * Both image routes decide what to check from the section alone - the upload route reads it off
@@ -159,13 +190,24 @@ export const IMAGE_VIEW_ROUTE = '/api/image/view';
  * The `src` to render a stored image from.
  *
  * Local files are served statically by Next straight off `/public`. S3 objects live in a
- * private bucket and are only reachable through a presigned URL, which cannot be minted
- * here - this function is synchronous and runs inside client components. So S3 paths point
- * at `IMAGE_VIEW_ROUTE`, which authorizes the request and redirects to a signed URL.
+ * private bucket:
+ *
+ * - **Public sections** render from the CloudFront distribution in front of it - a stable,
+ *   cacheable URL that `next/image` can optimize (`images.remotePatterns` in `next.config.ts`).
+ * - **Everything else**, and every S3 image while no distribution is configured, points at
+ *   `IMAGE_VIEW_ROUTE`, which authorizes the request and redirects to a presigned URL. Minting
+ *   one cannot happen here - this function is synchronous and runs inside client components.
  */
 export function showImage(path: string, storage?: ImageStorage) {
 	if (storage === ImageStorageEnum.LOCAL) {
 		return `${Configuration.get('images.local.view')}/${path}`;
+	}
+
+	const cdnUrl = Configuration.get('images.s3.cdnUrl');
+	const key = cdnUrl ? s3KeyFromPath(path) : null;
+
+	if (key && isPublicImageSection(key.split('/')[0])) {
+		return `${cdnUrl}/${key}`;
 	}
 
 	const params = new URLSearchParams({
@@ -179,7 +221,7 @@ export function showImage(path: string, storage?: ImageStorage) {
 /**
  * Whether a `src` can be served through next/image's optimizer.
  *
- * Three shapes cannot:
+ * Four shapes cannot:
  * - `blob:`/`data:` carry their bytes in the browser, and the optimizer refetches `src`
  *   server-side, so it has nothing to resolve.
  * - `IMAGE_VIEW_ROUTE` is fetched by the optimizer through an internal mocked request that
@@ -188,6 +230,8 @@ export function showImage(path: string, storage?: ImageStorage) {
  *   as `"url" parameter is valid but internal response is invalid`. Either way the optimizer
  *   returns 400 and the image is broken - verified against the running server.
  *
+ * - SVG, which the optimizer refuses - see the check below.
+ *
  * Serving these raw costs nothing: a staged preview is a local file that never leaves the
  * tab, and an S3 object is already delivered by the bucket rather than by this app.
  */
@@ -195,6 +239,13 @@ export function isOptimizableImageSrc(src: string) {
 	return !(
 		src.startsWith('blob:') ||
 		src.startsWith('data:') ||
-		src.startsWith(IMAGE_VIEW_ROUTE)
+		src.startsWith(IMAGE_VIEW_ROUTE) ||
+		/*
+		 * The optimizer refuses SVG unless `dangerouslyAllowSVG` is on, which would let an
+		 * uploaded SVG run script on this origin. Uploads name the file after the MIME
+		 * subtype, so an SVG ends in `.svg+xml` rather than `.svg` - and next/image's own
+		 * `.svg` bypass does not catch it. Vectors need no resizing anyway.
+		 */
+		/\.svg(\+xml)?$/i.test(src.split('?')[0])
 	);
 }
