@@ -116,9 +116,15 @@ export type DataTableValueOptionsType<Entry> = {
  * rather than a plain pair, so the operation is the one that entity actually gates:
  * `['cash-flow', 'refund']` passes and `['user', 'refund']` does not.
  */
-export type ActionConfigPermission = {
-	[E in PermissionEntityType]: [E, PermissionOperationFor<E>];
-}[PermissionEntityType];
+export type ActionConfigPermission =
+	| {
+			[E in PermissionEntityType]: [E, PermissionOperationFor<E>];
+	  }[PermissionEntityType]
+	/**
+	 * Admins only, whatever permissions an operator holds - for actions the backend reserves to
+	 * the role itself (granting permissions), where no entity/operation pair applies.
+	 */
+	| 'admin';
 
 type ActionConfigBase<Entry, FormValues extends FormValuesType> = {
 	windowTitle: string;
@@ -128,7 +134,7 @@ type ActionConfigBase<Entry, FormValues extends FormValuesType> = {
 	windowConfigProps?: WindowConfigPropsType;
 
 	permission?: ActionConfigPermission; // Optional: dashboard data-table button gating. Omit for actions not permission-gated (e.g. account self-service, guarded by authentication only).
-	customEntryCheck?: (entry: Entry) => boolean; // Additional function to check if the action is available (hint: active user cannot have `active` action)
+	customEntryCheck?: (entry: Entry, auth: AccountModel | null) => boolean; // Additional function to check if the action is available (hint: active user cannot have `active` action); `auth` is the viewer, for checks that depend on who is acting on the row
 	buttonPosition: 'left' | 'right' | 'hidden'; // Describe where the action button should be placed in data-table
 	button?: ButtonAppearanceType; // Action button configuration
 

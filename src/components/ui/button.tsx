@@ -58,7 +58,7 @@ export interface ButtonProps
 // applies the same `buttonVariants` to a NextLink - that replaced the previous
 // `asChild`/Slot escape hatch and keeps the anchor/button distinction explicit.
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-	({ className, variant, size, hover, ...props }, ref) => {
+	({ className, variant, size, hover, type = 'button', ...props }, ref) => {
 		return (
 			<button
 				className={cn(
@@ -67,6 +67,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 					className,
 				)}
 				ref={ref}
+				type={type}
 				{...props}
 			/>
 		);

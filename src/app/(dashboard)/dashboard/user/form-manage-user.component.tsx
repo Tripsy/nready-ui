@@ -9,12 +9,14 @@ import {
 import { toOptionsFromEnum } from '@/helpers/form.helper';
 import { formatEnumLabel } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
+import { isAdmin } from '@/models/account.model';
 import {
 	type UserOperatorType,
 	UserOperatorTypeEnum,
 	type UserRole,
 	UserRoleEnum,
 } from '@/models/user.model';
+import { useAuth } from '@/providers/auth.provider';
 import { useWindowForm } from '@/providers/window-form.provider';
 import { type Language, LanguageEnum } from '@/types/common.type';
 
@@ -41,8 +43,18 @@ const operatorTypes = toOptionsFromEnum(UserOperatorTypeEnum, {
 });
 
 export function FormManageUser() {
-	const { formValues, errors, handleChange, pending } =
+	const { formOperation, formValues, errors, handleChange, pending } =
 		useWindowForm<UserFormValuesType>();
+
+	// An update keeps the current password unless both fields are filled in (`update` schema)
+	const isPasswordRequired = formOperation === 'create';
+
+	// Only an admin may assign a role or operator type (`UserPolicy.canAssignRole` in the API).
+	// Anyone else sees them read-only, while hidden inputs post the current values back:
+	// a disabled control is left out of `FormData`, and `getFormValues` would then default
+	// the role to member, which the API refuses as a role change.
+	const { auth } = useAuth();
+	const canAssignRole = isAdmin(auth);
 
 	const [showPassword, setShowPassword] = useState(false);
 
@@ -99,6 +111,7 @@ export function FormManageUser() {
 				id={elementIds.password}
 				fieldName="password"
 				fieldValue={formValues.password ?? ''}
+				isRequired={isPasswordRequired}
 				disabled={pending}
 				onChange={(e) => handleChange('password', e.target.value)}
 				error={errors.password}
@@ -112,6 +125,7 @@ export function FormManageUser() {
 				fieldName="password_confirm"
 				fieldValue={formValues.password_confirm ?? ''}
 				placeholderText="Password confirmation"
+				isRequired={isPasswordRequired}
 				disabled={pending}
 				onChange={(e) =>
 					handleChange('password_confirm', e.target.value)
@@ -139,7 +153,7 @@ export function FormManageUser() {
 				fieldName="role"
 				fieldValue={formValues.role}
 				options={roles}
-				disabled={pending}
+				disabled={pending || !canAssignRole}
 				onChange={(value) => handleChange('role', value as UserRole)}
 				error={errors.role}
 			/>
@@ -151,7 +165,7 @@ export function FormManageUser() {
 					fieldName="operator_type"
 					fieldValue={formValues.operator_type ?? ''}
 					options={operatorTypes}
-					disabled={pending}
+					disabled={pending || !canAssignRole}
 					onChange={(value) =>
 						handleChange(
 							'operator_type',
@@ -160,6 +174,19 @@ export function FormManageUser() {
 					}
 					error={errors.operator_type}
 				/>
+			)}
+
+			{!canAssignRole && (
+				<>
+					<input type="hidden" name="role" value={formValues.role} />
+					{formValues.operator_type && (
+						<input
+							type="hidden"
+							name="operator_type"
+							value={formValues.operator_type}
+						/>
+					)}
+				</>
 			)}
 		</>
 	);

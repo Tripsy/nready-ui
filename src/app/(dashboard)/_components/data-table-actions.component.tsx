@@ -12,7 +12,11 @@ import type { ActionIconKey } from '@/components/icon.component';
 import { getDataSourceConfig } from '@/config/data-source.config';
 import { getErrorMessage } from '@/helpers/error.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
-import { hasPermission } from '@/models/account.model';
+import {
+	type AccountModel,
+	hasPermission,
+	isAdmin,
+} from '@/models/account.model';
 import { useAuth } from '@/providers/auth.provider';
 import { useToast } from '@/providers/toast.provider';
 import { useModalStore } from '@/stores/window.store';
@@ -36,7 +40,10 @@ type AllowActionType<K extends DataSourceKey> = (
 	entries: DatasourceModels[K][],
 	permission: ActionConfigPermission | undefined,
 	entriesSelection: EntriesSelectionType,
-	customEntryCheck?: (entry: DatasourceModels[K]) => boolean,
+	customEntryCheck?: (
+		entry: DatasourceModels[K],
+		auth: AccountModel | null,
+	) => boolean,
 ) => boolean;
 
 function DataTableActionButton({
@@ -192,14 +199,17 @@ export function DataTableActions<K extends DataSourceKey>() {
 			entries: Entry[],
 			permission: ActionConfigPermission | undefined,
 			entriesSelection: EntriesSelectionType,
-			customEntryCheck?: (entry: Entry) => boolean,
+			customEntryCheck?: (
+				entry: Entry,
+				auth: AccountModel | null,
+			) => boolean,
 		) => {
 			if (entriesSelection === 'single') {
 				if (entries.length !== 1) {
 					return false;
 				}
 
-				if (customEntryCheck && !customEntryCheck(entries[0])) {
+				if (customEntryCheck && !customEntryCheck(entries[0], auth)) {
 					return false;
 				}
 			}
@@ -211,6 +221,10 @@ export function DataTableActions<K extends DataSourceKey>() {
 			// No declared permission → the action isn't permission-gated.
 			if (!permission) {
 				return true;
+			}
+
+			if (permission === 'admin') {
+				return isAdmin(auth);
 			}
 
 			const [permissionEntity, permissionOperation] = permission;

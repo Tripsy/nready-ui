@@ -25,7 +25,11 @@ import {
 	resolveValidatorMessages,
 	sharedValidatorMessages,
 } from '@/helpers/validator.helper';
-import { type AccountModel, hasPermission } from '@/models/account.model';
+import {
+	type AccountModel,
+	hasPermission,
+	isAdmin,
+} from '@/models/account.model';
 import {
 	type UserModel,
 	UserOperatorTypeEnum,
@@ -245,6 +249,16 @@ export type UserDataTableFiltersType = {
 	is_deleted: { value: boolean; matchMode: 'equals' };
 };
 
+/**
+ * Whether the viewer may write to this user's row - only an admin touches a staff account
+ * (admin or operator), anyone else is limited to members (`UserPolicy.canManageTarget` in the
+ * API). Gates update, status, delete and restore, so an operator is not offered actions that
+ * end in a 403.
+ */
+function canManageTarget(entry: UserModel, auth: AccountModel | null): boolean {
+	return isAdmin(auth) || entry.role === UserRoleEnum.MEMBER;
+}
+
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<UserModel>
 > {
@@ -278,6 +292,10 @@ export default async function dataSourceConfig(): Promise<
 	): DataTableValueOptionsType<UserModel>['displayButton'] {
 		return {
 			action: (entry: UserModel) => {
+				if (!canManageTarget(entry, auth)) {
+					return undefined;
+				}
+
 				if (entry.deleted_at) {
 					return hasPermission(auth, 'user', 'delete')
 						? 'restore'
@@ -301,8 +319,7 @@ export default async function dataSourceConfig(): Promise<
 	): DataTableValueOptionsType<UserModel>['displayButton'] {
 		return {
 			action: () =>
-				entry.role === UserRoleEnum.OPERATOR &&
-				hasPermission(auth, 'permission', 'update')
+				entry.role === UserRoleEnum.OPERATOR && isAdmin(auth)
 					? 'setupPermissions'
 					: undefined,
 			dataSource: 'user',
@@ -413,7 +430,8 @@ export default async function dataSourceConfig(): Promise<
 				windowComponent: FormManageUser,
 				permission: ['user', 'update'],
 				entriesSelection: 'single',
-				customEntryCheck: (entry: UserModel) => !entry.deleted_at, // Return true if the entry is not deleted
+				customEntryCheck: (entry: UserModel, auth) =>
+					!entry.deleted_at && canManageTarget(entry, auth),
 				operationFunction: (params: UserFormValuesType, id: number) =>
 					requestUpdate<UserModel, UserFormValuesType>(
 						'user',
@@ -434,7 +452,8 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['delete.title'],
 				permission: ['user', 'delete'],
 				entriesSelection: 'single',
-				customEntryCheck: (entry: UserModel) => !entry.deleted_at, // Return true if the entry is not deleted
+				customEntryCheck: (entry: UserModel, auth) =>
+					!entry.deleted_at && canManageTarget(entry, auth),
 				operationFunction: (entry: UserModel) =>
 					requestDelete('user', entry),
 				buttonPosition: 'left',
@@ -448,7 +467,8 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['restore.title'],
 				permission: ['user', 'delete'],
 				entriesSelection: 'single',
-				customEntryCheck: (entry: UserModel) => !!entry.deleted_at, // Return true if the entry is deleted
+				customEntryCheck: (entry: UserModel, auth) =>
+					!!entry.deleted_at && canManageTarget(entry, auth),
 				operationFunction: (entry: UserModel) =>
 					requestRestore('user', entry),
 				buttonPosition: 'left',
@@ -462,8 +482,9 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['enable.title'],
 				permission: ['user', 'update'],
 				entriesSelection: 'single',
-				customEntryCheck: (entry: UserModel) =>
+				customEntryCheck: (entry: UserModel, auth) =>
 					!entry.deleted_at &&
+					canManageTarget(entry, auth) &&
 					arrayHasValue(entry.status, [
 						UserStatusEnum.PENDING,
 						UserStatusEnum.INACTIVE,
@@ -481,8 +502,9 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['disable.title'],
 				permission: ['user', 'update'],
 				entriesSelection: 'single',
-				customEntryCheck: (entry: UserModel) =>
+				customEntryCheck: (entry: UserModel, auth) =>
 					!entry.deleted_at &&
+					canManageTarget(entry, auth) &&
 					arrayHasValue(entry.status, [
 						UserStatusEnum.PENDING,
 						UserStatusEnum.ACTIVE,
@@ -513,7 +535,8 @@ export default async function dataSourceConfig(): Promise<
 				windowConfigProps: {
 					size: 'lg',
 				},
-				permission: ['permission', 'update'],
+				// Granting permissions is reserved to admins by the backend (`PermissionPolicy.canGrant`)
+				permission: 'admin',
 				entriesSelection: 'single',
 				customEntryCheck: (entry: UserModel) =>
 					!entry.deleted_at && entry.role === UserRoleEnum.OPERATOR,
