@@ -88,7 +88,25 @@
 		"currency": "Monedă",
 		"external_reference": "Referință externă",
 		"vendor": "Furnizor",
-		"notes": "Notițe"
+		"notes": "Notițe",
+		"id": "ID",
+		"category_type": "Tip",
+		"category": "Categorie",
+		"status": "Status",
+		"created_at": "Creat la",
+		"search": "ID / Referință / Notițe",
+		"direction": "Direcție",
+		"client": "Client",
+		"order": "Comandă",
+		"refund_id": "ID rambursare",
+		"net_amount": "Sumă netă",
+		"reference": "Referință",
+		"date": "Dată",
+		"type": "Tip",
+		"gross_amount": "Sumă brută",
+		"exchange_rate": "Curs valutar",
+		"updated_at": "Actualizat la",
+		"deleted_at": "Șters la"
 	},
 	"help": {
 		"intro": "O înregistrare de flux de numerar este o singură mișcare de bani, de intrare sau de ieșire, consemnată cu cota de TVA și moneda în care s-a petrecut. Cea mai mare parte din ce o descrie - direcția și tipul - decurge din categorie, nu se alege separat.",
@@ -107,5 +125,48 @@
 		"note": "Rambursarea se aplică doar unei înregistrări finalizate, creează o intrare copil în moneda părintelui și nu poate depăși cât a rămas nerambursat din el. Ștergerea este una logică, iar această entitate nu are restaurare, deci o intrare ștearsă rămâne vizibilă doar prin „Arată șterse”; o intrare care are deja rambursări este refuzată până când acestea dispar.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"text": {
+		"operational_records": "Înregistrări operaționale",
+		"create_vendor": "Creează furnizorul „{{value}}”"
+	},
+	"section": {
+		"info": "Info",
+		"timestamps": "Marcaje de timp",
+		"refunds": "Rambursări",
+		"operational_records": "Înregistrări operaționale"
+	},
+	"enum": {
+		"direction": {
+			"in": "Intrare",
+			"out": "Ieșire"
+		},
+		"method": {
+			"credit_card": "Card de credit",
+			"debit_card": "Card de debit",
+			"paypal": "PayPal",
+			"cash": "Numerar",
+			"bank_transfer": "Transfer bancar",
+			"check": "Cec",
+			"crypto": "Criptomonede",
+			"gift_card": "Card cadou"
+		},
+		"category_type": {
+			"revenue": "Venit",
+			"expense": "Cheltuială",
+			"correction": "Corecție"
+		},
+		"category": {
+			"sale": "Vânzare",
+			"vendor": "Furnizor",
+			"insurance": "Asigurare",
+			"taxes": "Taxe",
+			"refund": "Rambursare"
+		},
+		"operational_record_type": {
+			"client": "Client",
+			"vendor": "Furnizor",
+			"order": "Comandă"
+		}
 	}
 }

@@ -1,3 +1,5 @@
+'use client';
+
 import {
 	FormComponentCheckbox,
 	FormComponentSelect,
@@ -5,10 +7,30 @@ import {
 } from '@/components/form/form-element.component';
 import { Icons } from '@/components/icon.component';
 import { Button } from '@/components/ui/button';
-import { ISO_WEEKDAYS } from '@/helpers/date.helper';
+import { ISO_WEEKDAY_KEYS, ISO_WEEKDAYS } from '@/helpers/date.helper';
 import { ownErrorMessages, rowErrorsAt } from '@/helpers/form.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import type { ProductAvailabilityType } from '@/models/product.model';
+
+const TRANSLATION_KEYS = [
+	'product.text.add_interval',
+	'product.text.all_day',
+	'product.text.day',
+	'product.text.from',
+	'product.text.no_intervals_the_product_can_be',
+	'product.text.remove_interval',
+	'product.text.until',
+	'product.text.every_day',
+	'product.text.label_day',
+	'product.text.label_from',
+	'product.text.label_until',
+	'product.text.label_remove_interval',
+	...ISO_WEEKDAY_KEYS,
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
 
 /**
  * A window as the form holds it: the stored shape plus client-only row identity.
@@ -62,15 +84,8 @@ const WINDOW_COLUMN = {
 	hours: 'w-32 shrink-0',
 } as const;
 
-const weekdayOptions = [
-	{ label: 'Every day', value: EVERY_DAY },
-	...ISO_WEEKDAYS.map((day) => ({
-		label: day.label,
-		value: String(day.value),
-	})),
-];
-
 function AvailabilityRow({
+	translations,
 	availability,
 	index,
 	pending,
@@ -78,6 +93,7 @@ function AvailabilityRow({
 	onChange,
 	onRemove,
 }: {
+	translations: TranslationsType;
 	availability: ProductAvailabilityFormType;
 	index: number;
 	pending: boolean;
@@ -93,6 +109,14 @@ function AvailabilityRow({
 	] as const);
 
 	const rowErrors = rowErrorsAt<ProductAvailabilityFormType>(errors, index);
+
+	const weekdayOptions = [
+		{ label: translations['product.text.every_day'], value: EVERY_DAY },
+		...ISO_WEEKDAYS.map((day) => ({
+			label: translations[day.labelKey],
+			value: String(day.value),
+		})),
+	];
 
 	/*
 	 * The two columns are null together - that is the stored shape of a whole-day window, and a
@@ -112,7 +136,7 @@ function AvailabilityRow({
 							? EVERY_DAY
 							: String(availability.day_of_week)
 					}
-					ariaLabel="Day"
+					ariaLabel={translations['product.text.label_day']}
 					className="w-full"
 					options={weekdayOptions}
 					disabled={pending}
@@ -149,7 +173,9 @@ function AvailabilityRow({
 						})
 					}
 				>
-					<span className="sr-only">All day</span>
+					<span className="sr-only">
+						{translations['product.text.all_day']}
+					</span>
 				</FormComponentCheckbox>
 			</div>
 
@@ -164,7 +190,7 @@ function AvailabilityRow({
 					fieldName="starts_at"
 					fieldValue={availability.starts_at}
 					isRequired={!isAllDay}
-					ariaLabel="From"
+					ariaLabel={translations['product.text.label_from']}
 					className="w-full"
 					minuteInterval={5}
 					disabled={pending || isAllDay}
@@ -186,7 +212,7 @@ function AvailabilityRow({
 					fieldName="ends_at"
 					fieldValue={availability.ends_at}
 					isRequired={!isAllDay}
-					ariaLabel="Until"
+					ariaLabel={translations['product.text.label_until']}
 					className="w-full"
 					minuteInterval={5}
 					disabled={pending || isAllDay}
@@ -207,8 +233,13 @@ function AvailabilityRow({
 				className="mt-1 p-2 opacity-60 hover:opacity-100"
 				disabled={pending}
 				onClick={onRemove}
-				aria-label={`Remove interval ${index + 1}`}
-				title="Remove interval"
+				aria-label={replaceVars(
+					translations['product.text.label_remove_interval'],
+					{
+						number: index + 1,
+					},
+				)}
+				title={translations['product.text.remove_interval']}
 			>
 				<Icons.Close className="h-4 w-4" />
 			</Button>
@@ -243,12 +274,17 @@ export function FormAvailabilityProduct({
 	errors: unknown;
 	onChange: (value: ProductAvailabilityFormType[]) => void;
 }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	return (
 		<div className="space-y-3">
 			{value.length === 0 ? (
 				<p className="rounded-lg border border-dashed border-line p-6 text-center text-sm text-muted">
-					No intervals - the product can be ordered at any time while
-					it is available.
+					{
+						translations[
+							'product.text.no_intervals_the_product_can_be'
+						]
+					}
 				</p>
 			) : (
 				<>
@@ -260,16 +296,23 @@ export function FormAvailabilityProduct({
 					 * unticked, and one header cannot say that for rows that differ.
 					 */}
 					<div className="flex flex-nowrap gap-2 text-sm font-semibold">
-						<span className={WINDOW_COLUMN.day}>Day</span>
-						<span className={`${WINDOW_COLUMN.allDay} text-center`}>
-							All day
+						<span className={WINDOW_COLUMN.day}>
+							{translations['product.text.day']}
 						</span>
-						<span className={WINDOW_COLUMN.hours}>From</span>
-						<span className={WINDOW_COLUMN.hours}>Until</span>
+						<span className={`${WINDOW_COLUMN.allDay} text-center`}>
+							{translations['product.text.all_day']}
+						</span>
+						<span className={WINDOW_COLUMN.hours}>
+							{translations['product.text.from']}
+						</span>
+						<span className={WINDOW_COLUMN.hours}>
+							{translations['product.text.until']}
+						</span>
 					</div>
 
 					{value.map((availability, index) => (
 						<AvailabilityRow
+							translations={translations}
 							key={availability.key}
 							availability={availability}
 							index={index}
@@ -302,10 +345,10 @@ export function FormAvailabilityProduct({
 					className="p-2 opacity-80 hover:opacity-100"
 					disabled={pending}
 					onClick={() => onChange([...value, emptyAvailability()])}
-					title="Add interval"
+					title={translations['product.text.add_interval']}
 				>
 					<Icons.Action.Add className="h-4 w-4" />
-					Add interval
+					{translations['product.text.add_interval']}
 				</Button>
 			</div>
 

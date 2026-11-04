@@ -93,5 +93,36 @@
 		"tab_info": "Info",
 		"tab_api": "API docs",
 		"tab_public": "Public API"
+	},
+	"field": {
+		"id": "ID",
+		"entity_type": "Target",
+		"reason": "Reason",
+		"description": "Description",
+		"user_id": "User ID",
+		"is_resolved": "Resolution",
+		"created_at": "Created At",
+		"search": "Description",
+		"entity_id": "Target ID",
+		"user": "Reporter",
+		"email": "Email",
+		"status": "Status",
+		"resolved_at": "Resolved At",
+		"resolved_by": "Resolved By",
+		"updated_at": "Updated At",
+		"deleted_at": "Deleted At"
+	},
+	"section": {
+		"report": "Report",
+		"target": "Target",
+		"reporter": "Reporter",
+		"resolution": "Resolution",
+		"timestamps": "Timestamps"
+	},
+	"enum": {
+		"entity_type": {
+			"article": "Article",
+			"comment": "Comment"
+		}
 	}
 }

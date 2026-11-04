@@ -13,10 +13,14 @@ import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { ComplaintDataTableFiltersType } from '@/app/(dashboard)/dashboard/complaint/complaint.definition';
 import { Icons } from '@/components/icon.component';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type ComplaintEntityType,
 	ComplaintEntityTypeEnum,
@@ -25,21 +29,63 @@ import {
 } from '@/models/complaint.model';
 import { displayUserLabel, type UserModel } from '@/models/user.model';
 
-const entityTypes = toOptionsFromEnum(ComplaintEntityTypeEnum, {
-	formatter: formatEnumLabel,
-});
-
-const reasons = toOptionsFromEnum(ComplaintReasonEnum, {
-	formatter: formatEnumLabel,
-});
-
-/** `is_resolved` is a boolean on the backend, so the select carries the two states as strings. */
-const resolutionStates = [
-	{ label: 'Open', value: 'false' },
-	{ label: 'Resolved', value: 'true' },
-];
+const TRANSLATION_KEYS = [
+	'complaint.field.entity_id',
+	'complaint.field.entity_type',
+	'complaint.field.is_resolved',
+	'complaint.field.reason',
+	'complaint.field.search',
+	'complaint.field.user',
+	'complaint.status.open',
+	'complaint.status.resolved',
+	...enumTranslationKeys(
+		'complaint.enum.entity_type',
+		ComplaintEntityTypeEnum,
+	),
+	...enumTranslationKeys('complaint.reason', ComplaintReasonEnum),
+] as const;
 
 export const DataTableFiltersComplaint = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const resolutionStates = useMemo(
+		() =>
+			// `is_resolved` is a boolean on the backend, so the select carries the two states as strings
+			[
+				{
+					label: translations['complaint.status.open'],
+					value: 'false',
+				},
+				{
+					label: translations['complaint.status.resolved'],
+					value: 'true',
+				},
+			],
+		[translations],
+	);
+
+	const reasons = useMemo(
+		() =>
+			toOptionsFromEnum(ComplaintReasonEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'complaint.reason', value),
+			}),
+		[translations],
+	);
+
+	const entityTypes = useMemo(
+		() =>
+			toOptionsFromEnum(ComplaintEntityTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'complaint.enum.entity_type',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'complaint'>();
 
@@ -98,12 +144,12 @@ export const DataTableFiltersComplaint = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<ComplaintDataTableFiltersType>
-				labelText="Description"
+				labelText={translations['complaint.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<ComplaintDataTableFiltersType>
-				labelText="Resolution"
+				labelText={translations['complaint.field.is_resolved']}
 				fieldName="is_resolved"
 				fieldValue={
 					filters.is_resolved.value === null
@@ -117,7 +163,7 @@ export const DataTableFiltersComplaint = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<ComplaintDataTableFiltersType>
-				labelText="Reason"
+				labelText={translations['complaint.field.reason']}
 				fieldName="reason"
 				fieldValue={filters.reason.value}
 				options={reasons}
@@ -127,7 +173,7 @@ export const DataTableFiltersComplaint = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<ComplaintDataTableFiltersType>
-				labelText="Target"
+				labelText={translations['complaint.field.entity_type']}
 				fieldName="entity_type"
 				fieldValue={filters.entity_type.value}
 				options={entityTypes}
@@ -137,13 +183,13 @@ export const DataTableFiltersComplaint = (): JSX.Element => {
 			/>
 
 			<FormFiltersSearch<ComplaintDataTableFiltersType>
-				labelText="Target ID"
+				labelText={translations['complaint.field.entity_id']}
 				fieldName="entity_id"
 				search={searchEntityId}
 			/>
 
 			<FormFiltersAutoComplete<ComplaintDataTableFiltersType, UserModel>
-				labelText="Reporter"
+				labelText={translations['complaint.field.user']}
 				fieldName="user"
 				fieldNameId="user_id"
 				fieldValue={searchUser}

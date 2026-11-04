@@ -23,7 +23,9 @@ import { toCalendarValue } from '@/helpers/date.helper';
 import { DisplayAmount } from '@/helpers/display.helper';
 import type { ValidationIssueType } from '@/helpers/form.helper';
 import { requestUpdate, requestView } from '@/helpers/services.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type BillingDetails,
 	computeInvoiceLineTotal,
@@ -34,6 +36,50 @@ import {
 	type SellerDetails,
 } from '@/models/invoice.model';
 import { useToast } from '@/providers/toast.provider';
+
+const TRANSLATION_KEYS = [
+	'invoice.field.discount_reduction',
+	'invoice.field.due_at',
+	'invoice.field.label',
+	'invoice.field.notes',
+	'invoice.field.quantity',
+	'invoice.field.total_gross',
+	'invoice.text.add_another_line',
+	'invoice.text.discard_this_line',
+	'invoice.text.label_add_another_line',
+	'invoice.text.label_discard_new_line',
+	'invoice.text.label_discount_of',
+	'invoice.text.label_label_of',
+	'invoice.text.label_quantity_of',
+	'invoice.text.label_unit_price_of',
+	'invoice.text.label_vat_rate_of',
+	'invoice.text.lines',
+	'invoice.text.placeholder_due_at',
+	'invoice.text.save',
+	'invoice.text.this_document_has_been_issued_so',
+	'invoice.text.this_document_itemizes_nothing_yet',
+	'invoice.text.unit_price',
+	'invoice.text.vat',
+	'app.success.title',
+	'app.error.title',
+	'invoice.text.updated',
+	'invoice.text.no_billing_address',
+	'invoice.text.label_keep_line',
+	'invoice.text.label_remove_line',
+	'invoice.text.keep_line',
+	'invoice.text.remove_on_save',
+	'invoice.text.quantity_over',
+	'invoice.text.price_over',
+	'invoice.text.described_line',
+	'invoice.text.described_new_line',
+	'invoice.text.described_the_new_line',
+	'invoice.text.add_line_hint',
+	'invoice.text.add_adjustment_hint',
+	'invoice.text.placeholder_custom_line',
+	'invoice.text.placeholder_adjustment_line',
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
 
 /**
  * What a draft accepts beyond its lines. The figures are not here: they come from the lines, and
@@ -163,6 +209,7 @@ const LINE_GRID_DRAFT =
  * figures follow the invoice it reverses.
  */
 function LineInputs({
+	translations,
 	draft,
 	describedAs,
 	disabled,
@@ -175,6 +222,7 @@ function LineInputs({
 	isPriceOver = false,
 	onChange,
 }: {
+	translations: TranslationsType;
 	draft: LineDraft;
 	describedAs: string;
 	disabled: boolean;
@@ -190,7 +238,10 @@ function LineInputs({
 	return (
 		<>
 			<Input
-				aria-label={`Label of ${describedAs}`}
+				aria-label={replaceVars(
+					translations['invoice.text.label_label_of'],
+					{ described_as: describedAs },
+				)}
 				className={isStruck ? 'line-through' : undefined}
 				placeholder={labelPlaceholder}
 				value={draft.label}
@@ -199,7 +250,10 @@ function LineInputs({
 			/>
 
 			<Input
-				aria-label={`Quantity of ${describedAs}`}
+				aria-label={replaceVars(
+					translations['invoice.text.label_quantity_of'],
+					{ described_as: describedAs },
+				)}
 				type="number"
 				max={maxQuantity ?? undefined}
 				aria-invalid={isQuantityOver}
@@ -209,7 +263,10 @@ function LineInputs({
 			/>
 
 			<Input
-				aria-label={`Unit price of ${describedAs}`}
+				aria-label={replaceVars(
+					translations['invoice.text.label_unit_price_of'],
+					{ described_as: describedAs },
+				)}
 				type="number"
 				max={maxUnitPrice ?? undefined}
 				aria-invalid={isPriceOver}
@@ -219,7 +276,10 @@ function LineInputs({
 			/>
 
 			<Input
-				aria-label={`VAT rate of ${describedAs}`}
+				aria-label={replaceVars(
+					translations['invoice.text.label_vat_rate_of'],
+					{ described_as: describedAs },
+				)}
 				type="number"
 				value={draft.vat_rate}
 				disabled={figuresDisabled}
@@ -227,7 +287,10 @@ function LineInputs({
 			/>
 
 			<Input
-				aria-label={`Discount of ${describedAs}`}
+				aria-label={replaceVars(
+					translations['invoice.text.label_discount_of'],
+					{ described_as: describedAs },
+				)}
 				type="number"
 				value={draft.discount_reduction}
 				disabled={figuresDisabled}
@@ -284,6 +347,8 @@ function LineTotal({
  * gated the same way, and the API refuses any write once the document has left `draft`.
  */
 export function ManageInvoice({ entries }: { entries: InvoiceModel[] }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const entry = entries[0];
 
 	const queryClient = useQueryClient();
@@ -518,8 +583,8 @@ export function ManageInvoice({ entries }: { entries: InvoiceModel[] }) {
 
 			showToast({
 				severity: 'success',
-				summary: 'Success',
-				detail: 'Invoice updated successfully',
+				summary: translations['app.success.title'],
+				detail: translations['invoice.text.updated'],
 			});
 
 			setDetails(null);
@@ -537,7 +602,7 @@ export function ManageInvoice({ entries }: { entries: InvoiceModel[] }) {
 		} catch (saveError) {
 			showToast({
 				severity: 'error',
-				summary: 'Error',
+				summary: translations['app.error.title'],
 				detail:
 					saveError instanceof ApiError && saveError.body
 						? describeRefusal(saveError.body)
@@ -552,17 +617,19 @@ export function ManageInvoice({ entries }: { entries: InvoiceModel[] }) {
 		<div className="space-y-6">
 			<div className="space-y-3">
 				<FormComponentCalendar<DetailsDraft>
-					labelText="Due At"
+					labelText={translations['invoice.field.due_at']}
 					id={elementIds.dueAt}
 					fieldName="due_at"
 					fieldValue={currentDetails.due_at ?? ''}
-					placeholderText="-select-"
+					placeholderText={
+						translations['invoice.text.placeholder_due_at']
+					}
 					disabled={!isEditable}
 					onSelect={(value) => setDetailsValue('due_at', value)}
 				/>
 
 				<FormComponentTextarea<DetailsDraft>
-					labelText="Notes"
+					labelText={translations['invoice.field.notes']}
 					id={elementIds.notes}
 					fieldName="notes"
 					fieldValue={currentDetails.notes ?? ''}
@@ -581,7 +648,9 @@ export function ManageInvoice({ entries }: { entries: InvoiceModel[] }) {
 						isCustom={isBillingCustom}
 						notice={
 							shownBilling === null
-								? 'The order has no billing address. State the buyer here, or set a billing address on the order.'
+								? translations[
+										'invoice.text.no_billing_address'
+									]
 								: undefined
 						}
 						disabled={!isEditable}
@@ -608,31 +677,44 @@ export function ManageInvoice({ entries }: { entries: InvoiceModel[] }) {
 			)}
 
 			<div>
-				<p className="mb-1 text-sm font-medium">Lines</p>
+				<p className="mb-1 text-sm font-medium">
+					{translations['invoice.text.lines']}
+				</p>
 
 				{!isDraft && (
 					<p className="text-sm opacity-70 mb-3">
-						This document has been issued, so its lines are the
-						record of what was charged and can no longer be changed.
+						{
+							translations[
+								'invoice.text.this_document_has_been_issued_so'
+							]
+						}
 					</p>
 				)}
 
 				<div
 					className={`${gridClass} border-b border-line pb-2 text-sm opacity-70`}
 				>
-					<div>Label</div>
-					<div>Quantity</div>
-					<div>Unit price</div>
-					<div>VAT %</div>
-					<div>Discount</div>
-					<div className="text-right">Total</div>
+					<div>{translations['invoice.field.label']}</div>
+					<div>{translations['invoice.field.quantity']}</div>
+					<div>{translations['invoice.text.unit_price']}</div>
+					<div>{translations['invoice.text.vat']}</div>
+					<div>
+						{translations['invoice.field.discount_reduction']}
+					</div>
+					<div className="text-right">
+						{translations['invoice.field.total_gross']}
+					</div>
 					{isDraft && <div />}
 				</div>
 
 				<div className="divide-y divide-line">
 					{lines.length === 0 && added.length === 0 && (
 						<p className="py-3 text-sm opacity-70">
-							This document itemizes nothing yet.
+							{
+								translations[
+									'invoice.text.this_document_itemizes_nothing_yet'
+								]
+							}
 						</p>
 					)}
 
@@ -647,8 +729,16 @@ export function ManageInvoice({ entries }: { entries: InvoiceModel[] }) {
 								className={`${gridClass} py-3 ${isRemoved ? 'opacity-50' : ''}`}
 							>
 								<LineInputs
+									translations={translations}
 									draft={draft}
-									describedAs={`line ${line.id}`}
+									describedAs={replaceVars(
+										translations[
+											'invoice.text.described_line'
+										],
+										{
+											id: line.id,
+										},
+									)}
 									disabled={!isEditable || isRemoved}
 									figuresDisabled={
 										!isEditable ||
@@ -679,15 +769,24 @@ export function ManageInvoice({ entries }: { entries: InvoiceModel[] }) {
 										hover={isRemoved ? 'default' : 'error'}
 										className="h-9 w-9"
 										disabled={isSaving}
-										aria-label={
+										aria-label={replaceVars(
 											isRemoved
-												? `Keep line ${line.id}`
-												: `Remove line ${line.id}`
-										}
+												? translations[
+														'invoice.text.label_keep_line'
+													]
+												: translations[
+														'invoice.text.label_remove_line'
+													],
+											{ id: line.id },
+										)}
 										title={
 											isRemoved
-												? 'Keep this line'
-												: 'Remove on save'
+												? translations[
+														'invoice.text.keep_line'
+													]
+												: translations[
+														'invoice.text.remove_on_save'
+													]
 										}
 										onClick={() => toggleRemoved(line.id)}
 									>
@@ -701,17 +800,27 @@ export function ManageInvoice({ entries }: { entries: InvoiceModel[] }) {
 
 								{!isRemoved && isQuantityOver && (
 									<p className="col-span-full text-sm text-danger">
-										The quantity cannot exceed{' '}
-										{line.max_quantity}, what its source has
-										left to invoice.
+										{replaceVars(
+											translations[
+												'invoice.text.quantity_over'
+											],
+											{
+												max: line.max_quantity ?? '',
+											},
+										)}
 									</p>
 								)}
 
 								{!isRemoved && isPriceOver && (
 									<p className="col-span-full text-sm text-danger">
-										The unit price cannot exceed{' '}
-										{line.max_unit_price}, the price of its
-										source.
+										{replaceVars(
+											translations[
+												'invoice.text.price_over'
+											],
+											{
+												max: line.max_unit_price ?? '',
+											},
+										)}
 									</p>
 								)}
 							</div>
@@ -724,8 +833,16 @@ export function ManageInvoice({ entries }: { entries: InvoiceModel[] }) {
 							className={`${gridClass} py-3`}
 						>
 							<LineInputs
+								translations={translations}
 								draft={item.draft}
-								describedAs={`new line ${item.key}`}
+								describedAs={replaceVars(
+									translations[
+										'invoice.text.described_new_line'
+									],
+									{
+										key: item.key,
+									},
+								)}
 								disabled={!isEditable}
 								onChange={(field, value) =>
 									setAddedValue(item.key, field, value)
@@ -743,8 +860,17 @@ export function ManageInvoice({ entries }: { entries: InvoiceModel[] }) {
 								hover="error"
 								className="h-9 w-9"
 								disabled={isSaving}
-								aria-label={`Discard new line ${item.key}`}
-								title="Discard this line"
+								aria-label={replaceVars(
+									translations[
+										'invoice.text.label_discard_new_line'
+									],
+									{ key: item.key },
+								)}
+								title={
+									translations[
+										'invoice.text.discard_this_line'
+									]
+								}
 								onClick={() =>
 									setAdded((previous) =>
 										previous.filter(
@@ -762,19 +888,30 @@ export function ManageInvoice({ entries }: { entries: InvoiceModel[] }) {
 						<div className="py-3">
 							<p className="mb-2 text-sm opacity-70">
 								{isCustomInvoice
-									? 'Add a line - what this invoice charges for.'
-									: 'Add an adjustment line - rounding, a manual correction, anything with no source row behind it. A product or shipping line names the row it was raised from and comes from the order.'}
+									? translations['invoice.text.add_line_hint']
+									: translations[
+											'invoice.text.add_adjustment_hint'
+										]}
 							</p>
 
 							<div className={gridClass}>
 								<LineInputs
+									translations={translations}
 									draft={newLine}
-									describedAs="the new line"
+									describedAs={
+										translations[
+											'invoice.text.described_the_new_line'
+										]
+									}
 									disabled={!isEditable}
 									labelPlaceholder={
 										isCustomInvoice
-											? 'e.g.: Consulting services'
-											: 'e.g.: Rounding adjustment'
+											? translations[
+													'invoice.text.placeholder_custom_line'
+												]
+											: translations[
+													'invoice.text.placeholder_adjustment_line'
+												]
 									}
 									onChange={(field, value) =>
 										setNewLine((previous) => ({
@@ -797,8 +934,16 @@ export function ManageInvoice({ entries }: { entries: InvoiceModel[] }) {
 									disabled={
 										!isEditable || isIncomplete(newLine)
 									}
-									aria-label="Add another line"
-									title="Add another line"
+									aria-label={
+										translations[
+											'invoice.text.label_add_another_line'
+										]
+									}
+									title={
+										translations[
+											'invoice.text.add_another_line'
+										]
+									}
 									onClick={addPendingLine}
 								>
 									<Icons.Action.Add className="h-4 w-4" />
@@ -816,7 +961,7 @@ export function ManageInvoice({ entries }: { entries: InvoiceModel[] }) {
 						disabled={isSaving || !isDirty || isBlocked}
 						onClick={save}
 					>
-						Save
+						{translations['invoice.text.save']}
 					</Button>
 				</div>
 			)}

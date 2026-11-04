@@ -9,11 +9,30 @@ import { ManagerLanguageSwitcher } from '@/components/manager-language-switcher.
 import { formatDate } from '@/helpers/date.helper';
 import {
 	capitalizeFirstLetter,
-	formatEnumLabel,
+	enumTranslationKeys,
+	translateEnumLabel,
 } from '@/helpers/string.helper';
-import type { PlaceModel } from '@/models/place.model';
+import { useTranslation } from '@/hooks/use-translation.hook';
+import { type PlaceModel, PlaceTypeEnum } from '@/models/place.model';
+
+const TRANSLATION_KEYS = [
+	'place.field.code',
+	'place.field.created_at',
+	'place.field.deleted_at',
+	'place.field.id',
+	'place.field.name',
+	'place.field.place_type',
+	'place.field.type_label',
+	'place.field.updated_at',
+	'place.section.info',
+	'place.section.timestamps',
+	'place.text.language_specific',
+	...enumTranslationKeys('place.enum.type', PlaceTypeEnum),
+] as const;
 
 export function ViewPlace({ entry }: { entry: PlaceModel }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const languageContents = Object.values(entry.contents ?? []);
 	const languages = languageContents.map((value) => value.language);
 	const [language, setLanguage] = useState(languages[0]);
@@ -25,29 +44,39 @@ export function ViewPlace({ entry }: { entry: PlaceModel }) {
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center gap-2 border-b border-line pb-4">
-				<span className="font-semibold">ID</span> {entry.id}
+				<span className="font-semibold">
+					{translations['place.field.id']}
+				</span>{' '}
+				{entry.id}
 			</div>
 
-			<ViewSection title="Info">
+			<ViewSection title={translations['place.section.info']}>
 				<ViewField
-					label="Type"
-					value={formatEnumLabel(entry.place_type)}
+					label={translations['place.field.place_type']}
+					value={translateEnumLabel(
+						translations,
+						'place.enum.type',
+						entry.place_type,
+					)}
 				/>
-				<ViewField label="Code" value={entry.code} />
+				<ViewField
+					label={translations['place.field.code']}
+					value={entry.code}
+				/>
 			</ViewSection>
 
-			<ViewSection title="Timestamps">
+			<ViewSection title={translations['place.section.timestamps']}>
 				<ViewField
-					label="Created At"
+					label={translations['place.field.created_at']}
 					value={formatDate(entry.created_at, 'date-time')}
 				/>
 				<ViewField
-					label="Updated At"
+					label={translations['place.field.updated_at']}
 					value={formatDate(entry.updated_at, 'date-time')}
 				/>
 				{entry.deleted_at && (
 					<ViewField
-						label="Deleted At"
+						label={translations['place.field.deleted_at']}
 						value={
 							<span className="text-danger">
 								{formatDate(entry.deleted_at, 'date-time')}
@@ -60,7 +89,7 @@ export function ViewPlace({ entry }: { entry: PlaceModel }) {
 			{content && (
 				<div>
 					<ManagerLanguageSwitcher
-						label="Language specific"
+						label={translations['place.text.language_specific']}
 						languages={languages}
 						selected={content.language}
 						onSelect={setLanguage}
@@ -68,10 +97,13 @@ export function ViewPlace({ entry }: { entry: PlaceModel }) {
 
 					<ViewSection>
 						<ViewField
-							label="Type - Label"
+							label={translations['place.field.type_label']}
 							value={capitalizeFirstLetter(content.type_label)}
 						/>
-						<ViewField label="Name" value={content.name} />
+						<ViewField
+							label={translations['place.field.name']}
+							value={content.name}
+						/>
 					</ViewSection>
 				</div>
 			)}

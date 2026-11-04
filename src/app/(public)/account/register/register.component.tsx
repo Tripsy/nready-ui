@@ -27,7 +27,7 @@ import {
 } from '@/components/status.component';
 import Routes from '@/config/routes.setup';
 import { createHandleChange, toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import { languageOwnName } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useFormSituation } from '@/hooks/use-form-situation.hook';
 import { useFormValidation } from '@/hooks/use-form-validation.hook';
@@ -35,7 +35,7 @@ import { useFormValues } from '@/hooks/use-form-values.hook';
 import { type Language, LanguageEnum } from '@/types/common.type';
 
 const languages = toOptionsFromEnum(LanguageEnum, {
-	formatter: formatEnumLabel,
+	formatter: languageOwnName,
 });
 
 type RegisterProps = {

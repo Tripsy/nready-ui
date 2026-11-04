@@ -11,6 +11,7 @@ import {
 import type { ActionIconKey } from '@/components/icon.component';
 import { getDataSourceConfig } from '@/config/data-source.config';
 import { getErrorMessage } from '@/helpers/error.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type AccountModel,
@@ -28,6 +29,12 @@ import {
 	DataSourceSectionEnum,
 } from '@/types/data-source.type';
 import type { ButtonAppearanceType } from '@/types/html.type';
+
+const TRANSLATION_KEYS = [
+	'app.error.operation_not_allowed',
+	'app.error.title',
+	'dashboard.text.selected_count',
+] as const;
 
 type HandleActionType<K extends DataSourceKey> = (
 	action: string,
@@ -187,12 +194,7 @@ export function DataTableActions<K extends DataSourceKey>() {
 		).then(setActions);
 	}, [dataSource]);
 
-	const translationsKeys = [
-		'app.error.operation_not_allowed',
-		'app.error.title',
-	] as const;
-
-	const { translations } = useTranslation(translationsKeys);
+	const { translations } = useTranslation(TRANSLATION_KEYS);
 
 	const allowAction: AllowActionType<K> = useCallback(
 		(
@@ -360,7 +362,12 @@ export function DataTableActions<K extends DataSourceKey>() {
 		<div className="flex flex-wrap gap-4 justify-between md:min-h-18.5 py-4">
 			<div className="flex flex-wrap gap-4 items-center">
 				{selectionMode === 'multiple' && (
-					<div>{selectedEntries.length} selected</div>
+					<div>
+						{replaceVars(
+							translations['dashboard.text.selected_count'],
+							{ count: selectedEntries.length },
+						)}
+					</div>
 				)}
 				{leftActions}
 			</div>

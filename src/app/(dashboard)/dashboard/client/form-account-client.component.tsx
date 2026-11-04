@@ -1,12 +1,17 @@
+'use client';
+
 import { useState } from 'react';
 import { FormComponentAutoComplete } from '@/components/form/form-element.component';
 import { Icons } from '@/components/icon.component';
 import { requestFind } from '@/helpers/services.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { displayUserLabel, type UserModel } from '@/models/user.model';
 import { useWindowForm } from '@/providers/window-form.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
+
+const TRANSLATION_KEYS = ['client.field.user'] as const;
 
 export type ClientAccountFormValuesType = {
 	/** The account to link the client to. */
@@ -17,6 +22,8 @@ export type ClientAccountFormValuesType = {
 };
 
 export function FormAccountClient() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<ClientAccountFormValuesType>();
 
@@ -59,7 +66,7 @@ export function FormAccountClient() {
 				value={formValues.user ?? ''}
 			/>
 			<FormComponentAutoComplete<ClientAccountFormValuesType, UserModel>
-				labelText="Account"
+				labelText={translations['client.field.user']}
 				id={elementIds.user}
 				fieldName="user"
 				fieldValue={formValues.user ?? ''}

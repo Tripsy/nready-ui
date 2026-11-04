@@ -6,43 +6,91 @@ import {
 } from '@/app/(dashboard)/_components/view-detail';
 import { formatDate } from '@/helpers/date.helper';
 import { DisplayStatus } from '@/helpers/display.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
-import { type UserModel, UserRoleEnum } from '@/models/user.model';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
+import {
+	type UserModel,
+	UserOperatorTypeEnum,
+	UserRoleEnum,
+} from '@/models/user.model';
+
+const TRANSLATION_KEYS = [
+	'user.field.created_at',
+	'user.field.deleted_at',
+	'user.field.email',
+	'user.field.id',
+	'user.field.language',
+	'user.field.name',
+	'user.field.role',
+	'user.field.status',
+	'user.field.updated_at',
+	'user.section.account_info',
+	'user.section.profile',
+	'user.section.timestamps',
+	...enumTranslationKeys('user.enum.role', UserRoleEnum),
+	...enumTranslationKeys('user.enum.operator_type', UserOperatorTypeEnum),
+] as const;
 
 export function ViewUser({ entry }: { entry: UserModel }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center gap-2 border-b border-line pb-4">
-				<span className="font-semibold">ID</span> {entry.id}
+				<span className="font-semibold">
+					{translations['user.field.id']}
+				</span>{' '}
+				{entry.id}
 			</div>
 
-			<ViewSection title="Profile">
-				<ViewField label="Name" value={entry.name} />
-				<ViewField label="Email" value={entry.email} />
+			<ViewSection title={translations['user.section.profile']}>
+				<ViewField
+					label={translations['user.field.name']}
+					value={entry.name}
+				/>
+				<ViewField
+					label={translations['user.field.email']}
+					value={entry.email}
+				/>
 			</ViewSection>
 
 			<ViewSection>
-				<ViewField label="Language" value={entry.language} />
+				<ViewField
+					label={translations['user.field.language']}
+					value={entry.language}
+				/>
 			</ViewSection>
 
-			<ViewSection title="Account Info">
+			<ViewSection title={translations['user.section.account_info']}>
 				<ViewField
-					label="Role"
+					label={translations['user.field.role']}
 					value={
 						<>
-							{formatEnumLabel(entry.role)}
+							{translateEnumLabel(
+								translations,
+								'user.enum.role',
+								entry.role,
+							)}
 							{entry.role === UserRoleEnum.OPERATOR &&
 								entry.operator_type && (
 									<span>
 										{' '}
-										/ {formatEnumLabel(entry.operator_type)}
+										/{' '}
+										{translateEnumLabel(
+											translations,
+											'user.enum.operator_type',
+											entry.operator_type,
+										)}
 									</span>
 								)}
 						</>
 					}
 				/>
 				<ViewField
-					label="Status"
+					label={translations['user.field.status']}
 					value={
 						<div className="max-w-60">
 							<DisplayStatus
@@ -54,7 +102,7 @@ export function ViewUser({ entry }: { entry: UserModel }) {
 				/>
 				{entry.deleted_at && (
 					<ViewField
-						label="Deleted At"
+						label={translations['user.field.deleted_at']}
 						value={
 							<span className="text-danger">
 								{formatDate(entry.deleted_at, 'date-time')}
@@ -64,13 +112,13 @@ export function ViewUser({ entry }: { entry: UserModel }) {
 				)}
 			</ViewSection>
 
-			<ViewSection title="Timestamps">
+			<ViewSection title={translations['user.section.timestamps']}>
 				<ViewField
-					label="Created At"
+					label={translations['user.field.created_at']}
 					value={formatDate(entry.created_at, 'date-time')}
 				/>
 				<ViewField
-					label="Updated At"
+					label={translations['user.field.updated_at']}
 					value={formatDate(entry.updated_at, 'date-time')}
 				/>
 			</ViewSection>

@@ -93,5 +93,36 @@
 		"tab_info": "Info",
 		"tab_api": "Documentație API",
 		"tab_public": "API public"
+	},
+	"field": {
+		"id": "ID",
+		"entity_type": "Țintă",
+		"reason": "Motiv",
+		"description": "Descriere",
+		"user_id": "ID utilizator",
+		"is_resolved": "Rezolvare",
+		"created_at": "Creat la",
+		"search": "Descriere",
+		"entity_id": "ID țintă",
+		"user": "Raportor",
+		"email": "Email",
+		"status": "Status",
+		"resolved_at": "Rezolvată la",
+		"resolved_by": "Rezolvată de",
+		"updated_at": "Actualizat la",
+		"deleted_at": "Șters la"
+	},
+	"section": {
+		"report": "Raportează",
+		"target": "Țintă",
+		"reporter": "Raportor",
+		"resolution": "Rezolvare",
+		"timestamps": "Marcaje de timp"
+	},
+	"enum": {
+		"entity_type": {
+			"article": "Articol",
+			"comment": "Comentariu"
+		}
 	}
 }

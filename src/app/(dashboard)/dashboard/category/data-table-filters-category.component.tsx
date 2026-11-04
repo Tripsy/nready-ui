@@ -12,10 +12,15 @@ import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { CategoryDataTableFiltersType } from '@/app/(dashboard)/dashboard/category/category.definition';
 import { getLanguageClient } from '@/config/translate.setup';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	languageOwnName,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	CATEGORY_DEFAULT_TYPE,
 	type CategoryStatus,
@@ -25,19 +30,44 @@ import {
 } from '@/models/category.model';
 import { type Language, LanguageEnum } from '@/types/common.type';
 
-const categoryTypes = toOptionsFromEnum(CategoryTypeEnum, {
-	formatter: formatEnumLabel,
-});
-
-const statuses = toOptionsFromEnum(CategoryStatusEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'category.field.language',
+	'category.field.search',
+	'category.field.status',
+	'category.field.type',
+	...enumTranslationKeys('category.enum.type', CategoryTypeEnum),
+	...enumTranslationKeys('category.status', CategoryStatusEnum),
+] as const;
 
 const languages = toOptionsFromEnum(LanguageEnum, {
-	formatter: formatEnumLabel,
+	formatter: languageOwnName,
 });
 
 export const DataTableFiltersCategory = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const statuses = useMemo(
+		() =>
+			toOptionsFromEnum(CategoryStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'category.status', value),
+			}),
+		[translations],
+	);
+
+	const categoryTypes = useMemo(
+		() =>
+			toOptionsFromEnum(CategoryTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'category.enum.type',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'category'>();
 
@@ -78,12 +108,12 @@ export const DataTableFiltersCategory = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<CategoryDataTableFiltersType>
-				labelText="ID / Label"
+				labelText={translations['category.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<CategoryDataTableFiltersType>
-				labelText="Type"
+				labelText={translations['category.field.type']}
 				fieldName="type"
 				fieldValue={filters.type.value ?? CATEGORY_DEFAULT_TYPE}
 				options={categoryTypes}
@@ -93,7 +123,7 @@ export const DataTableFiltersCategory = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<CategoryDataTableFiltersType>
-				labelText="Status"
+				labelText={translations['category.field.status']}
 				fieldName="status"
 				fieldValue={filters.status.value}
 				options={statuses}
@@ -108,7 +138,7 @@ export const DataTableFiltersCategory = (): JSX.Element => {
 			 * the control is a scope, not a display preference.
 			 */}
 			<FormFiltersSelect<CategoryDataTableFiltersType>
-				labelText="Language"
+				labelText={translations['category.field.language']}
 				fieldName="language"
 				fieldValue={filters.language.value ?? getLanguageClient()}
 				options={languages}

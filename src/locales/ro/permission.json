@@ -49,5 +49,11 @@
 		"note": "Ștergerea unei permisiuni este una logică și o retrage de la toți operatorii care o dețin, pentru că verificarea de acces ignoră rândurile șterse. Atribuirile rămân neatinse, deci restaurarea rândului redă permisiunea tuturor deodată. Un operator deja autentificat păstrează accesul vechi până când setul lui de permisiuni din cache este reconstruit.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"field": {
+		"search": "ID / Entitate / Operațiune",
+		"entity": "Entitate",
+		"operation": "Operațiune",
+		"id": "ID"
 	}
 }

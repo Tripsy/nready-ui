@@ -8,6 +8,7 @@ import {
 } from '@/components/status.component';
 import { Checkbox } from '@/components/ui/checkbox';
 import { requestFind } from '@/helpers/services.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import type { PermissionModel } from '@/models/permission.model';
 import type { UserModel } from '@/models/user.model';
@@ -18,17 +19,21 @@ import {
 	getUserPermissions,
 } from '@/services/user.service';
 
+const TRANSLATION_KEYS = [
+	'app.error.title',
+	'app.success.title',
+	'user.error.no_permissions_defined',
+	'user.text.entity_permissions_granted',
+	'user.text.entity_permissions_revoked',
+	'user.text.permission_granted',
+	'user.text.permission_revoked',
+] as const;
+
 export function SetupUserPermissions({ entries }: { entries: UserModel[] }) {
 	const entry = entries[0];
 
-	const translationsKeys = [
-		'app.error.title',
-		'app.success.title',
-		'user.error.no_permissions_defined',
-	] as const;
-
 	const { isTranslationLoading, translations } =
-		useTranslation(translationsKeys);
+		useTranslation(TRANSLATION_KEYS);
 	const { showToast } = useToast();
 
 	const {
@@ -153,7 +158,12 @@ export function SetupUserPermissions({ entries }: { entries: UserModel[] }) {
 					showToast({
 						severity: 'success',
 						summary: translations['app.success.title'],
-						detail: `All '${entity}' permissions granted`,
+						detail: replaceVars(
+							translations[
+								'user.text.entity_permissions_granted'
+							],
+							{ entity },
+						),
 					});
 				} else {
 					await Promise.all(
@@ -164,7 +174,12 @@ export function SetupUserPermissions({ entries }: { entries: UserModel[] }) {
 					showToast({
 						severity: 'info',
 						summary: translations['app.success.title'],
-						detail: `All '${entity}' permissions revoked`,
+						detail: replaceVars(
+							translations[
+								'user.text.entity_permissions_revoked'
+							],
+							{ entity },
+						),
 					});
 				}
 			} catch (err) {
@@ -204,7 +219,10 @@ export function SetupUserPermissions({ entries }: { entries: UserModel[] }) {
 					showToast({
 						severity: 'success',
 						summary: translations['app.success.title'],
-						detail: `'${label}' granted`,
+						detail: replaceVars(
+							translations['user.text.permission_granted'],
+							{ label },
+						),
 					});
 				} else {
 					await deleteUserPermission(entry.id, numericId);
@@ -212,7 +230,10 @@ export function SetupUserPermissions({ entries }: { entries: UserModel[] }) {
 					showToast({
 						severity: 'info',
 						summary: translations['app.success.title'],
-						detail: `'${label}' revoked`,
+						detail: replaceVars(
+							translations['user.text.permission_revoked'],
+							{ label },
+						),
 					});
 				}
 			} catch (err) {

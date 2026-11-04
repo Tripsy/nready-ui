@@ -10,11 +10,18 @@ import { Configuration } from '@/config/settings.config';
 import { formatDate } from '@/helpers/date.helper';
 import { DisplayAmount, DisplayStatus } from '@/helpers/display.helper';
 import { requestFind } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	CashFlowCategoryEnum,
+	CashFlowCategoryTypeEnum,
+	CashFlowDirectionEnum,
 	type CashFlowModel,
 	CashFlowStatusEnum,
+	OperationalRecordTypeEnum,
 } from '@/models/cash-flow.model';
 import { displayClientLabel } from '@/models/client.model';
 import type { OperationalRecordModel } from '@/models/operational-record.model';
@@ -22,23 +29,64 @@ import { displayOrderReference } from '@/models/order.model';
 import { displayVendorLabel } from '@/models/vendor.model';
 import { requestOperationalRecords } from '@/services/cash-flow.service';
 
-function ViewCashFlowRefunds({ refunds }: { refunds: CashFlowModel[] }) {
+const TRANSLATION_KEYS = [
+	'cash-flow.field.category',
+	'cash-flow.field.category_type',
+	'cash-flow.field.created_at',
+	'cash-flow.field.date',
+	'cash-flow.field.deleted_at',
+	'cash-flow.field.direction',
+	'cash-flow.field.exchange_rate',
+	'cash-flow.field.external_reference',
+	'cash-flow.field.gross_amount',
+	'cash-flow.field.id',
+	'cash-flow.field.net_amount',
+	'cash-flow.field.notes',
+	'cash-flow.field.reference',
+	'cash-flow.field.refund_id',
+	'cash-flow.field.type',
+	'cash-flow.field.updated_at',
+	'cash-flow.section.info',
+	'cash-flow.section.operational_records',
+	'cash-flow.section.refunds',
+	'cash-flow.section.timestamps',
+	...enumTranslationKeys(
+		'cash-flow.enum.category_type',
+		CashFlowCategoryTypeEnum,
+	),
+	...enumTranslationKeys('cash-flow.enum.category', CashFlowCategoryEnum),
+	...enumTranslationKeys('cash-flow.enum.direction', CashFlowDirectionEnum),
+	...enumTranslationKeys(
+		'cash-flow.enum.operational_record_type',
+		OperationalRecordTypeEnum,
+	),
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
+
+function ViewCashFlowRefunds({
+	translations,
+	refunds,
+}: {
+	translations: TranslationsType;
+	refunds: CashFlowModel[];
+}) {
 	return (
 		<div className="overflow-x-auto">
 			<table className="w-full text-sm">
 				<thead>
 					<tr>
 						<th className="text-left py-2 px-2 font-medium">
-							Refund ID
+							{translations['cash-flow.field.refund_id']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Net Amount
+							{translations['cash-flow.field.net_amount']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Reference
+							{translations['cash-flow.field.reference']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Date
+							{translations['cash-flow.field.date']}
 						</th>
 					</tr>
 				</thead>
@@ -70,8 +118,10 @@ function ViewCashFlowRefunds({ refunds }: { refunds: CashFlowModel[] }) {
 }
 
 function ViewCashFlowOperationalRecords({
+	translations,
 	operationalRecords,
 }: {
+	translations: TranslationsType;
 	operationalRecords: OperationalRecordModel[];
 }) {
 	return (
@@ -79,15 +129,17 @@ function ViewCashFlowOperationalRecords({
 			<table className="w-full text-sm">
 				<thead>
 					<tr>
-						<th className="text-left py-2 px-2 font-medium">ID</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Type
+							{translations['cash-flow.field.id']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Reference
+							{translations['cash-flow.field.type']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Date
+							{translations['cash-flow.field.reference']}
+						</th>
+						<th className="text-left py-2 px-2 font-medium">
+							{translations['cash-flow.field.date']}
 						</th>
 					</tr>
 				</thead>
@@ -99,7 +151,11 @@ function ViewCashFlowOperationalRecords({
 						>
 							<td className="py-2 px-3">#{m.id}</td>
 							<td className="py-2 px-3">
-								{formatEnumLabel(m.operational_record_type)}
+								{translateEnumLabel(
+									translations,
+									'cash-flow.enum.operational_record_type',
+									m.operational_record_type,
+								)}
 							</td>
 							<td className="py-2 px-3">
 								{(() => {
@@ -131,6 +187,8 @@ function ViewCashFlowOperationalRecords({
 }
 
 export function ViewCashFlow({ entry }: { entry: CashFlowModel }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const { data: refunds, isLoading: isRefundsLoading } = useQuery({
 		queryKey: ['cash-flow', 'refunds', entry.id],
 		queryFn: async () => {
@@ -167,7 +225,10 @@ export function ViewCashFlow({ entry }: { entry: CashFlowModel }) {
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center gap-2 border-b border-line pb-4">
-				<span className="font-semibold">ID</span> {entry.id}
+				<span className="font-semibold">
+					{translations['cash-flow.field.id']}
+				</span>{' '}
+				{entry.id}
 				<div className="max-w-60 ml-2">
 					<DisplayStatus
 						status={entry.status}
@@ -176,25 +237,40 @@ export function ViewCashFlow({ entry }: { entry: CashFlowModel }) {
 				</div>
 			</div>
 
-			<ViewSection title="Info" layout="rows">
+			<ViewSection
+				title={translations['cash-flow.section.info']}
+				layout="rows"
+			>
 				<ViewRow>
 					<ViewField
-						label="Direction"
-						value={formatEnumLabel(entry.direction)}
+						label={translations['cash-flow.field.direction']}
+						value={translateEnumLabel(
+							translations,
+							'cash-flow.enum.direction',
+							entry.direction,
+						)}
 					/>
 					<ViewField
-						label="Type"
-						value={formatEnumLabel(entry.category_type)}
+						label={translations['cash-flow.field.category_type']}
+						value={translateEnumLabel(
+							translations,
+							'cash-flow.enum.category_type',
+							entry.category_type,
+						)}
 					/>
 					<ViewField
-						label="Category"
-						value={formatEnumLabel(entry.category)}
+						label={translations['cash-flow.field.category']}
+						value={translateEnumLabel(
+							translations,
+							'cash-flow.enum.category',
+							entry.category,
+						)}
 					/>
 				</ViewRow>
 
 				<ViewRow>
 					<ViewField
-						label="Net Amount"
+						label={translations['cash-flow.field.net_amount']}
 						value={
 							<DisplayAmount
 								amount={entry.net_amount}
@@ -203,7 +279,7 @@ export function ViewCashFlow({ entry }: { entry: CashFlowModel }) {
 						}
 					/>
 					<ViewField
-						label="Gross Amount"
+						label={translations['cash-flow.field.gross_amount']}
 						value={
 							<DisplayAmount
 								amount={entry.gross_amount}
@@ -213,7 +289,9 @@ export function ViewCashFlow({ entry }: { entry: CashFlowModel }) {
 					/>
 					{entry.currency !== Configuration.currency() && (
 						<ViewField
-							label="Exchange Rate"
+							label={
+								translations['cash-flow.field.exchange_rate']
+							}
 							value={entry.exchange_rate}
 						/>
 					)}
@@ -222,7 +300,11 @@ export function ViewCashFlow({ entry }: { entry: CashFlowModel }) {
 				{entry.external_reference && (
 					<ViewRow>
 						<ViewField
-							label="External Reference"
+							label={
+								translations[
+									'cash-flow.field.external_reference'
+								]
+							}
 							value={entry.external_reference}
 						/>
 					</ViewRow>
@@ -230,23 +312,27 @@ export function ViewCashFlow({ entry }: { entry: CashFlowModel }) {
 
 				{entry.notes && (
 					<ViewRow>
-						<ViewField label="Notes" value={entry.notes} full />
+						<ViewField
+							label={translations['cash-flow.field.notes']}
+							value={entry.notes}
+							full
+						/>
 					</ViewRow>
 				)}
 			</ViewSection>
 
-			<ViewSection title="Timestamps">
+			<ViewSection title={translations['cash-flow.section.timestamps']}>
 				<ViewField
-					label="Created At"
+					label={translations['cash-flow.field.created_at']}
 					value={formatDate(entry.created_at, 'date-time')}
 				/>
 				<ViewField
-					label="Updated At"
+					label={translations['cash-flow.field.updated_at']}
 					value={formatDate(entry.updated_at, 'date-time')}
 				/>
 				{entry.deleted_at && (
 					<ViewField
-						label="Deleted At"
+						label={translations['cash-flow.field.deleted_at']}
 						value={
 							<span className="text-danger">
 								{formatDate(entry.deleted_at, 'date-time')}
@@ -259,9 +345,12 @@ export function ViewCashFlow({ entry }: { entry: CashFlowModel }) {
 			{!isRefundsLoading && refunds && refunds.entries.length > 0 && (
 				<div>
 					<h3 className="font-bold border-b border-line pb-2 mb-3">
-						Refunds
+						{translations['cash-flow.section.refunds']}
 					</h3>
-					<ViewCashFlowRefunds refunds={refunds.entries} />
+					<ViewCashFlowRefunds
+						translations={translations}
+						refunds={refunds.entries}
+					/>
 				</div>
 			)}
 
@@ -270,9 +359,14 @@ export function ViewCashFlow({ entry }: { entry: CashFlowModel }) {
 				operationalRecords.length > 0 && (
 					<div>
 						<h3 className="font-bold border-b border-line pb-2 mb-3">
-							Operational Records
+							{
+								translations[
+									'cash-flow.section.operational_records'
+								]
+							}
 						</h3>
 						<ViewCashFlowOperationalRecords
+							translations={translations}
 							operationalRecords={operationalRecords}
 						/>
 					</div>

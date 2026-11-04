@@ -306,46 +306,40 @@ export function CheckoutAddresses({
 			) : (
 				<>
 					{entries && entries.length > 0 && (
-						<>
-							<RadioGroup
-								aria-labelledby={elementIds.list}
-								value={
-									selectedId === null
-										? null
-										: String(selectedId)
-								}
-								onChange={(value) => onSelect(Number(value))}
-								isDisabled={isBusy}
-								className="divide-y divide-border"
-							>
-								{entries.map((entry) => (
-									<div
-										key={entry.id}
-										className="py-3 first:pt-0 last:pb-0"
+						<RadioGroup
+							aria-labelledby={elementIds.list}
+							value={
+								selectedId === null ? null : String(selectedId)
+							}
+							onChange={(value) => onSelect(Number(value))}
+							isDisabled={isBusy}
+							className="divide-y divide-border"
+						>
+							{entries.map((entry) => (
+								<div
+									key={entry.id}
+									className="py-3 first:pt-0 last:pb-0"
+								>
+									{/* `mt-0!`: see `checkout-billing.component.tsx` - HeroUI's vertical-group `mt-4` */}
+									<Radio
+										value={String(entry.id)}
+										className="mt-0!"
+										contentClassName="font-normal"
 									>
-										{/* `mt-0!`: see `checkout-billing.component.tsx` - HeroUI's vertical-group `mt-4` */}
-										<Radio
-											value={String(entry.id)}
-											className="mt-0!"
-											contentClassName="font-normal"
-										>
-											<span>
-												<span className="block">
-													{displayOwnClientAddress(
-														entry,
-													)}
-												</span>
-												{entry.notes && (
-													<span className="block text-xs text-muted">
-														{entry.notes}
-													</span>
-												)}
+										<span>
+											<span className="block">
+												{displayOwnClientAddress(entry)}
 											</span>
-										</Radio>
-									</div>
-								))}
-							</RadioGroup>
-						</>
+											{entry.notes && (
+												<span className="block text-xs text-muted">
+													{entry.notes}
+												</span>
+											)}
+										</span>
+									</Radio>
+								</div>
+							))}
+						</RadioGroup>
 					)}
 
 					{isMissingSelection && (

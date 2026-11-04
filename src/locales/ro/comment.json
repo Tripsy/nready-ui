@@ -141,5 +141,55 @@
 		"tab_api": "Documentație API",
 		"tab_public": "API public",
 		"tab_subscription": "API abonări"
+	},
+	"field": {
+		"id": "ID",
+		"entity_type": "Țintă",
+		"content": "Comentariu",
+		"parent_id": "Fir",
+		"type": "Tip",
+		"user_id": "ID utilizator",
+		"status": "Status",
+		"created_at": "Creat la",
+		"search": "Conținut / Vizitator",
+		"entity_id": "ID țintă",
+		"is_pinned": "Fixat",
+		"user": "Autor",
+		"is_staff": "Echipa",
+		"thread": "Fir",
+		"reply_count": "Răspunsuri",
+		"email": "Email",
+		"guest_website": "Website",
+		"moderated_at": "Moderat la",
+		"moderated_by": "Moderat de",
+		"moderation_reason": "Motiv",
+		"updated_at": "Actualizat la"
+	},
+	"text": {
+		"change_comment_status_to": "Schimbă statusul comentariului în:",
+		"guest_named": "{{name}} (vizitator)",
+		"thread_root": "Rădăcină",
+		"thread_reply": "Răspuns la #{{id}}",
+		"pinned": "Fixat",
+		"not_pinned": "Nefixat",
+		"pin_to_top": "Fixează în partea de sus a firului"
+	},
+	"section": {
+		"comment": "Comentariu",
+		"target": "Țintă",
+		"author": "Autor",
+		"moderation": "Moderare",
+		"timestamps": "Marcaje de timp"
+	},
+	"enum": {
+		"entity_type": {
+			"article": "Articol",
+			"review": "Recenzie"
+		},
+		"type": {
+			"comment": "Comentariu",
+			"question": "Întrebare",
+			"tip": "Sfat"
+		}
 	}
 }

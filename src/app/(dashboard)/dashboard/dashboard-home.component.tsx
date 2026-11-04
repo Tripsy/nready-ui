@@ -17,6 +17,15 @@ import { SystemPanels } from '@/app/(dashboard)/_components/stats/system-panels.
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from '@/components/ui/link';
 import Routes from '@/config/routes.setup';
+import { useTranslation } from '@/hooks/use-translation.hook';
+
+const TRANSLATION_KEYS = [
+	'dashboard.section.created_in_the_last_24_hours',
+	'dashboard.section.expenses',
+	'dashboard.section.recent_activity',
+	'dashboard.section.revenues',
+	'dashboard.text.view_more',
+] as const;
 
 // Shared card shell for a single stat box (title + icon header, value body).
 function StatCard({
@@ -42,13 +51,21 @@ function StatCard({
 }
 
 export function DashboardHome(): JSX.Element {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	return (
 		<>
 			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-6">
-				<StatCard title="Expenses" icon={BanknoteArrowDown}>
+				<StatCard
+					title={translations['dashboard.section.expenses']}
+					icon={BanknoteArrowDown}
+				>
 					<SumExpenses />
 				</StatCard>
-				<StatCard title="Revenues" icon={DollarSign}>
+				<StatCard
+					title={translations['dashboard.section.revenues']}
+					icon={DollarSign}
+				>
 					<SumRevenues />
 				</StatCard>
 
@@ -56,7 +73,11 @@ export function DashboardHome(): JSX.Element {
 				<Card className="sm:col-span-2">
 					<CardHeader className="flex flex-row items-center justify-between pb-2">
 						<CardTitle className="text-sm font-medium text-muted">
-							Created in the last 24 hours
+							{
+								translations[
+									'dashboard.section.created_in_the_last_24_hours'
+								]
+							}
 						</CardTitle>
 						<Clock className="h-4 w-4 text-muted" />
 					</CardHeader>
@@ -73,14 +94,17 @@ export function DashboardHome(): JSX.Element {
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between">
-						<CardTitle>Recent Activity</CardTitle>
+						<CardTitle>
+							{translations['dashboard.section.recent_activity']}
+						</CardTitle>
 						<Link
 							variant="ghost"
 							size="sm"
 							className="gap-1"
 							href={Routes.get('log-history')}
 						>
-							View more <ArrowUpRight className="h-4 w-4" />
+							{translations['dashboard.text.view_more']}{' '}
+							<ArrowUpRight className="h-4 w-4" />
 						</Link>
 					</CardHeader>
 					<CardContent>

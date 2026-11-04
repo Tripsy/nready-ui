@@ -1,3 +1,5 @@
+'use client';
+
 import { type JSX, useState } from 'react';
 import {
 	FormComponentAutoComplete,
@@ -15,8 +17,10 @@ import {
 	toOptionsFromEnum,
 } from '@/helpers/form.helper';
 import { requestFind } from '@/helpers/services.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import type {
 	ProductOptionGroupType,
 	ProductOptionPriceType,
@@ -28,6 +32,54 @@ import {
 	TermTypeEnum,
 } from '@/models/term.model';
 import { CurrencyEnum } from '@/types/common.type';
+
+const TRANSLATION_KEYS = [
+	'product.field.is_default',
+	'product.field.label',
+	'product.field.max_select',
+	'product.field.min_select',
+	'product.section.answers',
+	'product.text.a_question_has_to_offer_something',
+	'product.text.add_answer',
+	'product.text.add_currency',
+	'product.text.add_question',
+	'product.text.currency',
+	'product.text.each_answer_moves_the_variant_price',
+	'product.text.move_answer_down',
+	'product.text.move_answer_up',
+	'product.text.move_question_down',
+	'product.text.move_question_up',
+	'product.text.no_questions_the_product_is_ordered',
+	'product.text.placeholder_label',
+	'product.text.placeholder_max_select',
+	'product.text.price_delta',
+	'product.text.remove_answer',
+	'product.text.remove_currency',
+	'product.text.remove_question',
+	'product.text.cardinality_any_answers',
+	'product.text.cardinality_at_least',
+	'product.text.cardinality_at_most_one',
+	'product.text.cardinality_exactly_one',
+	'product.text.cardinality_exactly',
+	'product.text.cardinality_up_to',
+	'product.text.cardinality_between',
+	'product.text.cardinality_max_hint',
+	'product.text.create_answer',
+	'product.text.create_question',
+	'product.text.label_answer',
+	'product.text.placeholder_answer',
+	'product.text.label_question',
+	'product.text.placeholder_question',
+	'product.text.label_remove_currency',
+	'product.text.label_move_answer_up',
+	'product.text.label_move_answer_down',
+	'product.text.label_remove_answer',
+	'product.text.label_move_question_up',
+	'product.text.label_move_question_down',
+	'product.text.label_remove_question',
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
 
 /**
  * One delta as the form holds it. `price_delta` stays nullable while the field is empty - the
@@ -160,28 +212,37 @@ export function emptyOptionGroup(position: number): ProductOptionGroupFormType {
 function describeCardinality(
 	minSelect: number | null,
 	maxSelect: number | null,
+	translations: Readonly<Record<string, string>>,
 ): string {
 	const min = minSelect ?? 0;
+	const max = maxSelect;
 
-	if (maxSelect === null) {
+	if (max === null) {
 		return min === 0
-			? 'Optional - any number of answers.'
-			: `Required - at least ${min}, no upper limit.`;
+			? translations['product.text.cardinality_any_answers']
+			: replaceVars(translations['product.text.cardinality_at_least'], {
+					min,
+				});
 	}
 
-	if (maxSelect === 1) {
+	if (max === 1) {
 		return min === 0
-			? 'Optional - at most one answer.'
-			: 'Required - exactly one answer.';
+			? translations['product.text.cardinality_at_most_one']
+			: translations['product.text.cardinality_exactly_one'];
 	}
 
-	if (min === maxSelect) {
-		return `Required - exactly ${min} answers.`;
+	if (min === max) {
+		return replaceVars(translations['product.text.cardinality_exactly'], {
+			min,
+		});
 	}
 
 	return min === 0
-		? `Optional - up to ${maxSelect} answers.`
-		: `Required - between ${min} and ${maxSelect} answers.`;
+		? replaceVars(translations['product.text.cardinality_up_to'], { max })
+		: replaceVars(translations['product.text.cardinality_between'], {
+				min,
+				max,
+			});
 }
 
 /** `null` is a real choice for `max_select` - no upper bound - so it needs a value of its own. */
@@ -192,6 +253,7 @@ function parseBound(value: string): number | null {
 }
 
 type DeltaRowProps = {
+	translations: TranslationsType;
 	price: ProductOptionPriceFormType;
 	index: number;
 	disabled: boolean;
@@ -202,6 +264,7 @@ type DeltaRowProps = {
 };
 
 function DeltaRow({
+	translations,
 	price,
 	index,
 	disabled,
@@ -223,7 +286,7 @@ function DeltaRow({
 					fieldName="currency"
 					fieldValue={price.currency}
 					isRequired={true}
-					ariaLabel="Currency"
+					ariaLabel={translations['product.text.currency']}
 					className="w-full"
 					options={CURRENCY_OPTIONS}
 					disabled={disabled}
@@ -239,7 +302,7 @@ function DeltaRow({
 					fieldName="price_delta"
 					fieldValue={price.price_delta ?? ''}
 					isRequired={true}
-					ariaLabel="Price delta"
+					ariaLabel={translations['product.text.price_delta']}
 					className="w-full"
 					disabled={disabled}
 					onChange={(event) =>
@@ -262,8 +325,13 @@ function DeltaRow({
 					disabled={disabled}
 					onClick={onRemove}
 					className="mt-1 p-2 opacity-60 hover:opacity-100"
-					aria-label={`Remove currency ${index + 1}`}
-					title="Remove currency"
+					aria-label={replaceVars(
+						translations['product.text.label_remove_currency'],
+						{
+							number: index + 1,
+						},
+					)}
+					title={translations['product.text.remove_currency']}
 				>
 					<Icons.Close className="h-4 w-4" />
 				</Button>
@@ -273,6 +341,7 @@ function DeltaRow({
 }
 
 type OptionRowProps = {
+	translations: TranslationsType;
 	option: ProductOptionFormType;
 	index: number;
 	disabled: boolean;
@@ -291,6 +360,7 @@ type OptionRowProps = {
 };
 
 function OptionRow({
+	translations,
 	option,
 	index,
 	disabled,
@@ -359,7 +429,7 @@ function OptionRow({
 					disabled={disabled}
 					onCheckedChange={onToggleDefault}
 				>
-					Preselected
+					{translations['product.field.is_default']}
 				</FormComponentCheckbox>
 
 				<div className="flex items-center">
@@ -370,8 +440,13 @@ function OptionRow({
 						disabled={disabled || index === 0}
 						onClick={() => onMove(-1)}
 						className="p-2 disabled:opacity-30"
-						aria-label={`Move answer ${index + 1} up`}
-						title="Move answer up"
+						aria-label={replaceVars(
+							translations['product.text.label_move_answer_up'],
+							{
+								number: index + 1,
+							},
+						)}
+						title={translations['product.text.move_answer_up']}
 					>
 						<Icons.Direction.ArrowUp className="h-4 w-4" />
 					</Button>
@@ -383,8 +458,13 @@ function OptionRow({
 						disabled={disabled || isLast}
 						onClick={() => onMove(1)}
 						className="p-2 disabled:opacity-30"
-						aria-label={`Move answer ${index + 1} down`}
-						title="Move answer down"
+						aria-label={replaceVars(
+							translations['product.text.label_move_answer_down'],
+							{
+								number: index + 1,
+							},
+						)}
+						title={translations['product.text.move_answer_down']}
 					>
 						<Icons.Direction.ArrowDown className="h-4 w-4" />
 					</Button>
@@ -396,8 +476,13 @@ function OptionRow({
 						disabled={disabled}
 						onClick={onRemove}
 						className="p-2 disabled:opacity-30"
-						aria-label={`Remove answer ${index + 1}`}
-						title="Remove answer"
+						aria-label={replaceVars(
+							translations['product.text.label_remove_answer'],
+							{
+								number: index + 1,
+							},
+						)}
+						title={translations['product.text.remove_answer']}
 					>
 						<Icons.Action.Delete className="h-4 w-4" />
 					</Button>
@@ -406,12 +491,14 @@ function OptionRow({
 
 			<div className="max-w-md">
 				<FormComponentAutoComplete<ProductOptionFormType, TermModel>
-					labelText="Answer"
+					labelText={translations['product.text.label_answer']}
 					id={elementIds.label}
 					fieldName="label"
 					fieldValue={option.label}
 					isRequired={true}
-					placeholderText="eg: Extra bacon"
+					placeholderText={
+						translations['product.text.placeholder_answer']
+					}
 					className="w-full pl-8"
 					disabled={disabled}
 					// The id is what the row stores; the text is only how it was found, so an
@@ -429,7 +516,11 @@ function OptionRow({
 						getOptionKey: (entry) => entry.id,
 						allowCreate: canCreateTerm,
 						onCreate: (value) => onCreateTerm(value, applyTerm),
-						createLabel: (value) => `Create answer "${value}"`,
+						createLabel: (value) =>
+							replaceVars(
+								translations['product.text.create_answer'],
+								{ value },
+							),
 					}}
 					icons={{
 						left: <Icons.Tag className="opacity-40 h-4.5 w-4.5" />,
@@ -440,17 +531,18 @@ function OptionRow({
 			<div className="space-y-2 pl-1">
 				<div className="flex flex-nowrap gap-2 text-xs font-semibold text-muted">
 					<span className={DELTA_COLUMN.currency}>
-						Currency
+						{translations['product.text.currency']}
 						<span className="ml-1 text-danger">*</span>
 					</span>
 					<span className={DELTA_COLUMN.amount}>
-						Price delta
+						{translations['product.text.price_delta']}
 						<span className="ml-1 text-danger">*</span>
 					</span>
 				</div>
 
 				{deltas.map((price, priceIndex) => (
 					<DeltaRow
+						translations={translations}
 						// biome-ignore lint/suspicious/noArrayIndexKey: a delta row has no stable id - its currency is empty until the editor picks one
 						key={`${option.key}-delta-${priceIndex}`}
 						price={price}
@@ -500,9 +592,10 @@ function OptionRow({
 							})
 						}
 						className="p-2 text-xs opacity-80 hover:opacity-100"
-						title="Add currency"
+						title={translations['product.text.add_currency']}
 					>
-						<Icons.Action.Add className="h-4 w-4" /> Add currency
+						<Icons.Action.Add className="h-4 w-4" />{' '}
+						{translations['product.text.add_currency']}
 					</Button>
 				</div>
 			</div>
@@ -511,6 +604,7 @@ function OptionRow({
 }
 
 type GroupCardProps = {
+	translations: TranslationsType;
 	group: ProductOptionGroupFormType;
 	index: number;
 	disabled: boolean;
@@ -527,6 +621,7 @@ type GroupCardProps = {
 };
 
 function OptionGroupCard({
+	translations,
 	group,
 	index,
 	disabled,
@@ -644,12 +739,18 @@ function OptionGroupCard({
 							ProductOptionGroupFormType,
 							TermModel
 						>
-							labelText="Question"
+							labelText={
+								translations['product.text.label_question']
+							}
 							id={elementIds.label}
 							fieldName="label"
 							fieldValue={group.label}
 							isRequired={true}
-							placeholderText="eg: Choose a side"
+							placeholderText={
+								translations[
+									'product.text.placeholder_question'
+								]
+							}
 							className="w-full pl-8"
 							disabled={disabled}
 							error={ownErrorMessages(groupErrors?.label_id)}
@@ -667,7 +768,14 @@ function OptionGroupCard({
 								onCreate: (value) =>
 									onCreateTerm(value, applyTerm),
 								createLabel: (value) =>
-									`Create question "${value}"`,
+									replaceVars(
+										translations[
+											'product.text.create_question'
+										],
+										{
+											value,
+										},
+									),
 							}}
 							icons={{
 								left: (
@@ -685,8 +793,17 @@ function OptionGroupCard({
 							disabled={disabled || index === 0}
 							onClick={() => onMove(-1)}
 							className="p-2 disabled:opacity-30"
-							aria-label={`Move question ${index + 1} up`}
-							title="Move question up"
+							aria-label={replaceVars(
+								translations[
+									'product.text.label_move_question_up'
+								],
+								{
+									number: index + 1,
+								},
+							)}
+							title={
+								translations['product.text.move_question_up']
+							}
 						>
 							<Icons.Direction.ArrowUp className="h-4 w-4" />
 						</Button>
@@ -698,8 +815,17 @@ function OptionGroupCard({
 							disabled={disabled || isLast}
 							onClick={() => onMove(1)}
 							className="p-2 disabled:opacity-30"
-							aria-label={`Move question ${index + 1} down`}
-							title="Move question down"
+							aria-label={replaceVars(
+								translations[
+									'product.text.label_move_question_down'
+								],
+								{
+									number: index + 1,
+								},
+							)}
+							title={
+								translations['product.text.move_question_down']
+							}
 						>
 							<Icons.Direction.ArrowDown className="h-4 w-4" />
 						</Button>
@@ -711,8 +837,15 @@ function OptionGroupCard({
 							disabled={disabled}
 							onClick={onRemove}
 							className="p-2 disabled:opacity-30"
-							aria-label={`Remove question ${index + 1}`}
-							title="Remove question"
+							aria-label={replaceVars(
+								translations[
+									'product.text.label_remove_question'
+								],
+								{
+									number: index + 1,
+								},
+							)}
+							title={translations['product.text.remove_question']}
 						>
 							<Icons.Action.Delete className="h-4 w-4" />
 						</Button>
@@ -722,7 +855,7 @@ function OptionGroupCard({
 				<div className="space-y-1">
 					<div className="flex flex-wrap gap-2">
 						<FormComponentInput<ProductOptionGroupFormType>
-							labelText="Minimum answers"
+							labelText={translations['product.field.min_select']}
 							id={elementIds.minSelect}
 							fieldType="number"
 							fieldName="min_select"
@@ -738,12 +871,16 @@ function OptionGroupCard({
 						/>
 
 						<FormComponentInput<ProductOptionGroupFormType>
-							labelText="Maximum answers"
+							labelText={translations['product.field.max_select']}
 							id={elementIds.maxSelect}
 							fieldType="number"
 							fieldName="max_select"
 							fieldValue={group.max_select ?? NO_UPPER_BOUND}
-							placeholderText="no limit"
+							placeholderText={
+								translations[
+									'product.text.placeholder_max_select'
+								]
+							}
 							className="w-32"
 							disabled={disabled}
 							onChange={(event) =>
@@ -767,32 +904,39 @@ function OptionGroupCard({
 							{describeCardinality(
 								group.min_select,
 								group.max_select,
+								translations,
 							)}{' '}
-							Leave the maximum empty for no upper limit.
+							{translations['product.text.cardinality_max_hint']}
 						</span>
 					</p>
 				</div>
 
 				<div className="space-y-2">
 					<h3 className="text-sm font-semibold border-b border-line pb-2">
-						Answers
+						{translations['product.section.answers']}
 					</h3>
 
 					<p className="text-xs text-muted">
-						Each answer moves the variant price by its delta, per
-						market. A negative delta is legitimate - declining
-						something the price already includes.
+						{
+							translations[
+								'product.text.each_answer_moves_the_variant_price'
+							]
+						}
 					</p>
 
 					{options.length === 0 ? (
 						<p className="text-sm text-muted">
-							A question has to offer something - add at least one
-							answer.
+							{
+								translations[
+									'product.text.a_question_has_to_offer_something'
+								]
+							}
 						</p>
 					) : (
 						<ul className="space-y-2">
 							{options.map((option, optionIndex) => (
 								<OptionRow
+									translations={translations}
 									key={option.key}
 									option={option}
 									index={optionIndex}
@@ -836,7 +980,8 @@ function OptionGroupCard({
 							}
 							className="p-2 opacity-80 hover:opacity-100"
 						>
-							<Icons.Action.Add className="h-4 w-4" /> Add answer
+							<Icons.Action.Add className="h-4 w-4" />{' '}
+							{translations['product.text.add_answer']}
 						</Button>
 					</div>
 				</div>
@@ -886,6 +1031,8 @@ export function FormOptionsProduct({
 	canCreateTerm,
 	onCreateTerm,
 }: Props): JSX.Element {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	/** Re-stamps `position` from the index - see the same function one level down. */
 	const commit = (groups: ProductOptionGroupFormType[]) => {
 		onChange(groups.map((group, position) => ({ ...group, position })));
@@ -926,13 +1073,17 @@ export function FormOptionsProduct({
 
 			{value.length === 0 ? (
 				<p className="rounded-lg border border-dashed border-line p-6 text-center text-sm text-muted">
-					No questions - the product is ordered as it is, with nothing
-					for the customer to choose.
+					{
+						translations[
+							'product.text.no_questions_the_product_is_ordered'
+						]
+					}
 				</p>
 			) : (
 				<ul className="space-y-3">
 					{value.map((group, index) => (
 						<OptionGroupCard
+							translations={translations}
 							key={group.key}
 							group={group}
 							index={index}
@@ -966,7 +1117,8 @@ export function FormOptionsProduct({
 					}
 					className="p-2 opacity-80 hover:opacity-100"
 				>
-					<Icons.Action.Add className="h-4 w-4" /> Add question
+					<Icons.Action.Add className="h-4 w-4" />{' '}
+					{translations['product.text.add_question']}
 				</Button>
 			</div>
 

@@ -30,7 +30,6 @@
 	"message": {
 		"could_not_login": "Nu te-am putut autentifica. Verifică datele introduse și încearcă din nou.",
 		"auth_success": "Autentificare reușită",
-		"auth_error": "Autentificarea a eșuat din cauza unei erori de autentificare",
 		"not_active": "Nu te-am putut autentifica. Contul tău nu este activ",
 		"pending_account": "Nu te-am putut autentifica. Contul tău așteaptă activarea",
 		"max_active_sessions": "Prea multe sesiuni active. Închide o sesiune existentă și încearcă din nou",

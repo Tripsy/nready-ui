@@ -14,41 +14,112 @@ import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { CashFlowDataTableFiltersType } from '@/app/(dashboard)/dashboard/cash-flow/cash-flow.definition';
 import { Icons } from '@/components/icon.component';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	formatEnumLabel,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type CashFlowCategory,
+	CashFlowCategoryEnum,
+	CashFlowCategoryTypeEnum,
 	type CashFlowDirection,
 	CashFlowDirectionEnum,
 	type CashFlowMethod,
 	CashFlowMethodEnum,
 	type CashFlowStatus,
 	CashFlowStatusEnum,
-	GroupedCategories,
+	groupedCategoryOptions,
 } from '@/models/cash-flow.model';
 import { type ClientModel, displayClientLabel } from '@/models/client.model';
 import { displayVendorLabel, type VendorModel } from '@/models/vendor.model';
 import { type Currency, CurrencyEnum } from '@/types/common.type';
 
-const statuses = toOptionsFromEnum(CashFlowStatusEnum, {
-	formatter: formatEnumLabel,
-});
-
-const directions = toOptionsFromEnum(CashFlowDirectionEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'cash-flow.field.category',
+	'cash-flow.field.client',
+	'cash-flow.field.created_at',
+	'cash-flow.field.currency',
+	'cash-flow.field.direction',
+	'cash-flow.field.method',
+	'cash-flow.field.search',
+	'cash-flow.field.status',
+	'cash-flow.field.vendor',
+	...enumTranslationKeys('cash-flow.status', CashFlowStatusEnum),
+	...enumTranslationKeys('cash-flow.enum.direction', CashFlowDirectionEnum),
+	...enumTranslationKeys('cash-flow.enum.method', CashFlowMethodEnum),
+	...enumTranslationKeys(
+		'cash-flow.enum.category_type',
+		CashFlowCategoryTypeEnum,
+	),
+	...enumTranslationKeys('cash-flow.enum.category', CashFlowCategoryEnum),
+] as const;
 
 const currencies = toOptionsFromEnum(CurrencyEnum, {
 	formatter: formatEnumLabel,
 });
 
-const methods = toOptionsFromEnum(CashFlowMethodEnum, {
-	formatter: formatEnumLabel,
-});
-
 export const DataTableFiltersCashFlow = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const categoryOptions = useMemo(
+		() =>
+			groupedCategoryOptions({
+				type: (value) =>
+					translateEnumLabel(
+						translations,
+						'cash-flow.enum.category_type',
+						value,
+					),
+				category: (value) =>
+					translateEnumLabel(
+						translations,
+						'cash-flow.enum.category',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const methods = useMemo(
+		() =>
+			toOptionsFromEnum(CashFlowMethodEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'cash-flow.enum.method',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const directions = useMemo(
+		() =>
+			toOptionsFromEnum(CashFlowDirectionEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'cash-flow.enum.direction',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const statuses = useMemo(
+		() =>
+			toOptionsFromEnum(CashFlowStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'cash-flow.status', value),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'cash-flow'>();
 
@@ -109,12 +180,12 @@ export const DataTableFiltersCashFlow = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<CashFlowDataTableFiltersType>
-				labelText="ID / Reference / Notes"
+				labelText={translations['cash-flow.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<CashFlowDataTableFiltersType>
-				labelText="Direction"
+				labelText={translations['cash-flow.field.direction']}
 				fieldName="direction"
 				fieldValue={filters.direction.value}
 				options={directions}
@@ -126,10 +197,10 @@ export const DataTableFiltersCashFlow = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<CashFlowDataTableFiltersType>
-				labelText="Category"
+				labelText={translations['cash-flow.field.category']}
 				fieldName="category"
 				fieldValue={filters.category.value}
-				options={GroupedCategories}
+				options={categoryOptions}
 				onChange={(value) =>
 					setFilterValues({
 						category: value as CashFlowCategory,
@@ -138,7 +209,7 @@ export const DataTableFiltersCashFlow = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<CashFlowDataTableFiltersType>
-				labelText="Method"
+				labelText={translations['cash-flow.field.method']}
 				fieldName="method"
 				fieldValue={filters.method?.value ?? null}
 				options={methods}
@@ -150,7 +221,7 @@ export const DataTableFiltersCashFlow = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<CashFlowDataTableFiltersType>
-				labelText="Currency"
+				labelText={translations['cash-flow.field.currency']}
 				fieldName="currency"
 				fieldValue={filters.currency.value}
 				options={currencies}
@@ -162,7 +233,7 @@ export const DataTableFiltersCashFlow = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<CashFlowDataTableFiltersType>
-				labelText="Status"
+				labelText={translations['cash-flow.field.status']}
 				fieldName="status"
 				fieldValue={filters.status.value}
 				options={statuses}
@@ -174,7 +245,7 @@ export const DataTableFiltersCashFlow = (): JSX.Element => {
 			/>
 
 			<FormFiltersDateRange<CashFlowDataTableFiltersType>
-				labelText="Create Date"
+				labelText={translations['cash-flow.field.created_at']}
 				start={{
 					fieldName: 'create_at_start',
 					fieldValue: filters.create_at_start.value,
@@ -194,7 +265,7 @@ export const DataTableFiltersCashFlow = (): JSX.Element => {
 			/>
 
 			<FormFiltersAutoComplete<CashFlowDataTableFiltersType, ClientModel>
-				labelText="Client"
+				labelText={translations['cash-flow.field.client']}
 				fieldName="client"
 				fieldNameId="client_id"
 				fieldValue={searchClient}
@@ -210,7 +281,7 @@ export const DataTableFiltersCashFlow = (): JSX.Element => {
 			/>
 
 			<FormFiltersAutoComplete<CashFlowDataTableFiltersType, VendorModel>
-				labelText="Vendor"
+				labelText={translations['cash-flow.field.vendor']}
 				fieldName="vendor"
 				fieldNameId="vendor_id"
 				fieldValue={searchVendor}

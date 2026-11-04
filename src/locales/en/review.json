@@ -87,7 +87,14 @@
 		"your_review": "Your review",
 		"pending_note": "Your review is awaiting moderation, so it is not in the list or the score above yet.",
 		"approved_note": "Your review is recorded.",
-		"rejected_note": "A moderator has taken this review down, so it can no longer be edited. What you wrote is kept below."
+		"rejected_note": "A moderator has taken this review down, so it can no longer be edited. What you wrote is kept below.",
+		"content": "Content",
+		"review": "Review",
+		"rating": "Rating",
+		"target": "Target",
+		"author": "Author",
+		"moderation": "Moderation",
+		"timestamps": "Timestamps"
 	},
 	"form": {
 		"heading": "Write a review",
@@ -114,5 +121,52 @@
 		"price": "Price",
 		"service": "Service",
 		"delivery": "Delivery"
+	},
+	"field": {
+		"search": "Review text",
+		"status": "Status",
+		"product_id": "Product ID",
+		"variant_id": "Variant ID",
+		"rating_from": "Rating",
+		"is_pinned": "Pinned",
+		"is_verified": "Verified",
+		"user": "Author",
+		"content": "Content",
+		"id": "ID",
+		"rating_avg": "Rating",
+		"user_id": "User ID",
+		"created_at": "Created At",
+		"sku": "Variant SKU",
+		"order_id": "Order ID",
+		"author": "Author",
+		"email": "Email",
+		"moderated_at": "Moderated At",
+		"moderator": "Moderated By",
+		"moderation_reason": "Reason",
+		"updated_at": "Updated At",
+		"deleted_at": "Deleted At",
+		"product": "Product"
+	},
+	"text": {
+		"change_review_status_to": "Change review status to:",
+		"open_product_page": "Open the product page in a new tab",
+		"view_product_details": "View product details",
+		"product_ref": "Product #{{id}}",
+		"rating_exact": "5 stars",
+		"rating_floor": "{{stars}} stars and up",
+		"pinned": "Pinned",
+		"not_pinned": "Not pinned",
+		"verified_buyer": "Verified buyer",
+		"not_verified": "Not verified",
+		"pin_to_top": "Pin to the top of the product's reviews",
+		"mark_verified": "Mark the author as a verified buyer"
+	},
+	"enum": {
+		"dimension": {
+			"quality": "Quality",
+			"price": "Price",
+			"service": "Service",
+			"delivery": "Delivery"
+		}
 	}
 }

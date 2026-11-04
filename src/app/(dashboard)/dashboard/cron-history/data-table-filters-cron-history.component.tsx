@@ -11,20 +11,42 @@ import {
 import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { CronHistoryDataTableFiltersType } from '@/app/(dashboard)/dashboard/cron-history/cron-history.definition';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type CronHistoryStatus,
 	CronHistoryStatusEnum,
 } from '@/models/cron-history.model';
 
-const statuses = toOptionsFromEnum(CronHistoryStatusEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'cron-history.field.search',
+	'cron-history.field.status',
+	'cron-history.field.start_at',
+	...enumTranslationKeys('cron-history.status', CronHistoryStatusEnum),
+] as const;
 
 export const DataTableFiltersCronHistory = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const statuses = useMemo(
+		() =>
+			toOptionsFromEnum(CronHistoryStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'cron-history.status',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'cron-history'>();
 
@@ -66,13 +88,13 @@ export const DataTableFiltersCronHistory = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<CronHistoryDataTableFiltersType>
-				labelText="ID / Label / Content"
+				labelText={translations['cron-history.field.search']}
 				fieldName="global"
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<CronHistoryDataTableFiltersType>
-				labelText="Status"
+				labelText={translations['cron-history.field.status']}
 				fieldName="status"
 				fieldValue={filters.status.value}
 				options={statuses}
@@ -82,7 +104,7 @@ export const DataTableFiltersCronHistory = (): JSX.Element => {
 			/>
 
 			<FormFiltersDateRange<CronHistoryDataTableFiltersType>
-				labelText="Start Date"
+				labelText={translations['cron-history.field.start_at']}
 				start={{
 					fieldName: 'start_at_start',
 					fieldValue: filters.start_at_start.value,

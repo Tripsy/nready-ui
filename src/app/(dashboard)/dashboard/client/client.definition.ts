@@ -28,6 +28,10 @@ import {
 	requestUpdate,
 	requestUpdateStatus,
 } from '@/helpers/services.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
@@ -295,23 +299,37 @@ export type ClientDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<ClientModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'view.title',
-			'viewUser.title',
-			'linkAccount.title',
-			'unlinkAccount.title',
-			'addresses.title',
-			'delete.title',
-			'restore.title',
-			'enable.title',
-			'disable.title',
-			'guide.title',
-		] as const,
-		'client.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'view.title',
+				'viewUser.title',
+				'linkAccount.title',
+				'unlinkAccount.title',
+				'addresses.title',
+				'delete.title',
+				'restore.title',
+				'enable.title',
+				'disable.title',
+				'guide.title',
+			] as const,
+			'client.action',
+		),
+		translateBatch(
+			[
+				'field.client_type',
+				'field.created_at',
+				'field.id',
+				'field.name',
+				'field.status',
+				'field.user_id',
+				...enumTranslationKeys('enum.type', ClientTypeEnum),
+			] as const,
+			'client',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -380,7 +398,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -391,16 +409,20 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'client_type',
-					header: 'Type',
+					header: labels['field.client_type'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							capitalize: true,
+							customValue: translateEnumLabel(
+								labels,
+								'enum.type',
+								entry.client_type,
+							),
 						}),
 				},
 				{
 					field: 'name',
-					header: 'Name',
+					header: labels['field.name'],
 					body: (entry, column, auth) => {
 						const label = displayClientLabel(entry);
 
@@ -419,7 +441,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'user_id',
-					header: 'Account',
+					header: labels['field.user_id'],
 					defaultWidth: 160,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
@@ -429,7 +451,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'status',
-					header: 'Status',
+					header: labels['field.status'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							dataSource: 'client',
@@ -442,7 +464,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

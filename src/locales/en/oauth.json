@@ -11,8 +11,7 @@
 		"unlink_error": "We couldn't unlink that provider"
 	},
 	"action": {
-		"continue_with": "Continue with {{provider}}",
-		"label": "or continue with"
+		"continue_with": "Continue with {{provider}}"
 	},
 	"form": {
 		"title_signing_in": "Signing you in with {{provider}}",

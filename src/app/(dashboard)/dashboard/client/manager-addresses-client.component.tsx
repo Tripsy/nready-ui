@@ -6,6 +6,7 @@ import { LoadingContent } from '@/components/status.component';
 import { Button } from '@/components/ui/button';
 import { getLanguageClient } from '@/config/translate.setup';
 import { requestFind } from '@/helpers/services.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { hasPermission } from '@/models/account.model';
 import { displayAddressLabel } from '@/models/address.model';
 import { type ClientModel, displayClientLabel } from '@/models/client.model';
@@ -20,18 +21,47 @@ import type { Language } from '@/types/common.type';
 import { DataSourceSectionEnum } from '@/types/data-source.type';
 import type { WindowEntryType } from '@/types/window.type';
 
+const TRANSLATION_KEYS = [
+	'client.text.add_address',
+	'client.text.addresses',
+	'client.text.delete',
+	'client.text.edit',
+	'client.text.addresses_load_failed',
+	'client.text.addresses_intro',
+	'client.text.no_billing_address',
+	'client.text.no_delivery_address',
+	'client-address.enum.type.billing',
+	'client-address.enum.type.delivery',
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
+
 /**
  * A client holds a handful of addresses, not a page of them. The cap keeps the listing bounded;
  * it is not a limit a real client is expected to reach.
  */
 const ADDRESS_LIMIT = 100;
 
-const SECTIONS: readonly { type: ClientAddressType; title: string }[] = [
-	{ type: ClientAddressTypeEnum.BILLING, title: 'Billing' },
-	{ type: ClientAddressTypeEnum.DELIVERY, title: 'Delivery' },
-];
+/** Each type's heading is the address type's own label; the empty text is one sentence per type. */
+const SECTIONS = [
+	{
+		type: ClientAddressTypeEnum.BILLING,
+		titleKey: 'client-address.enum.type.billing',
+		emptyKey: 'client.text.no_billing_address',
+	},
+	{
+		type: ClientAddressTypeEnum.DELIVERY,
+		titleKey: 'client-address.enum.type.delivery',
+		emptyKey: 'client.text.no_delivery_address',
+	},
+] as const satisfies readonly {
+	type: ClientAddressType;
+	titleKey: string;
+	emptyKey: string;
+}[];
 
 type RowProps = {
+	translations: TranslationsType;
 	entry: ClientAddressModel;
 	language: Language;
 	canUpdate: boolean;
@@ -41,6 +71,7 @@ type RowProps = {
 };
 
 function ClientAddressRow({
+	translations,
 	entry,
 	language,
 	canUpdate,
@@ -76,7 +107,7 @@ function ClientAddressRow({
 					disabled={!canUpdate}
 					onClick={onEdit}
 				>
-					Edit
+					{translations['client.text.edit']}
 				</Button>
 				<Button
 					type="button"
@@ -86,7 +117,7 @@ function ClientAddressRow({
 					disabled={!canDelete}
 					onClick={onDelete}
 				>
-					Delete
+					{translations['client.text.delete']}
 				</Button>
 			</span>
 		</li>
@@ -108,6 +139,8 @@ export function ManagerAddressesClient({
 	uid: string;
 	entries: ClientModel[];
 }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const client = entries[0];
 
 	const { auth } = useAuth();
@@ -196,13 +229,19 @@ export function ManagerAddressesClient({
 	);
 
 	if (isLoading) {
-		return <LoadingContent title="Addresses" />;
+		return <LoadingContent title={translations['client.text.addresses']} />;
 	}
+
+	// The sentence wraps the client's name in <strong>, so it is split on the slot rather than
+	// built from two keys
+	const [introBefore, introAfter = ''] = (
+		translations['client.text.addresses_intro'] ?? ''
+	).split('{{name}}');
 
 	if (isError) {
 		return (
 			<p className="py-6 text-center text-danger">
-				The addresses of this client could not be loaded.
+				{translations['client.text.addresses_load_failed']}
 			</p>
 		);
 	}
@@ -210,8 +249,9 @@ export function ManagerAddressesClient({
 	return (
 		<div className="space-y-6">
 			<p className="text-sm text-muted">
-				Where <strong>{displayClientLabel(client)}</strong> is billed
-				and where goods are delivered.
+				{introBefore}
+				<strong>{displayClientLabel(client)}</strong>
+				{introAfter}
 			</p>
 
 			{SECTIONS.map((section) => {
@@ -220,17 +260,18 @@ export function ManagerAddressesClient({
 				return (
 					<section key={section.type} className="space-y-2">
 						<h3 className="border-b border-line pb-2 font-semibold">
-							{section.title}
+							{translations[section.titleKey]}
 						</h3>
 
 						{sectionEntries.length === 0 ? (
 							<p className="text-sm text-muted">
-								No {section.title.toLowerCase()} address yet.
+								{translations[section.emptyKey]}
 							</p>
 						) : (
 							<ul className="divide-y divide-line">
 								{sectionEntries.map((entry) => (
 									<ClientAddressRow
+										translations={translations}
 										key={entry.id}
 										entry={entry}
 										language={language}
@@ -268,7 +309,7 @@ export function ManagerAddressesClient({
 					})
 				}
 			>
-				Add address
+				{translations['client.text.add_address']}
 			</Button>
 		</div>
 	);

@@ -1,3 +1,4 @@
+import { replaceVars } from '@/helpers/string.helper';
 import type { OrderDiscountSnapshot, OrderModel } from '@/models/order.model';
 import { roundMoney } from '@/models/product.model';
 import type { StatusTransitions } from '@/types/common.type';
@@ -242,7 +243,11 @@ export const displayShippingLabel = (entry: ShippingModel): string =>
 	entry.tracking_number ?? `#${entry.id}`;
 
 /** The document a movement answers to, whichever kind its scope uses. */
-export const displayShippingDocument = (entry: ShippingModel): string => {
+/** `docRef` names a relocation's document, with a `{{ref}}` slot - wording from the caller. */
+export const displayShippingDocument = (
+	entry: ShippingModel,
+	docRef: string,
+): string => {
 	if (entry.order) {
 		return `${entry.order.ref_code}-${entry.order.ref_number}`;
 	}
@@ -251,7 +256,9 @@ export const displayShippingDocument = (entry: ShippingModel): string => {
 		return `#${entry.order_id}`;
 	}
 
-	return entry.document_ref ? `Doc #${entry.document_ref}` : '-';
+	return entry.document_ref
+		? replaceVars(docRef, { ref: entry.document_ref })
+		: '-';
 };
 
 /** A frozen address on one line, street first - or a dash when every part is empty. */
@@ -312,12 +319,14 @@ export const displayShippingDestination = (
 		| 'destination_client_address_id'
 		| 'destination_client_address_label'
 	>,
+	/** What a self-pickup delivery ends at, worded by the caller. */
+	selfPickup: string,
 ): string => {
 	if (
 		entry.scope === ShippingScopeEnum.DELIVERY &&
 		entry.method === ShippingMethodEnum.SELF_PICKUP
 	) {
-		return 'Collected by the client';
+		return selfPickup;
 	}
 
 	return displayShippingEnd(

@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { Icons } from '@/components/icon.component';
@@ -6,6 +8,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Radio, RadioGroup } from '@/components/ui/radio-group';
 import { getLanguageClient } from '@/config/translate.setup';
 import { requestView } from '@/helpers/services.helper';
+import { replaceVars } from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import type { ProductModel } from '@/models/product.model';
 import {
 	type BundleChoiceType,
@@ -21,6 +25,19 @@ import {
 } from '@/models/product-bundle.model';
 import { displayProductVariantLabel } from '@/models/product-variant.model';
 import { findVariantsByIds } from '@/services/product.service';
+
+const TRANSLATION_KEYS = [
+	'order.section.included',
+	'order.text.exactly_1',
+	'order.text.label_one_fewer',
+	'order.text.label_one_more',
+	'order.text.loading_bundle',
+	'order.text.optional',
+	'order.text.bundle_load_failed',
+	'order.text.bundle_no_components',
+	'order.text.choice_ref',
+	'order.text.extras',
+] as const;
 
 /**
  * A bundle line's contents and the choices it leaves to the operator - the dashboard twin of the
@@ -57,6 +74,8 @@ export function OrderLineBundle({
 		price?: number;
 	}) => void;
 }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const {
 		data: product,
 		isLoading,
@@ -130,15 +149,18 @@ export function OrderLineBundle({
 	}, [normalizedKey, choicesKey]);
 
 	if (isLoading) {
-		return <p className="my-4 text-sm text-muted">Loading bundle...</p>;
+		return (
+			<p className="my-4 text-sm text-muted">
+				{translations['order.text.loading_bundle']}
+			</p>
+		);
 	}
 
 	// A failed read is not an empty bundle - saying so would send the operator to fix the catalog
 	if (isError || !product) {
 		return (
 			<p className="my-4 text-sm text-danger">
-				The bundle's composition could not be loaded - reopen the order
-				to try again.
+				{translations['order.text.bundle_load_failed']}
 			</p>
 		);
 	}
@@ -146,7 +168,7 @@ export function OrderLineBundle({
 	if (items.length === 0) {
 		return (
 			<p className="my-4 text-sm text-danger">
-				This bundle has no components in the catalog.
+				{translations['order.text.bundle_no_components']}
 			</p>
 		);
 	}
@@ -182,7 +204,9 @@ export function OrderLineBundle({
 		<div className="my-4 space-y-4">
 			{included.length > 0 && (
 				<div>
-					<h4 className="text-sm font-semibold">Included</h4>
+					<h4 className="text-sm font-semibold">
+						{translations['order.section.included']}
+					</h4>
 					<ul className="mt-2 space-y-1 text-sm">
 						{included.map((item) => (
 							<li key={item.id}>{nameOf(item)}</li>
@@ -205,7 +229,9 @@ export function OrderLineBundle({
 					contents.find((content) => content.language === language)
 						?.value ??
 					contents[0]?.value ??
-					`Choice #${group.id}`;
+					replaceVars(translations['order.text.choice_ref'], {
+						id: group.id,
+					});
 				const headingId = `line-${index}-bundle-group-${group.id}`;
 
 				return (
@@ -213,7 +239,7 @@ export function OrderLineBundle({
 						<h4 id={headingId} className="text-sm font-semibold">
 							{label}{' '}
 							<span className="font-normal text-muted">
-								(exactly 1)
+								{translations['order.text.exactly_1']}
 							</span>
 						</h4>
 
@@ -248,9 +274,9 @@ export function OrderLineBundle({
 			{extras.length > 0 && (
 				<div>
 					<h4 className="text-sm font-semibold">
-						Extras{' '}
+						{translations['order.text.extras']}{' '}
 						<span className="font-normal text-muted">
-							(optional)
+							{translations['order.text.optional']}
 						</span>
 					</h4>
 
@@ -302,7 +328,11 @@ export function OrderLineBundle({
 												disabled={
 													disabled || units <= 1
 												}
-												aria-label="One fewer"
+												aria-label={
+													translations[
+														'order.text.label_one_fewer'
+													]
+												}
 												onClick={() =>
 													change([
 														...without,
@@ -327,7 +357,11 @@ export function OrderLineBundle({
 													units >=
 														Number(item.quantity)
 												}
-												aria-label="One more"
+												aria-label={
+													translations[
+														'order.text.label_one_more'
+													]
+												}
 												onClick={() =>
 													change([
 														...without,

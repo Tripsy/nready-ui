@@ -33,5 +33,44 @@
 		"note": "Un job săptămânal șterge deja tot ce este mai vechi de 30 de zile, deci curățarea manuală este pentru zgomotul pe care vrei să îl scoți mai devreme, nu pentru a ține tabelul mic. Ce este mai vechi de atât trăiește în CloudWatch, sub propria politică de retenție.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"enum": {
+		"level": {
+			"trace": "Trace",
+			"debug": "Debug",
+			"info": "Info",
+			"warn": "Warn",
+			"error": "Eroare",
+			"fatal": "Fatal"
+		},
+		"category": {
+			"system": "Sistem",
+			"history": "Istoric",
+			"cron": "Cron"
+		}
+	},
+	"field": {
+		"search": "ID / PID / Mesaj / Context",
+		"category": "Categorie",
+		"level": "Nivel",
+		"created_at": "Creat la",
+		"id": "ID",
+		"message": "Mesaj",
+		"pid": "PID",
+		"request_id": "ID cerere",
+		"method": "Metodă",
+		"url": "URL",
+		"body": "Body",
+		"params": "Parametri",
+		"query": "Query",
+		"file": "Fișier",
+		"line": "Linie",
+		"function": "Funcție",
+		"trace": "Trace"
+	},
+	"section": {
+		"info": "Info",
+		"request_context": "Contextul cererii",
+		"debug_stack": "Stivă de depanare"
 	}
 }

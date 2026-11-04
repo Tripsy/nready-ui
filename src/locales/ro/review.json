@@ -87,7 +87,14 @@
 		"your_review": "Recenzia ta",
 		"pending_note": "Recenzia ta este în așteptarea moderării, așa că nu apare încă în listă și nici în scorul de mai sus.",
 		"approved_note": "Recenzia ta este înregistrată.",
-		"rejected_note": "Un moderator a retras această recenzie, așa că nu mai poate fi editată. Textul scris se păstrează mai jos."
+		"rejected_note": "Un moderator a retras această recenzie, așa că nu mai poate fi editată. Textul scris se păstrează mai jos.",
+		"content": "Conținut",
+		"review": "Recenzie",
+		"rating": "Notă",
+		"target": "Țintă",
+		"author": "Autor",
+		"moderation": "Moderare",
+		"timestamps": "Marcaje de timp"
 	},
 	"form": {
 		"heading": "Scrie o recenzie",
@@ -114,5 +121,52 @@
 		"price": "Preț",
 		"service": "Servicii",
 		"delivery": "Livrare"
+	},
+	"field": {
+		"search": "Textul recenziei",
+		"status": "Status",
+		"product_id": "ID produs",
+		"variant_id": "ID variantă",
+		"rating_from": "Notă",
+		"is_pinned": "Fixat",
+		"is_verified": "Verificat",
+		"user": "Autor",
+		"content": "Conținut",
+		"id": "ID",
+		"rating_avg": "Notă",
+		"user_id": "ID utilizator",
+		"created_at": "Creat la",
+		"sku": "SKU variantă",
+		"order_id": "ID comandă",
+		"author": "Autor",
+		"email": "Email",
+		"moderated_at": "Moderat la",
+		"moderator": "Moderat de",
+		"moderation_reason": "Motiv",
+		"updated_at": "Actualizat la",
+		"deleted_at": "Șters la",
+		"product": "Produs"
+	},
+	"text": {
+		"change_review_status_to": "Schimbă statusul recenziei în:",
+		"open_product_page": "Deschide pagina produsului într-un tab nou",
+		"view_product_details": "Vezi detaliile produsului",
+		"product_ref": "Produs #{{id}}",
+		"rating_exact": "5 stele",
+		"rating_floor": "{{stars}} stele sau mai mult",
+		"pinned": "Fixată",
+		"not_pinned": "Nefixată",
+		"verified_buyer": "Cumpărător verificat",
+		"not_verified": "Neverificat",
+		"pin_to_top": "Fixează în partea de sus a recenziilor produsului",
+		"mark_verified": "Marchează autorul drept cumpărător verificat"
+	},
+	"enum": {
+		"dimension": {
+			"quality": "Calitate",
+			"price": "Preț",
+			"service": "Servicii",
+			"delivery": "Livrare"
+		}
 	}
 }

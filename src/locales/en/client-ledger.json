@@ -29,5 +29,24 @@
 		"note": "The net is money moved, not money owed: what a client still has to pay is read from their invoices. A nightly job books any completed movement the ledger is missing, so a payment completed while the feature was not installed shows up by the next morning.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"text": {
+		"could_not_retrieve_the_client_balance": "Could not retrieve the client balance"
+	},
+	"field": {
+		"id": "ID",
+		"entry_type": "Type",
+		"amount": "Amount",
+		"amount_base": "Base Amount",
+		"cash_flow_id": "Cash Flow",
+		"occurred_at": "Occurred At",
+		"client": "Client",
+		"currency": "Currency"
+	},
+	"enum": {
+		"entry_type": {
+			"payment": "Payment",
+			"refund": "Refund"
+		}
 	}
 }

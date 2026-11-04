@@ -12,10 +12,14 @@ import {
 import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { DiscountDataTableFiltersType } from '@/app/(dashboard)/dashboard/discount/discount.definition';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type DiscountReason,
 	DiscountReasonEnum,
@@ -25,23 +29,59 @@ import {
 	DiscountTypeEnum,
 } from '@/models/discount.model';
 
-/*
- * Fixed widths, sized for the longest option rather than the current value - the same reason as
- * the manage form: a content-sized trigger resizes the filter bar every time a filter changes.
- */
-const scopes = toOptionsFromEnum(DiscountScopeEnum, {
-	formatter: formatEnumLabel,
-});
-
-const reasons = toOptionsFromEnum(DiscountReasonEnum, {
-	formatter: formatEnumLabel,
-});
-
-const types = toOptionsFromEnum(DiscountTypeEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'discount.field.reason',
+	'discount.field.scope',
+	'discount.field.search',
+	'discount.field.start_date',
+	'discount.field.type',
+	...enumTranslationKeys('discount.enum.scope', DiscountScopeEnum),
+	...enumTranslationKeys('discount.enum.reason', DiscountReasonEnum),
+	...enumTranslationKeys('discount.enum.type', DiscountTypeEnum),
+] as const;
 
 export const DataTableFiltersDiscount = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const types = useMemo(
+		() =>
+			toOptionsFromEnum(DiscountTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'discount.enum.type',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const reasons = useMemo(
+		() =>
+			toOptionsFromEnum(DiscountReasonEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'discount.enum.reason',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const scopes = useMemo(
+		() =>
+			toOptionsFromEnum(DiscountScopeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'discount.enum.scope',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'discount'>();
 
@@ -84,12 +124,12 @@ export const DataTableFiltersDiscount = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<DiscountDataTableFiltersType>
-				labelText="ID / Label / Reference"
+				labelText={translations['discount.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<DiscountDataTableFiltersType>
-				labelText="Scope"
+				labelText={translations['discount.field.scope']}
 				className="w-28"
 				fieldName="scope"
 				fieldValue={filters.scope.value}
@@ -100,7 +140,7 @@ export const DataTableFiltersDiscount = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<DiscountDataTableFiltersType>
-				labelText="Reason"
+				labelText={translations['discount.field.reason']}
 				className="w-48"
 				fieldName="reason"
 				fieldValue={filters.reason.value}
@@ -111,7 +151,7 @@ export const DataTableFiltersDiscount = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<DiscountDataTableFiltersType>
-				labelText="Type"
+				labelText={translations['discount.field.type']}
 				className="w-24"
 				fieldName="type"
 				fieldValue={filters.type.value}
@@ -122,7 +162,7 @@ export const DataTableFiltersDiscount = (): JSX.Element => {
 			/>
 
 			<FormFiltersDateRange<DiscountDataTableFiltersType>
-				labelText="Start Date"
+				labelText={translations['discount.field.start_date']}
 				start={{
 					fieldName: 'start_at_start',
 					fieldValue: filters.start_at_start.value,

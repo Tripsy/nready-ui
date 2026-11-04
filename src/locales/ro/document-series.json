@@ -49,5 +49,33 @@
 		"note": "Ștergerea unei serii este definitivă și nepăzită: nu există stare de șters, deci nimic nu poate fi restaurat, iar nimic nu oprește ștergerea unei serii care a emis numere. Recrearea ei pornește contorul din nou de la numărul de start, iar următorul document intră în conflict cu referințe care există deja sub acel cod.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"field": {
+		"search": "ID / Cod",
+		"document_type": "Tip document",
+		"id": "ID",
+		"code": "Cod",
+		"start_number": "Număr de început",
+		"next_number": "Următorul număr",
+		"created_at": "Creat la",
+		"notes": "Notițe",
+		"updated_at": "Actualizat la"
+	},
+	"text": {
+		"placeholder_code": "ex.: FCT",
+		"label_code_max": "Cod (max. {{max}} caractere)"
+	},
+	"section": {
+		"series": "Serie",
+		"other": "Altele",
+		"timestamps": "Marcaje de timp"
+	},
+	"enum": {
+		"document_type": {
+			"invoice": "Factură",
+			"order": "Comandă",
+			"grn": "NIR",
+			"subscription": "Abonament"
+		}
 	}
 }

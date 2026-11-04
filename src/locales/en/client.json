@@ -95,7 +95,19 @@
 		"contact_name": "Contact - Name",
 		"contact_email": "Contact - Email",
 		"contact_phone": "Contact - Phone",
-		"notes": "Notes"
+		"notes": "Notes",
+		"id": "ID",
+		"name": "Name",
+		"user_id": "Account",
+		"status": "Status",
+		"created_at": "Created At",
+		"search": "ID / Name / CUI / CNP",
+		"user": "Account",
+		"person_identification_number": "Person - CNP",
+		"iban": "IBAN",
+		"bank_name": "Bank Name",
+		"updated_at": "Updated At",
+		"deleted_at": "Deleted At"
 	},
 	"help": {
 		"intro": "A client is either a company or a person, and that choice decides which identity fields exist on it. Everything else - banking, contact, notes - is the same for both and entirely optional.",
@@ -114,5 +126,29 @@
 		"note": "Deleting a client is a soft delete, so orders, invoices and cash flow entries pointing at it keep resolving. Use Show deleted to find one and restore it - but its identity was never free in the meantime.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"text": {
+		"edit": "Edit",
+		"delete": "Delete",
+		"addresses": "Addresses",
+		"add_address": "Add address",
+		"addresses_intro": "Where {{name}} is billed and where goods are delivered.",
+		"no_billing_address": "No billing address yet.",
+		"no_delivery_address": "No delivery address yet.",
+		"not_linked": "Not linked",
+		"addresses_load_failed": "The addresses of this client could not be loaded."
+	},
+	"section": {
+		"info": "Info",
+		"account": "Account",
+		"contact_details": "Contact Details",
+		"financial_details": "Financial Details",
+		"timestamps": "Timestamps"
+	},
+	"enum": {
+		"type": {
+			"person": "Person",
+			"company": "Company"
+		}
 	}
 }

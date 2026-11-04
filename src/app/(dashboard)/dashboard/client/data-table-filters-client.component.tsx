@@ -12,10 +12,14 @@ import {
 import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { ClientDataTableFiltersType } from '@/app/(dashboard)/dashboard/client/client.definition';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type ClientStatus,
 	ClientStatusEnum,
@@ -23,15 +27,36 @@ import {
 	ClientTypeEnum,
 } from '@/models/client.model';
 
-const statuses = toOptionsFromEnum(ClientStatusEnum, {
-	formatter: formatEnumLabel,
-});
-
-const clientTypes = toOptionsFromEnum(ClientTypeEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'client.field.client_type',
+	'client.field.created_at',
+	'client.field.search',
+	'client.field.status',
+	...enumTranslationKeys('client.status', ClientStatusEnum),
+	...enumTranslationKeys('client.enum.type', ClientTypeEnum),
+] as const;
 
 export const DataTableFiltersClient = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const clientTypes = useMemo(
+		() =>
+			toOptionsFromEnum(ClientTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'client.enum.type', value),
+			}),
+		[translations],
+	);
+
+	const statuses = useMemo(
+		() =>
+			toOptionsFromEnum(ClientStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'client.status', value),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'client'>();
 
@@ -72,12 +97,12 @@ export const DataTableFiltersClient = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<ClientDataTableFiltersType>
-				labelText="ID / Name / CUI / CNP"
+				labelText={translations['client.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<ClientDataTableFiltersType>
-				labelText="Status"
+				labelText={translations['client.field.status']}
 				fieldName="status"
 				fieldValue={filters.status.value}
 				options={statuses}
@@ -87,7 +112,7 @@ export const DataTableFiltersClient = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<ClientDataTableFiltersType>
-				labelText="Type"
+				labelText={translations['client.field.client_type']}
 				fieldName="client_type"
 				fieldValue={filters.client_type.value}
 				options={clientTypes}
@@ -97,7 +122,7 @@ export const DataTableFiltersClient = (): JSX.Element => {
 			/>
 
 			<FormFiltersDateRange<ClientDataTableFiltersType>
-				labelText="Create Date"
+				labelText={translations['client.field.created_at']}
 				start={{
 					fieldName: 'create_at_start',
 					fieldValue: filters.create_at_start.value,

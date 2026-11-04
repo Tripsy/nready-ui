@@ -44,7 +44,11 @@
 	"field": {
 		"city": "Oraș",
 		"details": "Detalii",
-		"postal_code": "Cod poștal"
+		"postal_code": "Cod poștal",
+		"id": "ID",
+		"search": "ID / Adresă / Cod poștal",
+		"created_at": "Creat la",
+		"updated_at": "Actualizat la"
 	},
 	"help": {
 		"intro": "O adresă este o linie de stradă plus un oraș și un cod poștal opționale. Este o componentă la care alte entități fac referire, nu ceva ce un vizitator vede de sine stătător.",
@@ -59,5 +63,14 @@
 		"note": "Ștergerea unei adrese este una logică, deci orice face deja referire la ea continuă să funcționeze. Folosește „Arată șterse” pentru a o găsi și restaura.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"text": {
+		"placeholder_details": "ex.: Str. Victoriei 15",
+		"placeholder_postal_code": "ex.: 067895",
+		"create_city": "Creează orașul „{{value}}”"
+	},
+	"section": {
+		"details": "Detalii",
+		"timestamps": "Marcaje de timp"
 	}
 }

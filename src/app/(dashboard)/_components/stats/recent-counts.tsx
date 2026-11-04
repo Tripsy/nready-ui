@@ -6,27 +6,37 @@ import type { JSX } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import Routes from '@/config/routes.setup';
 import { cn } from '@/helpers/css.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type ResponseStatsRecentCounts,
 	requestStatsRecentCounts,
 } from '@/services/stats.service';
 
+const TRANSLATION_KEYS = [
+	'dashboard.text.could_not_retrieve_counts',
+	'dashboard.text.failed_to_retrieve_counts',
+	'dashboard.labels.user',
+	'dashboard.labels.client',
+	'dashboard.labels.article',
+	'dashboard.labels.comment',
+	'dashboard.labels.complaint',
+] as const;
+
 /**
  * Keyed by the response field, so a missing entry is a type error rather than a silent zero.
  * The key doubles as the dashboard route key - they happen to agree for all five.
  */
-const COUNT_ITEMS: ReadonlyArray<{
-	key: keyof ResponseStatsRecentCounts;
-	label: string;
-}> = [
-	{ key: 'user', label: 'Users' },
-	{ key: 'client', label: 'Clients' },
-	{ key: 'article', label: 'Articles' },
-	{ key: 'comment', label: 'Comments' },
-	{ key: 'complaint', label: 'Complaints' },
+const COUNT_ITEMS: ReadonlyArray<keyof ResponseStatsRecentCounts> = [
+	'user',
+	'client',
+	'article',
+	'comment',
+	'complaint',
 ];
 
 export function RecentCounts(): JSX.Element {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const { data, isLoading, isError } = useQuery({
 		queryKey: ['stats', 'recent-counts'],
 		queryFn: () => requestStatsRecentCounts(),
@@ -37,7 +47,7 @@ export function RecentCounts(): JSX.Element {
 	if (isLoading) {
 		return (
 			<div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
-				{COUNT_ITEMS.map(({ key }) => (
+				{COUNT_ITEMS.map((key) => (
 					<div key={key} className="space-y-2">
 						<Skeleton className="h-7 w-10" />
 						<Skeleton className="h-3 w-16" />
@@ -48,16 +58,24 @@ export function RecentCounts(): JSX.Element {
 	}
 
 	if (isError) {
-		return <div className="text-danger">Failed to retrieve counts</div>;
+		return (
+			<div className="text-danger">
+				{translations['dashboard.text.failed_to_retrieve_counts']}
+			</div>
+		);
 	}
 
 	if (!data) {
-		return <div className="text-muted">Could not retrieve counts</div>;
+		return (
+			<div className="text-muted">
+				{translations['dashboard.text.could_not_retrieve_counts']}
+			</div>
+		);
 	}
 
 	return (
 		<div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
-			{COUNT_ITEMS.map(({ key, label }) => (
+			{COUNT_ITEMS.map((key) => (
 				<NextLink
 					key={key}
 					href={Routes.get(key)}
@@ -73,7 +91,9 @@ export function RecentCounts(): JSX.Element {
 					>
 						{data[key]}
 					</div>
-					<div className="text-xs text-muted">{label}</div>
+					<div className="text-xs text-muted">
+						{translations[`dashboard.labels.${key}`]}
+					</div>
 				</NextLink>
 			))}
 		</div>

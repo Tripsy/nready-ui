@@ -1,4 +1,6 @@
-import { useRef, useState } from 'react';
+'use client';
+
+import { useMemo, useRef, useState } from 'react';
 import {
 	FormComponentAutoComplete,
 	FormComponentInput,
@@ -10,9 +12,13 @@ import { Configuration } from '@/config/settings.config';
 import { getLanguageClient } from '@/config/translate.setup';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
 import { requestFind } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	displayPlaceLabel,
 	getParentPlaceType,
@@ -25,6 +31,17 @@ import { useWindowForm } from '@/providers/window-form.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import { type Language, LanguageEnum } from '@/types/common.type';
 
+const TRANSLATION_KEYS = [
+	'place.field.code',
+	'place.field.name',
+	'place.field.parent',
+	'place.field.place_type',
+	'place.field.type_label',
+	'place.section.language_specific',
+	'place.text.placeholder_code',
+	...enumTranslationKeys('place.enum.type', PlaceTypeEnum),
+] as const;
+
 export type PlaceFormValuesType = {
 	place_type: PlaceType;
 	code: string | null;
@@ -35,11 +52,18 @@ export type PlaceFormValuesType = {
 
 const languages = Object.values(LanguageEnum);
 
-const placeTypes = toOptionsFromEnum(PlaceTypeEnum, {
-	formatter: formatEnumLabel,
-});
-
 export function FormManagePlace() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const placeTypes = useMemo(
+		() =>
+			toOptionsFromEnum(PlaceTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'place.enum.type', value),
+			}),
+		[translations],
+	);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<PlaceFormValuesType>();
 
@@ -137,7 +161,7 @@ export function FormManagePlace() {
 	return (
 		<>
 			<FormComponentRadio<PlaceFormValuesType>
-				labelText="Type"
+				labelText={translations['place.field.place_type']}
 				id={elementIds.placeType}
 				fieldName="place_type"
 				fieldValue={formValues.place_type}
@@ -149,12 +173,12 @@ export function FormManagePlace() {
 
 			<FormComponentInput<PlaceFormValuesType>
 				id={elementIds.code}
-				labelText="Code"
+				labelText={translations['place.field.code']}
 				fieldName="code"
 				fieldValue={formValues.code ?? ''}
 				className="pl-8"
 				isRequired={false}
-				placeholderText="eg: RO"
+				placeholderText={translations['place.text.placeholder_code']}
 				icons={{
 					left: <Icons.Code className="opacity-40 h-4.5 w-4.5" />,
 				}}
@@ -171,7 +195,7 @@ export function FormManagePlace() {
 						value={formValues.parent_id ?? ''}
 					/>
 					<FormComponentAutoComplete<PlaceFormValuesType, PlaceModel>
-						labelText="Parent"
+						labelText={translations['place.field.parent']}
 						id={elementIds.parent}
 						fieldName="parent"
 						fieldValue={formValues.parent ?? ''}
@@ -225,7 +249,7 @@ export function FormManagePlace() {
 			>
 				<div className="flex items-center border-b border-line pb-2 gap-2">
 					<h3 className="font-bold whitespace-nowrap">
-						Language specific
+						{translations['place.section.language_specific']}
 					</h3>
 					<TabsList>
 						{languages.map((language) => (
@@ -251,7 +275,7 @@ export function FormManagePlace() {
 							<div className="form-section">
 								<FormComponentInput<PlaceContent>
 									id={`${elementIds.contents}-${language}-name`}
-									labelText="Name"
+									labelText={translations['place.field.name']}
 									fieldName="name"
 									fieldValue={
 										contentsMap[language]?.name ?? ''
@@ -275,7 +299,9 @@ export function FormManagePlace() {
 
 								<FormComponentInput<PlaceContent>
 									id={`${elementIds.contents}-${language}-type_label`}
-									labelText="Type Label"
+									labelText={
+										translations['place.field.type_label']
+									}
 									fieldName="type_label"
 									fieldValue={
 										contentsMap[language]?.type_label ?? ''

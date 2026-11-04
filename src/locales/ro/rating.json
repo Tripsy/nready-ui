@@ -46,5 +46,44 @@
 		"tab_info": "Info",
 		"tab_api": "Documentație API",
 		"tab_public": "API public"
+	},
+	"field": {
+		"entity_type": "Țintă",
+		"entity_id": "ID țintă",
+		"type": "Tip",
+		"reaction": "Reacție",
+		"user": "Utilizator",
+		"id": "ID",
+		"value": "Valoare",
+		"user_id": "ID utilizator",
+		"created_at": "Creat la",
+		"rating": "Notă",
+		"email": "Email",
+		"updated_at": "Actualizat la",
+		"rated_by": "Evaluat de"
+	},
+	"section": {
+		"target": "Țintă",
+		"rating": "Notă",
+		"rated_by": "Evaluat de",
+		"timestamps": "Marcaje de timp"
+	},
+	"enum": {
+		"entity_type": {
+			"article": "Articol",
+			"comment": "Comentariu"
+		},
+		"type": {
+			"like": "Îmi place",
+			"stars": "Stele",
+			"emoji": "Emoji"
+		},
+		"emoji": {
+			"like": "Îmi place",
+			"dislike": "Nu îmi place",
+			"love": "Ador",
+			"insightful": "Interesant",
+			"funny": "Amuzant"
+		}
 	}
 }

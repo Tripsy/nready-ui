@@ -1,5 +1,7 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
 	FormComponentAutoComplete,
 	FormComponentCalendar,
@@ -16,9 +18,14 @@ import {
 	toOptionsFromEnum,
 } from '@/helpers/form.helper';
 import { requestFind, requestView } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import type { CarrierModel } from '@/models/carrier.model';
 import type { ClientAddressModel } from '@/models/client-address.model';
 import {
@@ -39,6 +46,50 @@ import {
 import { useWindowForm } from '@/providers/window-form.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import { CurrencyEnum } from '@/types/common.type';
+
+const TRANSLATION_KEYS = [
+	'shipping.field.carrier',
+	'shipping.field.contact_email',
+	'shipping.field.contact_name',
+	'shipping.field.contact_phone',
+	'shipping.field.currency',
+	'shipping.field.document_ref',
+	'shipping.field.estimated_delivery_at',
+	'shipping.field.method',
+	'shipping.field.notes',
+	'shipping.field.order',
+	'shipping.field.price',
+	'shipping.field.quantity',
+	'shipping.field.scope',
+	'shipping.field.tracking_number',
+	'shipping.field.tracking_url',
+	'shipping.field.vat_rate',
+	'shipping.text.relocation_lines_hint',
+	'shipping.text.label_operational_cost',
+	'shipping.text.loading_order_lines',
+	'shipping.text.pick_order_first',
+	'shipping.text.placeholder_document_ref',
+	'shipping.text.order_no_lines',
+	'shipping.text.lines_hint',
+	'shipping.text.variant_ref',
+	'shipping.text.ordered_quantity',
+	'shipping.section.details',
+	'shipping.section.lines',
+	'dashboard.text.tab_errors',
+	'shipping.field.pickup_warehouse',
+	'shipping.field.destination_warehouse',
+	'shipping.field.pickup_address',
+	'shipping.field.destination_address',
+	'shipping.text.scope_fixed',
+	'shipping.text.placeholder_excl_vat',
+	'shipping.text.placeholder_from_rates',
+	'shipping.text.placeholder_not_recorded',
+	'shipping.text.placeholder_estimate',
+	...enumTranslationKeys('shipping.enum.method', ShippingMethodEnum),
+	...enumTranslationKeys('shipping.enum.scope', ShippingScopeEnum),
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
 
 /** The books are kept in one currency, which is what `operational_cost` is entered in. */
 const BASE_CURRENCY = Configuration.get('app.currency');
@@ -90,14 +141,6 @@ export type ShippingFormValuesType = {
 
 const currencies = toOptionsFromEnum(CurrencyEnum);
 
-const methods = toOptionsFromEnum(ShippingMethodEnum, {
-	formatter: formatEnumLabel,
-});
-
-const scopes = toOptionsFromEnum(ShippingScopeEnum, {
-	formatter: formatEnumLabel,
-});
-
 /**
  * What travels, by variant.
  *
@@ -112,6 +155,7 @@ const scopes = toOptionsFromEnum(ShippingScopeEnum, {
  * already claimed is not knowable from this form alone.
  */
 function ShippingLinesEditor({
+	translations,
 	orderId,
 	scope,
 	lines,
@@ -119,6 +163,7 @@ function ShippingLinesEditor({
 	error,
 	onChange,
 }: {
+	translations: TranslationsType;
 	readonly orderId: number | null;
 	readonly scope: ShippingScope | null;
 	readonly lines: ShippingLineFormType[];
@@ -143,9 +188,7 @@ function ShippingLinesEditor({
 	if (scope === ShippingScopeEnum.RELOCATION) {
 		return (
 			<p className="text-sm text-muted">
-				A relocation is measured against stock on hand rather than an
-				order, and the document behind it does not exist yet - so its
-				contents cannot be chosen here.
+				{translations['shipping.text.relocation_lines_hint']}
 			</p>
 		);
 	}
@@ -153,18 +196,25 @@ function ShippingLinesEditor({
 	if (!orderId) {
 		return (
 			<p className="text-sm text-muted">
-				Pick an order first - its lines are what this movement is filled
-				from.
+				{translations['shipping.text.pick_order_first']}
 			</p>
 		);
 	}
 
 	if (isLoading) {
-		return <p className="text-sm text-muted">Loading order lines...</p>;
+		return (
+			<p className="text-sm text-muted">
+				{translations['shipping.text.loading_order_lines']}
+			</p>
+		);
 	}
 
 	if (!orderLines || orderLines.length === 0) {
-		return <p className="text-sm text-muted">This order has no lines.</p>;
+		return (
+			<p className="text-sm text-muted">
+				{translations['shipping.text.order_no_lines']}
+			</p>
+		);
 	}
 
 	const quantityFor = (variantId: number): number | null =>
@@ -206,15 +256,25 @@ function ShippingLinesEditor({
 					<div className="min-w-0 flex-1">
 						<div className="font-medium">
 							{orderLine.label ??
-								`Variant #${orderLine.variant_id}`}
+								replaceVars(
+									translations['shipping.text.variant_ref'],
+									{
+										id: orderLine.variant_id,
+									},
+								)}
 						</div>
 						<div className="text-xs text-muted">
-							Ordered {orderLine.quantity}
+							{replaceVars(
+								translations['shipping.text.ordered_quantity'],
+								{
+									quantity: orderLine.quantity,
+								},
+							)}
 						</div>
 					</div>
 
 					<FormComponentInput<ShippingLineFormType>
-						labelText="Ships now"
+						labelText={translations['shipping.field.quantity']}
 						id={`shipping-line-${orderLine.variant_id}`}
 						fieldName="quantity"
 						fieldValue={quantityFor(orderLine.variant_id) ?? ''}
@@ -243,8 +303,8 @@ function ShippingLinesEditor({
 }
 
 const FORM_TABS = [
-	{ id: 'details', label: 'Details' },
-	{ id: 'lines', label: 'Lines' },
+	{ id: 'details', labelKey: 'shipping.section.details' },
+	{ id: 'lines', labelKey: 'shipping.section.lines' },
 ] as const;
 
 type FormTabId = (typeof FORM_TABS)[number]['id'];
@@ -278,6 +338,34 @@ const TAB_FIELDS: Record<FormTabId, readonly (keyof ShippingFormValuesType)[]> =
 	};
 
 export function FormManageShipping() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const scopes = useMemo(
+		() =>
+			toOptionsFromEnum(ShippingScopeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'shipping.enum.scope',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const methods = useMemo(
+		() =>
+			toOptionsFromEnum(ShippingMethodEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'shipping.enum.method',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<ShippingFormValuesType>();
 
@@ -434,6 +522,11 @@ export function FormManageShipping() {
 
 	const [tab, setTab] = useState<FormTabId>('details');
 
+	// The sentence wraps the movement type in a styled span, so it is split on the slot
+	const [scopeFixedBefore, scopeFixedAfter = ''] = (
+		translations['shipping.text.scope_fixed'] ?? ''
+	).split('{{type}}');
+
 	const tabErrors = FORM_TABS.reduce<Record<FormTabId, number>>(
 		(counts, { id }) => {
 			counts[id] = TAB_FIELDS[id].reduce(
@@ -476,8 +569,10 @@ export function FormManageShipping() {
 				>
 					labelText={
 						side === 'pickup'
-							? 'Pickup warehouse'
-							: 'Destination warehouse'
+							? translations['shipping.field.pickup_warehouse']
+							: translations[
+									'shipping.field.destination_warehouse'
+								]
 					}
 					id={elementIds[labelField]}
 					fieldName={labelField}
@@ -556,8 +651,8 @@ export function FormManageShipping() {
 				>
 					labelText={
 						side === 'pickup'
-							? 'Pickup address'
-							: 'Destination address'
+							? translations['shipping.field.pickup_address']
+							: translations['shipping.field.destination_address']
 					}
 					id={elementIds[labelField]}
 					fieldName={labelField}
@@ -609,15 +704,15 @@ export function FormManageShipping() {
 			className="w-full"
 		>
 			<TabsList>
-				{FORM_TABS.map(({ id, label }) => (
+				{FORM_TABS.map(({ id, labelKey }) => (
 					<TabsTrigger key={id} id={id}>
-						{label}
+						{translations[labelKey]}
 						{tabErrors[id] > 0 && (
 							<span className="ml-1.5 rounded-full bg-danger px-1.5 text-xs text-white">
 								{tabErrors[id]}
 								<span className="sr-only">
 									{' '}
-									field(s) need attention
+									{translations['dashboard.text.tab_errors']}
 								</span>
 							</span>
 						)}
@@ -646,16 +741,20 @@ export function FormManageShipping() {
 								value={formValues.scope ?? ''}
 							/>
 							<p className="text-sm text-muted">
-								Movement type:{' '}
+								{scopeFixedBefore}
 								<span className="font-medium">
-									{formatEnumLabel(formValues.scope ?? '')}
-								</span>{' '}
-								- fixed when the movement was created.
+									{translateEnumLabel(
+										translations,
+										'shipping.enum.scope',
+										formValues.scope ?? '',
+									)}
+								</span>
+								{scopeFixedAfter}
 							</p>
 						</>
 					) : (
 						<FormComponentSelect<ShippingFormValuesType>
-							labelText="Movement type"
+							labelText={translations['shipping.field.scope']}
 							id={elementIds.scope}
 							fieldName="scope"
 							fieldValue={formValues.scope ?? ''}
@@ -706,7 +805,7 @@ export function FormManageShipping() {
 								ShippingFormValuesType,
 								OrderModel
 							>
-								labelText="Order"
+								labelText={translations['shipping.field.order']}
 								id={elementIds.order}
 								fieldName="order"
 								fieldValue={formValues.order ?? ''}
@@ -754,14 +853,20 @@ export function FormManageShipping() {
 
 					{shape?.document === 'document_ref' && (
 						<FormComponentInput<ShippingFormValuesType>
-							labelText="Document reference"
+							labelText={
+								translations['shipping.field.document_ref']
+							}
 							id={elementIds.document_ref}
 							fieldName="document_ref"
 							fieldValue={formValues.document_ref ?? ''}
 							isRequired={true}
 							disabled={pending}
 							className="w-56"
-							placeholderText="id of the relocation document"
+							placeholderText={
+								translations[
+									'shipping.text.placeholder_document_ref'
+								]
+							}
 							onChange={(e) =>
 								handleChange(
 									'document_ref',
@@ -788,7 +893,7 @@ export function FormManageShipping() {
 
 					<div className="flex flex-wrap gap-3">
 						<FormComponentSelect<ShippingFormValuesType>
-							labelText="Method"
+							labelText={translations['shipping.field.method']}
 							id={elementIds.method}
 							fieldName="method"
 							fieldValue={formValues.method ?? ''}
@@ -814,7 +919,11 @@ export function FormManageShipping() {
 						/>
 
 						<FormComponentCalendar<ShippingFormValuesType>
-							labelText="Estimated Delivery"
+							labelText={
+								translations[
+									'shipping.field.estimated_delivery_at'
+								]
+							}
 							id={elementIds.estimated_delivery_at}
 							fieldName="estimated_delivery_at"
 							fieldValue={formValues.estimated_delivery_at ?? ''}
@@ -841,7 +950,7 @@ export function FormManageShipping() {
 						ShippingFormValuesType,
 						CarrierModel
 					>
-						labelText="Carrier"
+						labelText={translations['shipping.field.carrier']}
 						id={elementIds.carrier}
 						fieldName="carrier"
 						fieldValue={formValues.carrier ?? ''}
@@ -873,7 +982,9 @@ export function FormManageShipping() {
 
 					<div className="flex flex-wrap gap-3">
 						<FormComponentInput<ShippingFormValuesType>
-							labelText="Tracking Number"
+							labelText={
+								translations['shipping.field.tracking_number']
+							}
 							id={elementIds.tracking_number}
 							fieldName="tracking_number"
 							fieldValue={formValues.tracking_number ?? ''}
@@ -887,7 +998,9 @@ export function FormManageShipping() {
 						/>
 
 						<FormComponentInput<ShippingFormValuesType>
-							labelText="Tracking URL"
+							labelText={
+								translations['shipping.field.tracking_url']
+							}
 							id={elementIds.tracking_url}
 							fieldName="tracking_url"
 							fieldValue={formValues.tracking_url ?? ''}
@@ -903,7 +1016,7 @@ export function FormManageShipping() {
 
 					<div className="flex flex-wrap gap-3">
 						<FormComponentInput<ShippingFormValuesType>
-							labelText="Price"
+							labelText={translations['shipping.field.price']}
 							id={elementIds.price}
 							fieldType="number"
 							fieldName="price"
@@ -913,8 +1026,12 @@ export function FormManageShipping() {
 							className="w-36"
 							placeholderText={
 								formValues.is_existing
-									? 'excl. VAT'
-									: 'from rates'
+									? translations[
+											'shipping.text.placeholder_excl_vat'
+										]
+									: translations[
+											'shipping.text.placeholder_from_rates'
+										]
 							}
 							onChange={(e) =>
 								handleChange(
@@ -928,7 +1045,7 @@ export function FormManageShipping() {
 						/>
 
 						<FormComponentInput<ShippingFormValuesType>
-							labelText="VAT %"
+							labelText={translations['shipping.field.vat_rate']}
 							id={elementIds.vat_rate}
 							fieldType="number"
 							fieldName="vat_rate"
@@ -939,7 +1056,9 @@ export function FormManageShipping() {
 							placeholderText={
 								formValues.is_existing
 									? undefined
-									: 'from rates'
+									: translations[
+											'shipping.text.placeholder_from_rates'
+										]
 							}
 							onChange={(e) =>
 								handleChange(
@@ -953,7 +1072,7 @@ export function FormManageShipping() {
 						/>
 
 						<FormComponentSelect<ShippingFormValuesType>
-							labelText="Currency"
+							labelText={translations['shipping.field.currency']}
 							id={elementIds.currency}
 							fieldName="currency"
 							fieldValue={formValues.currency ?? ''}
@@ -972,7 +1091,12 @@ export function FormManageShipping() {
 						 * the label names it rather than following the select beside it.
 						 */}
 						<FormComponentInput<ShippingFormValuesType>
-							labelText={`Operational Cost (${BASE_CURRENCY})`}
+							labelText={replaceVars(
+								translations[
+									'shipping.text.label_operational_cost'
+								],
+								{ currency: BASE_CURRENCY },
+							)}
 							id={elementIds.operational_cost}
 							fieldType="number"
 							fieldName="operational_cost"
@@ -982,8 +1106,12 @@ export function FormManageShipping() {
 							className="w-44"
 							placeholderText={
 								formValues.is_existing
-									? 'not recorded'
-									: 'estimate'
+									? translations[
+											'shipping.text.placeholder_not_recorded'
+										]
+									: translations[
+											'shipping.text.placeholder_estimate'
+										]
 							}
 							onChange={(e) =>
 								handleChange(
@@ -999,7 +1127,9 @@ export function FormManageShipping() {
 
 					<div className="flex flex-wrap gap-3">
 						<FormComponentInput<ShippingFormValuesType>
-							labelText="Contact Name"
+							labelText={
+								translations['shipping.field.contact_name']
+							}
 							id={elementIds.contact_name}
 							fieldName="contact_name"
 							fieldValue={formValues.contact_name ?? ''}
@@ -1013,7 +1143,9 @@ export function FormManageShipping() {
 						/>
 
 						<FormComponentInput<ShippingFormValuesType>
-							labelText="Contact Phone"
+							labelText={
+								translations['shipping.field.contact_phone']
+							}
 							id={elementIds.contact_phone}
 							fieldName="contact_phone"
 							fieldValue={formValues.contact_phone ?? ''}
@@ -1027,7 +1159,9 @@ export function FormManageShipping() {
 						/>
 
 						<FormComponentInput<ShippingFormValuesType>
-							labelText="Contact Email"
+							labelText={
+								translations['shipping.field.contact_email']
+							}
 							id={elementIds.contact_email}
 							fieldName="contact_email"
 							fieldValue={formValues.contact_email ?? ''}
@@ -1042,7 +1176,7 @@ export function FormManageShipping() {
 					</div>
 
 					<FormComponentTextarea<ShippingFormValuesType>
-						labelText="Notes"
+						labelText={translations['shipping.field.notes']}
 						id={elementIds.notes}
 						fieldName="notes"
 						fieldValue={formValues.notes ?? ''}
@@ -1062,9 +1196,7 @@ export function FormManageShipping() {
 			<TabsContent id="lines">
 				<div className="form-section">
 					<p className="text-sm text-muted">
-						What travels in this movement. Leave a variant at zero
-						to send it in another one - a document can have several
-						movements, each leaving from its own site.
+						{translations['shipping.text.lines_hint']}
 					</p>
 
 					{/*
@@ -1078,6 +1210,7 @@ export function FormManageShipping() {
 					/>
 
 					<ShippingLinesEditor
+						translations={translations}
 						orderId={formValues.order_id}
 						scope={scope}
 						lines={lines}

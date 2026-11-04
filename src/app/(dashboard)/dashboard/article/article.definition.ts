@@ -28,6 +28,10 @@ import {
 	requestView,
 } from '@/helpers/services.helper';
 import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import {
 	BaseValidator,
 	resolveValidatorMessages,
 	sharedValidatorMessages,
@@ -42,6 +46,7 @@ import {
 	ArticleLayoutEnum,
 	type ArticleModel,
 	type ArticleSourceMode,
+	ArticleSourceModeEnum,
 	type ArticleStatus,
 	ArticleStatusEnum,
 	type ArticleVisibility,
@@ -609,25 +614,42 @@ export type ArticleDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<ArticleModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'view.title',
-			'delete.title',
-			'restore.title',
-			'submit.title',
-			'schedule.title',
-			'publish.title',
-			'reject.title',
-			'revert.title',
-			'archive.title',
-			'order.title',
-			'managerImages.title',
-			'guide.title',
-		] as const,
-		'article.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'view.title',
+				'delete.title',
+				'restore.title',
+				'submit.title',
+				'schedule.title',
+				'publish.title',
+				'reject.title',
+				'revert.title',
+				'archive.title',
+				'order.title',
+				'managerImages.title',
+				'guide.title',
+			] as const,
+			'article.action',
+		),
+		translateBatch(
+			[
+				'field.categories',
+				'field.id',
+				'field.publish_at',
+				'field.source_mode',
+				'field.status',
+				'field.title',
+				...enumTranslationKeys(
+					'enum.source_mode',
+					ArticleSourceModeEnum,
+				),
+			] as const,
+			'article',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -709,7 +731,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -722,7 +744,7 @@ export default async function dataSourceConfig(): Promise<
 					// Not sortable: the backend orders on the article row, and the title lives
 					// in the joined translation (`OrderByEnum`).
 					field: 'title',
-					header: 'Title',
+					header: labels['field.title'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							customValue: DisplayFlagged({
@@ -742,7 +764,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'status',
-					header: 'Status',
+					header: labels['field.status'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							dataSource: 'article',
@@ -755,10 +777,14 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'source_mode',
-					header: 'Source',
+					header: labels['field.source_mode'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							capitalize: true,
+							customValue: translateEnumLabel(
+								labels,
+								'enum.source_mode',
+								entry.source_mode,
+							),
 						}),
 					minWidth: 104,
 					maxWidth: 104,
@@ -767,7 +793,7 @@ export default async function dataSourceConfig(): Promise<
 					// Not sortable: an article has any number of categories, so there is no
 					// single column to order on.
 					field: 'categories',
-					header: 'Category',
+					header: labels['field.categories'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							customValue:
@@ -782,7 +808,7 @@ export default async function dataSourceConfig(): Promise<
 					// the backend has no column mixing the two, so an unscheduled article sorts
 					// by its NULL rather than by the date shown.
 					field: 'publish_at',
-					header: 'Publish At',
+					header: labels['field.publish_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

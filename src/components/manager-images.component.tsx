@@ -57,6 +57,57 @@ import {
 	type ImagePropertiesType,
 } from '@/types/image.type';
 
+const TRANSLATION_KEYS = [
+	'image.section.gallery',
+	'image.section.logo',
+	'image.text.active_image',
+	'image.text.change_order',
+	'image.text.gallery_is_full_remove_an_image',
+	'image.text.height_short',
+	'image.text.inactive_image',
+	'image.text.label_drag_to_reorder',
+	'image.text.label_upload',
+	'image.text.logo_not_uploaded',
+	'image.text.manage_images',
+	'image.text.no_images_uploaded',
+	'image.text.remove_image',
+	'image.text.save_changes',
+	'image.text.size',
+	'image.text.type',
+	'image.text.upload_logo',
+	'image.text.width_short',
+	'app.error.title',
+	'app.error.description',
+	'app.success.title',
+	'image.action.add.success',
+	'image.validation.invalid_attribute',
+	'image.error.save_failed',
+	'image.success.save',
+	'image.action.delete.title',
+	'image.action.delete.success',
+	'image.action.delete.confirm',
+	'image.action.enable.title',
+	'image.action.enable.confirm',
+	'image.action.enable.success',
+	'image.action.disable.title',
+	'image.action.disable.confirm',
+	'image.action.disable.success',
+	'image.action.disable.label',
+	'image.action.enable.label',
+	'image.field.title',
+	'image.field.description',
+	'image.text.logo_hint',
+	'image.text.drop_hint',
+	'image.text.gallery_hint',
+	'image.text.upload_images',
+	'image.text.add_more_images',
+	'image.text.gallery_drop_hint',
+	'image.text.slots_remaining',
+	'app.action.saving.label',
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
+
 // Types
 
 type ManagerMode = 'view' | 'edit';
@@ -311,6 +362,7 @@ type ImageCardEditProps = ImageCardBaseProps & {
 type ImageCardProps = ImageCardViewProps | ImageCardEditProps;
 
 function ImageCard({
+	translations,
 	mode,
 	entry,
 	language,
@@ -321,6 +373,7 @@ function ImageCard({
 	errors,
 	dragButton,
 }: ImageCardProps & {
+	translations: TranslationsType;
 	dragButton?: React.ReactNode;
 }) {
 	const { properties, contents } = entry;
@@ -358,21 +411,21 @@ function ImageCard({
 					{/* Properties grid */}
 					<div className="mt-1.5 flex gap-x-2 gap-y-1.5 flex-wrap">
 						<PropertyBadge
-							label="Type"
+							label={translations['image.text.type']}
 							value={formatMime(properties.mime)}
 						/>
 						<PropertyBadge
-							label="Size"
+							label={translations['image.text.size']}
 							value={formatBytes(properties.size)}
 						/>
 						<PropertyBadge
-							label="W"
+							label={translations['image.text.width_short']}
 							value={
 								properties.width ? `${properties.width}px` : '-'
 							}
 						/>
 						<PropertyBadge
-							label="H"
+							label={translations['image.text.height_short']}
 							value={
 								properties.height
 									? `${properties.height}px`
@@ -397,8 +450,12 @@ function ImageCard({
 								)}
 								title={
 									entry.status === ImageStatusEnum.ACTIVE
-										? 'Deactivate'
-										: 'Activate'
+										? translations[
+												'image.action.disable.label'
+											]
+										: translations[
+												'image.action.enable.label'
+											]
 								}
 							>
 								<Icons.Status.Active />
@@ -411,7 +468,7 @@ function ImageCard({
 							variant="ghost"
 							onClick={onRemove}
 							className="text-muted/50 hover:scale-125 hover:text-danger"
-							title="Remove image"
+							title={translations['image.text.remove_image']}
 						>
 							<Icons.Action.Delete />
 						</Button>
@@ -421,12 +478,18 @@ function ImageCard({
 				{mode === 'view' && (
 					<>
 						{entry.status === ImageStatusEnum.ACTIVE && (
-							<div title="Active image">
+							<div
+								title={translations['image.text.active_image']}
+							>
 								<Icons.Status.Active className="text-success" />
 							</div>
 						)}
 						{entry.status === ImageStatusEnum.INACTIVE && (
-							<div title="Inactive image">
+							<div
+								title={
+									translations['image.text.inactive_image']
+								}
+							>
 								<Icons.Status.Inactive className="text-danger" />
 							</div>
 						)}
@@ -443,7 +506,11 @@ function ImageCard({
 								key={field}
 								mode={mode}
 								label={
-									field === 'title' ? 'Title' : 'Description'
+									field === 'title'
+										? translations['image.field.title']
+										: translations[
+												'image.field.description'
+											]
 								}
 								value={attributes?.[field] ?? ''}
 								onChange={(v) =>
@@ -469,10 +536,13 @@ function ImageCard({
 
 function SortableImageCard(
 	props: ImageCardProps & {
+		translations: TranslationsType;
 		disabled: boolean;
 		isSortable: boolean; // Enable / disable drag and drop icon
 	},
 ) {
+	const { translations } = props;
+
 	const {
 		attributes,
 		listeners,
@@ -499,11 +569,13 @@ function SortableImageCard(
 					props.isSortable && (
 						<Button
 							variant="ghost"
-							title="Change order"
+							title={translations['image.text.change_order']}
 							{...attributes}
 							{...listeners}
 							className="cursor-grab text-muted/40 hover:scale-125 hover:text-warning"
-							aria-label="Drag to reorder"
+							aria-label={
+								translations['image.text.label_drag_to_reorder']
+							}
 						>
 							<Icons.Action.Move />
 						</Button>
@@ -515,12 +587,14 @@ function SortableImageCard(
 }
 
 function DropZone({
+	translations,
 	label,
 	subLabel,
 	imageType,
 	disabled = false,
 	onFiles,
 }: {
+	translations: TranslationsType;
 	label: string;
 	subLabel: string;
 	imageType: ImageType;
@@ -568,7 +642,9 @@ function DropZone({
 		<button
 			type="button"
 			tabIndex={disabled ? -1 : 0}
-			aria-label={`Upload ${label}`}
+			aria-label={replaceVars(translations['image.text.label_upload'], {
+				label,
+			})}
 			aria-disabled={disabled}
 			className={[
 				'w-full flex flex-col items-center justify-center gap-2',
@@ -641,26 +717,7 @@ export function ManagerImages({
 	const { showToast } = useToast();
 	const languages = attributeLanguages ?? [DEFAULT_LANGUAGE];
 
-	const translationsKeys = [
-		'app.error.title',
-		'app.error.description',
-		'app.success.title',
-		'image.action.add.success',
-		'image.validation.invalid_attribute',
-		'image.error.save_failed',
-		'image.success.save',
-		'image.action.delete.title',
-		'image.action.delete.success',
-		'image.action.delete.confirm',
-		'image.action.enable.title',
-		'image.action.enable.confirm',
-		'image.action.enable.success',
-		'image.action.disable.title',
-		'image.action.disable.confirm',
-		'image.action.disable.success',
-	] as const;
-
-	const { translations } = useTranslation(translationsKeys);
+	const { translations } = useTranslation(TRANSLATION_KEYS);
 
 	const queryClient = useQueryClient();
 
@@ -1040,7 +1097,7 @@ export function ManagerImages({
 		} catch (error) {
 			showToast({
 				severity: 'error',
-				summary: 'Error',
+				summary: translations['app.error.title'],
 				detail:
 					error instanceof ValueError || error instanceof ApiError
 						? error.message
@@ -1252,10 +1309,10 @@ export function ManagerImages({
 							hover="success"
 							size="sm"
 							onClick={() => setMode('edit')}
-							title="Manage images"
+							title={translations['image.text.manage_images']}
 						>
 							<Icons.Action.Update />
-							Manage images
+							{translations['image.text.manage_images']}
 						</Button>
 					</section>
 				)}
@@ -1270,11 +1327,16 @@ export function ManagerImages({
 								id="logo-heading"
 								className="text-sm font-medium text-surface-foreground"
 							>
-								Logo
+								{translations['image.section.logo']}
 							</h3>
 							{mode === 'edit' && (
 								<p className="text-xs text-muted">
-									Single image · {ACCEPTED_EXTENSIONS_DESC}
+									{replaceVars(
+										translations['image.text.logo_hint'],
+										{
+											formats: ACCEPTED_EXTENSIONS_DESC,
+										},
+									)}
 								</p>
 							)}
 						</div>
@@ -1288,18 +1350,20 @@ export function ManagerImages({
 					{!logo ? (
 						mode === 'edit' ? (
 							<DropZone
-								label="Upload logo"
-								subLabel="Drag & drop or click to browse"
+								translations={translations}
+								label={translations['image.text.upload_logo']}
+								subLabel={translations['image.text.drop_hint']}
 								imageType={ImageTypeEnum.LOGO}
 								onFiles={handleLogoFiles}
 							/>
 						) : (
 							<span className="text-xs font-medium text-muted">
-								Logo not uploaded
+								{translations['image.text.logo_not_uploaded']}
 							</span>
 						)
 					) : (
 						<ImageCard
+							translations={translations}
 							key={logo.key}
 							mode={mode}
 							entry={logo}
@@ -1330,12 +1394,17 @@ export function ManagerImages({
 								id="gallery-heading"
 								className="text-sm font-medium text-surface-foreground"
 							>
-								Gallery
+								{translations['image.section.gallery']}
 							</h3>
 							{mode === 'edit' && (
 								<p className="text-xs text-muted">
-									Up to {GALLERY_MAX} images ·{' '}
-									{ACCEPTED_EXTENSIONS_DESC}
+									{replaceVars(
+										translations['image.text.gallery_hint'],
+										{
+											max: GALLERY_MAX,
+											formats: ACCEPTED_EXTENSIONS_DESC,
+										},
+									)}
 								</p>
 							)}
 						</div>
@@ -1362,6 +1431,7 @@ export function ManagerImages({
 							className="mb-3 flex flex-col gap-2"
 							renderItem={(entry) => (
 								<SortableImageCard
+									translations={translations}
 									key={entry.key}
 									mode={mode}
 									entry={entry}
@@ -1389,6 +1459,7 @@ export function ManagerImages({
 						<div className="mb-3 flex flex-col gap-2">
 							{gallery.map((entry) => (
 								<ImageCard
+									translations={translations}
 									key={entry.key}
 									mode={mode}
 									entry={entry}
@@ -1403,15 +1474,32 @@ export function ManagerImages({
 					{/* Drop zone - hide when full */}
 					{!galleryFull && mode === 'edit' && (
 						<DropZone
+							translations={translations}
 							label={
 								gallery.length === 0
-									? 'Upload images'
-									: 'Add more images'
+									? translations['image.text.upload_images']
+									: translations['image.text.add_more_images']
 							}
 							subLabel={
 								gallery.length === 0
-									? `Drag & drop or click · up to ${GALLERY_MAX} images`
-									: `${GALLERY_MAX - gallery.length} slot${GALLERY_MAX - gallery.length === 1 ? '' : 's'} remaining`
+									? replaceVars(
+											translations[
+												'image.text.gallery_drop_hint'
+											],
+											{
+												max: GALLERY_MAX,
+											},
+										)
+									: replaceVars(
+											translations[
+												'image.text.slots_remaining'
+											],
+											{
+												count:
+													GALLERY_MAX -
+													gallery.length,
+											},
+										)
 							}
 							imageType={ImageTypeEnum.GALLERY}
 							onFiles={handleGalleryFiles}
@@ -1420,13 +1508,17 @@ export function ManagerImages({
 
 					{gallery.length === 0 && mode === 'view' && (
 						<span className="text-xs font-medium text-muted">
-							No images uploaded
+							{translations['image.text.no_images_uploaded']}
 						</span>
 					)}
 
 					{galleryFull && mode === 'edit' && (
 						<p className="mt-2 text-center text-xs text-warning">
-							Gallery is full. Remove an image to add another.
+							{
+								translations[
+									'image.text.gallery_is_full_remove_an_image'
+								]
+							}
 						</p>
 					)}
 				</section>
@@ -1439,10 +1531,12 @@ export function ManagerImages({
 						variant="default"
 						disabled={saving || !hasPendingChanges}
 						onClick={handleSave}
-						title="Save changes"
+						title={translations['image.text.save_changes']}
 					>
 						<Icons.Action.Save />
-						{saving ? 'Saving...' : 'Save changes'}
+						{saving
+							? translations['app.action.saving.label']
+							: translations['image.text.save_changes']}
 					</Button>
 				</section>
 			)}

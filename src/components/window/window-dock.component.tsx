@@ -2,12 +2,21 @@ import { useState } from 'react';
 import { Icons } from '@/components/icon.component';
 import { Button } from '@/components/ui/button';
 import { WindowMinimizedInstance } from '@/components/window/window-minimized-instance.component';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { useModalStore } from '@/stores/window.store';
 import type { WindowConfig } from '@/types/window.type';
+
+const TRANSLATION_KEYS = [
+	'app.window.close_all_confirm',
+	'app.window.show_less',
+	'app.window.close_all',
+] as const;
 
 export function WindowDock({ modals }: { modals: WindowConfig[] }) {
 	const [showAll, setShowAll] = useState(false);
 	const { closeAll } = useModalStore();
+
+	const { translations } = useTranslation(TRANSLATION_KEYS);
 
 	const reversedModals = [...modals].reverse();
 	const displayModals = showAll ? reversedModals : reversedModals.slice(0, 5);
@@ -17,7 +26,7 @@ export function WindowDock({ modals }: { modals: WindowConfig[] }) {
 	// `closeAll` clears the whole stack, including the window currently on
 	// screen - which is no longer listed here, hence the wording
 	const handleCloseAll = () => {
-		if (confirm('Close all open windows?')) {
+		if (confirm(translations['app.window.close_all_confirm'])) {
 			closeAll();
 		}
 	};
@@ -51,7 +60,7 @@ export function WindowDock({ modals }: { modals: WindowConfig[] }) {
 							className="hover:bg-transparent hover:text-inherit text-sm"
 						>
 							<Icons.LessLeft size={12} />
-							Show Less
+							{translations['app.window.show_less']}
 						</Button>
 					)}
 				</div>
@@ -64,7 +73,7 @@ export function WindowDock({ modals }: { modals: WindowConfig[] }) {
 						size="xs"
 						onClick={handleCloseAll}
 						className="hover:bg-transparent hover:text-danger-foreground "
-						aria-label="Close all windows"
+						aria-label={translations['app.window.close_all']}
 					>
 						<Icons.Close size={12} />
 					</Button>

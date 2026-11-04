@@ -1,6 +1,6 @@
 'use client';
 
-import { type JSX, useState } from 'react';
+import { type JSX, useMemo, useState } from 'react';
 import { useStore } from 'zustand/react';
 import { FormFiltersSelect } from '@/app/(dashboard)/_components/form-filters.component';
 import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
@@ -10,10 +10,15 @@ import { Icons } from '@/components/icon.component';
 import { getLanguageClient } from '@/config/translate.setup';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
 import { requestFind } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	languageOwnName,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	CATEGORY_DEFAULT_TYPE,
 	type CategoryModel,
@@ -25,15 +30,34 @@ import {
 import type { FindFunctionResponseType } from '@/types/action.type';
 import { type Language, LanguageEnum } from '@/types/common.type';
 
-const categoryTypes = toOptionsFromEnum(CategoryTypeEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'category.field.language',
+	'category.field.parent_id',
+	'category.field.type',
+	'category.text.placeholder_parent_id',
+	...enumTranslationKeys('category.enum.type', CategoryTypeEnum),
+] as const;
 
 const languages = toOptionsFromEnum(LanguageEnum, {
-	formatter: formatEnumLabel,
+	formatter: languageOwnName,
 });
 
 export const DataTableFiltersCategoryOrder = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const categoryTypes = useMemo(
+		() =>
+			toOptionsFromEnum(CategoryTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'category.enum.type',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'category'>();
 
@@ -89,7 +113,7 @@ export const DataTableFiltersCategoryOrder = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSelect<CategoryDataTableFiltersType>
-				labelText="Type"
+				labelText={translations['category.field.type']}
 				fieldName="type"
 				fieldValue={type}
 				options={categoryTypes}
@@ -103,7 +127,7 @@ export const DataTableFiltersCategoryOrder = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<CategoryDataTableFiltersType>
-				labelText="Language"
+				labelText={translations['category.field.language']}
 				fieldName="language"
 				fieldValue={language}
 				options={languages}
@@ -117,12 +141,14 @@ export const DataTableFiltersCategoryOrder = (): JSX.Element => {
 					CategoryDataTableFiltersType,
 					CategoryModel
 				>
-					labelText="Parent"
+					labelText={translations['category.field.parent_id']}
 					id="filter-category-parent"
 					fieldName="parent_id"
 					fieldValue={parentLabel}
 					className="pl-8"
-					placeholderText="Top level"
+					placeholderText={
+						translations['category.text.placeholder_parent_id']
+					}
 					disabled={false}
 					onInputChange={(value) => {
 						setParentLabel(value);

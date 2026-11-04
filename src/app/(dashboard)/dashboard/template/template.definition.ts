@@ -17,7 +17,12 @@ import {
 	requestRestore,
 	requestUpdate,
 } from '@/helpers/services.helper';
-import { parseJson, toKebabCase } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	parseJson,
+	toKebabCase,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
@@ -233,17 +238,30 @@ export type TemplateDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<TemplateModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'view.title',
-			'delete.title',
-			'restore.title',
-			'guide.title',
-		] as const,
-		'template.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'view.title',
+				'delete.title',
+				'restore.title',
+				'guide.title',
+			] as const,
+			'template.action',
+		),
+		translateBatch(
+			[
+				'field.created_at',
+				'field.id',
+				'field.label',
+				'field.language',
+				'field.type',
+				...enumTranslationKeys('enum.type', TemplateTypeEnum),
+			] as const,
+			'template',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -272,7 +290,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -283,24 +301,28 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'label',
-					header: 'Label',
+					header: labels['field.label'],
 					sortable: true,
 				},
 				{
 					field: 'language',
-					header: 'Language',
+					header: labels['field.language'],
 				},
 				{
 					field: 'type',
-					header: 'Type',
+					header: labels['field.type'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							capitalize: true,
+							customValue: translateEnumLabel(
+								labels,
+								'enum.type',
+								entry.type,
+							),
 						}),
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

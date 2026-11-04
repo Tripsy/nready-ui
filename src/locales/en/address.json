@@ -44,7 +44,11 @@
 	"field": {
 		"city": "City",
 		"details": "Details",
-		"postal_code": "Postal Code"
+		"postal_code": "Postal Code",
+		"id": "ID",
+		"search": "ID / Address / Postal Code",
+		"created_at": "Created At",
+		"updated_at": "Updated At"
 	},
 	"help": {
 		"intro": "An address is a street line plus an optional city and postal code. It is a building block other entities point at, not something a visitor ever sees on its own.",
@@ -59,5 +63,14 @@
 		"note": "Deleting an address is a soft delete, so anything already pointing at it keeps resolving. Use Show deleted to find one and restore it.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"text": {
+		"placeholder_details": "e.g.: Str Victoriei 15",
+		"placeholder_postal_code": "e.g.: 067895",
+		"create_city": "Create city \"{{value}}\""
+	},
+	"section": {
+		"details": "Details",
+		"timestamps": "Timestamps"
 	}
 }

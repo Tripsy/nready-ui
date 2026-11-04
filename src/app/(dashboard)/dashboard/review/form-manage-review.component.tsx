@@ -1,9 +1,18 @@
+'use client';
+
 import {
 	FormComponentCheckbox,
 	FormComponentTextarea,
 } from '@/components/form/form-element.component';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { useWindowForm } from '@/providers/window-form.provider';
+
+const TRANSLATION_KEYS = [
+	'review.field.content',
+	'review.text.pin_to_top',
+	'review.text.mark_verified',
+] as const;
 
 /**
  * The moderator's edit. Only the three fields the backend's `update` accepts are here - the scores
@@ -17,6 +26,8 @@ export type ReviewFormValuesType = {
 };
 
 export function FormManageReview() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<ReviewFormValuesType>();
 
@@ -29,7 +40,7 @@ export function FormManageReview() {
 	return (
 		<>
 			<FormComponentTextarea<ReviewFormValuesType>
-				labelText="Content"
+				labelText={translations['review.field.content']}
 				id={elementIds.content}
 				fieldName="content"
 				fieldValue={formValues.content ?? ''}
@@ -48,7 +59,7 @@ export function FormManageReview() {
 				disabled={pending}
 				onCheckedChange={(value) => handleChange('is_pinned', value)}
 			>
-				Pin to the top of the product's reviews
+				{translations['review.text.pin_to_top']}
 			</FormComponentCheckbox>
 
 			{/* Nothing sets this on its own - the badge is a claim the dashboard stands behind,
@@ -60,7 +71,7 @@ export function FormManageReview() {
 				disabled={pending}
 				onCheckedChange={(value) => handleChange('is_verified', value)}
 			>
-				Mark the author as a verified buyer
+				{translations['review.text.mark_verified']}
 			</FormComponentCheckbox>
 		</>
 	);

@@ -22,6 +22,10 @@ import {
 	requestView,
 } from '@/helpers/services.helper';
 import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import {
 	BaseValidator,
 	resolveValidatorMessages,
 	sharedValidatorMessages,
@@ -224,17 +228,30 @@ export type PlaceDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<PlaceModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'view.title',
-			'delete.title',
-			'restore.title',
-			'guide.title',
-		] as const,
-		'place.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'view.title',
+				'delete.title',
+				'restore.title',
+				'guide.title',
+			] as const,
+			'place.action',
+		),
+		translateBatch(
+			[
+				'field.code',
+				'field.created_at',
+				'field.id',
+				'field.name',
+				'field.place_type',
+				...enumTranslationKeys('enum.type', PlaceTypeEnum),
+			] as const,
+			'place',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -263,7 +280,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -274,21 +291,25 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'place_type',
-					header: 'Type',
+					header: labels['field.place_type'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							capitalize: true,
+							customValue: translateEnumLabel(
+								labels,
+								'enum.type',
+								entry.place_type,
+							),
 						}),
 				},
 				{
 					field: 'code',
-					header: 'Code',
+					header: labels['field.code'],
 					sortable: true,
 				},
 				{
 					field: 'name',
-					header: 'Name',
+					header: labels['field.name'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							customValue: getPlaceContentProp(
@@ -300,7 +321,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

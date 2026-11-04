@@ -11,10 +11,14 @@ import {
 import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { LogDataDataTableFiltersType } from '@/app/(dashboard)/dashboard/log-data/log-data.definition';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type LogCategory,
 	LogCategoryEnum,
@@ -22,15 +26,44 @@ import {
 	LogLevelEnum,
 } from '@/models/log-data.model';
 
-const logLevels = toOptionsFromEnum(LogLevelEnum, {
-	formatter: formatEnumLabel,
-});
-
-const logCategories = toOptionsFromEnum(LogCategoryEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'log-data.field.category',
+	'log-data.field.created_at',
+	'log-data.field.level',
+	'log-data.field.search',
+	...enumTranslationKeys('log-data.enum.level', LogLevelEnum),
+	...enumTranslationKeys('log-data.enum.category', LogCategoryEnum),
+] as const;
 
 export const DataTableFiltersLogData = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const logCategories = useMemo(
+		() =>
+			toOptionsFromEnum(LogCategoryEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'log-data.enum.category',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const logLevels = useMemo(
+		() =>
+			toOptionsFromEnum(LogLevelEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'log-data.enum.level',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'log-data'>();
 
@@ -71,12 +104,12 @@ export const DataTableFiltersLogData = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<LogDataDataTableFiltersType>
-				labelText="ID / PID / Message / Context"
+				labelText={translations['log-data.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<LogDataDataTableFiltersType>
-				labelText="Category"
+				labelText={translations['log-data.field.category']}
 				fieldName="category"
 				fieldValue={filters.category.value}
 				options={logCategories}
@@ -86,7 +119,7 @@ export const DataTableFiltersLogData = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<LogDataDataTableFiltersType>
-				labelText="Level"
+				labelText={translations['log-data.field.level']}
 				fieldName="level"
 				fieldValue={filters.level.value}
 				options={logLevels}
@@ -94,7 +127,7 @@ export const DataTableFiltersLogData = (): JSX.Element => {
 			/>
 
 			<FormFiltersDateRange<LogDataDataTableFiltersType>
-				labelText="Created At"
+				labelText={translations['log-data.field.created_at']}
 				start={{
 					fieldName: 'create_at_start',
 					fieldValue: filters.create_at_start.value,

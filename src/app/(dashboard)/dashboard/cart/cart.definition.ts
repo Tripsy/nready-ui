@@ -2,7 +2,7 @@ import { DataTableValue } from '@/app/(dashboard)/_components/data-table-value';
 import { UsageGuideCart } from '@/app/(dashboard)/dashboard/cart/usage-guide-cart.component';
 import { ViewCart } from '@/app/(dashboard)/dashboard/cart/view-cart.component';
 import { Icons } from '@/components/icon.component';
-import { translateBatch } from '@/config/translate.setup';
+import { translate, translateBatch } from '@/config/translate.setup';
 import { formatDate } from '@/helpers/date.helper';
 import {
 	requestDelete,
@@ -39,15 +39,30 @@ export type CartDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<CartModel>
 > {
-	const translations = await translateBatch(
-		[
-			'view.title',
-			'delete.title',
-			'viewUser.title',
-			'guide.title',
-		] as const,
-		'cart.action',
-	);
+	const [translations, labels, guest] = await Promise.all([
+		translateBatch(
+			[
+				'view.title',
+				'delete.title',
+				'viewUser.title',
+				'guide.title',
+			] as const,
+			'cart.action',
+		),
+		translateBatch(
+			[
+				'field.created_at',
+				'field.currency',
+				'field.expires_at',
+				'field.id',
+				'field.updated_at',
+				'field.shopper',
+				'text.user_ref',
+			] as const,
+			'cart',
+		),
+		translate('dashboard.text.guest'),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -97,7 +112,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -107,22 +122,25 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'user_id',
-					header: 'Shopper',
+					header: labels['field.shopper'],
 					defaultWidth: 160,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
-							customValue: displayCartOwner(entry),
+							customValue: displayCartOwner(entry, {
+								user: labels['text.user_ref'],
+								guest,
+							}),
 							displayButton: displayButtonViewUser(auth, entry),
 						}),
 				},
 				{
 					field: 'currency',
-					header: 'Currency',
+					header: labels['field.currency'],
 					defaultWidth: 104,
 				},
 				{
 					field: 'expires_at',
-					header: 'Expires At',
+					header: labels['field.expires_at'],
 					sortable: true,
 					body: (entry, column) =>
 						/*
@@ -138,7 +156,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'updated_at',
-					header: 'Last Activity',
+					header: labels['field.updated_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -147,7 +165,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

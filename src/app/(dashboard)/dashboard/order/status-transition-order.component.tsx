@@ -9,14 +9,30 @@ import {
 import { DisplayStatus } from '@/helpers/display.helper';
 import { getStatusTransitions } from '@/helpers/model.helper';
 import { requestUpdateStatus } from '@/helpers/services.helper';
+import {
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	ORDER_STATUS_TRANSITIONS,
 	type OrderModel,
 	type OrderStatus,
+	OrderStatusEnum,
 } from '@/models/order.model';
 import { useToast } from '@/providers/toast.provider';
 import { useModalStore } from '@/stores/window.store';
+
+const TRANSLATION_KEYS = [
+	'order.text.change_order_status_to',
+	'dashboard.text.label_set_status_to',
+	'app.error.title',
+	'app.success.title',
+	'order.error.cannot_update_status',
+	'order.action.statusTransition.success',
+	...enumTranslationKeys('order.status', OrderStatusEnum),
+] as const;
 
 /**
  * Where the document may go from where it currently sits.
@@ -32,15 +48,8 @@ export function StatusTransitionOrder({ entries }: { entries: OrderModel[] }) {
 
 	const { showToast } = useToast();
 
-	const translationsKeys = [
-		'app.error.title',
-		'app.success.title',
-		'order.error.cannot_update_status',
-		'order.action.statusTransition.success',
-	] as const;
-
 	const { isTranslationLoading, translations } =
-		useTranslation(translationsKeys);
+		useTranslation(TRANSLATION_KEYS);
 
 	const entry = entries[0];
 
@@ -97,7 +106,9 @@ export function StatusTransitionOrder({ entries }: { entries: OrderModel[] }) {
 
 	return (
 		<div>
-			<p className="pb-4 font-semibold">Change order status to:</p>
+			<p className="pb-4 font-semibold">
+				{translations['order.text.change_order_status_to']}
+			</p>
 			<div className="flex flex-wrap gap-4 items-center">
 				{statusTransitions.map((status) => {
 					return (
@@ -105,7 +116,18 @@ export function StatusTransitionOrder({ entries }: { entries: OrderModel[] }) {
 							key={status}
 							type="button"
 							className="cursor-pointer"
-							aria-label={`Set status to ${status}`}
+							aria-label={replaceVars(
+								translations[
+									'dashboard.text.label_set_status_to'
+								],
+								{
+									status: translateEnumLabel(
+										translations,
+										'order.status',
+										status,
+									),
+								},
+							)}
 							onClick={() => handleStatusUpdate(entry, status)}
 						>
 							<DisplayStatus status={status} dataSource="order" />

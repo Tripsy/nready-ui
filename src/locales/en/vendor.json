@@ -71,5 +71,28 @@
 		"note": "Deleting a vendor is a soft delete and works from any status - the row keeps the status it had, and anything already pointing at it keeps resolving. Use Show deleted to find one and restore it, which brings it back exactly as it left.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"field": {
+		"search": "ID / Name",
+		"type": "Type",
+		"status": "Status",
+		"name": "Name",
+		"id": "ID",
+		"created_at": "Created At",
+		"updated_at": "Updated At",
+		"deleted_at": "Deleted At"
+	},
+	"text": {
+		"placeholder_name": "e.g.: Petrom"
+	},
+	"section": {
+		"info": "Info",
+		"timestamps": "Timestamps"
+	},
+	"enum": {
+		"type": {
+			"supplier": "Supplier",
+			"provider": "Provider"
+		}
 	}
 }

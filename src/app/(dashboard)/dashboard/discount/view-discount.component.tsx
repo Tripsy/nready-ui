@@ -7,17 +7,64 @@ import {
 	ViewSection,
 } from '@/app/(dashboard)/_components/view-detail';
 import { findTargetLabels } from '@/app/(dashboard)/dashboard/discount/target-source';
-import { formatDate, isoWeekdayName } from '@/helpers/date.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	formatDate,
+	ISO_WEEKDAY_KEYS,
+	ISO_WEEKDAYS,
+} from '@/helpers/date.helper';
+import {
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type DiscountModel,
+	DiscountReasonEnum,
+	DiscountScopeEnum,
+	DiscountTypeEnum,
 	displayDiscountValue,
 	getDiscountTargetScope,
 } from '@/models/discount.model';
 import { requestDiscountTargets } from '@/services/discount.service';
 
+const TRANSLATION_KEYS = [
+	'discount.field.conditions',
+	'discount.field.created_at',
+	'discount.field.deleted_at',
+	'discount.field.end_at',
+	'discount.field.id',
+	'discount.field.notes',
+	'discount.field.reason',
+	'discount.field.reference',
+	'discount.field.scope',
+	'discount.field.start_at',
+	'discount.field.type',
+	'discount.field.updated_at',
+	'discount.field.value',
+	'discount.section.availability',
+	'discount.section.discount',
+	'discount.section.other',
+	'discount.section.targets',
+	'discount.section.timestamps',
+	'discount.text.condition_min_order',
+	'discount.text.condition_countries',
+	'discount.text.condition_hours',
+	'discount.text.condition_hours_overnight',
+	'discount.text.condition_days',
+	'discount.text.condition_days_wrap',
+	'app.action.loading.label',
+	...ISO_WEEKDAY_KEYS,
+	...enumTranslationKeys('discount.enum.scope', DiscountScopeEnum),
+	...enumTranslationKeys('discount.enum.reason', DiscountReasonEnum),
+	...enumTranslationKeys('discount.enum.type', DiscountTypeEnum),
+] as const;
+
 /** One readable line per condition, in the order the form presents them. */
-function describeConditions(conditions: DiscountModel['conditions']): string[] {
+function describeConditions(
+	conditions: DiscountModel['conditions'],
+	translations: Readonly<Record<string, string>>,
+): string[] {
 	if (!conditions) {
 		return [];
 	}
@@ -26,13 +73,17 @@ function describeConditions(conditions: DiscountModel['conditions']): string[] {
 
 	if (conditions.min_order_value !== undefined) {
 		lines.push(
-			`Order value at least ${conditions.min_order_value} (base currency, excl. VAT)`,
+			replaceVars(translations['discount.text.condition_min_order'], {
+				value: conditions.min_order_value,
+			}),
 		);
 	}
 
 	if (conditions.applicable_countries?.length) {
 		lines.push(
-			`Country is one of ${conditions.applicable_countries.join(', ')}`,
+			replaceVars(translations['discount.text.condition_countries'], {
+				countries: conditions.applicable_countries.join(', '),
+			}),
 		);
 	}
 
@@ -40,15 +91,37 @@ function describeConditions(conditions: DiscountModel['conditions']): string[] {
 		const [from, to] = conditions.hour_range;
 
 		lines.push(
-			`Between ${from}:00 and ${to}:59${from > to ? ' (overnight)' : ''}`,
+			replaceVars(
+				translations[
+					from > to
+						? 'discount.text.condition_hours_overnight'
+						: 'discount.text.condition_hours'
+				],
+				{ from, to },
+			),
 		);
 	}
 
 	if (conditions.day_range) {
 		const [from, to] = conditions.day_range;
 
+		const dayName = (day: number) => {
+			const labelKey = ISO_WEEKDAYS.find(
+				(weekday) => weekday.value === day,
+			)?.labelKey;
+
+			return labelKey ? translations[labelKey] : String(day);
+		};
+
 		lines.push(
-			`${isoWeekdayName(from)} to ${isoWeekdayName(to)}${from > to ? ' (wraps the week)' : ''}`,
+			replaceVars(
+				translations[
+					from > to
+						? 'discount.text.condition_days_wrap'
+						: 'discount.text.condition_days'
+				],
+				{ from: dayName(from), to: dayName(to) },
+			),
 		);
 	}
 
@@ -56,7 +129,9 @@ function describeConditions(conditions: DiscountModel['conditions']): string[] {
 }
 
 export function ViewDiscount({ entry }: { entry: DiscountModel }) {
-	const conditionLines = describeConditions(entry.conditions);
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const conditionLines = describeConditions(entry.conditions, translations);
 
 	const targetScope = getDiscountTargetScope(entry.scope);
 
@@ -92,24 +167,51 @@ export function ViewDiscount({ entry }: { entry: DiscountModel }) {
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center gap-2 border-b border-line pb-4">
-				<span className="font-semibold">ID</span> {entry.id}
+				<span className="font-semibold">
+					{translations['discount.field.id']}
+				</span>{' '}
+				{entry.id}
 				<span className="ml-2">{entry.label}</span>
 			</div>
 
-			<ViewSection title="Discount">
-				<ViewField label="Scope" value={formatEnumLabel(entry.scope)} />
+			<ViewSection title={translations['discount.section.discount']}>
 				<ViewField
-					label="Reason"
-					value={formatEnumLabel(entry.reason)}
+					label={translations['discount.field.scope']}
+					value={translateEnumLabel(
+						translations,
+						'discount.enum.scope',
+						entry.scope,
+					)}
 				/>
-				<ViewField label="Type" value={formatEnumLabel(entry.type)} />
-				<ViewField label="Value" value={displayDiscountValue(entry)} />
-				<ViewField label="Reference" value={entry.reference} />
+				<ViewField
+					label={translations['discount.field.reason']}
+					value={translateEnumLabel(
+						translations,
+						'discount.enum.reason',
+						entry.reason,
+					)}
+				/>
+				<ViewField
+					label={translations['discount.field.type']}
+					value={translateEnumLabel(
+						translations,
+						'discount.enum.type',
+						entry.type,
+					)}
+				/>
+				<ViewField
+					label={translations['discount.field.value']}
+					value={displayDiscountValue(entry)}
+				/>
+				<ViewField
+					label={translations['discount.field.reference']}
+					value={entry.reference}
+				/>
 			</ViewSection>
 
-			<ViewSection title="Availability">
+			<ViewSection title={translations['discount.section.availability']}>
 				<ViewField
-					label="Start At"
+					label={translations['discount.field.start_at']}
 					value={
 						entry.start_at
 							? formatDate(entry.start_at, 'date-time')
@@ -117,7 +219,7 @@ export function ViewDiscount({ entry }: { entry: DiscountModel }) {
 					}
 				/>
 				<ViewField
-					label="End At"
+					label={translations['discount.field.end_at']}
 					value={
 						entry.end_at
 							? formatDate(entry.end_at, 'date-time')
@@ -127,12 +229,16 @@ export function ViewDiscount({ entry }: { entry: DiscountModel }) {
 			</ViewSection>
 
 			{targetScope && (
-				<ViewSection title="Targets">
+				<ViewSection title={translations['discount.section.targets']}>
 					<ViewField
-						label={formatEnumLabel(entry.scope)}
+						label={translateEnumLabel(
+							translations,
+							'discount.enum.scope',
+							entry.scope,
+						)}
 						value={
 							targetsLoading
-								? 'Loading…'
+								? translations['app.action.loading.label']
 								: targetIds.length === 0
 									? null
 									: targetIds
@@ -148,9 +254,9 @@ export function ViewDiscount({ entry }: { entry: DiscountModel }) {
 				</ViewSection>
 			)}
 
-			<ViewSection title="Other">
+			<ViewSection title={translations['discount.section.other']}>
 				<ViewField
-					label="Conditions"
+					label={translations['discount.field.conditions']}
 					value={
 						conditionLines.length > 0 ? (
 							<ul className="space-y-1">
@@ -162,21 +268,25 @@ export function ViewDiscount({ entry }: { entry: DiscountModel }) {
 					}
 					full
 				/>
-				<ViewField label="Notes" value={entry.notes} full />
+				<ViewField
+					label={translations['discount.field.notes']}
+					value={entry.notes}
+					full
+				/>
 			</ViewSection>
 
-			<ViewSection title="Timestamps">
+			<ViewSection title={translations['discount.section.timestamps']}>
 				<ViewField
-					label="Created At"
+					label={translations['discount.field.created_at']}
 					value={formatDate(entry.created_at, 'date-time')}
 				/>
 				<ViewField
-					label="Updated At"
+					label={translations['discount.field.updated_at']}
 					value={formatDate(entry.updated_at, 'date-time')}
 				/>
 				{entry.deleted_at && (
 					<ViewField
-						label="Deleted At"
+						label={translations['discount.field.deleted_at']}
 						value={
 							<span className="text-danger">
 								{formatDate(entry.deleted_at, 'date-time')}

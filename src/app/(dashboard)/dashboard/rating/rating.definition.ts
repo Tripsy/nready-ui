@@ -2,17 +2,23 @@ import { DataTableValue } from '@/app/(dashboard)/_components/data-table-value';
 import { UsageGuideRating } from '@/app/(dashboard)/dashboard/rating/usage-guide-rating.component';
 import { ViewRating } from '@/app/(dashboard)/dashboard/rating/view-rating.component';
 import { Icons } from '@/components/icon.component';
-import { translateBatch } from '@/config/translate.setup';
+import { translate, translateBatch } from '@/config/translate.setup';
 import { requestDelete, requestFind } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	displayRatingLabel,
 	displayRatingValue,
 	type RatingEmoji,
+	RatingEmojiEnum,
 	type RatingEntityType,
+	RatingEntityTypeEnum,
 	type RatingModel,
 	type RatingType,
+	RatingTypeEnum,
 } from '@/models/rating.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type {
@@ -38,15 +44,36 @@ export type RatingDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<RatingModel>
 > {
-	const translations = await translateBatch(
-		[
-			'delete.title',
-			'view.title',
-			'viewUser.title',
-			'guide.title',
-		] as const,
-		'rating.action',
-	);
+	const [translations, labels, guest] = await Promise.all([
+		translateBatch(
+			[
+				'delete.title',
+				'view.title',
+				'viewUser.title',
+				'guide.title',
+			] as const,
+			'rating.action',
+		),
+		translateBatch(
+			[
+				'field.created_at',
+				'field.entity_id',
+				'field.entity_type',
+				'field.id',
+				'field.type',
+				'field.rated_by',
+				'field.rating',
+				...enumTranslationKeys(
+					'enum.entity_type',
+					RatingEntityTypeEnum,
+				),
+				...enumTranslationKeys('enum.type', RatingTypeEnum),
+				...enumTranslationKeys('enum.emoji', RatingEmojiEnum),
+			] as const,
+			'rating',
+		),
+		translate('dashboard.text.guest'),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -96,7 +123,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -106,49 +133,63 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'entity_type',
-					header: 'Target',
+					header: labels['field.entity_type'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: formatEnumLabel(entry.entity_type),
+							customValue: translateEnumLabel(
+								labels,
+								'enum.entity_type',
+								entry.entity_type,
+							),
 						}),
 				},
 				{
 					field: 'entity_id',
-					header: 'Target ID',
+					header: labels['field.entity_id'],
 					defaultWidth: 112,
 				},
 				{
 					field: 'type',
-					header: 'Type',
+					header: labels['field.type'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: formatEnumLabel(entry.type),
+							customValue: translateEnumLabel(
+								labels,
+								'enum.type',
+								entry.type,
+							),
 						}),
 				},
 				{
 					// One column for `value` and `reaction` alike: a row only ever fills one
 					// of the two, so a column per source would be half empty on every row.
 					field: 'value',
-					header: 'Rating',
+					header: labels['field.rating'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: displayRatingValue(entry),
+							customValue: displayRatingValue(entry, (reaction) =>
+								translateEnumLabel(
+									labels,
+									'enum.emoji',
+									reaction,
+								),
+							),
 						}),
 				},
 				{
 					field: 'user_id',
-					header: 'Rated By',
+					header: labels['field.rated_by'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							customValue: entry.user
 								? `${entry.user.name} (#${entry.user_id})`
-								: 'Guest',
+								: guest,
 							displayButton: displayButtonViewUser(auth, entry),
 						}),
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

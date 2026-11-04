@@ -1,3 +1,5 @@
+'use client';
+
 import { Label } from '@heroui/react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -21,8 +23,10 @@ import { Button } from '@/components/ui/button';
 import { getLanguageClient } from '@/config/translate.setup';
 import { ownErrorMessages, rowErrorsAt } from '@/helpers/form.helper';
 import { requestFind } from '@/helpers/services.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	displayProductVariantLabel,
 	type ProductVariantModel,
@@ -36,6 +40,47 @@ import {
 	findBundleCandidates,
 	findVariantsByIds,
 } from '@/services/product.service';
+
+const TRANSLATION_KEYS = [
+	'product.field.is_default',
+	'product.section.base_components',
+	'product.section.choices',
+	'product.section.optional_components',
+	'product.text.add_a_choice',
+	'product.text.exactly_one_of_these',
+	'product.text.label_remove',
+	'product.text.no_base_components_yet_a_bundle',
+	'product.text.nothing_optional_the_bundle_is_a',
+	'product.text.placeholder_component_search',
+	'product.text.placeholder_label',
+	'product.text.price_the_bundle_first_a_delta',
+	'product.text.choice_ref',
+	'product.text.label_remove_choice',
+	'product.text.choice_prompt',
+	'product.text.create_prompt',
+	'product.text.one_candidate',
+	'product.text.candidates_count',
+	'product.text.label_delta',
+	'product.text.no_currency_price',
+	'product.text.standalone_adds',
+	'product.text.max_quantity',
+	'product.text.quantity',
+	'product.text.label_make_base',
+	'product.text.label_make_optional',
+	'product.text.move_to_base',
+	'product.text.move_to_optional',
+	'product.text.label_included_how',
+	'product.text.included_outright',
+	'product.text.label_add_component',
+	'product.text.choice_intro',
+	'product.text.base_term',
+	'product.text.base_components_hint',
+	'product.text.base_components_delta_hint',
+	'product.text.optional_components_hint',
+	'product.text.optional_components_delta_hint',
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
 
 /**
  * A base component the bundle simply contains, rather than one a choice picks.
@@ -56,8 +101,17 @@ function displayGroupTerm(entry: TermModel): string {
 }
 
 /** What a group is called in the pickers, before its label term has been chosen. */
-function groupName(group: ProductBundleGroupFormType, index: number): string {
-	return group.label.trim() || `Choice ${index + 1}`;
+function groupName(
+	group: ProductBundleGroupFormType,
+	index: number,
+	translations: Readonly<Record<string, string>>,
+): string {
+	return (
+		group.label.trim() ||
+		replaceVars(translations['product.text.choice_ref'], {
+			number: index + 1,
+		})
+	);
 }
 
 /**
@@ -70,6 +124,7 @@ function groupName(group: ProductBundleGroupFormType, index: number): string {
  * same reason the API carries the two lists flat and side by side.
  */
 function GroupRow({
+	translations,
 	group,
 	index,
 	pending,
@@ -80,6 +135,7 @@ function GroupRow({
 	onRemove,
 	onCreateTerm,
 }: {
+	translations: TranslationsType;
 	group: ProductBundleGroupFormType;
 	index: number;
 	pending: boolean;
@@ -142,12 +198,14 @@ function GroupRow({
 						ProductBundleGroupFormType,
 						TermModel
 					>
-						ariaLabel="Choice prompt"
+						ariaLabel={translations['product.text.choice_prompt']}
 						id={elementIds[`group-label-${group.key}`]}
 						fieldName="label"
 						fieldValue={group.label}
 						isRequired={true}
-						placeholderText="eg: Choose your fries"
+						placeholderText={
+							translations['product.text.placeholder_label']
+						}
 						className="w-full pl-8"
 						disabled={pending}
 						/*
@@ -171,7 +229,11 @@ function GroupRow({
 							getOptionKey: (entry) => entry.id,
 							allowCreate: canCreateTerm,
 							onCreate: (value) => onCreateTerm(value, applyTerm),
-							createLabel: (value) => `Create prompt "${value}"`,
+							createLabel: (value) =>
+								replaceVars(
+									translations['product.text.create_prompt'],
+									{ value },
+								),
 						}}
 						icons={{
 							left: (
@@ -192,7 +254,12 @@ function GroupRow({
 					disabled={pending}
 					onClick={onRemove}
 					className="h-auto self-stretch"
-					aria-label={`Remove ${groupName(group, index)}`}
+					aria-label={replaceVars(
+						translations['product.text.label_remove_choice'],
+						{
+							name: groupName(group, index, translations),
+						},
+					)}
 				>
 					<Icons.Action.Delete className="h-4 w-4" />
 				</Button>
@@ -205,8 +272,13 @@ function GroupRow({
 			 */}
 			<p className="mt-1 text-xs text-muted">
 				{candidates === 1
-					? '1 candidate - a choice needs two'
-					: `${candidates} candidates`}
+					? translations['product.text.one_candidate']
+					: replaceVars(
+							translations['product.text.candidates_count'],
+							{
+								count: candidates,
+							},
+						)}
 			</p>
 
 			{/*
@@ -247,6 +319,7 @@ function standalonePrice(
  * moves with the component.
  */
 function DeltaField({
+	translations,
 	component,
 	currency,
 	pending,
@@ -254,6 +327,7 @@ function DeltaField({
 	resolved,
 	onChange,
 }: {
+	translations: TranslationsType;
 	component: ProductBundleComponentFormType;
 	currency: string;
 	pending: boolean;
@@ -272,7 +346,9 @@ function DeltaField({
 	const total =
 		base === null || !Number.isFinite(parsed) ? null : base + parsed;
 
-	const label = `Delta ${currency}`;
+	const label = replaceVars(translations['product.text.label_delta'], {
+		currency,
+	});
 
 	/*
 	 * One market per line - label, field, arithmetic - rather than the fields side by side: the
@@ -326,8 +402,19 @@ function DeltaField({
 			 */}
 			<p className="text-xs text-muted">
 				{base === null
-					? `No ${currency} price`
-					: `${base.toFixed(2)} on its own → adds ${total === null ? '-' : total.toFixed(2)}`}
+					? replaceVars(
+							translations['product.text.no_currency_price'],
+							{
+								currency,
+							},
+						)
+					: replaceVars(
+							translations['product.text.standalone_adds'],
+							{
+								base: base.toFixed(2),
+								total: total === null ? '-' : total.toFixed(2),
+							},
+						)}
 			</p>
 		</div>
 	);
@@ -345,6 +432,7 @@ function DeltaField({
  * ask - contained outright, or through a choice - and the optional list none.
  */
 function ComponentRow({
+	translations,
 	component,
 	index,
 	section,
@@ -357,6 +445,7 @@ function ComponentRow({
 	onRemove,
 	onMove,
 }: {
+	translations: TranslationsType;
 	component: ProductBundleComponentFormType;
 	index: number;
 	/** Which list the row is drawn in, which is the whole of what it means to be optional. */
@@ -395,7 +484,9 @@ function ComponentRow({
 	 * is the count the bundle contains once that candidate is the one taken - the same as any
 	 * other base component.
 	 */
-	const quantityLabel = isOptional ? 'Max quantity' : 'Quantity';
+	const quantityLabel = isOptional
+		? translations['product.text.max_quantity']
+		: translations['product.text.quantity'];
 
 	return (
 		<div className="rounded-lg border border-line p-3">
@@ -435,12 +526,19 @@ function ComponentRow({
 						variant="outline"
 						disabled={pending}
 						onClick={onMove}
-						aria-label={
+						aria-label={replaceVars(
+							translations[
+								isOptional
+									? 'product.text.label_make_base'
+									: 'product.text.label_make_optional'
+							],
+							{ sku: component.sku },
+						)}
+						title={
 							isOptional
-								? `Make ${component.sku} a base component`
-								: `Make ${component.sku} optional`
+								? translations['product.text.move_to_base']
+								: translations['product.text.move_to_optional']
 						}
-						title={isOptional ? 'Move to base' : 'Move to optional'}
 					>
 						{isOptional ? (
 							<Icons.Direction.ArrowUp className="h-4 w-4" />
@@ -455,7 +553,10 @@ function ComponentRow({
 						hover="error"
 						disabled={pending}
 						onClick={onRemove}
-						aria-label={`Remove ${component.sku}`}
+						aria-label={replaceVars(
+							translations['product.text.label_remove'],
+							{ sku: component.sku },
+						)}
 					>
 						<Icons.Action.Delete className="h-4 w-4" />
 					</Button>
@@ -504,16 +605,27 @@ function ComponentRow({
 
 				{!isOptional && (
 					<FormComponentSelect<ProductBundleComponentFormType>
-						ariaLabel="Included outright, or through a choice"
+						ariaLabel={
+							translations['product.text.label_included_how']
+						}
 						id={elementIds[`component-choice-${component.key}`]}
 						fieldName="group_key"
 						fieldValue={component.group_key ?? OUTRIGHT}
 						className="w-44"
 						disabled={pending}
 						options={[
-							{ label: 'Included outright', value: OUTRIGHT },
+							{
+								label: translations[
+									'product.text.included_outright'
+								],
+								value: OUTRIGHT,
+							},
 							...groups.map((group, groupIndex) => ({
-								label: groupName(group, groupIndex),
+								label: groupName(
+									group,
+									groupIndex,
+									translations,
+								),
 								value: group.key,
 							})),
 						]}
@@ -554,7 +666,7 @@ function ComponentRow({
 						}
 						error={ownErrorMessages(rowErrors?.is_default)}
 					>
-						Preselected
+						{translations['product.field.is_default']}
 					</FormComponentCheckbox>
 				)}
 			</div>
@@ -568,12 +680,16 @@ function ComponentRow({
 				<div className="mt-3 space-y-2 border-t border-line pt-3">
 					{currencies.length === 0 ? (
 						<p className="text-xs text-muted">
-							Price the bundle first - a delta needs a market to
-							be quoted in.
+							{
+								translations[
+									'product.text.price_the_bundle_first_a_delta'
+								]
+							}
 						</p>
 					) : (
 						currencies.map((currency) => (
 							<DeltaField
+								translations={translations}
 								key={currency}
 								component={component}
 								currency={currency}
@@ -603,6 +719,7 @@ function ComponentRow({
  * array's order on the way to the API.
  */
 function ComponentSection({
+	translations,
 	title,
 	hint,
 	deltaHint,
@@ -621,6 +738,7 @@ function ComponentSection({
 	onRemoveAt,
 	onMoveAt,
 }: {
+	translations: TranslationsType;
 	title: string;
 	hint: string;
 	/** What the per-market adjustment on a row means, said once for the whole list. */
@@ -670,7 +788,12 @@ function ComponentSection({
 				ProductVariantModel
 			>
 				id={elementIds[`component-search-${searchKey}`]}
-				ariaLabel={`Add a component to ${title.toLowerCase()}`}
+				ariaLabel={replaceVars(
+					translations['product.text.label_add_component'],
+					{
+						section: title,
+					},
+				)}
 				fieldName="component_search"
 				fieldValue={search}
 				className="pl-8"
@@ -678,7 +801,9 @@ function ComponentSection({
 				icons={{
 					left: <Icons.Search className="opacity-40 h-4.5 w-4.5" />,
 				}}
-				placeholderText="Search by SKU or product name…"
+				placeholderText={
+					translations['product.text.placeholder_component_search']
+				}
 				onInputChange={setSearch}
 				autoCompleteProps={{
 					suggestions: suggestions.filter(
@@ -706,6 +831,7 @@ function ComponentSection({
 			) : (
 				entries.map(({ component, index }) => (
 					<ComponentRow
+						translations={translations}
 						key={component.key}
 						component={component}
 						index={index}
@@ -775,6 +901,8 @@ export function FormComponentsBundle({
 		apply: (entry: TermModel) => void,
 	) => void;
 }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	/**
 	 * Removing a choice releases its candidates rather than removing them: the components are
 	 * still part of the bundle, they have simply stopped being alternatives. They stay in the base
@@ -894,17 +1022,25 @@ export function FormComponentsBundle({
 
 	const chosen = new Set(value.map((component) => component.variant_id));
 
+	// Two elements sit in the sentence, so it is split on both slots in order
+	const [choiceIntroA, choiceIntroRest = ''] = (
+		translations['product.text.choice_intro'] ?? ''
+	).split('{{exactly}}');
+	const [choiceIntroB, choiceIntroC = ''] = choiceIntroRest.split('{{base}}');
+
 	return (
 		<div className="space-y-6">
 			<div className="space-y-2">
-				<h3 className="text-sm font-medium">Choices</h3>
+				<h3 className="text-sm font-medium">
+					{translations['product.section.choices']}
+				</h3>
 
 				<p className="text-xs text-muted">
-					A choice is what says <em>exactly one of these</em>. It is
-					not optional - the bundle always contains one candidate, and
-					the customer only decides which - so its candidates are{' '}
-					<strong>base</strong> components naming it below. It needs
-					at least two of them.
+					{choiceIntroA}
+					<em>{translations['product.text.exactly_one_of_these']}</em>
+					{choiceIntroB}
+					<strong>{translations['product.text.base_term']}</strong>
+					{choiceIntroC}
 				</p>
 
 				{groupsSetError && (
@@ -915,6 +1051,7 @@ export function FormComponentsBundle({
 
 				{groups.map((group, index) => (
 					<GroupRow
+						translations={translations}
 						key={group.key}
 						group={group}
 						index={index}
@@ -950,7 +1087,7 @@ export function FormComponentsBundle({
 					onClick={() => onGroupsChange([...groups, emptyGroup()])}
 				>
 					<Icons.Action.Add className="h-4 w-4" />
-					Add a choice
+					{translations['product.text.add_a_choice']}
 				</Button>
 			</div>
 
@@ -960,10 +1097,15 @@ export function FormComponentsBundle({
 			 * Base first: it is what the bundle is, and the floor is counted over it alone.
 			 */}
 			<ComponentSection
-				title="Base components"
-				hint="Always included, and covered by the bundle price - either outright or through a choice, which always takes one of its candidates. Two units contained outright, or the bundle is a single product; a candidate does not count, since which one is taken is the customer's."
-				deltaHint="A candidate carries an adjustment per market: taking it adds its own price plus that adjustment. Since the bundle price already covers the candidate, the adjustment is usually its whole price, negative, so nothing is added."
-				emptyText="No base components yet. A bundle needs one with a quantity of 2, or two different ones."
+				translations={translations}
+				title={translations['product.section.base_components']}
+				hint={translations['product.text.base_components_hint']}
+				deltaHint={
+					translations['product.text.base_components_delta_hint']
+				}
+				emptyText={
+					translations['product.text.no_base_components_yet_a_bundle']
+				}
 				searchKey="base"
 				pending={pending}
 				entries={baseEntries}
@@ -986,10 +1128,17 @@ export function FormComponentsBundle({
 			/>
 
 			<ComponentSection
-				title="Optional components"
-				hint="The customer may take these or leave them, up to the quantity on each."
-				deltaHint="Every unit taken adds the component's own price plus the adjustment on its row. Usually negative - the discount for taking it inside the kit."
-				emptyText="Nothing optional. The bundle is a fixed kit as it stands."
+				translations={translations}
+				title={translations['product.section.optional_components']}
+				hint={translations['product.text.optional_components_hint']}
+				deltaHint={
+					translations['product.text.optional_components_delta_hint']
+				}
+				emptyText={
+					translations[
+						'product.text.nothing_optional_the_bundle_is_a'
+					]
+				}
 				searchKey="optional"
 				pending={pending}
 				entries={optionalEntries}

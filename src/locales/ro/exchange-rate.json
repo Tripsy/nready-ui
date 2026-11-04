@@ -49,5 +49,37 @@
 		"note": "Documentele păstrează propria copie înghețată a cursului cu care au fost evaluate, așa că editarea sau ștergerea unui rând de aici nu mișcă cifrele deja înregistrate. O zi fără curs publicat nu este o eroare: conversia folosește cel mai recent curs publicat înaintea ei, așa se rezolvă weekendurile și sărbătorile.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"field": {
+		"search": "ID / Monedă / Furnizor",
+		"source": "Sursă",
+		"rate_date": "Data cursului",
+		"id": "ID",
+		"currency": "Monedă",
+		"rate": "Curs",
+		"provider": "Prestator de servicii",
+		"created_at": "Creat la",
+		"notes": "Notițe",
+		"base_currency": "Moneda de bază",
+		"updated_at": "Actualizat la"
+	},
+	"text": {
+		"placeholder_currency": "ex.: EUR",
+		"placeholder_rate_date": "-selectează-",
+		"placeholder_rate": "ex.: 5.2575",
+		"label_currency": "Monedă (cod ISO 4217 din {{chars}} litere)",
+		"label_rate": "Curs (până la {{max}} zecimale)"
+	},
+	"section": {
+		"rate": "Curs",
+		"origin": "Origine",
+		"other": "Altele",
+		"timestamps": "Marcaje de timp"
+	},
+	"enum": {
+		"source": {
+			"manual": "Manual",
+			"import": "Importat"
+		}
 	}
 }

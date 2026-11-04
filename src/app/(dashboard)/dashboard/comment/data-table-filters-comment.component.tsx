@@ -12,10 +12,14 @@ import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { CommentDataTableFiltersType } from '@/app/(dashboard)/dashboard/comment/comment.definition';
 import { Icons } from '@/components/icon.component';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type CommentEntityType,
 	CommentEntityTypeEnum,
@@ -26,25 +30,73 @@ import {
 } from '@/models/comment.model';
 import { displayUserLabel, type UserModel } from '@/models/user.model';
 
-const entityTypes = toOptionsFromEnum(CommentEntityTypeEnum, {
-	formatter: formatEnumLabel,
-});
-
-const types = toOptionsFromEnum(CommentTypeEnum, {
-	formatter: formatEnumLabel,
-});
-
-const statuses = toOptionsFromEnum(CommentStatusEnum, {
-	formatter: formatEnumLabel,
-});
-
-/** `is_pinned` is a boolean on the backend, so the select carries the two states as strings. */
-const pinnedStates = [
-	{ label: 'Pinned', value: 'true' },
-	{ label: 'Not pinned', value: 'false' },
-];
+const TRANSLATION_KEYS = [
+	'comment.field.entity_id',
+	'comment.field.entity_type',
+	'comment.field.is_pinned',
+	'comment.field.parent_id',
+	'comment.field.search',
+	'comment.field.status',
+	'comment.field.type',
+	'comment.field.user',
+	'comment.text.pinned',
+	'comment.text.not_pinned',
+	...enumTranslationKeys('comment.enum.entity_type', CommentEntityTypeEnum),
+	...enumTranslationKeys('comment.enum.type', CommentTypeEnum),
+	...enumTranslationKeys('comment.status', CommentStatusEnum),
+] as const;
 
 export const DataTableFiltersComment = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const pinnedStates = useMemo(
+		() =>
+			// `is_pinned` is a boolean on the backend, so the select carries the two states as strings
+			[
+				{ label: translations['comment.text.pinned'], value: 'true' },
+				{
+					label: translations['comment.text.not_pinned'],
+					value: 'false',
+				},
+			],
+		[translations],
+	);
+
+	const statuses = useMemo(
+		() =>
+			toOptionsFromEnum(CommentStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'comment.status', value),
+			}),
+		[translations],
+	);
+
+	const types = useMemo(
+		() =>
+			toOptionsFromEnum(CommentTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'comment.enum.type',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const entityTypes = useMemo(
+		() =>
+			toOptionsFromEnum(CommentEntityTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'comment.enum.entity_type',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'comment'>();
 
@@ -120,12 +172,12 @@ export const DataTableFiltersComment = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<CommentDataTableFiltersType>
-				labelText="Content / Guest"
+				labelText={translations['comment.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<CommentDataTableFiltersType>
-				labelText="Status"
+				labelText={translations['comment.field.status']}
 				fieldName="status"
 				fieldValue={filters.status.value}
 				options={statuses}
@@ -135,7 +187,7 @@ export const DataTableFiltersComment = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<CommentDataTableFiltersType>
-				labelText="Target"
+				labelText={translations['comment.field.entity_type']}
 				fieldName="entity_type"
 				fieldValue={filters.entity_type.value}
 				options={entityTypes}
@@ -145,13 +197,13 @@ export const DataTableFiltersComment = (): JSX.Element => {
 			/>
 
 			<FormFiltersSearch<CommentDataTableFiltersType>
-				labelText="Target ID"
+				labelText={translations['comment.field.entity_id']}
 				fieldName="entity_id"
 				search={searchEntityId}
 			/>
 
 			<FormFiltersSelect<CommentDataTableFiltersType>
-				labelText="Type"
+				labelText={translations['comment.field.type']}
 				fieldName="type"
 				fieldValue={filters.type.value}
 				options={types}
@@ -162,13 +214,13 @@ export const DataTableFiltersComment = (): JSX.Element => {
 
 			{/* The comment this one replies to; a root has none, so this narrows to one thread. */}
 			<FormFiltersSearch<CommentDataTableFiltersType>
-				labelText="Reply To"
+				labelText={translations['comment.field.parent_id']}
 				fieldName="parent_id"
 				search={searchParentId}
 			/>
 
 			<FormFiltersSelect<CommentDataTableFiltersType>
-				labelText="Pinned"
+				labelText={translations['comment.field.is_pinned']}
 				fieldName="is_pinned"
 				fieldValue={
 					filters.is_pinned.value === null
@@ -182,7 +234,7 @@ export const DataTableFiltersComment = (): JSX.Element => {
 			/>
 
 			<FormFiltersAutoComplete<CommentDataTableFiltersType, UserModel>
-				labelText="Author"
+				labelText={translations['comment.field.user']}
 				fieldName="user"
 				fieldNameId="user_id"
 				fieldValue={searchUser}

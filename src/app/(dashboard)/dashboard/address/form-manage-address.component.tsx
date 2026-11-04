@@ -1,3 +1,5 @@
+'use client';
+
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import {
@@ -7,8 +9,10 @@ import {
 import { Icons } from '@/components/icon.component';
 import { getLanguageClient } from '@/config/translate.setup';
 import { requestCreate, requestFind } from '@/helpers/services.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { hasPermission } from '@/models/account.model';
 import {
 	CITY_DEFAULT,
@@ -21,6 +25,15 @@ import { useWindowForm } from '@/providers/window-form.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { ApiResponseFetch } from '@/types/api.type';
 
+const TRANSLATION_KEYS = [
+	'address.field.city',
+	'address.field.details',
+	'address.field.postal_code',
+	'address.text.placeholder_details',
+	'address.text.placeholder_postal_code',
+	'address.text.create_city',
+] as const;
+
 export type AddressFormValuesType = {
 	city_id: number | null;
 	city: string | null;
@@ -29,6 +42,8 @@ export type AddressFormValuesType = {
 };
 
 export function FormManageAddress() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<AddressFormValuesType>();
 
@@ -99,7 +114,7 @@ export function FormManageAddress() {
 				value={formValues.city_id ?? ''}
 			/>
 			<FormComponentAutoComplete<AddressFormValuesType, PlaceModel>
-				labelText="City"
+				labelText={translations['address.field.city']}
 				id={elementIds.city}
 				fieldName="city"
 				fieldValue={formValues.city ?? ''}
@@ -138,7 +153,10 @@ export function FormManageAddress() {
 						await invalidateCitySuggestions();
 					},
 
-					createLabel: (value) => `Create city "${value}"`,
+					createLabel: (value) =>
+						replaceVars(translations['address.text.create_city'], {
+							value: value,
+						}),
 				}}
 				icons={{
 					left: <Icons.City className="opacity-40 h-4.5 w-4.5" />,
@@ -146,23 +164,27 @@ export function FormManageAddress() {
 			/>
 
 			<FormComponentInput<AddressFormValuesType>
-				labelText="Details"
+				labelText={translations['address.field.details']}
 				id={elementIds.details}
 				fieldName="details"
 				fieldValue={formValues.details ?? ''}
 				isRequired={true}
-				placeholderText="e.g.: Str Victoriei 15"
+				placeholderText={
+					translations['address.text.placeholder_details']
+				}
 				disabled={pending}
 				onChange={(e) => handleChange('details', e.target.value)}
 				error={errors.details}
 			/>
 
 			<FormComponentInput<AddressFormValuesType>
-				labelText="Postal Code"
+				labelText={translations['address.field.postal_code']}
 				id={elementIds.postal_code}
 				fieldName="postal_code"
 				fieldValue={formValues.postal_code ?? ''}
-				placeholderText="e.g.: 067895"
+				placeholderText={
+					translations['address.text.placeholder_postal_code']
+				}
 				disabled={pending}
 				onChange={(e) => handleChange('postal_code', e.target.value)}
 				error={errors.postal_code}

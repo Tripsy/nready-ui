@@ -95,7 +95,19 @@
 		"contact_name": "Contact - Nume",
 		"contact_email": "Contact - Email",
 		"contact_phone": "Contact - Telefon",
-		"notes": "Notițe"
+		"notes": "Notițe",
+		"id": "ID",
+		"name": "Nume",
+		"user_id": "Cont",
+		"status": "Status",
+		"created_at": "Creat la",
+		"search": "ID / Nume / CUI / CNP",
+		"user": "Cont",
+		"person_identification_number": "Persoană - CNP",
+		"iban": "IBAN",
+		"bank_name": "Bancă",
+		"updated_at": "Actualizat la",
+		"deleted_at": "Șters la"
 	},
 	"help": {
 		"intro": "Un client este fie o firmă, fie o persoană, iar această alegere decide ce câmpuri de identitate există pe el. Restul - date bancare, contact, notițe - este identic pentru amândouă și complet opțional.",
@@ -114,5 +126,29 @@
 		"note": "Ștergerea unui client este una logică, deci comenzile, facturile și înregistrările de flux de numerar care fac referire la el continuă să funcționeze. Folosește „Arată șterse” pentru a-l găsi și restaura - dar identitatea lui nu a fost liberă între timp.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"text": {
+		"edit": "Editează",
+		"delete": "Șterge",
+		"addresses": "Adrese",
+		"add_address": "Adaugă adresă",
+		"addresses_intro": "Unde se facturează {{name}} și unde se livrează mărfurile.",
+		"no_billing_address": "Nicio adresă de facturare încă.",
+		"no_delivery_address": "Nicio adresă de livrare încă.",
+		"not_linked": "Neasociat",
+		"addresses_load_failed": "Adresele acestui client nu au putut fi încărcate."
+	},
+	"section": {
+		"info": "Info",
+		"account": "Cont",
+		"contact_details": "Date de contact",
+		"financial_details": "Date financiare",
+		"timestamps": "Marcaje de timp"
+	},
+	"enum": {
+		"type": {
+			"person": "Persoană fizică",
+			"company": "Persoană juridică"
+		}
 	}
 }

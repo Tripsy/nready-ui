@@ -10,10 +10,24 @@ import { Configuration } from '@/config/settings.config';
 import { formatDate } from '@/helpers/date.helper';
 import { DisplayAmount, DisplayStatus } from '@/helpers/display.helper';
 import { requestFind } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { hasPermission } from '@/models/account.model';
-import type { CashFlowModel } from '@/models/cash-flow.model';
-import { displayInvoiceLabel, type InvoiceModel } from '@/models/invoice.model';
+import {
+	CashFlowCategoryEnum,
+	CashFlowDirectionEnum,
+	CashFlowMethodEnum,
+	type CashFlowModel,
+} from '@/models/cash-flow.model';
+import {
+	displayInvoiceLabel,
+	type InvoiceModel,
+	InvoiceScopeEnum,
+} from '@/models/invoice.model';
 import {
 	displayOrderClient,
 	displayOrderMoney,
@@ -26,9 +40,85 @@ import {
 	displayShippingDestination,
 	displayShippingEnd,
 	getShippingGrossTotal,
+	ShippingMethodEnum,
 	type ShippingModel,
+	ShippingScopeEnum,
 } from '@/models/shipping.model';
 import { useAuth } from '@/providers/auth.provider';
+
+const TRANSLATION_KEYS = [
+	'order.field.amount',
+	'order.field.carrier',
+	'order.field.category',
+	'order.field.client',
+	'order.field.contact_email',
+	'order.field.created_at',
+	'order.field.date',
+	'order.field.deleted_at',
+	'order.field.delivered_at',
+	'order.field.discount',
+	'order.field.discounts',
+	'order.field.due_at',
+	'order.field.estimated_delivery',
+	'order.field.exchange_rate',
+	'order.field.from',
+	'order.field.id',
+	'order.field.item',
+	'order.field.method',
+	'order.field.net',
+	'order.field.notes',
+	'order.field.order_wide_discount',
+	'order.field.outstanding',
+	'order.field.payment',
+	'order.field.price_incl_vat',
+	'order.field.qty',
+	'order.field.reference',
+	'order.field.scope',
+	'order.field.shipped_at',
+	'order.field.status',
+	'order.field.subtotal_excl_vat',
+	'order.field.to',
+	'order.field.total',
+	'order.field.tracking',
+	'order.field.unit',
+	'order.field.updated_at',
+	'order.field.vat',
+	'order.section.document',
+	'order.section.invoices',
+	'order.section.notes',
+	'order.section.payments',
+	'order.section.timestamps',
+	'order.section.totals',
+	'order.text.details',
+	'order.text.lines',
+	'order.text.loading_invoices',
+	'order.text.loading_payments',
+	'order.text.loading_shipments',
+	'order.text.unrecorded_discount',
+	'order.text.invoices_load_failed',
+	'order.text.payments_load_failed',
+	'order.text.shipments_load_failed',
+	'order.text.no_invoices',
+	'order.text.this_order_has_no_lines',
+	'order.text.no_payments',
+	'order.text.no_shipments',
+	'order.text.variant_ref',
+	'order.text.product_variant_ref',
+	'order.text.track',
+	'order.section.shipments',
+	'order.section.billing',
+	'order.text.order_discount_included',
+	'order.text.reversal',
+	'shipping.text.self_pickup_destination',
+	...enumTranslationKeys('shipping.enum.scope', ShippingScopeEnum),
+	...enumTranslationKeys('shipping.enum.method', ShippingMethodEnum),
+	...enumTranslationKeys('invoice.enum.scope', InvoiceScopeEnum),
+	...enumTranslationKeys('cash-flow.enum.category', CashFlowCategoryEnum),
+	...enumTranslationKeys('cash-flow.enum.direction', CashFlowDirectionEnum),
+	...enumTranslationKeys('cash-flow.enum.method', CashFlowMethodEnum),
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
 
 /**
  * One line of the document.
@@ -38,9 +128,11 @@ import { useAuth } from '@/providers/auth.provider';
  * a zero-priced item followed by things nobody ordered.
  */
 function OrderLineRow({
+	translations,
 	line,
 	currency,
 }: {
+	translations: TranslationsType;
 	readonly line: OrderLineModel;
 	readonly currency: string;
 }) {
@@ -57,7 +149,9 @@ function OrderLineRow({
 				>
 					{line.label ??
 						line.variant?.sku ??
-						`Variant #${line.variant_id}`}
+						replaceVars(translations['order.text.variant_ref'], {
+							id: line.variant_id,
+						})}
 				</div>
 				<div
 					className={
@@ -66,8 +160,14 @@ function OrderLineRow({
 							: 'text-xs text-muted'
 					}
 				>
-					{line.variant?.sku && `${line.variant.sku} · `}Product #
-					{line.product_id} · Variant #{line.variant_id}
+					{line.variant?.sku && `${line.variant.sku} · `}
+					{replaceVars(
+						translations['order.text.product_variant_ref'],
+						{
+							product: line.product_id,
+							variant: line.variant_id,
+						},
+					)}
 				</div>
 
 				{/*
@@ -138,14 +238,24 @@ function OrderLineRow({
  * Read from the shipping listing, which joins the carrier and both warehouse ends but not the
  * lines; what a movement carries is on the shipping window itself.
  */
-function OrderShipment({ shipment }: { readonly shipment: ShippingModel }) {
+function OrderShipment({
+	translations,
+	shipment,
+}: {
+	translations: TranslationsType;
+	readonly shipment: ShippingModel;
+}) {
 	const { total } = getShippingGrossTotal(shipment);
 
 	return (
 		<div className="space-y-3 rounded-md border border-line p-4">
 			<div className="flex items-center gap-2">
 				<span className="font-semibold">
-					{formatEnumLabel(shipment.scope)}
+					{translateEnumLabel(
+						translations,
+						'shipping.enum.scope',
+						shipment.scope,
+					)}
 				</span>
 				<span className="text-muted">#{shipment.id}</span>
 				<div className="max-w-60 ml-2">
@@ -158,15 +268,19 @@ function OrderShipment({ shipment }: { readonly shipment: ShippingModel }) {
 
 			<ViewSection>
 				<ViewField
-					label="Method"
-					value={formatEnumLabel(shipment.method)}
+					label={translations['order.field.method']}
+					value={translateEnumLabel(
+						translations,
+						'shipping.enum.method',
+						shipment.method,
+					)}
 				/>
 				<ViewField
-					label="Carrier"
+					label={translations['order.field.carrier']}
 					value={shipment.carrier?.name ?? '-'}
 				/>
 				<ViewField
-					label="Tracking"
+					label={translations['order.field.tracking']}
 					value={
 						shipment.tracking_url ? (
 							<a
@@ -175,7 +289,8 @@ function OrderShipment({ shipment }: { readonly shipment: ShippingModel }) {
 								rel="noopener noreferrer"
 								className="underline"
 							>
-								{shipment.tracking_number ?? 'Track'}
+								{shipment.tracking_number ??
+									translations['order.text.track']}
 							</a>
 						) : (
 							(shipment.tracking_number ?? '-')
@@ -183,7 +298,7 @@ function OrderShipment({ shipment }: { readonly shipment: ShippingModel }) {
 					}
 				/>
 				<ViewField
-					label="From"
+					label={translations['order.field.from']}
 					value={displayShippingEnd(
 						shipment.pickup_data,
 						shipment.pickup_warehouse,
@@ -192,15 +307,18 @@ function OrderShipment({ shipment }: { readonly shipment: ShippingModel }) {
 					)}
 				/>
 				<ViewField
-					label="To"
-					value={displayShippingDestination(shipment)}
+					label={translations['order.field.to']}
+					value={displayShippingDestination(
+						shipment,
+						translations['shipping.text.self_pickup_destination'],
+					)}
 				/>
 				<ViewField
-					label="Price (incl. VAT)"
+					label={translations['order.field.price_incl_vat']}
 					value={displayOrderMoney(total, shipment.currency)}
 				/>
 				<ViewField
-					label="Estimated Delivery"
+					label={translations['order.field.estimated_delivery']}
 					value={
 						shipment.estimated_delivery_at
 							? formatDate(
@@ -211,7 +329,7 @@ function OrderShipment({ shipment }: { readonly shipment: ShippingModel }) {
 					}
 				/>
 				<ViewField
-					label="Shipped At"
+					label={translations['order.field.shipped_at']}
 					value={
 						shipment.shipped_at
 							? formatDate(shipment.shipped_at, 'date-time')
@@ -219,7 +337,7 @@ function OrderShipment({ shipment }: { readonly shipment: ShippingModel }) {
 					}
 				/>
 				<ViewField
-					label="Delivered At"
+					label={translations['order.field.delivered_at']}
 					value={
 						shipment.delivered_at
 							? formatDate(shipment.delivered_at, 'date-time')
@@ -232,32 +350,38 @@ function OrderShipment({ shipment }: { readonly shipment: ShippingModel }) {
 }
 
 /** The documents billing the order, each with what it still asks for. */
-function OrderInvoices({ invoices }: { readonly invoices: InvoiceModel[] }) {
+function OrderInvoices({
+	translations,
+	invoices,
+}: {
+	translations: TranslationsType;
+	readonly invoices: InvoiceModel[];
+}) {
 	return (
 		<div className="overflow-x-auto">
 			<table className="w-full text-sm">
 				<thead>
 					<tr>
 						<th className="text-left py-2 px-2 font-medium">
-							Reference
+							{translations['order.field.reference']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Scope
+							{translations['order.field.scope']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Status
+							{translations['order.field.status']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Payment
+							{translations['order.field.payment']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Total
+							{translations['order.field.total']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Outstanding
+							{translations['order.field.outstanding']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Due At
+							{translations['order.field.due_at']}
 						</th>
 					</tr>
 				</thead>
@@ -271,12 +395,16 @@ function OrderInvoices({ invoices }: { readonly invoices: InvoiceModel[] }) {
 								{displayInvoiceLabel(invoice)}
 								{invoice.is_reversal && (
 									<span className="ml-2 text-xs text-muted">
-										reversal
+										{translations['order.text.reversal']}
 									</span>
 								)}
 							</td>
 							<td className="py-2 px-3">
-								{formatEnumLabel(invoice.scope)}
+								{translateEnumLabel(
+									translations,
+									'invoice.enum.scope',
+									invoice.scope,
+								)}
 							</td>
 							<td className="py-2 px-3">
 								<DisplayStatus
@@ -321,27 +449,35 @@ function OrderInvoices({ invoices }: { readonly invoices: InvoiceModel[] }) {
 }
 
 /** The cash flow entries filed against the order through an `order` operational record. */
-function OrderPayments({ payments }: { readonly payments: CashFlowModel[] }) {
+function OrderPayments({
+	translations,
+	payments,
+}: {
+	translations: TranslationsType;
+	readonly payments: CashFlowModel[];
+}) {
 	return (
 		<div className="overflow-x-auto">
 			<table className="w-full text-sm">
 				<thead>
 					<tr>
-						<th className="text-left py-2 px-2 font-medium">ID</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Category
+							{translations['order.field.id']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Method
+							{translations['order.field.category']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Status
+							{translations['order.field.method']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Amount
+							{translations['order.field.status']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Date
+							{translations['order.field.amount']}
+						</th>
+						<th className="text-left py-2 px-2 font-medium">
+							{translations['order.field.date']}
 						</th>
 					</tr>
 				</thead>
@@ -353,13 +489,25 @@ function OrderPayments({ payments }: { readonly payments: CashFlowModel[] }) {
 						>
 							<td className="py-2 px-3">#{payment.id}</td>
 							<td className="py-2 px-3">
-								{formatEnumLabel(payment.category)}
+								{translateEnumLabel(
+									translations,
+									'cash-flow.enum.category',
+									payment.category,
+								)}
 								<span className="ml-2 text-xs text-muted">
-									{formatEnumLabel(payment.direction)}
+									{translateEnumLabel(
+										translations,
+										'cash-flow.enum.direction',
+										payment.direction,
+									)}
 								</span>
 							</td>
 							<td className="py-2 px-3">
-								{formatEnumLabel(payment.method)}
+								{translateEnumLabel(
+									translations,
+									'cash-flow.enum.method',
+									payment.method,
+								)}
 							</td>
 							<td className="py-2 px-3">
 								<DisplayStatus
@@ -385,6 +533,8 @@ function OrderPayments({ payments }: { readonly payments: CashFlowModel[] }) {
 }
 
 export function ViewOrder({ entry }: { entry: OrderModel }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const lines = entry.lines ?? [];
 	const componentsByParent = groupOrderComponents(lines);
 	const totals = entry.totals;
@@ -487,16 +637,18 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 
 			<Tabs defaultSelectedKey="details" className="w-full">
 				<TabsList>
-					<TabsTrigger id="details">Details</TabsTrigger>
+					<TabsTrigger id="details">
+						{translations['order.text.details']}
+					</TabsTrigger>
 					<TabsTrigger id="lines">
-						Lines
+						{translations['order.text.lines']}
 						<span className="ml-1.5 text-xs text-muted">
 							{lines.length}
 						</span>
 					</TabsTrigger>
 					{canFindShipping && (
 						<TabsTrigger id="shipments">
-							Shipments
+							{translations['order.section.shipments']}
 							{shipments && (
 								<span className="ml-1.5 text-xs text-muted">
 									{shipments.length}
@@ -506,7 +658,7 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 					)}
 					{canViewBilling && (
 						<TabsTrigger id="billing">
-							Billing
+							{translations['order.section.billing']}
 							{(invoices || payments) && (
 								<span className="ml-1.5 text-xs text-muted">
 									{(invoices?.length ?? 0) +
@@ -518,21 +670,27 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 				</TabsList>
 
 				<TabsContent id="details" className="space-y-6">
-					<ViewSection title="Document">
+					<ViewSection title={translations['order.section.document']}>
 						<ViewField
-							label="Client"
+							label={translations['order.field.client']}
 							value={displayOrderClient(entry)}
 						/>
 						<ViewField
-							label="Contact"
+							label={translations['order.field.contact_email']}
 							value={entry.client?.contact_email ?? '-'}
 						/>
 					</ViewSection>
 
 					{totals && (
-						<ViewSection title="Totals">
+						<ViewSection
+							title={translations['order.section.totals']}
+						>
 							<ViewField
-								label="Subtotal (excl. VAT)"
+								label={
+									translations[
+										'order.field.subtotal_excl_vat'
+									]
+								}
 								value={displayOrderMoney(
 									totals.subtotal,
 									currency,
@@ -544,7 +702,7 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 							 */}
 							{totals.discount_reduction > 0 && (
 								<ViewField
-									label="Discount"
+									label={translations['order.field.discount']}
 									value={`-${displayOrderMoney(totals.discount_reduction, currency)}`}
 								/>
 							)}
@@ -554,19 +712,33 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 							 */}
 							{totals.order_discount_reduction > 0 && (
 								<ViewField
-									label="Of which order-wide"
-									value={`-${displayOrderMoney(totals.order_discount_reduction, currency)} (included in the discount above)`}
+									label={
+										translations[
+											'order.field.order_wide_discount'
+										]
+									}
+									value={replaceVars(
+										translations[
+											'order.text.order_discount_included'
+										],
+										{
+											amount: displayOrderMoney(
+												totals.order_discount_reduction,
+												currency,
+											),
+										},
+									)}
 								/>
 							)}
 							<ViewField
-								label="VAT"
+								label={translations['order.field.vat']}
 								value={displayOrderMoney(
 									totals.vat_amount,
 									currency,
 								)}
 							/>
 							<ViewField
-								label="Total"
+								label={translations['order.field.total']}
 								value={displayOrderMoney(
 									totals.total,
 									currency,
@@ -575,7 +747,11 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 							{/* Always 1 in the deployment's own currency, so it says nothing there */}
 							{currency !== Configuration.currency() && (
 								<ViewField
-									label="Exchange Rate"
+									label={
+										translations[
+											'order.field.exchange_rate'
+										]
+									}
 									value={String(totals.exchange_rate)}
 								/>
 							)}
@@ -587,13 +763,18 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 							{totals.has_discount &&
 								totals.discount_reduction === 0 && (
 									<ViewField
-										label="Discounts"
+										label={
+											translations[
+												'order.field.discounts'
+											]
+										}
 										value={
 											<span className="text-warning">
-												One or more lines carry a
-												discount whose amount was never
-												recorded - the totals above are
-												before it
+												{
+													translations[
+														'order.text.unrecorded_discount'
+													]
+												}
 											</span>
 										}
 									/>
@@ -602,23 +783,30 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 					)}
 
 					{entry.notes && (
-						<ViewSection title="Notes">
-							<ViewField label="Notes" value={entry.notes} />
+						<ViewSection
+							title={translations['order.section.notes']}
+						>
+							<ViewField
+								label={translations['order.field.notes']}
+								value={entry.notes}
+							/>
 						</ViewSection>
 					)}
 
-					<ViewSection title="Timestamps">
+					<ViewSection
+						title={translations['order.section.timestamps']}
+					>
 						<ViewField
-							label="Created At"
+							label={translations['order.field.created_at']}
 							value={formatDate(entry.created_at, 'date-time')}
 						/>
 						<ViewField
-							label="Updated At"
+							label={translations['order.field.updated_at']}
 							value={formatDate(entry.updated_at, 'date-time')}
 						/>
 						{entry.deleted_at && (
 							<ViewField
-								label="Deleted At"
+								label={translations['order.field.deleted_at']}
 								value={
 									<span className="text-danger">
 										{formatDate(
@@ -636,7 +824,11 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 					<ViewSection layout="rows">
 						{lines.length === 0 ? (
 							<p className="text-sm text-muted">
-								This order has no lines.
+								{
+									translations[
+										'order.text.this_order_has_no_lines'
+									]
+								}
 							</p>
 						) : (
 							<div className="overflow-x-auto">
@@ -644,22 +836,46 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 									<thead>
 										<tr className="border-b border-line text-xs uppercase tracking-wide text-muted">
 											<th className="py-2 pr-4 text-left font-medium">
-												Item
+												{
+													translations[
+														'order.field.item'
+													]
+												}
 											</th>
 											<th className="py-2 pr-4 text-right font-medium">
-												Qty
+												{
+													translations[
+														'order.field.qty'
+													]
+												}
 											</th>
 											<th className="py-2 pr-4 text-right font-medium">
-												Unit
+												{
+													translations[
+														'order.field.unit'
+													]
+												}
 											</th>
 											<th className="py-2 pr-4 text-right font-medium">
-												VAT
+												{
+													translations[
+														'order.field.vat'
+													]
+												}
 											</th>
 											<th className="py-2 pr-4 text-right font-medium">
-												Discount
+												{
+													translations[
+														'order.field.discount'
+													]
+												}
 											</th>
 											<th className="py-2 text-right font-medium">
-												Net
+												{
+													translations[
+														'order.field.net'
+													]
+												}
 											</th>
 										</tr>
 									</thead>
@@ -683,6 +899,7 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 											])
 											.map((line) => (
 												<OrderLineRow
+													translations={translations}
 													key={line.id}
 													line={line}
 													currency={currency}
@@ -699,19 +916,24 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 					<TabsContent id="shipments" className="space-y-4">
 						{isShipmentsLoading ? (
 							<p className="text-sm text-muted">
-								Loading shipments...
+								{translations['order.text.loading_shipments']}
 							</p>
 						) : isShipmentsError || !shipments ? (
 							<p className="text-sm text-danger">
-								The shipments could not be loaded.
+								{
+									translations[
+										'order.text.shipments_load_failed'
+									]
+								}
 							</p>
 						) : shipments.length === 0 ? (
 							<p className="text-sm text-muted">
-								This order has no shipments.
+								{translations['order.text.no_shipments']}
 							</p>
 						) : (
 							shipments.map((shipment) => (
 								<OrderShipment
+									translations={translations}
 									key={shipment.id}
 									shipment={shipment}
 								/>
@@ -723,41 +945,69 @@ export function ViewOrder({ entry }: { entry: OrderModel }) {
 				{canViewBilling && (
 					<TabsContent id="billing" className="space-y-6">
 						{canFindInvoice && (
-							<ViewSection title="Invoices" layout="rows">
+							<ViewSection
+								title={translations['order.section.invoices']}
+								layout="rows"
+							>
 								{isInvoicesLoading ? (
 									<p className="text-sm text-muted">
-										Loading invoices...
+										{
+											translations[
+												'order.text.loading_invoices'
+											]
+										}
 									</p>
 								) : isInvoicesError || !invoices ? (
 									<p className="text-sm text-danger">
-										The invoices could not be loaded.
+										{
+											translations[
+												'order.text.invoices_load_failed'
+											]
+										}
 									</p>
 								) : invoices.length === 0 ? (
 									<p className="text-sm text-muted">
-										This order has no invoices.
+										{translations['order.text.no_invoices']}
 									</p>
 								) : (
-									<OrderInvoices invoices={invoices} />
+									<OrderInvoices
+										translations={translations}
+										invoices={invoices}
+									/>
 								)}
 							</ViewSection>
 						)}
 
 						{canFindCashFlow && (
-							<ViewSection title="Payments" layout="rows">
+							<ViewSection
+								title={translations['order.section.payments']}
+								layout="rows"
+							>
 								{isPaymentsLoading ? (
 									<p className="text-sm text-muted">
-										Loading payments...
+										{
+											translations[
+												'order.text.loading_payments'
+											]
+										}
 									</p>
 								) : isPaymentsError || !payments ? (
 									<p className="text-sm text-danger">
-										The payments could not be loaded.
+										{
+											translations[
+												'order.text.payments_load_failed'
+											]
+										}
 									</p>
 								) : payments.length === 0 ? (
 									<p className="text-sm text-muted">
-										This order has no payments.
+										{translations['order.text.no_payments']}
 									</p>
 								) : (
-									<OrderPayments payments={payments} />
+									<OrderPayments
+										translations={translations}
+										payments={payments}
+									/>
 								)}
 							</ViewSection>
 						)}

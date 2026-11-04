@@ -16,11 +16,6 @@ export const ExchangeRateSourceEnum = {
 export type ExchangeRateSource =
 	(typeof ExchangeRateSourceEnum)[keyof typeof ExchangeRateSourceEnum];
 
-export const ExchangeRateSourceLabels: Record<ExchangeRateSource, string> = {
-	[ExchangeRateSourceEnum.MANUAL]: 'Manual',
-	[ExchangeRateSourceEnum.IMPORT]: 'Imported',
-};
-
 // Mirror the column constraints and the service rules on the backend
 export const CURRENCY_CODE_CHARS = 3;
 export const EXCHANGE_RATE_MAX_DECIMALS = 8;

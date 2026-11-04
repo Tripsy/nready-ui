@@ -5,21 +5,47 @@ import {
 	ViewSection,
 } from '@/app/(dashboard)/_components/view-detail';
 import { formatDate } from '@/helpers/date.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
-import type { TermModel } from '@/models/term.model';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
+import { type TermModel, TermTypeEnum } from '@/models/term.model';
 import { LanguageEnum } from '@/types/common.type';
 
+const TRANSLATION_KEYS = [
+	'term.field.created_at',
+	'term.field.deleted_at',
+	'term.field.id',
+	'term.field.updated_at',
+	'term.section.timestamps',
+	'term.section.wording',
+	'term.text.not_translated',
+	...enumTranslationKeys('term.enum.type', TermTypeEnum),
+] as const;
+
 export function ViewTerm({ entry }: { entry: TermModel }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const contents = entry.contents ?? [];
 
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center gap-2 border-b border-line pb-4">
-				<span className="font-semibold">ID</span> {entry.id}
-				<span className="ml-2">{formatEnumLabel(entry.type)}</span>
+				<span className="font-semibold">
+					{translations['term.field.id']}
+				</span>{' '}
+				{entry.id}
+				<span className="ml-2">
+					{translateEnumLabel(
+						translations,
+						'term.enum.type',
+						entry.type,
+					)}
+				</span>
 			</div>
 
-			<ViewSection title="Wording">
+			<ViewSection title={translations['term.section.wording']}>
 				{Object.values(LanguageEnum).map((language) => {
 					const content = contents.find(
 						(entry) => entry.language === language,
@@ -34,7 +60,11 @@ export function ViewTerm({ entry }: { entry: TermModel }) {
 									// A term needs no translation in every language; saying so
 									// beats an empty cell that reads like a loading failure
 									<span className="opacity-60">
-										not translated
+										{
+											translations[
+												'term.text.not_translated'
+											]
+										}
 									</span>
 								)
 							}
@@ -43,18 +73,18 @@ export function ViewTerm({ entry }: { entry: TermModel }) {
 				})}
 			</ViewSection>
 
-			<ViewSection title="Timestamps">
+			<ViewSection title={translations['term.section.timestamps']}>
 				<ViewField
-					label="Created At"
+					label={translations['term.field.created_at']}
 					value={formatDate(entry.created_at, 'date-time')}
 				/>
 				<ViewField
-					label="Updated At"
+					label={translations['term.field.updated_at']}
 					value={formatDate(entry.updated_at, 'date-time')}
 				/>
 				{entry.deleted_at && (
 					<ViewField
-						label="Deleted At"
+						label={translations['term.field.deleted_at']}
 						value={
 							<span className="text-danger">
 								{formatDate(entry.deleted_at, 'date-time')}

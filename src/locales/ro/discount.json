@@ -68,5 +68,87 @@
 		"note": "Schimbarea domeniului unei reduceri înlocuiește țintele pentru noul domeniu - țintele domeniului anterior sunt șterse, nu păstrate.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"field": {
+		"search": "ID / Etichetă / Referință",
+		"scope": "Domeniu",
+		"reason": "Motiv",
+		"type": "Tip",
+		"start_date": "Data de început",
+		"id": "ID",
+		"label": "Etichetă",
+		"value": "Valoare",
+		"reference": "Referință",
+		"start_at": "Început la",
+		"end_at": "Încheiat la",
+		"condition_min_order_value": "Valoare minimă comandă",
+		"condition_countries": "Țări",
+		"condition_hour_from": "De la ora",
+		"condition_hour_to": "Până la ora",
+		"condition_day_from": "De la ziua",
+		"condition_day_to": "Până la ziua",
+		"notes": "Notițe",
+		"conditions": "Condiții",
+		"created_at": "Creat la",
+		"updated_at": "Actualizat la",
+		"deleted_at": "Șters la"
+	},
+	"text": {
+		"placeholder_label": "ex.: Reducere flash de vară",
+		"placeholder_reference": "ex.: SUMMER25 (cupon sau cod de recomandare)",
+		"reduces_the_delivery_or_return_price": "Reduce prețul livrării sau al retururilor. Lasă gol pentru a se aplica tuturor cumpărătorilor.",
+		"placeholder_start_at": "-selectează-",
+		"placeholder_end_at": "-selectează-",
+		"conditions": "Condiții",
+		"all_must_be_met_for_the": "Toate trebuie îndeplinite pentru ca reducerea să se aplice. Lasă un câmp gol pentru a renunța la condiția respectivă.",
+		"placeholder_condition_min_order_value": "moneda de bază",
+		"placeholder_condition_countries": "ex.: RO, BG",
+		"label_targeted": "{{label}} vizate",
+		"loading_current_targets": "Se încarcă țintele curente…",
+		"label_remove": "Elimină {{label}}",
+		"target_client": "Clienți",
+		"target_category": "Categorii",
+		"target_brand": "Mărci",
+		"target_product": "Produse",
+		"target_variant": "Variante",
+		"no_targets": "Încă nicio țintă - această reducere nu se va aplica la nimic.",
+		"label_value_percent": "Valoare (%)",
+		"condition_min_order": "Valoarea comenzii de cel puțin {{value}} (moneda de bază, fără TVA)",
+		"condition_countries": "Țara este una dintre {{countries}}",
+		"condition_hours": "Între {{from}}:00 și {{to}}:59",
+		"condition_hours_overnight": "Între {{from}}:00 și {{to}}:59 (peste noapte)",
+		"condition_days": "{{from}} - {{to}}",
+		"condition_days_wrap": "{{from}} - {{to}} (peste sfârșitul săptămânii)"
+	},
+	"section": {
+		"discount": "Reducere",
+		"availability": "Disponibilitate",
+		"targets": "Ținte",
+		"other": "Altele",
+		"timestamps": "Marcaje de timp"
+	},
+	"enum": {
+		"scope": {
+			"client": "Client",
+			"order": "Comandă",
+			"product": "Produs",
+			"variant": "Variantă",
+			"category": "Categorie",
+			"brand": "Marcă",
+			"shipping": "Livrare"
+		},
+		"reason": {
+			"flash_sale": "Reducere flash",
+			"first_time_customer": "Client nou",
+			"loyalty_discount": "Reducere de fidelitate",
+			"birthday_discount": "Reducere de ziua de naștere",
+			"referral_discount": "Reducere pentru recomandare",
+			"vip_discount": "Reducere VIP",
+			"special_discount": "Reducere specială"
+		},
+		"type": {
+			"percent": "Procent",
+			"amount": "Sumă"
+		}
 	}
 }

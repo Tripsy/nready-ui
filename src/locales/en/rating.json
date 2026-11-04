@@ -46,5 +46,44 @@
 		"tab_info": "Info",
 		"tab_api": "API docs",
 		"tab_public": "Public API"
+	},
+	"field": {
+		"entity_type": "Target",
+		"entity_id": "Target ID",
+		"type": "Type",
+		"reaction": "Reaction",
+		"user": "User",
+		"id": "ID",
+		"value": "Value",
+		"user_id": "User ID",
+		"created_at": "Created At",
+		"rating": "Rating",
+		"email": "Email",
+		"updated_at": "Updated At",
+		"rated_by": "Rated By"
+	},
+	"section": {
+		"target": "Target",
+		"rating": "Rating",
+		"rated_by": "Rated By",
+		"timestamps": "Timestamps"
+	},
+	"enum": {
+		"entity_type": {
+			"article": "Article",
+			"comment": "Comment"
+		},
+		"type": {
+			"like": "Like",
+			"stars": "Stars",
+			"emoji": "Emoji"
+		},
+		"emoji": {
+			"like": "Like",
+			"dislike": "Dislike",
+			"love": "Love",
+			"insightful": "Insightful",
+			"funny": "Funny"
+		}
 	}
 }

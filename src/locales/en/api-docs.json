@@ -25,6 +25,18 @@
 		"back_to_list": "All modules",
 		"unavailable": "The API reference is temporarily unavailable. Please try again later.",
 		"not_found_heading": "Module not found",
-		"not_found_message": "There is no documented API module by that name."
+		"not_found_message": "There is no documented API module by that name.",
+		"request_sample": "Request sample",
+		"responses": "Responses",
+		"response_sample": "Response sample",
+		"nothing_to_show": "Nothing to show",
+		"required": "required",
+		"optional": "optional",
+		"no_documentation": "This feature has no API documentation."
+	},
+	"section": {
+		"path_params": "Path params",
+		"query": "Query",
+		"body": "Body"
 	}
 }

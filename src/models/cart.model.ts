@@ -1,4 +1,5 @@
 import Routes from '@/config/routes.setup';
+import { replaceVars } from '@/helpers/string.helper';
 import type { OrderPaymentMethod } from '@/models/order.model';
 import { roundMoney } from '@/models/product.model';
 import type { ShippingMethod } from '@/models/shipping.model';
@@ -226,8 +227,17 @@ export function displayCartLabel(entry: CartModel): string {
  * Who is carrying it. A guest cart names nobody, which is the ordinary case rather than missing
  * data - the whole point of the feature is that a basket exists before anyone signs in.
  */
-export function displayCartOwner(entry: CartModel): string {
-	return entry.user_id ? `User #${entry.user_id}` : 'Guest';
+/**
+ * Who a cart belongs to. The wording comes from the caller: `user` carries an `{{id}}` slot for
+ * the account id, `guest` names a cart without one.
+ */
+export function displayCartOwner(
+	entry: CartModel,
+	wording: { user: string; guest: string },
+): string {
+	return entry.user_id
+		? replaceVars(wording.user, { id: entry.user_id })
+		: wording.guest;
 }
 
 /** Line count and total, for a listing cell. Both are absent until the cart has been priced. */

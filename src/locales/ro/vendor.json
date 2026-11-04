@@ -71,5 +71,28 @@
 		"note": "Ștergerea unui furnizor este una logică și funcționează din orice stare - rândul își păstrează starea avută, iar tot ce face deja referire la el continuă să funcționeze. Folosește „Arată șterse” pentru a-l găsi și restaura, iar el revine exact așa cum a plecat.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"field": {
+		"search": "ID / Nume",
+		"type": "Tip",
+		"status": "Status",
+		"name": "Nume",
+		"id": "ID",
+		"created_at": "Creat la",
+		"updated_at": "Actualizat la",
+		"deleted_at": "Șters la"
+	},
+	"text": {
+		"placeholder_name": "ex.: Petrom"
+	},
+	"section": {
+		"info": "Info",
+		"timestamps": "Marcaje de timp"
+	},
+	"enum": {
+		"type": {
+			"supplier": "Furnizor de bunuri",
+			"provider": "Prestator de servicii"
+		}
 	}
 }

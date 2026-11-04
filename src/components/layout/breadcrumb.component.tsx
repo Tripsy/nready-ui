@@ -24,11 +24,14 @@ export type BreadcrumbItem = {
 export function Breadcrumb({
 	items,
 	homeHref,
+	ariaLabel,
 	className,
 }: {
 	items: readonly BreadcrumbItem[];
 	/** Where the home icon points - the dashboard root, or the site root. */
 	homeHref: string;
+	/** The landmark's name, translated by the caller. */
+	ariaLabel: string;
 	className?: string;
 }) {
 	if (!items.length) {
@@ -36,7 +39,7 @@ export function Breadcrumb({
 	}
 
 	return (
-		<nav aria-label="Breadcrumb" className={className}>
+		<nav aria-label={ariaLabel} className={className}>
 			<ul className="flex flex-wrap items-center gap-1.5 text-sm">
 				<li>
 					<Link

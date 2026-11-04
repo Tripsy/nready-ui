@@ -9,18 +9,72 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Configuration } from '@/config/settings.config';
 import { formatDate } from '@/helpers/date.helper';
 import { DisplayStatus } from '@/helpers/display.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	displayShippingDestination,
 	displayShippingDocument,
 	displayShippingEnd,
+	ShippingMethodEnum,
 	type ShippingModel,
+	ShippingScopeEnum,
 } from '@/models/shipping.model';
+
+const TRANSLATION_KEYS = [
+	'shipping.field.contact_email',
+	'shipping.field.contact_name',
+	'shipping.field.contact_phone',
+	'shipping.field.created_at',
+	'shipping.field.deleted_at',
+	'shipping.field.delivered_at',
+	'shipping.field.discount_reduction',
+	'shipping.field.document',
+	'shipping.field.estimated_delivery_at',
+	'shipping.field.from',
+	'shipping.field.id',
+	'shipping.field.item',
+	'shipping.field.method',
+	'shipping.field.name',
+	'shipping.field.notes',
+	'shipping.field.operational_cost',
+	'shipping.field.price',
+	'shipping.field.qty',
+	'shipping.field.scope',
+	'shipping.field.shipped_at',
+	'shipping.field.to',
+	'shipping.field.tracking_number',
+	'shipping.field.tracking_url',
+	'shipping.field.updated_at',
+	'shipping.field.vat_rate',
+	'shipping.section.contact',
+	'shipping.section.cost',
+	'shipping.section.dates',
+	'shipping.section.info',
+	'shipping.section.notes',
+	'shipping.section.route',
+	'shipping.section.timestamps',
+	'shipping.text.details',
+	'shipping.text.lines',
+	'shipping.text.no_lines',
+	'shipping.text.not_recorded',
+	'shipping.text.variant_ref',
+	'shipping.text.product_variant_ref',
+	'shipping.text.doc_ref',
+	'shipping.text.self_pickup_destination',
+	...enumTranslationKeys('shipping.enum.scope', ShippingScopeEnum),
+	...enumTranslationKeys('shipping.enum.method', ShippingMethodEnum),
+] as const;
 
 /** What `operational_cost` is kept in, whatever currency the client is billed in. */
 const BASE_CURRENCY = Configuration.get('app.currency');
 
 export function ViewShipping({ entry }: { entry: ShippingModel }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const lines = entry.lines ?? [];
 
 	const pickup = displayShippingEnd(
@@ -33,7 +87,10 @@ export function ViewShipping({ entry }: { entry: ShippingModel }) {
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center gap-2 border-b border-line pb-4">
-				<span className="font-semibold">ID</span> {entry.id}
+				<span className="font-semibold">
+					{translations['shipping.field.id']}
+				</span>{' '}
+				{entry.id}
 				<div className="max-w-60 ml-2">
 					<DisplayStatus
 						status={entry.status}
@@ -44,9 +101,11 @@ export function ViewShipping({ entry }: { entry: ShippingModel }) {
 
 			<Tabs defaultSelectedKey="details" className="w-full">
 				<TabsList>
-					<TabsTrigger id="details">Details</TabsTrigger>
+					<TabsTrigger id="details">
+						{translations['shipping.text.details']}
+					</TabsTrigger>
 					<TabsTrigger id="lines">
-						Lines
+						{translations['shipping.text.lines']}
 						<span className="ml-1.5 text-xs text-muted">
 							{lines.length}
 						</span>
@@ -54,29 +113,42 @@ export function ViewShipping({ entry }: { entry: ShippingModel }) {
 				</TabsList>
 
 				<TabsContent id="details" className="space-y-6">
-					<ViewSection title="Info">
+					<ViewSection title={translations['shipping.section.info']}>
 						<ViewField
-							label="Movement type"
-							value={formatEnumLabel(entry.scope)}
+							label={translations['shipping.field.scope']}
+							value={translateEnumLabel(
+								translations,
+								'shipping.enum.scope',
+								entry.scope,
+							)}
 						/>
 						<ViewField
-							label="Document"
-							value={displayShippingDocument(entry)}
+							label={translations['shipping.field.document']}
+							value={displayShippingDocument(
+								entry,
+								translations['shipping.text.doc_ref'],
+							)}
 						/>
 						<ViewField
-							label="Method"
-							value={formatEnumLabel(entry.method)}
+							label={translations['shipping.field.method']}
+							value={translateEnumLabel(
+								translations,
+								'shipping.enum.method',
+								entry.method,
+							)}
 						/>
 						<ViewField
-							label="Carrier"
+							label={translations['shipping.field.name']}
 							value={entry.carrier?.name ?? '-'}
 						/>
 						<ViewField
-							label="Tracking Number"
+							label={
+								translations['shipping.field.tracking_number']
+							}
 							value={entry.tracking_number ?? '-'}
 						/>
 						<ViewField
-							label="Tracking URL"
+							label={translations['shipping.field.tracking_url']}
 							value={entry.tracking_url ?? '-'}
 						/>
 					</ViewSection>
@@ -86,40 +158,57 @@ export function ViewShipping({ entry }: { entry: ShippingModel }) {
 					 * the live reference instead - the two can legitimately differ while it is still being
 					 * prepared, and the live one is what a correction would reach.
 					 */}
-					<ViewSection title="Route" layout="rows">
+					<ViewSection
+						title={translations['shipping.section.route']}
+						layout="rows"
+					>
 						{/* Half the width each: a full address needs the room a third would not give it */}
 						<ViewRow className="lg:grid-cols-2">
-							<ViewField label="From" value={pickup} />
 							<ViewField
-								label="To"
-								value={displayShippingDestination(entry)}
+								label={translations['shipping.field.from']}
+								value={pickup}
+							/>
+							<ViewField
+								label={translations['shipping.field.to']}
+								value={displayShippingDestination(
+									entry,
+									translations[
+										'shipping.text.self_pickup_destination'
+									],
+								)}
 							/>
 						</ViewRow>
 					</ViewSection>
 
-					<ViewSection title="Contact">
+					<ViewSection
+						title={translations['shipping.section.contact']}
+					>
 						<ViewField
-							label="Name"
+							label={translations['shipping.field.contact_name']}
 							value={entry.contact_name ?? '-'}
 						/>
 						<ViewField
-							label="Phone"
+							label={translations['shipping.field.contact_phone']}
 							value={entry.contact_phone ?? '-'}
 						/>
 						<ViewField
-							label="Email"
+							label={translations['shipping.field.contact_email']}
 							value={entry.contact_email ?? '-'}
 						/>
 					</ViewSection>
 
-					<ViewSection title="Cost">
+					<ViewSection title={translations['shipping.section.cost']}>
 						<ViewField
-							label="Price"
+							label={translations['shipping.field.price']}
 							value={`${Number(entry.price).toFixed(2)} ${entry.currency}`}
 						/>
 						{Number(entry.discount_reduction ?? 0) > 0 && (
 							<ViewField
-								label="Discount"
+								label={
+									translations[
+										'shipping.field.discount_reduction'
+									]
+								}
 								value={`-${Number(entry.discount_reduction).toFixed(2)} ${entry.currency}${
 									entry.discount?.[0]
 										? ` (${entry.discount[0].label})`
@@ -128,23 +217,29 @@ export function ViewShipping({ entry }: { entry: ShippingModel }) {
 							/>
 						)}
 						<ViewField
-							label="VAT Rate"
+							label={translations['shipping.field.vat_rate']}
 							value={`${Number(entry.vat_rate).toFixed(2)}%`}
 						/>
 						{/* Base currency, not the client's - see `ShippingModel.operational_cost` */}
 						<ViewField
-							label="Operational Cost"
+							label={
+								translations['shipping.field.operational_cost']
+							}
 							value={
 								typeof entry.operational_cost === 'number'
 									? `${entry.operational_cost.toFixed(2)} ${BASE_CURRENCY}`
-									: 'Not recorded'
+									: translations['shipping.text.not_recorded']
 							}
 						/>
 					</ViewSection>
 
-					<ViewSection title="Dates">
+					<ViewSection title={translations['shipping.section.dates']}>
 						<ViewField
-							label="Estimated Delivery"
+							label={
+								translations[
+									'shipping.field.estimated_delivery_at'
+								]
+							}
 							value={
 								entry.estimated_delivery_at
 									? formatDate(
@@ -155,7 +250,7 @@ export function ViewShipping({ entry }: { entry: ShippingModel }) {
 							}
 						/>
 						<ViewField
-							label="Shipped At"
+							label={translations['shipping.field.shipped_at']}
 							value={
 								entry.shipped_at
 									? formatDate(entry.shipped_at, 'date-time')
@@ -163,7 +258,7 @@ export function ViewShipping({ entry }: { entry: ShippingModel }) {
 							}
 						/>
 						<ViewField
-							label="Delivered At"
+							label={translations['shipping.field.delivered_at']}
 							value={
 								entry.delivered_at
 									? formatDate(
@@ -176,23 +271,32 @@ export function ViewShipping({ entry }: { entry: ShippingModel }) {
 					</ViewSection>
 
 					{entry.notes && (
-						<ViewSection title="Notes">
-							<ViewField label="Notes" value={entry.notes} />
+						<ViewSection
+							title={translations['shipping.section.notes']}
+						>
+							<ViewField
+								label={translations['shipping.field.notes']}
+								value={entry.notes}
+							/>
 						</ViewSection>
 					)}
 
-					<ViewSection title="Timestamps">
+					<ViewSection
+						title={translations['shipping.section.timestamps']}
+					>
 						<ViewField
-							label="Created At"
+							label={translations['shipping.field.created_at']}
 							value={formatDate(entry.created_at, 'date-time')}
 						/>
 						<ViewField
-							label="Updated At"
+							label={translations['shipping.field.updated_at']}
 							value={formatDate(entry.updated_at, 'date-time')}
 						/>
 						{entry.deleted_at && (
 							<ViewField
-								label="Deleted At"
+								label={
+									translations['shipping.field.deleted_at']
+								}
 								value={
 									<span className="text-danger">
 										{formatDate(
@@ -210,7 +314,7 @@ export function ViewShipping({ entry }: { entry: ShippingModel }) {
 					<ViewSection layout="rows">
 						{lines.length === 0 ? (
 							<p className="text-sm text-muted">
-								This movement carries no lines.
+								{translations['shipping.text.no_lines']}
 							</p>
 						) : (
 							<div className="overflow-x-auto">
@@ -218,10 +322,18 @@ export function ViewShipping({ entry }: { entry: ShippingModel }) {
 									<thead>
 										<tr className="border-b border-line text-xs uppercase tracking-wide text-muted">
 											<th className="py-2 pr-4 text-left font-medium">
-												Item
+												{
+													translations[
+														'shipping.field.item'
+													]
+												}
 											</th>
 											<th className="py-2 text-right font-medium">
-												Qty
+												{
+													translations[
+														'shipping.field.qty'
+													]
+												}
 											</th>
 										</tr>
 									</thead>
@@ -232,15 +344,29 @@ export function ViewShipping({ entry }: { entry: ShippingModel }) {
 													<div className="font-medium">
 														{line.label ??
 															line.sku ??
-															`Variant #${line.variant_id}`}
+															replaceVars(
+																translations[
+																	'shipping.text.variant_ref'
+																],
+																{
+																	id: line.variant_id,
+																},
+															)}
 													</div>
 													<div className="text-xs text-muted">
 														{line.sku &&
 															`${line.sku} · `}
-														Product #
-														{line.product_id} ·
-														Variant #
-														{line.variant_id}
+														{replaceVars(
+															translations[
+																'shipping.text.product_variant_ref'
+															],
+															{
+																product:
+																	line.product_id,
+																variant:
+																	line.variant_id,
+															},
+														)}
 													</div>
 													{line.notes && (
 														<div className="mt-1 text-xs italic text-muted">

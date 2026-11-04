@@ -71,5 +71,33 @@
 		"note": "Ștergerea unui depozit este o ștergere logică și eliberează atât codul, cât și marcajul de implicit - alt depozit le poate prelua cât timp acesta lipsește. De aceea o restaurare poate fi refuzată: dacă între timp codul a fost luat, rândul nu poate reveni până nu se rezolvă conflictul.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"field": {
+		"search": "ID / Cod / Nume",
+		"status": "Status",
+		"is_default": "Implicit",
+		"address": "Adresă",
+		"code": "Cod",
+		"name": "Nume",
+		"notes": "Notițe",
+		"id": "ID",
+		"details": "Detalii",
+		"postal_code": "Cod poștal",
+		"created_at": "Creat la",
+		"updated_at": "Actualizat la",
+		"deleted_at": "Șters la"
+	},
+	"text": {
+		"placeholder_code": "ex.: BUC-01 (max. {{max}} caractere)",
+		"placeholder_name": "ex.: București Central",
+		"default_warehouse": "Depozit implicit",
+		"default_only": "Doar implicite",
+		"not_default": "Neimplicite"
+	},
+	"section": {
+		"info": "Info",
+		"address": "Adresă",
+		"notes": "Notițe",
+		"timestamps": "Marcaje de timp"
 	}
 }

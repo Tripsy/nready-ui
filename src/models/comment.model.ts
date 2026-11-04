@@ -1,4 +1,4 @@
-import { formatEnumLabel } from '@/helpers/string.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import type { StatusTransitions } from '@/types/common.type';
 
 /**
@@ -168,12 +168,21 @@ export type CommentModel<D = Date | string> = {
 };
 
 /** Who signed the comment: the account behind it, or the name a guest gave. */
-export const displayCommentAuthor = (entry: CommentModel): string => {
+/**
+ * Who wrote a comment. The guest wording comes from the caller: `guestNamed` carries a
+ * `{{name}}` slot for the name a guest gave, `guest` stands alone.
+ */
+export const displayCommentAuthor = (
+	entry: CommentModel,
+	wording: { guest: string; guestNamed: string },
+): string => {
 	if (entry.user) {
 		return `${entry.user.name} (#${entry.user_id})`;
 	}
 
-	return entry.guest_name ? `${entry.guest_name} (guest)` : 'Guest';
+	return entry.guest_name
+		? replaceVars(wording.guestNamed, { name: entry.guest_name })
+		: wording.guest;
 };
 
 /**
@@ -187,9 +196,14 @@ export const displayCommentLabel = (entry: CommentModel): string => {
 	return excerpt.length < content.length ? `${excerpt}…` : excerpt;
 };
 
-/** The thread position as one cell: a root, or the comment it answers. */
-export const displayCommentThread = (entry: CommentModel): string =>
-	entry.parent_id ? `Reply to #${entry.parent_id}` : 'Root';
-
-export const displayCommentType = (entry: CommentModel): string =>
-	formatEnumLabel(entry.type);
+/**
+ * The thread position as one cell: a root, or the comment it answers. `reply` carries an
+ * `{{id}}` slot for the parent comment.
+ */
+export const displayCommentThread = (
+	entry: CommentModel,
+	wording: { root: string; reply: string },
+): string =>
+	entry.parent_id
+		? replaceVars(wording.reply, { id: entry.parent_id })
+		: wording.root;

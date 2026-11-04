@@ -28,6 +28,7 @@ import { Link } from '@/components/ui/link';
 import Routes from '@/config/routes.setup';
 import { getLanguageClient } from '@/config/translate.setup';
 import { requestFind } from '@/helpers/services.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	CATEGORY_DEFAULT_TYPE,
@@ -40,6 +41,22 @@ import { useToast } from '@/providers/toast.provider';
 import { orderUpdate } from '@/services/category.service';
 import type { Language } from '@/types/common.type';
 
+const TRANSLATION_KEYS = [
+	'dashboard.text.back_to_list',
+	'dashboard.text.label_move_down',
+	'dashboard.text.label_move_up',
+	'category.text.update',
+	'dashboard.text.update_order',
+	'app.error.title',
+	'app.success.title',
+	'category-order.success.order_updated',
+	'category-order.error.order_failed',
+	'category-order.text.group_too_small',
+	'category-order.text.no_entries',
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
+
 /**
  * A sibling group small enough to drag through is far below this; the cap only keeps a
  * pathological group from being requested unbounded, since the list must be complete -
@@ -48,11 +65,13 @@ import type { Language } from '@/types/common.type';
 const GROUP_LIMIT = 200;
 
 type SortableCategoryItemProps = {
+	translations: TranslationsType;
 	category: CategoryModel;
 	language: Language;
 };
 
 const SortableCategoryItem = ({
+	translations,
 	category,
 	language,
 }: SortableCategoryItemProps): JSX.Element => {
@@ -93,7 +112,12 @@ const SortableCategoryItem = ({
 						onClick={onMoveUp}
 						disabled={isFirst}
 						className="cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-						aria-label={`Move ${label} up`}
+						aria-label={replaceVars(
+							translations['dashboard.text.label_move_up'],
+							{
+								name: label,
+							},
+						)}
 					>
 						<Icons.Direction.ArrowUp />
 					</button>
@@ -102,7 +126,12 @@ const SortableCategoryItem = ({
 						onClick={onMoveDown}
 						disabled={isLast}
 						className="cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-						aria-label={`Move ${label} down`}
+						aria-label={replaceVars(
+							translations['dashboard.text.label_move_down'],
+							{
+								name: label,
+							},
+						)}
 					>
 						<Icons.Direction.ArrowDown />
 					</button>
@@ -113,16 +142,7 @@ const SortableCategoryItem = ({
 };
 
 const DataTableCategoryOrderContent = (): JSX.Element => {
-	const translationsKeys = [
-		'app.error.title',
-		'app.success.title',
-		'category-order.success.order_updated',
-		'category-order.error.order_failed',
-		'category-order.text.group_too_small',
-		'category-order.text.no_entries',
-	] as const;
-
-	const { translations } = useTranslation(translationsKeys);
+	const { translations } = useTranslation(TRANSLATION_KEYS);
 
 	const { showToast } = useToast();
 
@@ -228,6 +248,7 @@ const DataTableCategoryOrderContent = (): JSX.Element => {
 				className="list-decimal space-y-2 ml-8 mt-4"
 				renderItem={(category) => (
 					<SortableCategoryItem
+						translations={translations}
 						key={category.id}
 						category={category}
 						language={language}
@@ -244,21 +265,21 @@ const DataTableCategoryOrderContent = (): JSX.Element => {
 			<div className="flex gap-3 mt-4">
 				<Link
 					variant="outline"
-					title="Back to list"
+					title={translations['dashboard.text.back_to_list']}
 					href={Routes.get('category')}
 				>
 					<Icons.Category />
-					Back to list
+					{translations['dashboard.text.back_to_list']}
 				</Link>
 				<Button
 					variant="outline"
 					hover="default"
 					onClick={handleUpdateOrder}
-					title="Update"
+					title={translations['category.text.update']}
 					disabled={loading || !canReorder}
 				>
 					<Icons.Action.Save />
-					Update order
+					{translations['dashboard.text.update_order']}
 				</Button>
 			</div>
 		</>

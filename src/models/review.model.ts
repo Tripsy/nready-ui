@@ -1,3 +1,4 @@
+import { replaceVars } from '@/helpers/string.helper';
 import type { Language, StatusTransitions } from '@/types/common.type';
 
 /**
@@ -191,11 +192,6 @@ export type ReviewSummaryType = {
 };
 
 /** What was reviewed, as one cell: the product, and the variant when the buyer named one. */
-export const displayReviewTarget = (entry: ReviewModel): string =>
-	entry.variant_id
-		? `Product #${entry.product_id} / variant #${entry.variant_id}`
-		: `Product #${entry.product_id}`;
-
 /**
  * How the listing names the reviewed product: its label in the joined translation, the code of
  * the variant the review is about - or the product's default variant, since a product carries no
@@ -207,11 +203,14 @@ export const displayReviewTarget = (entry: ReviewModel): string =>
  */
 export const resolveReviewProduct = (
 	entry: ReviewModel,
+	productRef: string,
 ): { label: string; slug: string | null; sku: string | null } => {
 	const content = entry.product?.contents?.[0];
 
 	return {
-		label: content?.label || `Product #${entry.product_id}`,
+		// `productRef` names a product without a translation, with an `{{id}}` slot
+		label:
+			content?.label || replaceVars(productRef, { id: entry.product_id }),
 		slug: content?.slug || null,
 		sku: entry.variant?.sku || entry.product?.variants?.[0]?.sku || null,
 	};

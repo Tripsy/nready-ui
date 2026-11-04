@@ -121,17 +121,23 @@ export type AddressDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<AddressModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'delete.title',
-			'restore.title',
-			'view.title',
-			'guide.title',
-		] as const,
-		'address.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'delete.title',
+				'restore.title',
+				'view.title',
+				'guide.title',
+			] as const,
+			'address.action',
+		),
+		translateBatch(
+			['field.city', 'field.details', 'field.id'] as const,
+			'address',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -157,7 +163,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -169,7 +175,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'city',
-					header: 'City',
+					header: labels['field.city'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							customValue: entry.city
@@ -183,7 +189,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'details',
-					header: 'Address',
+					header: labels['field.details'],
 					sortable: true,
 				},
 			],

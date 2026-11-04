@@ -5,12 +5,50 @@ import {
 	ViewSection,
 } from '@/app/(dashboard)/_components/view-detail';
 import { formatDate } from '@/helpers/date.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
 import {
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
+import {
+	CartLineIssueEnum,
 	type CartLineModel,
 	type CartModel,
 	displayCartOwner,
 } from '@/models/cart.model';
+
+const TRANSLATION_KEYS = [
+	'cart.field.checkout',
+	'cart.field.currency',
+	'cart.field.discount',
+	'cart.field.exchange_rate',
+	'cart.field.expires_at',
+	'cart.field.id',
+	'cart.field.item',
+	'cart.field.qty',
+	'cart.field.shopper',
+	'cart.field.subtotal_excl_vat',
+	'cart.field.total',
+	'cart.field.unit',
+	'cart.field.updated_at',
+	'cart.field.vat',
+	'cart.section.cart',
+	'cart.section.lines',
+	'cart.section.pricing',
+	'cart.text.bundle',
+	'cart.text.prices_are_resolved_from_the_catalog',
+	'cart.text.this_cart_is_empty',
+	'cart.text.variant_ref',
+	'cart.text.product_variant_ref',
+	'cart.text.base_price',
+	'cart.text.checkout_blocked',
+	'cart.text.user_ref',
+	'dashboard.text.guest',
+	...enumTranslationKeys('cart.enum.issue', CartLineIssueEnum),
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
 
 function money(value: number, currency: string): string {
 	return `${value.toFixed(2)} ${currency}`;
@@ -27,9 +65,11 @@ function money(value: number, currency: string): string {
  * draws them: the header carries no money and the components carry all of it.
  */
 function CartLineRow({
+	translations,
 	line,
 	currency,
 }: {
+	translations: TranslationsType;
 	readonly line: CartLineModel;
 	readonly currency: string;
 }) {
@@ -43,16 +83,26 @@ function CartLineRow({
 				}
 			>
 				<div className="font-medium">
-					{line.label ?? line.sku ?? `Variant #${line.variant_id}`}
+					{line.label ??
+						line.sku ??
+						replaceVars(translations['cart.text.variant_ref'], {
+							id: line.variant_id,
+						})}
 					{line.is_bundle && (
 						<span className="ml-2 text-xs font-normal text-muted">
-							Bundle
+							{translations['cart.text.bundle']}
 						</span>
 					)}
 				</div>
 				<div className="text-xs text-muted">
-					{line.sku && `${line.sku} · `}Product #{line.product_id} ·
-					Variant #{line.variant_id}
+					{line.sku && `${line.sku} · `}
+					{replaceVars(
+						translations['cart.text.product_variant_ref'],
+						{
+							product: line.product_id,
+							variant: line.variant_id,
+						},
+					)}
 				</div>
 
 				{line.options.length > 0 && (
@@ -75,7 +125,11 @@ function CartLineRow({
 
 				{line.issue && (
 					<div className="mt-1 text-xs font-medium text-danger">
-						{formatEnumLabel(line.issue)}
+						{translateEnumLabel(
+							translations,
+							'cart.enum.issue',
+							line.issue,
+						)}
 					</div>
 				)}
 			</td>
@@ -86,7 +140,9 @@ function CartLineRow({
 				{money(line.unit_price, currency)}
 				{line.base_price !== line.unit_price && (
 					<div className="text-xs text-muted">
-						base {money(line.base_price, currency)}
+						{replaceVars(translations['cart.text.base_price'], {
+							price: money(line.base_price, currency),
+						})}
 					</div>
 				)}
 			</td>
@@ -119,25 +175,39 @@ function CartLineRow({
 }
 
 export function ViewCart({ entry }: { entry: CartModel }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const pricing = entry.pricing;
 
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center gap-2 border-b border-line pb-4">
-				<span className="font-semibold">ID</span> {entry.id}
+				<span className="font-semibold">
+					{translations['cart.field.id']}
+				</span>{' '}
+				{entry.id}
 			</div>
 
-			<ViewSection title="Cart">
-				<ViewField label="Shopper" value={displayCartOwner(entry)} />
-				<ViewField label="Currency" value={entry.currency} />
+			<ViewSection title={translations['cart.section.cart']}>
+				<ViewField
+					label={translations['cart.field.shopper']}
+					value={displayCartOwner(entry, {
+						user: translations['cart.text.user_ref'],
+						guest: translations['dashboard.text.guest'],
+					})}
+				/>
+				<ViewField
+					label={translations['cart.field.currency']}
+					value={entry.currency}
+				/>
 				{/* The deadline the cleanup job measures against - a cart untouched past it is
 				    deleted, lines and all. */}
 				<ViewField
-					label="Expires At"
+					label={translations['cart.field.expires_at']}
 					value={formatDate(entry.expires_at, 'date-time')}
 				/>
 				<ViewField
-					label="Last Activity"
+					label={translations['cart.field.updated_at']}
 					value={
 						entry.updated_at
 							? formatDate(entry.updated_at, 'date-time')
@@ -153,37 +223,43 @@ export function ViewCart({ entry }: { entry: CartModel }) {
 			 * into a ticket.
 			 */}
 
-			<ViewSection title="Lines" layout="rows">
+			<ViewSection
+				title={translations['cart.section.lines']}
+				layout="rows"
+			>
 				{!pricing || pricing.lines.length === 0 ? (
-					<p className="text-sm text-muted">This cart is empty.</p>
+					<p className="text-sm text-muted">
+						{translations['cart.text.this_cart_is_empty']}
+					</p>
 				) : (
 					<div className="overflow-x-auto">
 						<table className="w-full text-sm">
 							<thead>
 								<tr className="border-b border-line text-xs uppercase tracking-wide text-muted">
 									<th className="py-2 pr-4 text-left font-medium">
-										Item
+										{translations['cart.field.item']}
 									</th>
 									<th className="py-2 pr-4 text-right font-medium">
-										Qty
+										{translations['cart.field.qty']}
 									</th>
 									<th className="py-2 pr-4 text-right font-medium">
-										Unit
+										{translations['cart.field.unit']}
 									</th>
 									<th className="py-2 pr-4 text-right font-medium">
-										VAT
+										{translations['cart.field.vat']}
 									</th>
 									<th className="py-2 pr-4 text-right font-medium">
-										Discount
+										{translations['cart.field.discount']}
 									</th>
 									<th className="py-2 text-right font-medium">
-										Total
+										{translations['cart.field.total']}
 									</th>
 								</tr>
 							</thead>
 							<tbody className="divide-y divide-line">
 								{pricing.lines.map((line) => (
 									<CartLineRow
+										translations={translations}
 										key={line.id}
 										line={line}
 										currency={pricing.currency}
@@ -196,13 +272,13 @@ export function ViewCart({ entry }: { entry: CartModel }) {
 			</ViewSection>
 
 			{pricing && (
-				<ViewSection title="Pricing">
+				<ViewSection title={translations['cart.section.pricing']}>
 					<ViewField
-						label="Subtotal (excl. VAT)"
+						label={translations['cart.field.subtotal_excl_vat']}
 						value={money(pricing.subtotal, pricing.currency)}
 					/>
 					<ViewField
-						label="Discount"
+						label={translations['cart.field.discount']}
 						value={
 							pricing.discount_reduction > 0
 								? `-${money(pricing.discount_reduction, pricing.currency)}`
@@ -210,11 +286,11 @@ export function ViewCart({ entry }: { entry: CartModel }) {
 						}
 					/>
 					<ViewField
-						label="VAT"
+						label={translations['cart.field.vat']}
 						value={money(pricing.vat_amount, pricing.currency)}
 					/>
 					<ViewField
-						label="Total"
+						label={translations['cart.field.total']}
 						value={money(pricing.total, pricing.currency)}
 					/>
 					{/*
@@ -224,14 +300,14 @@ export function ViewCart({ entry }: { entry: CartModel }) {
 					 */}
 					{pricing.exchange_rate !== 1 && (
 						<ViewField
-							label="Exchange Rate"
+							label={translations['cart.field.exchange_rate']}
 							value={pricing.exchange_rate}
 						/>
 					)}
 					{pricing.has_issues && (
 						<ViewField
-							label="Checkout"
-							value="Blocked - some lines can no longer be bought"
+							label={translations['cart.field.checkout']}
+							value={translations['cart.text.checkout_blocked']}
 							full
 						/>
 					)}
@@ -244,9 +320,7 @@ export function ViewCart({ entry }: { entry: CartModel }) {
 			 * comparing it to what the shopper saw last week should know why the numbers differ.
 			 */}
 			<p className="text-xs text-muted">
-				Prices are resolved from the catalog when this window is opened
-				and are not stored on the cart - they are what these lines would
-				cost right now.
+				{translations['cart.text.prices_are_resolved_from_the_catalog']}
 			</p>
 		</div>
 	);

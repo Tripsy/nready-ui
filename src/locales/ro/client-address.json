@@ -24,5 +24,22 @@
 			"success": "Adresa clientului a fost ștearsă cu succes",
 			"confirm": "Sigur vrei să elimini această adresă de la client? Nu poate fi restaurată. Adresa în sine rămâne."
 		}
+	},
+	"field": {
+		"type": "Tip",
+		"address": "Adresă",
+		"details": "Detalii",
+		"notes": "Notițe"
+	},
+	"text": {
+		"placeholder_details": "ex.: Ap. 12, etaj 3",
+		"placeholder_notes": "ex.: Sunați de două ori, intrarea din spate",
+		"create_address": "Creează adresa „{{value}}”"
+	},
+	"enum": {
+		"type": {
+			"billing": "Facturare",
+			"delivery": "Livrare"
+		}
 	}
 }

@@ -11,6 +11,15 @@ import { Link } from '@/components/ui/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Routes from '@/config/routes.setup';
 import { cn } from '@/helpers/css.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
+
+const TRANSLATION_KEYS = [
+	'dashboard.text.view_more',
+	'dashboard.labels.log-data',
+	'dashboard.labels.mail-queue',
+	'dashboard.labels.cron-history',
+	'dashboard.text.entries_match_filter',
+] as const;
 
 type PanelTabId = 'log-data' | 'mail-queue' | 'cron-history';
 
@@ -20,6 +29,8 @@ type PanelTabId = 'log-data' | 'mail-queue' | 'cron-history';
  * hidden tab still has to know its own count.
  */
 export function SystemPanels(): JSX.Element {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const [tab, setTab] = useState<PanelTabId>('log-data');
 
 	const logData = useLogDataPanel();
@@ -27,11 +38,19 @@ export function SystemPanels(): JSX.Element {
 	const cronHistory = useCronHistoryPanel();
 
 	const tabs = [
-		{ id: 'log-data' as const, label: 'Log Data', panel: logData },
-		{ id: 'mail-queue' as const, label: 'Mail Queue', panel: mailQueue },
+		{
+			id: 'log-data' as const,
+			label: translations['dashboard.labels.log-data'],
+			panel: logData,
+		},
+		{
+			id: 'mail-queue' as const,
+			label: translations['dashboard.labels.mail-queue'],
+			panel: mailQueue,
+		},
 		{
 			id: 'cron-history' as const,
-			label: 'Cron History',
+			label: translations['dashboard.labels.cron-history'],
 			panel: cronHistory,
 		},
 	];
@@ -62,7 +81,11 @@ export function SystemPanels(): JSX.Element {
 										{panel.count}
 										<span className="sr-only">
 											{' '}
-											entries match the current filter
+											{
+												translations[
+													'dashboard.text.entries_match_filter'
+												]
+											}
 										</span>
 									</span>
 								)}
@@ -83,7 +106,11 @@ export function SystemPanels(): JSX.Element {
 											className="gap-1"
 											href={Routes.get(id)}
 										>
-											View more
+											{
+												translations[
+													'dashboard.text.view_more'
+												]
+											}
 											<ArrowUpRight className="h-4 w-4" />
 										</Link>
 									}

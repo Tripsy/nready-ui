@@ -4,11 +4,17 @@ import { ViewLogData } from '@/app/(dashboard)/dashboard/log-data/view-log-data.
 import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import { requestDeleteMultiple, requestFind } from '@/helpers/services.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
-import type {
-	LogCategory,
-	LogDataModel,
-	LogLevel,
+import {
+	type LogCategory,
+	LogCategoryEnum,
+	type LogDataModel,
+	type LogLevel,
+	LogLevelEnum,
 } from '@/models/log-data.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type {
@@ -27,10 +33,24 @@ export type LogDataDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<LogDataModel>
 > {
-	const translations = await translateBatch(
-		['view.title', 'delete.title', 'guide.title'] as const,
-		'log-data.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			['view.title', 'delete.title', 'guide.title'] as const,
+			'log-data.action',
+		),
+		translateBatch(
+			[
+				'field.category',
+				'field.created_at',
+				'field.id',
+				'field.level',
+				'field.message',
+				...enumTranslationKeys('enum.category', LogCategoryEnum),
+				...enumTranslationKeys('enum.level', LogLevelEnum),
+			] as const,
+			'log-data',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -60,7 +80,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -70,29 +90,37 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'category',
-					header: 'Category',
+					header: labels['field.category'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							capitalize: true,
+							customValue: translateEnumLabel(
+								labels,
+								'enum.category',
+								entry.category,
+							),
 						}),
 				},
 				{
 					field: 'level',
-					header: 'Level',
+					header: labels['field.level'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							capitalize: true,
+							customValue: translateEnumLabel(
+								labels,
+								'enum.level',
+								entry.level,
+							),
 						}),
 				},
 				{
 					field: 'message',
-					header: 'Message',
+					header: labels['field.message'],
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

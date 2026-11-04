@@ -15,11 +15,16 @@ import { FormComponentCheckbox } from '@/components/form/form-element.component'
 import { Icons } from '@/components/icon.component';
 import { getLanguageClient } from '@/config/translate.setup';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	languageOwnName,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type ArticleFeaturedStatus,
 	ArticleFeaturedStatusEnum,
@@ -38,27 +43,81 @@ import { displayTermValue, type TermModel } from '@/models/term.model';
 import { displayUserLabel, type UserModel } from '@/models/user.model';
 import { type Language, LanguageEnum } from '@/types/common.type';
 
-const statuses = toOptionsFromEnum(ArticleStatusEnum, {
-	formatter: formatEnumLabel,
-});
-
-const visibilities = toOptionsFromEnum(ArticleVisibilityEnum, {
-	formatter: formatEnumLabel,
-});
-
-const featuredStatuses = toOptionsFromEnum(ArticleFeaturedStatusEnum, {
-	formatter: formatEnumLabel,
-});
-
-const sourceModes = toOptionsFromEnum(ArticleSourceModeEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'article.field.author',
+	'article.field.category',
+	'article.field.featured_status',
+	'article.field.is_published',
+	'article.field.language',
+	'article.field.search',
+	'article.field.source_mode',
+	'article.field.status',
+	'article.field.tag',
+	'article.field.visibility',
+	...enumTranslationKeys('article.status', ArticleStatusEnum),
+	...enumTranslationKeys('article.enum.visibility', ArticleVisibilityEnum),
+	...enumTranslationKeys(
+		'article.enum.featured_status',
+		ArticleFeaturedStatusEnum,
+	),
+	...enumTranslationKeys('article.enum.source_mode', ArticleSourceModeEnum),
+] as const;
 
 const languages = toOptionsFromEnum(LanguageEnum, {
-	formatter: formatEnumLabel,
+	formatter: languageOwnName,
 });
 
 export const DataTableFiltersArticle = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const sourceModes = useMemo(
+		() =>
+			toOptionsFromEnum(ArticleSourceModeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'article.enum.source_mode',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const featuredStatuses = useMemo(
+		() =>
+			toOptionsFromEnum(ArticleFeaturedStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'article.enum.featured_status',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const visibilities = useMemo(
+		() =>
+			toOptionsFromEnum(ArticleVisibilityEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'article.enum.visibility',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const statuses = useMemo(
+		() =>
+			toOptionsFromEnum(ArticleStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'article.status', value),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'article'>();
 
@@ -129,12 +188,12 @@ export const DataTableFiltersArticle = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<ArticleDataTableFiltersType>
-				labelText="ID / Title / Brief"
+				labelText={translations['article.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<ArticleDataTableFiltersType>
-				labelText="Status"
+				labelText={translations['article.field.status']}
 				fieldName="status"
 				fieldValue={filters.status.value}
 				options={statuses}
@@ -144,7 +203,7 @@ export const DataTableFiltersArticle = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<ArticleDataTableFiltersType>
-				labelText="Visibility"
+				labelText={translations['article.field.visibility']}
 				fieldName="visibility"
 				fieldValue={filters.visibility.value}
 				options={visibilities}
@@ -154,7 +213,7 @@ export const DataTableFiltersArticle = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<ArticleDataTableFiltersType>
-				labelText="Featured"
+				labelText={translations['article.field.featured_status']}
 				fieldName="featured_status"
 				fieldValue={filters.featured_status.value}
 				options={featuredStatuses}
@@ -167,7 +226,7 @@ export const DataTableFiltersArticle = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<ArticleDataTableFiltersType>
-				labelText="Source"
+				labelText={translations['article.field.source_mode']}
 				fieldName="source_mode"
 				fieldValue={filters.source_mode.value}
 				options={sourceModes}
@@ -182,7 +241,7 @@ export const DataTableFiltersArticle = (): JSX.Element => {
 			 * request's language; the control shows that fallback rather than a blank.
 			 */}
 			<FormFiltersSelect<ArticleDataTableFiltersType>
-				labelText="Language"
+				labelText={translations['article.field.language']}
 				fieldName="language"
 				fieldValue={filters.language.value ?? getLanguageClient()}
 				options={languages}
@@ -192,7 +251,7 @@ export const DataTableFiltersArticle = (): JSX.Element => {
 			/>
 
 			<FormFiltersAutoComplete<ArticleDataTableFiltersType, UserModel>
-				labelText="Author"
+				labelText={translations['article.field.author']}
 				fieldName="author"
 				fieldNameId="author_id"
 				fieldValue={searchAuthor}
@@ -208,7 +267,7 @@ export const DataTableFiltersArticle = (): JSX.Element => {
 			/>
 
 			<FormFiltersAutoComplete<ArticleDataTableFiltersType, CategoryModel>
-				labelText="Category"
+				labelText={translations['article.field.category']}
 				fieldName="category"
 				fieldNameId="category_id"
 				fieldValue={searchCategory}
@@ -227,7 +286,7 @@ export const DataTableFiltersArticle = (): JSX.Element => {
 			/>
 
 			<FormFiltersAutoComplete<ArticleDataTableFiltersType, TermModel>
-				labelText="Tag"
+				labelText={translations['article.field.tag']}
 				fieldName="tag"
 				fieldNameId="tag_id"
 				fieldValue={searchTag}
@@ -262,7 +321,7 @@ export const DataTableFiltersArticle = (): JSX.Element => {
 						setFilterValue('is_published', value)
 					}
 				>
-					Live now
+					{translations['article.field.is_published']}
 				</FormComponentCheckbox>
 			</div>
 

@@ -12,8 +12,13 @@ import type { AddressDataTableFiltersType } from '@/app/(dashboard)/dashboard/ad
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
+
+const TRANSLATION_KEYS = ['address.field.search'] as const;
 
 export const DataTableFiltersAddress = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'address'>();
 
@@ -54,7 +59,7 @@ export const DataTableFiltersAddress = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<AddressDataTableFiltersType>
-				labelText="ID / Address / Postal Code"
+				labelText={translations['address.field.search']}
 				search={searchGlobal}
 			/>
 

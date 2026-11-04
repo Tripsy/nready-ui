@@ -42,11 +42,9 @@
 		"invalid_password": "Please create a password",
 		"password_confirm_required": "Please confirm your password",
 		"invalid_language": "Please select a valid language",
-		"terms_required": "You must accept the terms and conditions to continue",
-		"email_already_used": "This email address is already registered"
+		"terms_required": "You must accept the terms and conditions to continue"
 	},
 	"message": {
-		"success": "Thank you for registering! Please check your email to confirm your account",
 		"pending_account": "Another account is already registered with this email address."
 	}
 }

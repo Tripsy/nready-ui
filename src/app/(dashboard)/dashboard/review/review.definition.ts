@@ -123,18 +123,37 @@ export type ReviewDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<ReviewModel>
 > {
-	const translations = await translateBatch(
-		[
-			'update.title',
-			'view.title',
-			'delete.title',
-			'restore.title',
-			'statusTransition.title',
-			'viewUser.title',
-			'guide.title',
-		] as const,
-		'review.action',
-	);
+	const [translations, labels, shared] = await Promise.all([
+		translateBatch(
+			[
+				'update.title',
+				'view.title',
+				'delete.title',
+				'restore.title',
+				'statusTransition.title',
+				'viewUser.title',
+				'guide.title',
+			] as const,
+			'review.action',
+		),
+		translateBatch(
+			[
+				'field.content',
+				'field.created_at',
+				'field.id',
+				'field.is_verified',
+				'field.product',
+				'field.rating_avg',
+				'field.status',
+				'field.user',
+				'text.open_product_page',
+				'text.view_product_details',
+				'text.product_ref',
+			] as const,
+			'review',
+		),
+		translateBatch(['dashboard.text.yes', 'dashboard.text.no'] as const),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -213,7 +232,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -223,7 +242,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'product_id',
-					header: 'Target',
+					header: labels['field.product'],
 					defaultWidth: 240,
 					/*
 					 * Built by hand rather than through `displayButton`: the cell carries two
@@ -233,12 +252,17 @@ export default async function dataSourceConfig(): Promise<
 					 */
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
-							customValue: reviewTargetValue(entry, auth),
+							customValue: reviewTargetValue(entry, auth, {
+								openPage: labels['text.open_product_page'],
+								viewProduct:
+									labels['text.view_product_details'],
+								productRef: labels['text.product_ref'],
+							}),
 						}),
 				},
 				{
 					field: 'rating_avg',
-					header: 'Rating',
+					header: labels['field.rating_avg'],
 					defaultWidth: 104,
 					sortable: true,
 					body: (entry, column) =>
@@ -250,7 +274,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'content',
-					header: 'Review',
+					header: labels['field.content'],
 					minWidth: 260,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -261,7 +285,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'user_id',
-					header: 'Author',
+					header: labels['field.user'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							customValue: displayReviewAuthor(entry),
@@ -270,16 +294,18 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'is_verified',
-					header: 'Verified',
+					header: labels['field.is_verified'],
 					defaultWidth: 104,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: entry.is_verified ? 'Yes' : 'No',
+							customValue: entry.is_verified
+								? shared['dashboard.text.yes']
+								: shared['dashboard.text.no'],
 						}),
 				},
 				{
 					field: 'status',
-					header: 'Status',
+					header: labels['field.status'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							dataSource: 'review',
@@ -291,7 +317,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

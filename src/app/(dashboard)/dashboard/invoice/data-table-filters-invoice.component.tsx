@@ -11,10 +11,15 @@ import {
 import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { InvoiceDataTableFiltersType } from '@/app/(dashboard)/dashboard/invoice/invoice.definition';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	formatEnumLabel,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type InvoicePaymentStatus,
 	InvoicePaymentStatusEnum,
@@ -25,37 +30,97 @@ import {
 } from '@/models/invoice.model';
 import { type Currency, CurrencyEnum } from '@/types/common.type';
 
-const statuses = toOptionsFromEnum(InvoiceStatusEnum, {
-	formatter: formatEnumLabel,
-});
-
-const paymentStatuses = toOptionsFromEnum(InvoicePaymentStatusEnum, {
-	formatter: formatEnumLabel,
-});
-
-const scopes = toOptionsFromEnum(InvoiceScopeEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'invoice.field.currency',
+	'invoice.field.is_overdue',
+	'invoice.field.is_reversal',
+	'invoice.field.issue_date',
+	'invoice.field.payment_status',
+	'invoice.field.scope',
+	'invoice.field.search',
+	'invoice.field.status',
+	'invoice.text.overdue',
+	'invoice.text.not_overdue',
+	'invoice.text.reversals_only',
+	'invoice.text.originals_only',
+	...enumTranslationKeys('invoice.status', InvoiceStatusEnum),
+	...enumTranslationKeys(
+		'invoice.enum.payment_status',
+		InvoicePaymentStatusEnum,
+	),
+	...enumTranslationKeys('invoice.enum.scope', InvoiceScopeEnum),
+] as const;
 
 const currencies = toOptionsFromEnum(CurrencyEnum, {
 	formatter: formatEnumLabel,
 });
 
-/**
- * "Late right now" - stamped as overdue and still unsettled. `overdue_at` alone would also match
- * a document that was late once and has since been paid, which is not what a dunning run reads.
- */
-const overdueOptions = [
-	{ label: 'Overdue', value: 'true' },
-	{ label: 'Not overdue', value: 'false' },
-];
-
-const reversalOptions = [
-	{ label: 'Reversals only', value: 'true' },
-	{ label: 'Originals only', value: 'false' },
-];
-
 export const DataTableFiltersInvoice = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const reversalOptions = useMemo(
+		() => [
+			{
+				label: translations['invoice.text.reversals_only'],
+				value: 'true',
+			},
+			{
+				label: translations['invoice.text.originals_only'],
+				value: 'false',
+			},
+		],
+		[translations],
+	);
+
+	const overdueOptions = useMemo(
+		() =>
+			// "Late right now" - stamped as overdue and still unsettled. `overdue_at` alone would
+			// also match a document that was late once and has since been paid
+			[
+				{ label: translations['invoice.text.overdue'], value: 'true' },
+				{
+					label: translations['invoice.text.not_overdue'],
+					value: 'false',
+				},
+			],
+		[translations],
+	);
+
+	const scopes = useMemo(
+		() =>
+			toOptionsFromEnum(InvoiceScopeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'invoice.enum.scope',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const paymentStatuses = useMemo(
+		() =>
+			toOptionsFromEnum(InvoicePaymentStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'invoice.enum.payment_status',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const statuses = useMemo(
+		() =>
+			toOptionsFromEnum(InvoiceStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'invoice.status', value),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'invoice'>();
 
@@ -100,12 +165,12 @@ export const DataTableFiltersInvoice = (): JSX.Element => {
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			{/* A number matches the printed reference or the id; text matches the series code or the notes */}
 			<FormFiltersSearch<InvoiceDataTableFiltersType>
-				labelText="Number / Series / Notes"
+				labelText={translations['invoice.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<InvoiceDataTableFiltersType>
-				labelText="Scope"
+				labelText={translations['invoice.field.scope']}
 				fieldName="scope"
 				fieldValue={filters.scope.value}
 				options={scopes}
@@ -117,7 +182,7 @@ export const DataTableFiltersInvoice = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<InvoiceDataTableFiltersType>
-				labelText="Status"
+				labelText={translations['invoice.field.status']}
 				fieldName="status"
 				fieldValue={filters.status.value}
 				options={statuses}
@@ -129,7 +194,7 @@ export const DataTableFiltersInvoice = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<InvoiceDataTableFiltersType>
-				labelText="Payment"
+				labelText={translations['invoice.field.payment_status']}
 				fieldName="payment_status"
 				fieldValue={filters.payment_status.value}
 				options={paymentStatuses}
@@ -141,7 +206,7 @@ export const DataTableFiltersInvoice = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<InvoiceDataTableFiltersType>
-				labelText="Currency"
+				labelText={translations['invoice.field.currency']}
 				fieldName="currency"
 				fieldValue={filters.currency.value}
 				options={currencies}
@@ -153,7 +218,7 @@ export const DataTableFiltersInvoice = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<InvoiceDataTableFiltersType>
-				labelText="Storno"
+				labelText={translations['invoice.field.is_reversal']}
 				fieldName="is_reversal"
 				fieldValue={
 					filters.is_reversal.value === null
@@ -169,7 +234,7 @@ export const DataTableFiltersInvoice = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<InvoiceDataTableFiltersType>
-				labelText="Overdue"
+				labelText={translations['invoice.field.is_overdue']}
 				fieldName="is_overdue"
 				fieldValue={
 					filters.is_overdue.value === null
@@ -185,7 +250,7 @@ export const DataTableFiltersInvoice = (): JSX.Element => {
 			/>
 
 			<FormFiltersDateRange<InvoiceDataTableFiltersType>
-				labelText="Issue Date"
+				labelText={translations['invoice.field.issue_date']}
 				start={{
 					fieldName: 'issued_at_start',
 					fieldValue: filters.issued_at_start.value,

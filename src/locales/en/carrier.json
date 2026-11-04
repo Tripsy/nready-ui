@@ -56,5 +56,28 @@
 		"note": "Deleting a carrier is a soft delete, so shipments already pointing at it keep resolving - use Show deleted to find one and restore it. The uniqueness rule ignores deleted rows, so the name is free the moment it is deleted and a restore fails while another carrier holds it.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"field": {
+		"id": "ID",
+		"name": "Name",
+		"website": "Website",
+		"phone": "Phone",
+		"email": "Email",
+		"created_at": "Created At",
+		"search": "ID / Name / Website",
+		"notes": "Notes",
+		"updated_at": "Updated At",
+		"deleted_at": "Deleted At"
+	},
+	"text": {
+		"placeholder_name": "e.g.: Fan Courier",
+		"placeholder_website": "e.g.: https://www.fancourier.ro",
+		"placeholder_phone": "e.g.: +40 721 000 000",
+		"placeholder_email": "e.g.: office@fancourier.ro"
+	},
+	"section": {
+		"contact": "Contact",
+		"other": "Other",
+		"timestamps": "Timestamps"
 	}
 }

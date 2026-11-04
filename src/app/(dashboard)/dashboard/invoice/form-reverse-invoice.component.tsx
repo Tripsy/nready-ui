@@ -1,3 +1,6 @@
+'use client';
+
+import { useMemo } from 'react';
 import {
 	FormComponentInput,
 	FormComponentSelect,
@@ -5,8 +8,28 @@ import {
 } from '@/components/form/form-element.component';
 import { formatAmount } from '@/helpers/display.helper';
 import { ownErrorMessages } from '@/helpers/form.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { useWindowForm } from '@/providers/window-form.provider';
+
+const TRANSLATION_KEYS = [
+	'invoice.field.amount',
+	'invoice.field.line',
+	'invoice.field.net_left',
+	'invoice.field.notes',
+	'invoice.field.qty_left',
+	'invoice.field.reverse_by',
+	'invoice.text.everything_on_this_invoice_has_already',
+	'invoice.text.leave_a_line_empty_or_at',
+	'invoice.text.mode_quantity',
+	'invoice.text.mode_net_value',
+	'invoice.text.unit_price_net',
+	'invoice.text.label_reverse_by',
+	'invoice.text.label_reverse_quantity',
+	'invoice.text.label_reverse_net',
+	'invoice.text.placeholder_max',
+] as const;
 
 /**
  * How one line of the original is taken back. A line whose figure is left empty or at zero is
@@ -47,11 +70,6 @@ export type InvoiceReverseFormValuesType = {
 	currency: string | null;
 };
 
-const modeOptions = [
-	{ label: 'Quantity', value: ReverseLineModeEnum.QUANTITY },
-	{ label: 'Net value', value: ReverseLineModeEnum.VALUE },
-];
-
 /**
  * Raises a reversal (storno) against an issued invoice, line by line.
  *
@@ -60,6 +78,22 @@ const modeOptions = [
  * `getReverseFormState` for the one line that opens empty.
  */
 export function FormReverseInvoice() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const modeOptions = useMemo(
+		() => [
+			{
+				label: translations['invoice.text.mode_quantity'],
+				value: ReverseLineModeEnum.QUANTITY,
+			},
+			{
+				label: translations['invoice.text.mode_net_value'],
+				value: ReverseLineModeEnum.VALUE,
+			},
+		],
+		[translations],
+	);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<InvoiceReverseFormValuesType>();
 
@@ -94,7 +128,11 @@ export function FormReverseInvoice() {
 
 			{lines.length === 0 ? (
 				<p className="text-sm text-muted">
-					Everything on this invoice has already been reversed.
+					{
+						translations[
+							'invoice.text.everything_on_this_invoice_has_already'
+						]
+					}
 				</p>
 			) : (
 				<div className="overflow-x-auto">
@@ -102,19 +140,19 @@ export function FormReverseInvoice() {
 						<thead>
 							<tr className="border-b border-line text-xs uppercase tracking-wide text-muted">
 								<th className="py-2 pr-4 text-left font-medium">
-									Line
+									{translations['invoice.field.line']}
 								</th>
 								<th className="py-2 pr-4 text-right font-medium">
-									Qty left
+									{translations['invoice.field.qty_left']}
 								</th>
 								<th className="py-2 pr-4 text-right font-medium">
-									Net left
+									{translations['invoice.field.net_left']}
 								</th>
 								<th className="py-2 pr-4 text-left font-medium">
-									Reverse by
+									{translations['invoice.field.reverse_by']}
 								</th>
 								<th className="py-2 text-left font-medium">
-									Amount
+									{translations['invoice.field.amount']}
 								</th>
 							</tr>
 						</thead>
@@ -126,7 +164,16 @@ export function FormReverseInvoice() {
 											{line.label}
 										</div>
 										<div className="text-xs text-muted">
-											{money(line.unit_price)} / unit, net
+											{replaceVars(
+												translations[
+													'invoice.text.unit_price_net'
+												],
+												{
+													price: money(
+														line.unit_price,
+													),
+												},
+											)}
 										</div>
 									</td>
 									<td className="py-2 pr-4 text-right align-middle">
@@ -138,7 +185,14 @@ export function FormReverseInvoice() {
 									<td className="py-2 pr-4 align-middle">
 										<FormComponentSelect<ReverseLineFormType>
 											id={`reverse-mode-${line.invoice_line_id}`}
-											ariaLabel={`Reverse ${line.label} by`}
+											ariaLabel={replaceVars(
+												translations[
+													'invoice.text.label_reverse_by'
+												],
+												{
+													label: line.label,
+												},
+											)}
 											fieldName="mode"
 											fieldValue={line.mode}
 											disabled={pending}
@@ -168,13 +222,27 @@ export function FormReverseInvoice() {
 										ReverseLineModeEnum.QUANTITY ? (
 											<FormComponentInput<ReverseLineFormType>
 												id={`reverse-quantity-${line.invoice_line_id}`}
-												ariaLabel={`Quantity of ${line.label} to reverse`}
+												ariaLabel={replaceVars(
+													translations[
+														'invoice.text.label_reverse_quantity'
+													],
+													{
+														label: line.label,
+													},
+												)}
 												fieldName="quantity"
 												fieldType="number"
 												fieldValue={line.quantity ?? ''}
 												disabled={pending}
 												className="w-28"
-												placeholderText={`max ${line.max_quantity}`}
+												placeholderText={replaceVars(
+													translations[
+														'invoice.text.placeholder_max'
+													],
+													{
+														max: line.max_quantity,
+													},
+												)}
 												onChange={(e) =>
 													updateLine(index, {
 														quantity:
@@ -191,13 +259,27 @@ export function FormReverseInvoice() {
 										) : (
 											<FormComponentInput<ReverseLineFormType>
 												id={`reverse-amount-${line.invoice_line_id}`}
-												ariaLabel={`Net value of ${line.label} to reverse`}
+												ariaLabel={replaceVars(
+													translations[
+														'invoice.text.label_reverse_net'
+													],
+													{
+														label: line.label,
+													},
+												)}
 												fieldName="amount"
 												fieldType="number"
 												fieldValue={line.amount ?? ''}
 												disabled={pending}
 												className="w-32"
-												placeholderText={`max ${line.max_net}`}
+												placeholderText={replaceVars(
+													translations[
+														'invoice.text.placeholder_max'
+													],
+													{
+														max: line.max_net,
+													},
+												)}
 												onChange={(e) =>
 													updateLine(index, {
 														amount:
@@ -227,15 +309,11 @@ export function FormReverseInvoice() {
 			))}
 
 			<p className="text-xs text-muted">
-				Leave a line empty or at 0 to keep it out of the reversal. Net
-				value is excluding VAT; the reversal adds VAT at each
-				line&apos;s own rate. Taking back by quantity returns the units
-				to the order; by value is a price correction and returns
-				nothing.
+				{translations['invoice.text.leave_a_line_empty_or_at']}
 			</p>
 
 			<FormComponentTextarea<InvoiceReverseFormValuesType>
-				labelText="Notes"
+				labelText={translations['invoice.field.notes']}
 				id={elementIds.notes}
 				fieldName="notes"
 				fieldValue={formValues.notes ?? ''}

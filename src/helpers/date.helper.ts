@@ -78,28 +78,38 @@ export function createPastDate(seconds: number): Date {
  * the backend's `isoWeekday` and has no caller here yet.
  */
 export const ISO_WEEKDAYS = [
-	{ value: 1, label: 'Monday' },
-	{ value: 2, label: 'Tuesday' },
-	{ value: 3, label: 'Wednesday' },
-	{ value: 4, label: 'Thursday' },
-	{ value: 5, label: 'Friday' },
-	{ value: 6, label: 'Saturday' },
-	{ value: 7, label: 'Sunday' },
+	{
+		value: 1,
+		labelKey: 'dashboard.text.weekday_monday',
+	},
+	{
+		value: 2,
+		labelKey: 'dashboard.text.weekday_tuesday',
+	},
+	{
+		value: 3,
+		labelKey: 'dashboard.text.weekday_wednesday',
+	},
+	{
+		value: 4,
+		labelKey: 'dashboard.text.weekday_thursday',
+	},
+	{
+		value: 5,
+		labelKey: 'dashboard.text.weekday_friday',
+	},
+	{
+		value: 6,
+		labelKey: 'dashboard.text.weekday_saturday',
+	},
+	{
+		value: 7,
+		labelKey: 'dashboard.text.weekday_sunday',
+	},
 ] as const;
 
-/**
- * Names an ISO weekday. An out-of-range number renders as `Day 9` rather than as nothing - a
- * value the backend's check constraint refuses, so seeing it means the two have drifted.
- *
- * @param {number} day - ISO weekday, 1 (Monday) through 7 (Sunday)
- * @returns {string} - The day's English name
- */
-export function isoWeekdayName(day: number): string {
-	return (
-		ISO_WEEKDAYS.find((weekday) => weekday.value === day)?.label ??
-		`Day ${day}`
-	);
-}
+/** The weekday names' translation keys, for a component's `TRANSLATION_KEYS`. */
+export const ISO_WEEKDAY_KEYS = ISO_WEEKDAYS.map((weekday) => weekday.labelKey);
 
 /**
  * Check if a string is a valid date.
@@ -329,14 +339,14 @@ export function dateDiff(
 /**
  * Relative description of a past date, e.g. "2 hours ago".
  */
-export function timeAgo(date: string | Date): string {
+export function timeAgo(date: string | Date, language?: Language): string {
 	const target = dayjs(date);
 
 	if (!target.isValid()) {
 		throw new Error('Invalid date argument provided for timeAgo');
 	}
 
-	return target.fromNow();
+	return target.locale(resolveLocale(language)).fromNow();
 }
 
 /**

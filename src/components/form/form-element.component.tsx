@@ -25,8 +25,22 @@ import {
 import { Radio, RadioGroup } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/helpers/css.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import type { ButtonAppearanceType } from '@/types/html.type';
+
+const TRANSLATION_KEYS = [
+	'app.action.loading.label',
+	'app.action.submit.label',
+	'app.form.hours_short',
+	'app.form.minutes_short',
+	'app.form.searching',
+	'app.form.no_results',
+	'app.form.create_value',
+	'app.form.placeholder_name',
+	'app.form.placeholder_email',
+	'app.form.placeholder_password',
+] as const;
 
 export type InputValueType = string | null | undefined;
 export type OptionValueType = string | null | undefined;
@@ -292,6 +306,8 @@ export const FormComponentTime = <Fields,>({
 	maxTime,
 	minuteInterval = 1,
 }: FormComponentTimeProps<Fields>) => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const [open, setOpen] = useState(false);
 	const { borderClass } = useFieldState({ error });
 
@@ -401,7 +417,7 @@ export const FormComponentTime = <Fields,>({
 							{/* Hours */}
 							<div className="flex flex-col gap-1">
 								<p className="text-xs text-muted text-center pb-1">
-									HH
+									{translations['app.form.hours_short']}
 								</p>
 								<ul className="h-48 overflow-y-auto flex flex-col gap-0.5">
 									{hours.map((hour) => (
@@ -429,7 +445,7 @@ export const FormComponentTime = <Fields,>({
 							{/* Minutes */}
 							<div className="flex flex-col gap-1">
 								<p className="text-xs text-muted text-center pb-1">
-									MM
+									{translations['app.form.minutes_short']}
 								</p>
 								<ul className="h-48 overflow-y-auto flex flex-col gap-0.5">
 									{minutes.map((minute) => (
@@ -993,6 +1009,8 @@ export const FormComponentAutoComplete = <Fields, T>({
 			createLabel?: (value: string) => string;
 		};
 	}) => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const [isOpen, setIsOpen] = useState(false);
 	const [inputValue, setInputValue] = useState(fieldValue ?? '');
 	const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -1174,14 +1192,15 @@ export const FormComponentAutoComplete = <Fields, T>({
 						{isLoading && (
 							<li className="px-3 py-2 text-sm text-muted">
 								{autoCompleteProps.loadingMessage ??
-									'Searching...'}
+									translations['app.form.searching']}
 							</li>
 						)}
 
 						{/* Empty */}
 						{isEmpty && (
 							<li className="px-3 py-2 text-sm text-muted">
-								{autoCompleteProps.emptyMessage ?? 'No results'}
+								{autoCompleteProps.emptyMessage ??
+									translations['app.form.no_results']}
 							</li>
 						)}
 
@@ -1199,7 +1218,15 @@ export const FormComponentAutoComplete = <Fields, T>({
 								>
 									{autoCompleteProps.createLabel?.(
 										inputValue,
-									) ?? `Create "${inputValue}"`}
+									) ??
+										replaceVars(
+											translations[
+												'app.form.create_value'
+											],
+											{
+												value: inputValue,
+											},
+										)}
 								</button>
 							</li>
 						)}
@@ -1259,12 +1286,7 @@ export const FormComponentSubmit = ({
 	error: boolean;
 	button?: ButtonAppearanceType;
 }) => {
-	const translationsKeys = [
-		'app.action.loading.label',
-		'app.action.submit.label',
-	] as const;
-
-	const { translations } = useTranslation(translationsKeys);
+	const { translations } = useTranslation(TRANSLATION_KEYS);
 
 	const buttonLabel =
 		button?.label || translations['app.action.submit.label'];
@@ -1306,19 +1328,23 @@ export const FormComponentName = <Fields,>(
 		'fieldName' | 'fieldType' | 'autoComplete' | 'icons' | 'labelText'
 	> &
 		NamedByLabelOrAria,
-) => (
-	<FormComponentInput
-		{...props}
-		fieldName="name"
-		isRequired={props.isRequired ?? true}
-		className={cn('pl-8', props.className)}
-		autoComplete="name"
-		placeholderText="eg: John Doe"
-		icons={{
-			left: <Icons.User className="opacity-40 h-4.5 w-4.5" />,
-		}}
-	/>
-);
+) => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	return (
+		<FormComponentInput
+			{...props}
+			fieldName="name"
+			isRequired={props.isRequired ?? true}
+			className={cn('pl-8', props.className)}
+			autoComplete="name"
+			placeholderText={translations['app.form.placeholder_name']}
+			icons={{
+				left: <Icons.User className="opacity-40 h-4.5 w-4.5" />,
+			}}
+		/>
+	);
+};
 
 export const FormComponentEmail = <Fields,>(
 	props: Omit<
@@ -1327,17 +1353,21 @@ export const FormComponentEmail = <Fields,>(
 	> & {
 		fieldName?: 'email' | 'email_new';
 	} & NamedByLabelOrAria,
-) => (
-	<FormComponentInput
-		{...props}
-		fieldName={props.fieldName || 'email'}
-		isRequired={props.isRequired ?? true}
-		className={cn('pl-8', props.className)}
-		autoComplete="email"
-		placeholderText="eg: example@domain.com"
-		icons={{ left: <Icons.Email className="opacity-40 h-4.5 w-4.5" /> }}
-	/>
-);
+) => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	return (
+		<FormComponentInput
+			{...props}
+			fieldName={props.fieldName || 'email'}
+			isRequired={props.isRequired ?? true}
+			className={cn('pl-8', props.className)}
+			autoComplete="email"
+			placeholderText={translations['app.form.placeholder_email']}
+			icons={{ left: <Icons.Email className="opacity-40 h-4.5 w-4.5" /> }}
+		/>
+	);
+};
 
 export const FormComponentPassword = <Fields,>({
 	showPassword,
@@ -1346,30 +1376,37 @@ export const FormComponentPassword = <Fields,>({
 }: Omit<FormComponentProps<Fields, InputValueType>, 'labelText'> & {
 	showPassword: boolean;
 	setShowPassword?: (showPassword: boolean) => void;
-} & NamedByLabelOrAria) => (
-	<FormComponentInput
-		{...props}
-		fieldType={showPassword ? 'text' : 'password'}
-		fieldName={props.fieldName ?? 'password'}
-		isRequired={props.isRequired ?? true}
-		className={cn('px-8', props.className)}
-		autoComplete={props.autoComplete ?? 'new-password'}
-		placeholderText={props.placeholderText ?? 'Password'}
-		icons={{
-			left: <Icons.Password className="opacity-40 h-4.5 w-4.5" />,
-			right: setShowPassword && (
-				<button
-					type="button"
-					onClick={() => setShowPassword(!showPassword)}
-					className="focus:outline-none hover:opacity-100 transition-opacity"
-				>
-					{showPassword ? (
-						<Icons.Obscured className="opacity-60 hover:opacity-100 h-4.5 w-4.5" />
-					) : (
-						<Icons.Visible className="opacity-60 hover:opacity-100 h-4.5 w-4.5" />
-					)}
-				</button>
-			),
-		}}
-	/>
-);
+} & NamedByLabelOrAria) => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	return (
+		<FormComponentInput
+			{...props}
+			fieldType={showPassword ? 'text' : 'password'}
+			fieldName={props.fieldName ?? 'password'}
+			isRequired={props.isRequired ?? true}
+			className={cn('px-8', props.className)}
+			autoComplete={props.autoComplete ?? 'new-password'}
+			placeholderText={
+				props.placeholderText ??
+				translations['app.form.placeholder_password']
+			}
+			icons={{
+				left: <Icons.Password className="opacity-40 h-4.5 w-4.5" />,
+				right: setShowPassword && (
+					<button
+						type="button"
+						onClick={() => setShowPassword(!showPassword)}
+						className="focus:outline-none hover:opacity-100 transition-opacity"
+					>
+						{showPassword ? (
+							<Icons.Obscured className="opacity-60 hover:opacity-100 h-4.5 w-4.5" />
+						) : (
+							<Icons.Visible className="opacity-60 hover:opacity-100 h-4.5 w-4.5" />
+						)}
+					</button>
+				),
+			}}
+		/>
+	);
+};

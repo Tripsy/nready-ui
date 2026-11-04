@@ -6,7 +6,10 @@ import { LoadingIcon } from '@/components/status.component';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/components/ui/link';
 import { capitalizeFirstLetter } from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import type { ButtonAppearanceType } from '@/types/html.type';
+
+const TRANSLATION_KEYS = ['app.action.loading.label'] as const;
 
 type ActionCommand = {
 	type: 'action';
@@ -70,6 +73,8 @@ export function ActionButton({
 	disabled?: boolean;
 	command: ButtonCommand;
 }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const label = buttonAppearance?.label ?? capitalizeFirstLetter(action);
 	const title = buttonAppearance?.title
 		? buttonAppearance.title.replace(' - {{entry}}', '')
@@ -80,7 +85,8 @@ export function ActionButton({
 	const content = disabled ? (
 		<>
 			<LoadingIcon />
-			{buttonAppearance?.loadingLabel ?? 'Please wait...'}
+			{buttonAppearance?.loadingLabel ??
+				translations['app.action.loading.label']}
 		</>
 	) : (
 		<ActionButtonContent

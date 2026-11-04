@@ -41,5 +41,27 @@
 		"note": "Nimic nu curăță acest tabel după un program, iar el păstrează o copie completă a fiecărui corp de email, deci este tabelul care crește cel mai repede pe o instalare aglomerată. Ștergerea este definitivă: nu există stare de șters, iar rândul este singura dovadă că emailul a fost trimis.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"field": {
+		"status": "Status",
+		"template": "Șablon",
+		"content": "Conținut",
+		"to": "Către",
+		"id": "ID",
+		"sent_at": "Trimis la",
+		"error": "Eroare",
+		"language": "Limbă",
+		"layout": "Layout",
+		"subject": "Subiect",
+		"vars": "Variabile",
+		"created_at": "Creat la",
+		"updated_at": "Actualizat la",
+		"email_to": "Email către",
+		"email_from": "Email de la"
+	},
+	"section": {
+		"state": "Stare",
+		"email_data": "Datele emailului",
+		"timestamps": "Marcaje de timp"
 	}
 }

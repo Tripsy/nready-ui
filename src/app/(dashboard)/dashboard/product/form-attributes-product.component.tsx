@@ -1,3 +1,5 @@
+'use client';
+
 import type { JSX } from 'react';
 import {
 	FormComponentCheckbox,
@@ -11,6 +13,8 @@ import { Button } from '@/components/ui/button';
 import { getLanguageClient } from '@/config/translate.setup';
 import { cn } from '@/helpers/css.helper';
 import { requestUpdate } from '@/helpers/services.helper';
+import { replaceVars } from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { hasPermission } from '@/models/account.model';
 import {
 	displayAttributeLabel,
@@ -29,6 +33,11 @@ import {
 import { useAuth } from '@/providers/auth.provider';
 import { useModalStore } from '@/stores/window.store';
 import { DataSourceSectionEnum } from '@/types/data-source.type';
+
+const TRANSLATION_KEYS = [
+	'product.text.add_a_value_to',
+	'product.text.add_value',
+] as const;
 
 type Props = {
 	definitions: ProductCategoryAttributeModel[];
@@ -123,6 +132,8 @@ export function FormAttributesProduct({
 	idPrefix,
 	onDefinitionsChanged,
 }: Props): JSX.Element | null {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const language = getLanguageClient();
 
 	const { auth } = useAuth();
@@ -289,10 +300,13 @@ export function FormAttributesProduct({
 							disabled={disabled}
 							onClick={() => addValue(definition)}
 							className="whitespace-nowrap p-2 text-xs opacity-70 hover:opacity-100"
-							title={`Add a value to "${labelText}"`}
+							title={replaceVars(
+								translations['product.text.add_a_value_to'],
+								{ label_text: labelText },
+							)}
 						>
 							<Icons.Action.Add className="h-3.5 w-3.5" />
-							Add value
+							{translations['product.text.add_value']}
 						</Button>
 					) : null;
 

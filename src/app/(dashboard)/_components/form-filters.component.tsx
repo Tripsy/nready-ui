@@ -28,6 +28,16 @@ import type { FindFunctionResponseType } from '@/types/action.type';
 import type { DataSourceKey } from '@/types/data-source.key';
 import type { DataTableFiltersType } from '@/types/data-source.type';
 
+const TRANSLATION_KEYS = [
+	'dashboard.text.placeholder_search',
+	'dashboard.text.placeholder_select',
+	'dashboard.text.placeholder_start_date',
+	'dashboard.text.placeholder_end_date',
+	'dashboard.text.label_checkbox_show_deleted',
+	'dashboard.text.label_reset',
+	'dashboard.text.label_reset_filters',
+] as const;
+
 export function FormFiltersAutoComplete<
 	Fields extends DataTableFiltersType,
 	Model,
@@ -118,7 +128,7 @@ export function FormFiltersAutoComplete<
 export function FormFiltersSearch<Fields>({
 	labelText,
 	fieldName,
-	placeholderText = 'Search',
+	placeholderText,
 	search,
 	className,
 }: {
@@ -131,6 +141,8 @@ export function FormFiltersSearch<Fields>({
 	const elementKey = `search-${String(fieldName)}`;
 	const elementIds = useElementIds([elementKey]);
 
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	return (
 		<FormComponentInput<Fields>
 			labelText={labelText}
@@ -138,7 +150,10 @@ export function FormFiltersSearch<Fields>({
 			fieldName={fieldName || ('global' as keyof Fields & string)}
 			fieldValue={search.value}
 			className={cn('pl-8 max-w-64', className)}
-			placeholderText={placeholderText}
+			placeholderText={
+				placeholderText ??
+				translations['dashboard.text.placeholder_search']
+			}
 			icons={{
 				left: <Icons.Search className="opacity-40 h-4.5 w-4.5" />,
 			}}
@@ -152,7 +167,7 @@ export function FormFiltersSelect<Fields>({
 	labelText,
 	fieldName,
 	fieldValue,
-	placeholderText = 'Select...',
+	placeholderText,
 	options,
 	onChange,
 	className,
@@ -168,6 +183,8 @@ export function FormFiltersSelect<Fields>({
 	const elementKey = `search-${String(fieldName)}`;
 	const elementIds = useElementIds([elementKey]);
 
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	return (
 		<FormComponentSelect
 			labelText={labelText}
@@ -176,7 +193,10 @@ export function FormFiltersSelect<Fields>({
 			fieldValue={fieldValue}
 			className={cn('max-w-64 min-w-32', className)}
 			disabled={false}
-			placeholderText={placeholderText}
+			placeholderText={
+				placeholderText ??
+				translations['dashboard.text.placeholder_select']
+			}
 			options={options}
 			onChange={onChange}
 		/>
@@ -203,12 +223,7 @@ export function FormFiltersDateRange<Fields>({
 	const elementKeyEnd = `search-${String(end.fieldName)}`;
 	const elementIds = useElementIds([elementKeyStart, elementKeyEnd]);
 
-	const translationsKeys = [
-		'dashboard.text.placeholder_start_date',
-		'dashboard.text.placeholder_end_date',
-	] as const;
-
-	const { translations } = useTranslation(translationsKeys);
+	const { translations } = useTranslation(TRANSLATION_KEYS);
 
 	const maxDate = end.fieldValue ? stringToDate(end.fieldValue) : undefined;
 	const minDate = start.fieldValue
@@ -273,11 +288,7 @@ export function FormFiltersShowDeleted({
 
 	const elementIds = useElementIds(['search-is-deleted'] as const);
 
-	const translationsKeys = [
-		'dashboard.text.label_checkbox_show_deleted',
-	] as const;
-
-	const { translations } = useTranslation(translationsKeys);
+	const { translations } = useTranslation(TRANSLATION_KEYS);
 
 	if (!auth || !hasPermission(auth, dataSource, 'delete')) {
 		return null;
@@ -303,9 +314,7 @@ export function FormFiltersReset({
 }: {
 	dataSource: DataSourceKey;
 }) {
-	const translationsKeys = ['dashboard.text.label_reset'] as const;
-
-	const { translations } = useTranslation(translationsKeys);
+	const { translations } = useTranslation(TRANSLATION_KEYS);
 
 	return (
 		<div className="flex self-end">
@@ -314,7 +323,7 @@ export function FormFiltersReset({
 				variant="outline"
 				hover="warning"
 				onClick={() => dispatchFilterReset(dataSource)}
-				title="Reset filters"
+				title={translations['dashboard.text.label_reset_filters']}
 			>
 				<Icons.Action.Reset />
 				{translations['dashboard.text.label_reset']}

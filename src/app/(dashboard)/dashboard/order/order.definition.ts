@@ -586,18 +586,31 @@ export type OrderDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<OrderModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'view.title',
-			'delete.title',
-			'restore.title',
-			'statusTransition.title',
-			'guide.title',
-		] as const,
-		'order.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'view.title',
+				'delete.title',
+				'restore.title',
+				'statusTransition.title',
+				'guide.title',
+			] as const,
+			'order.action',
+		),
+		translateBatch(
+			[
+				'field.client_id',
+				'field.created_at',
+				'field.id',
+				'field.ref_number',
+				'field.shipments',
+				'field.status',
+			] as const,
+			'order',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -661,7 +674,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -672,7 +685,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'ref_number',
-					header: 'Reference',
+					header: labels['field.ref_number'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -681,7 +694,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'client_id',
-					header: 'Client',
+					header: labels['field.client_id'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							customValue: displayOrderClient(entry),
@@ -689,7 +702,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'shipments',
-					header: 'Shipping',
+					header: labels['field.shipments'],
 					body: (entry, column, auth) => {
 						const shipment = latestDelivery(entry);
 
@@ -729,7 +742,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'status',
-					header: 'Status',
+					header: labels['field.status'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							dataSource: 'order',
@@ -742,7 +755,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

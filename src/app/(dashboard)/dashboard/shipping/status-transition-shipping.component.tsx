@@ -9,14 +9,30 @@ import {
 import { DisplayStatus } from '@/helpers/display.helper';
 import { getStatusTransitions } from '@/helpers/model.helper';
 import { requestUpdateStatus } from '@/helpers/services.helper';
+import {
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	SHIPPING_STATUS_TRANSITIONS,
 	type ShippingModel,
 	type ShippingStatus,
+	ShippingStatusEnum,
 } from '@/models/shipping.model';
 import { useToast } from '@/providers/toast.provider';
 import { useModalStore } from '@/stores/window.store';
+
+const TRANSLATION_KEYS = [
+	'shipping.text.change_shipment_status_to',
+	'dashboard.text.label_set_status_to',
+	'app.error.title',
+	'app.success.title',
+	'shipping.error.cannot_update_status',
+	'shipping.action.statusTransition.success',
+	...enumTranslationKeys('shipping.status', ShippingStatusEnum),
+] as const;
 
 /**
  * Where a parcel may go from where it currently sits.
@@ -38,15 +54,8 @@ export function StatusTransitionShipping({
 
 	const { showToast } = useToast();
 
-	const translationsKeys = [
-		'app.error.title',
-		'app.success.title',
-		'shipping.error.cannot_update_status',
-		'shipping.action.statusTransition.success',
-	] as const;
-
 	const { isTranslationLoading, translations } =
-		useTranslation(translationsKeys);
+		useTranslation(TRANSLATION_KEYS);
 
 	const entry = entries[0];
 
@@ -108,7 +117,9 @@ export function StatusTransitionShipping({
 
 	return (
 		<div>
-			<p className="pb-4 font-semibold">Change shipment status to:</p>
+			<p className="pb-4 font-semibold">
+				{translations['shipping.text.change_shipment_status_to']}
+			</p>
 			<div className="flex flex-wrap gap-4 items-center">
 				{statusTransitions.map((status) => {
 					return (
@@ -116,7 +127,18 @@ export function StatusTransitionShipping({
 							key={status}
 							type="button"
 							className="cursor-pointer"
-							aria-label={`Set status to ${status}`}
+							aria-label={replaceVars(
+								translations[
+									'dashboard.text.label_set_status_to'
+								],
+								{
+									status: translateEnumLabel(
+										translations,
+										'shipping.status',
+										status,
+									),
+								},
+							)}
 							onClick={() => handleStatusUpdate(entry, status)}
 						>
 							<DisplayStatus

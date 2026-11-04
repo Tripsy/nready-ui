@@ -36,5 +36,83 @@
 		"note": "Nimic nu curăță acest tabel după un program, spre deosebire de jurnal, deci crește cât timp rulează aplicația. Este și singurul loc în care o schimbare trecută este consemnată: curăță-l pentru spațiu, niciodată pentru ordine, și păstrează suficient cât să poți răspunde cine a modificat o înregistrare și când.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"enum": {
+		"entity": {
+			"address": "Adresă",
+			"article": "Articol",
+			"brand": "Marcă",
+			"carrier": "Curier",
+			"cart": "Coș",
+			"cart_item": "Produs din coș",
+			"cash_flow": "Flux de numerar",
+			"category": "Categorie",
+			"client": "Client",
+			"client_address": "Adresă client",
+			"complaint": "Reclamație",
+			"discount": "Reducere",
+			"document_series": "Serie documente",
+			"exchange_rate": "Curs valutar",
+			"grn": "NIR",
+			"image": "Imagine",
+			"invoice": "Factură",
+			"order": "Comandă",
+			"shipping": "Livrare",
+			"shipping_line": "Linie livrare",
+			"permission": "Permisiune",
+			"place": "Localitate",
+			"product": "Produs",
+			"review": "Recenzie",
+			"subscription": "Abonament",
+			"template": "Șablon",
+			"term": "Termen",
+			"user": "Utilizator",
+			"vendor": "Furnizor",
+			"warehouse": "Depozit",
+			"operational_record": "Înregistrare operațională"
+		},
+		"action": {
+			"created": "Creat",
+			"updated": "Actualizat",
+			"deleted": "Șters",
+			"removed": "Eliminat",
+			"restored": "Restaurat",
+			"status": "Status",
+			"password_change": "Schimbare parolă"
+		},
+		"source": {
+			"cron": "Cron",
+			"api": "API",
+			"seed": "Seed",
+			"unknown": "Necunoscut"
+		}
+	},
+	"activity": {
+		"created": "creat",
+		"updated": "actualizat",
+		"deleted": "șters",
+		"removed": "eliminat",
+		"restored": "restaurat",
+		"status": "status actualizat",
+		"password_change": "parolă schimbată"
+	},
+	"text": {
+		"activity_summary": "{{entity}} #{{id}} {{action}}",
+		"performed_by": "de {{name}}"
+	},
+	"field": {
+		"entity": "Entitate",
+		"action": "Acțiune",
+		"source": "Sursă",
+		"recorded_at": "Înregistrat la",
+		"id": "ID",
+		"request_id": "ID cerere",
+		"entity_id": "ID entitate",
+		"performed_by": "Efectuat de",
+		"auth_id": "ID utilizator autentificat"
+	},
+	"section": {
+		"info": "Info",
+		"request_details": "Detaliile cererii"
 	}
 }

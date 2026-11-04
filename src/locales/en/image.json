@@ -3,17 +3,7 @@
 		"title": "Images - Dashboard | {{app_name}}"
 	},
 	"validation": {
-		"invalid_section": "Invalid section",
-		"invalid_entity_id": "Invalid entity ID",
-		"invalid_image_type": "Invalid image type",
 		"invalid_language": "Invalid language",
-		"invalid_storage": "Invalid storage",
-		"invalid_path": "Invalid path provided",
-		"invalid_width": "Invalid width",
-		"invalid_height": "Invalid height",
-		"invalid_size": "Invalid size",
-		"invalid_mime": "Invalid mime type",
-		"invalid_alt": "Invalid alt text",
 		"invalid_attribute": "Invalid attribute: {{attribute}}",
 		"invalid_description": "Invalid description"
 	},
@@ -80,5 +70,62 @@
 		"note": "Deleting from this screen removes the row and the stored file with it. The backend's own cleanup does not: when an article or a product is removed, its image rows go and the files stay behind, because reaping storage is a job nothing currently runs.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"text": {
+		"type": "Type",
+		"size": "Size",
+		"remove_image": "Remove image",
+		"active_image": "Active image",
+		"inactive_image": "Inactive image",
+		"change_order": "Change order",
+		"label_drag_to_reorder": "Drag to reorder",
+		"label_upload": "Upload {{label}}",
+		"manage_images": "Manage images",
+		"upload_logo": "Upload logo",
+		"logo_not_uploaded": "Logo not uploaded",
+		"no_images_uploaded": "No images uploaded",
+		"gallery_is_full_remove_an_image": "Gallery is full. Remove an image to add another.",
+		"save_changes": "Save changes",
+		"logo_hint": "Single image · {{formats}}",
+		"drop_hint": "Drag & drop or click to browse",
+		"gallery_hint": "Up to {{max}} images · {{formats}}",
+		"upload_images": "Upload images",
+		"add_more_images": "Add more images",
+		"gallery_drop_hint": "Drag & drop or click · up to {{max}} images",
+		"slots_remaining": "Slots remaining: {{count}}",
+		"width_short": "W",
+		"height_short": "H",
+		"language_specific": "Language specific"
+	},
+	"section": {
+		"logo": "Logo",
+		"gallery": "Gallery",
+		"info": "Info",
+		"timestamps": "Timestamps"
+	},
+	"field": {
+		"title": "Title",
+		"description": "Description",
+		"section": "Section",
+		"entity_id": "Entity ID",
+		"image_type": "Type",
+		"id": "ID",
+		"status": "Status",
+		"created_at": "Created At",
+		"updated_at": "Updated At",
+		"image": "Image"
+	},
+	"enum": {
+		"section": {
+			"product": "Product",
+			"category": "Category",
+			"brand": "Brand",
+			"article": "Article",
+			"product_variant": "Product Variant"
+		},
+		"type": {
+			"logo": "Logo",
+			"gallery": "Gallery"
+		}
 	}
 }

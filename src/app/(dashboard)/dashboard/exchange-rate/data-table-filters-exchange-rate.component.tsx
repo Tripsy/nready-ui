@@ -10,21 +10,42 @@ import {
 } from '@/app/(dashboard)/_components/form-filters.component';
 import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { ExchangeRateDataTableFiltersType } from '@/app/(dashboard)/dashboard/exchange-rate/exchange-rate.definition';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type ExchangeRateSource,
 	ExchangeRateSourceEnum,
-	ExchangeRateSourceLabels,
 } from '@/models/exchange-rate.model';
 
-const sources = Object.values(ExchangeRateSourceEnum).map((value) => ({
-	label: ExchangeRateSourceLabels[value],
-	value,
-}));
+const TRANSLATION_KEYS = [
+	'exchange-rate.field.rate_date',
+	'exchange-rate.field.search',
+	'exchange-rate.field.source',
+	...enumTranslationKeys('exchange-rate.enum.source', ExchangeRateSourceEnum),
+] as const;
 
 export const DataTableFiltersExchangeRate = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const sources = useMemo(
+		() =>
+			Object.values(ExchangeRateSourceEnum).map((value) => ({
+				label: translateEnumLabel(
+					translations,
+					'exchange-rate.enum.source',
+					value,
+				),
+				value,
+			})),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'exchange-rate'>();
 
@@ -71,12 +92,12 @@ export const DataTableFiltersExchangeRate = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<ExchangeRateDataTableFiltersType>
-				labelText="ID / Currency / Provider"
+				labelText={translations['exchange-rate.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<ExchangeRateDataTableFiltersType>
-				labelText="Source"
+				labelText={translations['exchange-rate.field.source']}
 				fieldName="source"
 				fieldValue={filters.source.value}
 				options={sources}
@@ -86,7 +107,7 @@ export const DataTableFiltersExchangeRate = (): JSX.Element => {
 			/>
 
 			<FormFiltersDateRange<ExchangeRateDataTableFiltersType>
-				labelText="Rate Date"
+				labelText={translations['exchange-rate.field.rate_date']}
 				start={{
 					fieldName: 'rate_date_start',
 					fieldValue: filters.rate_date_start.value,

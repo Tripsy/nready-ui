@@ -56,5 +56,28 @@
 		"note": "Ștergerea unui curier este una logică, deci expedierile care fac deja referire la el continuă să funcționeze - folosește „Arată șterse” pentru a-l găsi și restaura. Regula de unicitate ignoră rândurile șterse, deci numele devine liber imediat după ștergere, iar restaurarea eșuează cât timp alt curier îl folosește.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"field": {
+		"id": "ID",
+		"name": "Nume",
+		"website": "Website",
+		"phone": "Telefon",
+		"email": "Email",
+		"created_at": "Creat la",
+		"search": "ID / Nume / Website",
+		"notes": "Notițe",
+		"updated_at": "Actualizat la",
+		"deleted_at": "Șters la"
+	},
+	"text": {
+		"placeholder_name": "ex.: Fan Courier",
+		"placeholder_website": "ex.: https://www.fancourier.ro",
+		"placeholder_phone": "ex.: +40 721 000 000",
+		"placeholder_email": "ex.: office@fancourier.ro"
+	},
+	"section": {
+		"contact": "Contact",
+		"other": "Altele",
+		"timestamps": "Marcaje de timp"
 	}
 }

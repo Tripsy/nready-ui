@@ -24,7 +24,11 @@ import {
 	requestUpdateStatus,
 	requestView,
 } from '@/helpers/services.helper';
-import { toKebabCase } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	toKebabCase,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import {
 	BaseValidator,
 	resolveValidatorMessages,
@@ -236,22 +240,36 @@ export type CategoryDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<CategoryModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'view.title',
-			'delete.title',
-			'restore.title',
-			'enable.title',
-			'disable.title',
-			'order.title',
-			'tree.title',
-			'attributes.title',
-			'guide.title',
-		] as const,
-		'category.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'view.title',
+				'delete.title',
+				'restore.title',
+				'enable.title',
+				'disable.title',
+				'order.title',
+				'tree.title',
+				'attributes.title',
+				'guide.title',
+			] as const,
+			'category.action',
+		),
+		translateBatch(
+			[
+				'field.created_at',
+				'field.id',
+				'field.label',
+				'field.parent',
+				'field.status',
+				'field.type',
+				...enumTranslationKeys('enum.type', CategoryTypeEnum),
+			] as const,
+			'category',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -308,7 +326,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -319,17 +337,21 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'type',
-					header: 'Type',
+					header: labels['field.type'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							capitalize: true,
+							customValue: translateEnumLabel(
+								labels,
+								'enum.type',
+								entry.type,
+							),
 						}),
 				},
 				{
 					// Not sortable: the backend's `order_by=label` resolves against the
 					// category alias, which has no `label` column, and 500s.
 					field: 'label',
-					header: 'Label',
+					header: labels['field.label'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
@@ -342,7 +364,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'parent',
-					header: 'Parent',
+					header: labels['field.parent'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							customValue: entry.parent
@@ -356,7 +378,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'status',
-					header: 'Status',
+					header: labels['field.status'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							dataSource: 'category',
@@ -369,7 +391,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

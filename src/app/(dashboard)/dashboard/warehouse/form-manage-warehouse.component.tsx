@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import {
 	FormComponentAutoComplete,
@@ -8,12 +10,25 @@ import {
 import { Icons } from '@/components/icon.component';
 import { getLanguageClient } from '@/config/translate.setup';
 import { requestFind } from '@/helpers/services.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { type AddressModel, displayAddressLabel } from '@/models/address.model';
 import { WAREHOUSE_CODE_MAX_LENGTH } from '@/models/warehouse.model';
 import { useWindowForm } from '@/providers/window-form.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
+
+const TRANSLATION_KEYS = [
+	'warehouse.field.address',
+	'warehouse.field.code',
+	'warehouse.field.is_default',
+	'warehouse.field.name',
+	'warehouse.field.notes',
+	'warehouse.text.placeholder_code',
+	'warehouse.text.placeholder_name',
+	'warehouse.text.default_warehouse',
+] as const;
 
 export type WarehouseFormValuesType = {
 	address_id: number | null;
@@ -26,6 +41,8 @@ export type WarehouseFormValuesType = {
 };
 
 export function FormManageWarehouse() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<WarehouseFormValuesType>();
 
@@ -74,7 +91,7 @@ export function FormManageWarehouse() {
 				value={formValues.address ?? ''}
 			/>
 			<FormComponentAutoComplete<WarehouseFormValuesType, AddressModel>
-				labelText="Address"
+				labelText={translations['warehouse.field.address']}
 				id={elementIds.address}
 				fieldName="address"
 				fieldValue={formValues.address ?? ''}
@@ -109,24 +126,29 @@ export function FormManageWarehouse() {
 			/>
 
 			<FormComponentInput<WarehouseFormValuesType>
-				labelText="Code"
+				labelText={translations['warehouse.field.code']}
 				id={elementIds.code}
 				fieldName="code"
 				fieldValue={formValues.code ?? ''}
 				isRequired={true}
-				placeholderText={`e.g.: BUC-01 (max ${WAREHOUSE_CODE_MAX_LENGTH} characters)`}
+				placeholderText={replaceVars(
+					translations['warehouse.text.placeholder_code'],
+					{ max: WAREHOUSE_CODE_MAX_LENGTH },
+				)}
 				disabled={pending}
 				onChange={(e) => handleChange('code', e.target.value)}
 				error={errors.code}
 			/>
 
 			<FormComponentInput<WarehouseFormValuesType>
-				labelText="Name"
+				labelText={translations['warehouse.field.name']}
 				id={elementIds.name}
 				fieldName="name"
 				fieldValue={formValues.name ?? ''}
 				isRequired={true}
-				placeholderText="e.g.: Bucharest Central"
+				placeholderText={
+					translations['warehouse.text.placeholder_name']
+				}
 				disabled={pending}
 				onChange={(e) => handleChange('name', e.target.value)}
 				error={errors.name}
@@ -142,11 +164,11 @@ export function FormManageWarehouse() {
 				}
 				error={errors.is_default}
 			>
-				Default warehouse
+				{translations['warehouse.text.default_warehouse']}
 			</FormComponentCheckbox>
 
 			<FormComponentTextarea<WarehouseFormValuesType>
-				labelText="Notes"
+				labelText={translations['warehouse.field.notes']}
 				id={elementIds.notes}
 				fieldName="notes"
 				fieldValue={formValues.notes ?? ''}

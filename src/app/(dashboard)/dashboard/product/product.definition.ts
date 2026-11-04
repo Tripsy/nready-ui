@@ -51,6 +51,10 @@ import {
 	requestView,
 } from '@/helpers/services.helper';
 import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import {
 	BaseValidator,
 	resolveValidatorMessages,
 	sharedValidatorMessages,
@@ -907,23 +911,43 @@ export type ProductDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<ProductModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'view.title',
-			'delete.title',
-			'restore.title',
-			'submitReview.title',
-			'requestRevision.title',
-			'markReady.title',
-			'guide.title',
-			'bundle.title',
-			'bundleEdit.title',
-			'managerImages.title',
-		] as const,
-		'product.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'view.title',
+				'delete.title',
+				'restore.title',
+				'submitReview.title',
+				'requestRevision.title',
+				'markReady.title',
+				'guide.title',
+				'bundle.title',
+				'bundleEdit.title',
+				'managerImages.title',
+			] as const,
+			'product.action',
+		),
+		translateBatch(
+			[
+				'field.brand',
+				'field.composition',
+				'field.created_at',
+				'field.id',
+				'field.label',
+				'field.sale_status',
+				'field.type',
+				'field.workflow',
+				...enumTranslationKeys('enum.type', ProductTypeEnum),
+				...enumTranslationKeys(
+					'enum.composition',
+					ProductCompositionEnum,
+				),
+			] as const,
+			'product',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -987,7 +1011,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -1002,7 +1026,7 @@ export default async function dataSourceConfig(): Promise<
 					 * translation - so the value is resolved here.
 					 */
 					field: 'label',
-					header: 'Name',
+					header: labels['field.label'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							// `?? undefined` because the column renders a missing
@@ -1019,7 +1043,7 @@ export default async function dataSourceConfig(): Promise<
 					 * columns, and `brand` comes from a join.
 					 */
 					field: 'brand',
-					header: 'Brand',
+					header: labels['field.brand'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							customValue: entry.brand?.name ?? undefined,
@@ -1028,23 +1052,31 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'type',
-					header: 'Type',
+					header: labels['field.type'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							capitalize: true,
+							customValue: translateEnumLabel(
+								labels,
+								'enum.type',
+								entry.type,
+							),
 						}),
 				},
 				{
 					field: 'composition',
-					header: 'Composition',
+					header: labels['field.composition'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							capitalize: true,
+							customValue: translateEnumLabel(
+								labels,
+								'enum.composition',
+								entry.composition,
+							),
 						}),
 				},
 				{
 					field: 'workflow',
-					header: 'Workflow',
+					header: labels['field.workflow'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							dataSource: 'product',
@@ -1057,7 +1089,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'sale_status',
-					header: 'Sale Status',
+					header: labels['field.sale_status'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							dataSource: 'product',
@@ -1068,7 +1100,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

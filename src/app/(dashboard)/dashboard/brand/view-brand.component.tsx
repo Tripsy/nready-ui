@@ -8,10 +8,32 @@ import {
 import { ManagerLanguageSwitcher } from '@/components/manager-language-switcher.component';
 import { formatDate } from '@/helpers/date.helper';
 import { DisplayStatus } from '@/helpers/display.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
-import type { BrandModel } from '@/models/brand.model';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
+import { type BrandModel, BrandTypeEnum } from '@/models/brand.model';
+
+const TRANSLATION_KEYS = [
+	'brand.field.brand_type',
+	'brand.field.created_at',
+	'brand.field.deleted_at',
+	'brand.field.description',
+	'brand.field.id',
+	'brand.field.meta_description',
+	'brand.field.meta_keywords',
+	'brand.field.meta_title',
+	'brand.field.updated_at',
+	'brand.section.info',
+	'brand.section.timestamps',
+	'brand.text.language_specific',
+	...enumTranslationKeys('brand.enum.type', BrandTypeEnum),
+] as const;
 
 export function ViewBrand({ entry }: { entry: BrandModel }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const languageContents = Object.values(entry.contents ?? []);
 	const languages = languageContents.map((value) => value.language);
 	const [language, setLanguage] = useState(languages[0]);
@@ -23,31 +45,38 @@ export function ViewBrand({ entry }: { entry: BrandModel }) {
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center gap-2 border-b border-line pb-4">
-				<span className="font-semibold">ID</span> {entry.id}
+				<span className="font-semibold">
+					{translations['brand.field.id']}
+				</span>{' '}
+				{entry.id}
 				<div className="max-w-60 ml-2">
 					<DisplayStatus status={entry.status} dataSource="brand" />
 				</div>
 			</div>
 
-			<ViewSection title="Info">
+			<ViewSection title={translations['brand.section.info']}>
 				<ViewField
-					label="Type"
-					value={formatEnumLabel(entry.brand_type)}
+					label={translations['brand.field.brand_type']}
+					value={translateEnumLabel(
+						translations,
+						'brand.enum.type',
+						entry.brand_type,
+					)}
 				/>
 			</ViewSection>
 
-			<ViewSection title="Timestamps">
+			<ViewSection title={translations['brand.section.timestamps']}>
 				<ViewField
-					label="Created At"
+					label={translations['brand.field.created_at']}
 					value={formatDate(entry.created_at, 'date-time')}
 				/>
 				<ViewField
-					label="Updated At"
+					label={translations['brand.field.updated_at']}
 					value={formatDate(entry.updated_at, 'date-time')}
 				/>
 				{entry.deleted_at && (
 					<ViewField
-						label="Deleted At"
+						label={translations['brand.field.deleted_at']}
 						value={
 							<span className="text-danger">
 								{formatDate(entry.deleted_at, 'date-time')}
@@ -60,7 +89,7 @@ export function ViewBrand({ entry }: { entry: BrandModel }) {
 			{content && (
 				<div>
 					<ManagerLanguageSwitcher
-						label="Language specific"
+						label={translations['brand.text.language_specific']}
 						languages={languages}
 						selected={content.language}
 						onSelect={setLanguage}
@@ -68,19 +97,19 @@ export function ViewBrand({ entry }: { entry: BrandModel }) {
 
 					<ViewSection>
 						<ViewField
-							label="Description"
+							label={translations['brand.field.description']}
 							value={content.description}
 						/>
 						<ViewField
-							label="Meta - Title"
+							label={translations['brand.field.meta_title']}
 							value={content.meta?.title}
 						/>
 						<ViewField
-							label="Meta - Description"
+							label={translations['brand.field.meta_description']}
 							value={content.meta?.description}
 						/>
 						<ViewField
-							label="Meta - Keywords"
+							label={translations['brand.field.meta_keywords']}
 							value={content.meta?.keywords}
 						/>
 					</ViewSection>

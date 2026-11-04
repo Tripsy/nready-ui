@@ -147,7 +147,7 @@ export function WindowAction<WindowEntry extends WindowEntryType>({
 		} catch (error) {
 			showToast({
 				severity: 'error',
-				summary: 'Error',
+				summary: translations['app.error.title'],
 				detail:
 					error instanceof ValueError || error instanceof ApiError
 						? error.message

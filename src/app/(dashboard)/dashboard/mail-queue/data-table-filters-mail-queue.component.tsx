@@ -11,20 +11,44 @@ import {
 import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { MailQueueDataTableFiltersType } from '@/app/(dashboard)/dashboard/mail-queue/mail-queue.definition';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type MailQueueStatus,
 	MailQueueStatusEnum,
 } from '@/models/mail-queue.model';
 
-const statuses = toOptionsFromEnum(MailQueueStatusEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'mail-queue.field.content',
+	'mail-queue.field.sent_at',
+	'mail-queue.field.status',
+	'mail-queue.field.template',
+	'mail-queue.field.to',
+	...enumTranslationKeys('mail-queue.status', MailQueueStatusEnum),
+] as const;
 
 export const DataTableFiltersMailQueue = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const statuses = useMemo(
+		() =>
+			toOptionsFromEnum(MailQueueStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'mail-queue.status',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'mail-queue'>();
 
@@ -80,7 +104,7 @@ export const DataTableFiltersMailQueue = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersDateRange<MailQueueDataTableFiltersType>
-				labelText="Sent Date"
+				labelText={translations['mail-queue.field.sent_at']}
 				start={{
 					fieldName: 'sent_at_start',
 					fieldValue: filters.sent_at_start.value,
@@ -94,7 +118,7 @@ export const DataTableFiltersMailQueue = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<MailQueueDataTableFiltersType>
-				labelText="Status"
+				labelText={translations['mail-queue.field.status']}
 				fieldName="status"
 				fieldValue={filters.status.value}
 				options={statuses}
@@ -104,19 +128,19 @@ export const DataTableFiltersMailQueue = (): JSX.Element => {
 			/>
 
 			<FormFiltersSearch<MailQueueDataTableFiltersType>
-				labelText="Template"
+				labelText={translations['mail-queue.field.template']}
 				fieldName="template"
 				search={searchTemplate}
 			/>
 
 			<FormFiltersSearch<MailQueueDataTableFiltersType>
-				labelText="Content"
+				labelText={translations['mail-queue.field.content']}
 				fieldName="content"
 				search={searchContent}
 			/>
 
 			<FormFiltersSearch<MailQueueDataTableFiltersType>
-				labelText="To"
+				labelText={translations['mail-queue.field.to']}
 				fieldName="to"
 				search={searchTo}
 			/>

@@ -63,5 +63,38 @@
 		"tab_info": "Info",
 		"tab_api": "Documentație API",
 		"tab_public": "API public"
+	},
+	"field": {
+		"search": "ID / Etichetă / Conținut",
+		"language": "Limbă",
+		"type": "Tip",
+		"label": "Etichetă",
+		"subject": "Subiect",
+		"html": "Conținut HTML",
+		"title": "Titlu",
+		"layout": "Layout",
+		"id": "ID",
+		"created_at": "Creat la",
+		"updated_at": "Actualizat la",
+		"deleted_at": "Șters la"
+	},
+	"text": {
+		"placeholder_label": "ex.: password-recover",
+		"placeholder_subject": "ex.: Recuperare parolă",
+		"placeholder_title": "ex.: Termeni și condiții"
+	},
+	"section": {
+		"info": "Info",
+		"timestamps": "Marcaje de timp",
+		"content": "Conținut"
+	},
+	"enum": {
+		"type": {
+			"page": "Pagină",
+			"email": "Email"
+		},
+		"layout_email": {
+			"default": "Implicit"
+		}
 	}
 }

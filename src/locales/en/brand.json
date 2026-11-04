@@ -85,5 +85,35 @@
 		"note": "Deleting a brand is a soft delete, and the uniqueness rule ignores deleted rows - so the slug becomes free immediately and can be taken by a new brand. Restoring the old one then fails while that name is in use.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"field": {
+		"id": "ID",
+		"brand_type": "Type",
+		"name": "Name",
+		"status": "Status",
+		"search": "ID / Name",
+		"language": "Language",
+		"description": "Description",
+		"created_at": "Created At",
+		"updated_at": "Updated At",
+		"deleted_at": "Deleted At",
+		"meta_title": "Meta Title",
+		"meta_description": "Meta Description",
+		"meta_keywords": "Meta Keywords"
+	},
+	"text": {
+		"placeholder_name": "eg: RO",
+		"update": "Update",
+		"language_specific": "Language specific"
+	},
+	"section": {
+		"language_specific": "Language specific",
+		"info": "Info",
+		"timestamps": "Timestamps"
+	},
+	"enum": {
+		"type": {
+			"product": "Product"
+		}
 	}
 }

@@ -21,6 +21,10 @@ import {
 	requestUpdateStatus,
 } from '@/helpers/services.helper';
 import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import {
 	BaseValidator,
 	resolveValidatorMessages,
 	sharedValidatorMessages,
@@ -262,20 +266,34 @@ function canManageTarget(entry: UserModel, auth: AccountModel | null): boolean {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<UserModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'view.title',
-			'delete.title',
-			'restore.title',
-			'enable.title',
-			'disable.title',
-			'setupPermissions.title',
-			'guide.title',
-		] as const,
-		'user.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'view.title',
+				'delete.title',
+				'restore.title',
+				'enable.title',
+				'disable.title',
+				'setupPermissions.title',
+				'guide.title',
+			] as const,
+			'user.action',
+		),
+		translateBatch(
+			[
+				'field.created_at',
+				'field.email',
+				'field.id',
+				'field.name',
+				'field.role',
+				'field.status',
+				...enumTranslationKeys('enum.role', UserRoleEnum),
+			] as const,
+			'user',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -345,7 +363,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -356,19 +374,23 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'name',
-					header: 'Name',
+					header: labels['field.name'],
 					sortable: true,
 				},
 				{
 					field: 'email',
-					header: 'Email',
+					header: labels['field.email'],
 				},
 				{
 					field: 'role',
-					header: 'Role',
+					header: labels['field.role'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
-							capitalize: true,
+							customValue: translateEnumLabel(
+								labels,
+								'enum.role',
+								entry.role,
+							),
 							displayButton: displayButtonSetupPermissions(
 								auth,
 								entry,
@@ -377,7 +399,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'status',
-					header: 'Status',
+					header: labels['field.status'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							dataSource: 'user',
@@ -390,7 +412,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

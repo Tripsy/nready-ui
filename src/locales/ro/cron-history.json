@@ -21,7 +21,24 @@
 	"status": {
 		"error": "Eroare",
 		"ok": "Ok",
-		"warning": "Avertisment"
+		"warning": "Avertisment",
+		"running": "În execuție"
+	},
+	"field": {
+		"id": "ID",
+		"label": "Etichetă",
+		"start_at": "Început la",
+		"end_at": "Încheiat la",
+		"status": "Status",
+		"run_time": "Timp de rulare",
+		"search": "ID / Etichetă / Conținut"
+	},
+	"section": {
+		"info": "Informații",
+		"content": "Conținut"
+	},
+	"text": {
+		"run_time_seconds": "{{seconds}} s"
 	},
 	"help": {
 		"intro": "Fiecare job programat scrie aici un rând când se termină - ecranul acesta este jurnalul a ceea ce a făcut backend-ul de unul singur. Nimic de aici nu creează și nu modifică o rulare; singura scriere disponibilă este ștergerea rândurilor vechi.",

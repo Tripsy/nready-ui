@@ -29,5 +29,24 @@
 		"note": "Netul înseamnă bani mișcați, nu bani datorați: ce mai are de plătit un client se citește din facturile sale. Un job nocturn înregistrează orice mișcare finalizată care lipsește din registru, așa că o plată finalizată cât timp funcționalitatea nu era instalată apare până dimineața următoare.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"text": {
+		"could_not_retrieve_the_client_balance": "Soldul clientului nu a putut fi încărcat"
+	},
+	"field": {
+		"id": "ID",
+		"entry_type": "Tip",
+		"amount": "Sumă",
+		"amount_base": "Sumă în moneda de bază",
+		"cash_flow_id": "Flux de numerar",
+		"occurred_at": "Produs la",
+		"client": "Client",
+		"currency": "Monedă"
+	},
+	"enum": {
+		"entry_type": {
+			"payment": "Plată",
+			"refund": "Rambursare"
+		}
 	}
 }

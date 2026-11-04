@@ -36,5 +36,83 @@
 		"note": "Nothing prunes this table on a schedule, unlike the log, so it grows for as long as the application runs. It is also the only place a past change is recorded: purge it for space, never to tidy up, and keep enough to answer who changed a record and when.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"enum": {
+		"entity": {
+			"address": "Address",
+			"article": "Article",
+			"brand": "Brand",
+			"carrier": "Carrier",
+			"cart": "Cart",
+			"cart_item": "Cart Item",
+			"cash_flow": "Cash Flow",
+			"category": "Category",
+			"client": "Client",
+			"client_address": "Client Address",
+			"complaint": "Complaint",
+			"discount": "Discount",
+			"document_series": "Document Series",
+			"exchange_rate": "Exchange Rate",
+			"grn": "Grn",
+			"image": "Image",
+			"invoice": "Invoice",
+			"order": "Order",
+			"shipping": "Shipping",
+			"shipping_line": "Shipping Line",
+			"permission": "Permission",
+			"place": "Place",
+			"product": "Product",
+			"review": "Review",
+			"subscription": "Subscription",
+			"template": "Template",
+			"term": "Term",
+			"user": "User",
+			"vendor": "Vendor",
+			"warehouse": "Warehouse",
+			"operational_record": "Operational Record"
+		},
+		"action": {
+			"created": "Created",
+			"updated": "Updated",
+			"deleted": "Deleted",
+			"removed": "Removed",
+			"restored": "Restored",
+			"status": "Status",
+			"password_change": "Password Change"
+		},
+		"source": {
+			"cron": "Cron",
+			"api": "Api",
+			"seed": "Seed",
+			"unknown": "Unknown"
+		}
+	},
+	"activity": {
+		"created": "created",
+		"updated": "updated",
+		"deleted": "deleted",
+		"removed": "removed",
+		"restored": "restored",
+		"status": "status updated",
+		"password_change": "password changed"
+	},
+	"text": {
+		"activity_summary": "{{entity}} #{{id}} {{action}}",
+		"performed_by": "by {{name}}"
+	},
+	"field": {
+		"entity": "Entity",
+		"action": "Action",
+		"source": "Source",
+		"recorded_at": "Recorded At",
+		"id": "ID",
+		"request_id": "Request ID",
+		"entity_id": "Entity ID",
+		"performed_by": "Performed By",
+		"auth_id": "Auth ID"
+	},
+	"section": {
+		"info": "Info",
+		"request_details": "Request Details"
 	}
 }

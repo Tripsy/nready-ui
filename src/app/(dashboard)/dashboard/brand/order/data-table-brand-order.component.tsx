@@ -27,6 +27,7 @@ import { Link } from '@/components/ui/link';
 import Routes from '@/config/routes.setup';
 import { getLanguageClient } from '@/config/translate.setup';
 import { requestFind } from '@/helpers/services.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	BRAND_DEFAULT_TYPE,
@@ -38,11 +39,30 @@ import { useSortablePosition } from '@/providers/sortable-position.provider';
 import { useToast } from '@/providers/toast.provider';
 import { orderUpdate } from '@/services/brand.service';
 
+const TRANSLATION_KEYS = [
+	'dashboard.text.back_to_list',
+	'dashboard.text.label_move_down',
+	'dashboard.text.label_move_up',
+	'dashboard.text.no_entries',
+	'brand.text.update',
+	'dashboard.text.update_order',
+	'app.error.title',
+	'app.success.title',
+	'brand-order.success.order_updated',
+	'brand-order.error.order_failed',
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
+
 type SortableBrandItemProps = {
+	translations: TranslationsType;
 	brand: BrandModel;
 };
 
-const SortableBrandItem = ({ brand }: SortableBrandItemProps): JSX.Element => {
+const SortableBrandItem = ({
+	translations,
+	brand,
+}: SortableBrandItemProps): JSX.Element => {
 	const { isFirst, isLast, onMoveUp, onMoveDown } = useSortablePosition(
 		brand.id,
 	);
@@ -78,7 +98,10 @@ const SortableBrandItem = ({ brand }: SortableBrandItemProps): JSX.Element => {
 						onClick={onMoveUp}
 						disabled={isFirst}
 						className="cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-						aria-label={`Move ${brand.name} up`}
+						aria-label={replaceVars(
+							translations['dashboard.text.label_move_up'],
+							{ name: brand.name },
+						)}
 					>
 						<Icons.Direction.ArrowUp />
 					</button>
@@ -87,7 +110,10 @@ const SortableBrandItem = ({ brand }: SortableBrandItemProps): JSX.Element => {
 						onClick={onMoveDown}
 						disabled={isLast}
 						className="cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-						aria-label={`Move ${brand.name} down`}
+						aria-label={replaceVars(
+							translations['dashboard.text.label_move_down'],
+							{ name: brand.name },
+						)}
 					>
 						<Icons.Direction.ArrowDown />
 					</button>
@@ -98,14 +124,7 @@ const SortableBrandItem = ({ brand }: SortableBrandItemProps): JSX.Element => {
 };
 
 const DataTableBrandOrderContent = (): JSX.Element => {
-	const translationsKeys = [
-		'app.error.title',
-		'app.success.title',
-		'brand-order.success.order_updated',
-		'brand-order.error.order_failed',
-	] as const;
-
-	const { translations } = useTranslation(translationsKeys);
+	const { translations } = useTranslation(TRANSLATION_KEYS);
 
 	const { showToast } = useToast();
 
@@ -196,7 +215,12 @@ const DataTableBrandOrderContent = (): JSX.Element => {
 	}
 
 	if (orderedBrands.length === 0) {
-		return <ErrorComponent title="" description="No entries found." />;
+		return (
+			<ErrorComponent
+				title=""
+				description={translations['dashboard.text.no_entries']}
+			/>
+		);
 	}
 
 	return (
@@ -206,28 +230,32 @@ const DataTableBrandOrderContent = (): JSX.Element => {
 				onReorder={setOrderedBrands}
 				className="list-decimal space-y-2 ml-8 mt-4"
 				renderItem={(brand) => (
-					<SortableBrandItem key={brand.id} brand={brand} />
+					<SortableBrandItem
+						translations={translations}
+						key={brand.id}
+						brand={brand}
+					/>
 				)}
 			/>
 
 			<div className="flex gap-3 mt-4">
 				<Link
 					variant="outline"
-					title="Back to list"
+					title={translations['dashboard.text.back_to_list']}
 					href={Routes.get('brand')}
 				>
 					<Icons.Brand />
-					Back to list
+					{translations['dashboard.text.back_to_list']}
 				</Link>
 				<Button
 					variant="outline"
 					hover="default"
 					onClick={handleUpdateOrder}
-					title="Update"
+					title={translations['brand.text.update']}
 					disabled={loading}
 				>
 					<Icons.Action.Save />
-					Update order
+					{translations['dashboard.text.update_order']}
 				</Button>
 			</div>
 		</>

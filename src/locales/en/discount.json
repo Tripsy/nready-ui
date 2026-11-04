@@ -68,5 +68,87 @@
 		"note": "Changing a discount's scope replaces its targets for the new scope - the previous scope's targets are cleared, not kept in reserve.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"field": {
+		"search": "ID / Label / Reference",
+		"scope": "Scope",
+		"reason": "Reason",
+		"type": "Type",
+		"start_date": "Start Date",
+		"id": "ID",
+		"label": "Label",
+		"value": "Value",
+		"reference": "Reference",
+		"start_at": "Start At",
+		"end_at": "End At",
+		"condition_min_order_value": "Min order value",
+		"condition_countries": "Countries",
+		"condition_hour_from": "Hour from",
+		"condition_hour_to": "Hour to",
+		"condition_day_from": "Day from",
+		"condition_day_to": "Day to",
+		"notes": "Notes",
+		"conditions": "Conditions",
+		"created_at": "Created At",
+		"updated_at": "Updated At",
+		"deleted_at": "Deleted At"
+	},
+	"text": {
+		"placeholder_label": "e.g.: Summer flash sale",
+		"placeholder_reference": "e.g.: SUMMER25 (coupon or referral code)",
+		"reduces_the_delivery_or_return_price": "Reduces the delivery or return price. Leave empty to apply it to every buyer.",
+		"placeholder_start_at": "-select-",
+		"placeholder_end_at": "-select-",
+		"conditions": "Conditions",
+		"all_must_be_met_for_the": "All must be met for the discount to apply. Leave a field empty to drop that condition.",
+		"placeholder_condition_min_order_value": "base currency",
+		"placeholder_condition_countries": "e.g.: RO, BG",
+		"label_targeted": "Targeted {{label}}",
+		"loading_current_targets": "Loading current targets…",
+		"label_remove": "Remove {{label}}",
+		"target_client": "Clients",
+		"target_category": "Categories",
+		"target_brand": "Brands",
+		"target_product": "Products",
+		"target_variant": "Variants",
+		"no_targets": "No targets yet - this discount will not apply to anything.",
+		"label_value_percent": "Value (%)",
+		"condition_min_order": "Order value at least {{value}} (base currency, excl. VAT)",
+		"condition_countries": "Country is one of {{countries}}",
+		"condition_hours": "Between {{from}}:00 and {{to}}:59",
+		"condition_hours_overnight": "Between {{from}}:00 and {{to}}:59 (overnight)",
+		"condition_days": "{{from}} to {{to}}",
+		"condition_days_wrap": "{{from}} to {{to}} (wraps the week)"
+	},
+	"section": {
+		"discount": "Discount",
+		"availability": "Availability",
+		"targets": "Targets",
+		"other": "Other",
+		"timestamps": "Timestamps"
+	},
+	"enum": {
+		"scope": {
+			"client": "Client",
+			"order": "Order",
+			"product": "Product",
+			"variant": "Variant",
+			"category": "Category",
+			"brand": "Brand",
+			"shipping": "Shipping"
+		},
+		"reason": {
+			"flash_sale": "Flash Sale",
+			"first_time_customer": "First Time Customer",
+			"loyalty_discount": "Loyalty Discount",
+			"birthday_discount": "Birthday Discount",
+			"referral_discount": "Referral Discount",
+			"vip_discount": "Vip Discount",
+			"special_discount": "Special Discount"
+		},
+		"type": {
+			"percent": "Percent",
+			"amount": "Amount"
+		}
 	}
 }

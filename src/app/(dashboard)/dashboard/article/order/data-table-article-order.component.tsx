@@ -27,6 +27,7 @@ import { Link } from '@/components/ui/link';
 import Routes from '@/config/routes.setup';
 import { getLanguageClient } from '@/config/translate.setup';
 import { requestFind } from '@/helpers/services.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type ArticleFeaturedStatus,
@@ -38,11 +39,29 @@ import { useSortablePosition } from '@/providers/sortable-position.provider';
 import { useToast } from '@/providers/toast.provider';
 import { orderUpdate } from '@/services/article.service';
 
+const TRANSLATION_KEYS = [
+	'dashboard.text.back_to_list',
+	'dashboard.text.label_move_down',
+	'dashboard.text.label_move_up',
+	'dashboard.text.no_entries',
+	'article.text.pick_a_category_to_order_its',
+	'article.text.update',
+	'dashboard.text.update_order',
+	'app.error.title',
+	'app.success.title',
+	'article-order.success.order_updated',
+	'article-order.error.order_failed',
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
+
 type SortableArticleItemProps = {
+	translations: TranslationsType;
 	article: ArticleModel;
 };
 
 const SortableArticleItem = ({
+	translations,
 	article,
 }: SortableArticleItemProps): JSX.Element => {
 	const { isFirst, isLast, onMoveUp, onMoveDown } = useSortablePosition(
@@ -82,7 +101,12 @@ const SortableArticleItem = ({
 						onClick={onMoveUp}
 						disabled={isFirst}
 						className="cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-						aria-label={`Move ${title} up`}
+						aria-label={replaceVars(
+							translations['dashboard.text.label_move_up'],
+							{
+								name: title,
+							},
+						)}
 					>
 						<Icons.Direction.ArrowUp />
 					</button>
@@ -91,7 +115,12 @@ const SortableArticleItem = ({
 						onClick={onMoveDown}
 						disabled={isLast}
 						className="cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-						aria-label={`Move ${title} down`}
+						aria-label={replaceVars(
+							translations['dashboard.text.label_move_down'],
+							{
+								name: title,
+							},
+						)}
 					>
 						<Icons.Direction.ArrowDown />
 					</button>
@@ -102,14 +131,7 @@ const SortableArticleItem = ({
 };
 
 const DataTableArticleOrderContent = (): JSX.Element => {
-	const translationsKeys = [
-		'app.error.title',
-		'app.success.title',
-		'article-order.success.order_updated',
-		'article-order.error.order_failed',
-	] as const;
-
-	const { translations } = useTranslation(translationsKeys);
+	const { translations } = useTranslation(TRANSLATION_KEYS);
 
 	const { showToast } = useToast();
 
@@ -204,7 +226,9 @@ const DataTableArticleOrderContent = (): JSX.Element => {
 		return (
 			<ErrorComponent
 				title=""
-				description="Pick a category to order its featured articles."
+				description={
+					translations['article.text.pick_a_category_to_order_its']
+				}
 			/>
 		);
 	}
@@ -214,7 +238,12 @@ const DataTableArticleOrderContent = (): JSX.Element => {
 	}
 
 	if (orderedArticles.length === 0) {
-		return <ErrorComponent title="" description="No entries found." />;
+		return (
+			<ErrorComponent
+				title=""
+				description={translations['dashboard.text.no_entries']}
+			/>
+		);
 	}
 
 	return (
@@ -224,28 +253,32 @@ const DataTableArticleOrderContent = (): JSX.Element => {
 				onReorder={setOrderedArticles}
 				className="list-decimal space-y-2 ml-8 mt-4"
 				renderItem={(article) => (
-					<SortableArticleItem key={article.id} article={article} />
+					<SortableArticleItem
+						translations={translations}
+						key={article.id}
+						article={article}
+					/>
 				)}
 			/>
 
 			<div className="flex gap-3 mt-4">
 				<Link
 					variant="outline"
-					title="Back to list"
+					title={translations['dashboard.text.back_to_list']}
 					href={Routes.get('article')}
 				>
 					<Icons.Article />
-					Back to list
+					{translations['dashboard.text.back_to_list']}
 				</Link>
 				<Button
 					variant="outline"
 					hover="default"
 					onClick={handleUpdateOrder}
-					title="Update"
+					title={translations['article.text.update']}
 					disabled={loading}
 				>
 					<Icons.Action.Save />
-					Update order
+					{translations['dashboard.text.update_order']}
 				</Button>
 			</div>
 		</>

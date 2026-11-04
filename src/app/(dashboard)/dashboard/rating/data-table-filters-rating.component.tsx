@@ -12,10 +12,14 @@ import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { RatingDataTableFiltersType } from '@/app/(dashboard)/dashboard/rating/rating.definition';
 import { Icons } from '@/components/icon.component';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type RatingEmoji,
 	RatingEmojiEnum,
@@ -26,19 +30,55 @@ import {
 } from '@/models/rating.model';
 import { displayUserLabel, type UserModel } from '@/models/user.model';
 
-const entityTypes = toOptionsFromEnum(RatingEntityTypeEnum, {
-	formatter: formatEnumLabel,
-});
-
-const types = toOptionsFromEnum(RatingTypeEnum, {
-	formatter: formatEnumLabel,
-});
-
-const reactions = toOptionsFromEnum(RatingEmojiEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'rating.field.entity_id',
+	'rating.field.entity_type',
+	'rating.field.reaction',
+	'rating.field.type',
+	'rating.field.user',
+	...enumTranslationKeys('rating.enum.entity_type', RatingEntityTypeEnum),
+	...enumTranslationKeys('rating.enum.type', RatingTypeEnum),
+	...enumTranslationKeys('rating.enum.emoji', RatingEmojiEnum),
+] as const;
 
 export const DataTableFiltersRating = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const reactions = useMemo(
+		() =>
+			toOptionsFromEnum(RatingEmojiEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'rating.enum.emoji',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const types = useMemo(
+		() =>
+			toOptionsFromEnum(RatingTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'rating.enum.type', value),
+			}),
+		[translations],
+	);
+
+	const entityTypes = useMemo(
+		() =>
+			toOptionsFromEnum(RatingEntityTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'rating.enum.entity_type',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'rating'>();
 
@@ -88,7 +128,7 @@ export const DataTableFiltersRating = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSelect<RatingDataTableFiltersType>
-				labelText="Target"
+				labelText={translations['rating.field.entity_type']}
 				fieldName="entity_type"
 				fieldValue={filters.entity_type.value}
 				options={entityTypes}
@@ -98,13 +138,13 @@ export const DataTableFiltersRating = (): JSX.Element => {
 			/>
 
 			<FormFiltersSearch<RatingDataTableFiltersType>
-				labelText="Target ID"
+				labelText={translations['rating.field.entity_id']}
 				fieldName="entity_id"
 				search={searchEntityId}
 			/>
 
 			<FormFiltersSelect<RatingDataTableFiltersType>
-				labelText="Type"
+				labelText={translations['rating.field.type']}
 				fieldName="type"
 				fieldValue={filters.type.value}
 				options={types}
@@ -115,7 +155,7 @@ export const DataTableFiltersRating = (): JSX.Element => {
 
 			{/* Only emoji rows carry a reaction, so this narrows to those whatever `type` holds. */}
 			<FormFiltersSelect<RatingDataTableFiltersType>
-				labelText="Reaction"
+				labelText={translations['rating.field.reaction']}
 				fieldName="reaction"
 				fieldValue={filters.reaction.value}
 				options={reactions}
@@ -125,7 +165,7 @@ export const DataTableFiltersRating = (): JSX.Element => {
 			/>
 
 			<FormFiltersAutoComplete<RatingDataTableFiltersType, UserModel>
-				labelText="Rated By"
+				labelText={translations['rating.field.user']}
 				fieldName="user"
 				fieldNameId="user_id"
 				fieldValue={searchUser}

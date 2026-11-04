@@ -10,6 +10,11 @@ import { LoadingContent } from '@/components/status.component';
 import { Button } from '@/components/ui/button';
 import { getLanguageClient } from '@/config/translate.setup';
 import { requestFind } from '@/helpers/services.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { hasPermission } from '@/models/account.model';
 import {
 	type CategoryModel,
@@ -18,6 +23,9 @@ import {
 import {
 	displayAttributeLabel,
 	type ProductCategoryAttributeModel,
+	ProductCategoryAttributeScopeEnum,
+	ProductCategoryAttributeTypeEnum,
+	ProductCategoryAttributeValueTypeEnum,
 } from '@/models/product-category-attribute.model';
 import { useAuth } from '@/providers/auth.provider';
 import { useToast } from '@/providers/toast.provider';
@@ -26,6 +34,35 @@ import { useModalStore } from '@/stores/window.store';
 import type { Language } from '@/types/common.type';
 import { DataSourceSectionEnum } from '@/types/data-source.type';
 import type { WindowEntryType } from '@/types/window.type';
+
+const TRANSLATION_KEYS = [
+	'category.text.add_attribute',
+	'category.text.attributes',
+	'category.text.delete',
+	'category.text.edit',
+	'category.text.no_attributes',
+	'category.text.not_inherited',
+	'category.text.attributes_load_failed',
+	'app.error.title',
+	'category.text.attribute_order_failed',
+	'category.text.attributes_intro',
+	'category.text.badge_required',
+	'category.text.badge_filterable',
+	...enumTranslationKeys(
+		'product-category-attribute.enum.scope',
+		ProductCategoryAttributeScopeEnum,
+	),
+	...enumTranslationKeys(
+		'product-category-attribute.enum.type',
+		ProductCategoryAttributeTypeEnum,
+	),
+	...enumTranslationKeys(
+		'product-category-attribute.enum.value_type',
+		ProductCategoryAttributeValueTypeEnum,
+	),
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
 
 /**
  * A category declares a handful of attributes, not a page of them - a product form asking
@@ -46,6 +83,7 @@ function Badge({ children }: { children: string }): JSX.Element {
 }
 
 type RowProps = {
+	translations: TranslationsType;
 	definition: ProductCategoryAttributeModel;
 	language: Language;
 	canEdit: boolean;
@@ -56,6 +94,7 @@ type RowProps = {
 
 /** One definition, draggable by its label. */
 function SortableAttributeRow({
+	translations,
 	definition,
 	language,
 	canEdit,
@@ -95,12 +134,30 @@ function SortableAttributeRow({
 			</span>
 
 			<span className="flex flex-wrap gap-1">
-				<Badge>{definition.scope}</Badge>
-				<Badge>{`${definition.type} / ${definition.value_type}`}</Badge>
+				<Badge>
+					{translateEnumLabel(
+						translations,
+						'product-category-attribute.enum.scope',
+						definition.scope,
+					)}
+				</Badge>
+				<Badge>
+					{`${translateEnumLabel(translations, 'product-category-attribute.enum.type', definition.type)} / ${translateEnumLabel(translations, 'product-category-attribute.enum.value_type', definition.value_type)}`}
+				</Badge>
 				{definition.unit ? <Badge>{definition.unit}</Badge> : null}
-				{definition.is_required ? <Badge>required</Badge> : null}
-				{definition.is_filterable ? <Badge>filterable</Badge> : null}
-				{definition.inherit ? null : <Badge>not inherited</Badge>}
+				{definition.is_required ? (
+					<Badge>
+						{translations['category.text.badge_required']}
+					</Badge>
+				) : null}
+				{definition.is_filterable ? (
+					<Badge>
+						{translations['category.text.badge_filterable']}
+					</Badge>
+				) : null}
+				{definition.inherit ? null : (
+					<Badge>{translations['category.text.not_inherited']}</Badge>
+				)}
 			</span>
 
 			<span className="ml-auto flex items-center gap-2">
@@ -112,7 +169,7 @@ function SortableAttributeRow({
 					disabled={!canEdit}
 					onClick={onEdit}
 				>
-					Edit
+					{translations['category.text.edit']}
 				</Button>
 				<Button
 					type="button"
@@ -122,7 +179,7 @@ function SortableAttributeRow({
 					disabled={!canDelete}
 					onClick={onDelete}
 				>
-					Delete
+					{translations['category.text.delete']}
 				</Button>
 			</span>
 		</li>
@@ -145,6 +202,8 @@ export function ManagerAttributesCategory({
 	uid: string;
 	entries: CategoryModel[];
 }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const category = entries[0];
 
 	const { auth } = useAuth();
@@ -252,8 +311,8 @@ export function ManagerAttributesCategory({
 		onError: async () => {
 			showToast({
 				severity: 'error',
-				summary: 'Error',
-				detail: 'The attribute order could not be saved.',
+				summary: translations['app.error.title'],
+				detail: translations['category.text.attribute_order_failed'],
 			});
 
 			await queryClient.invalidateQueries({ queryKey });
@@ -275,33 +334,37 @@ export function ManagerAttributesCategory({
 		) + SORT_ORDER_STEP;
 
 	if (isLoading) {
-		return <LoadingContent title="Attributes" />;
+		return (
+			<LoadingContent title={translations['category.text.attributes']} />
+		);
 	}
 
 	if (isError) {
 		return (
 			<p className="py-6 text-center text-danger">
-				The attributes of this category could not be loaded.
+				{translations['category.text.attributes_load_failed']}
 			</p>
 		);
 	}
 
+	// The sentence wraps the category's label in <strong>, so it is split on the slot
+	const [introBefore, introAfter = ''] = (
+		translations['category.text.attributes_intro'] ?? ''
+	).split('{{label}}');
+
 	return (
 		<div className="space-y-4">
 			<p className="text-sm text-muted">
-				What a product in{' '}
+				{introBefore}
 				<strong>
 					{getCategoryContentProp(category, language, 'label')}
-				</strong>{' '}
-				is asked to say about itself. A sub-category inherits these
-				unless it defines the same label itself, and the values are
-				filled in on the product.
+				</strong>
+				{introAfter}
 			</p>
 
 			{definitions.length === 0 ? (
 				<p className="text-sm text-muted">
-					No attributes declared - a product here is asked nothing
-					beyond its own fields.
+					{translations['category.text.no_attributes']}
 				</p>
 			) : (
 				<SortableList
@@ -310,6 +373,7 @@ export function ManagerAttributesCategory({
 					className="divide-y divide-line"
 					renderItem={(definition) => (
 						<SortableAttributeRow
+							translations={translations}
 							key={definition.id}
 							definition={definition}
 							language={language}
@@ -340,7 +404,7 @@ export function ManagerAttributesCategory({
 					})
 				}
 			>
-				Add attribute
+				{translations['category.text.add_attribute']}
 			</Button>
 		</div>
 	);

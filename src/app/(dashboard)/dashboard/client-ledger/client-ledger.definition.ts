@@ -4,11 +4,15 @@ import { Icons } from '@/components/icon.component';
 import { Configuration } from '@/config/settings.config';
 import { translateBatch } from '@/config/translate.setup';
 import { DisplayAmount, formatAmount } from '@/helpers/display.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
-import type {
-	ClientLedgerEntryModel,
-	ClientLedgerEntryType,
+import {
+	type ClientLedgerEntryModel,
+	type ClientLedgerEntryType,
+	ClientLedgerEntryTypeEnum,
 } from '@/models/client-ledger.model';
 import { requestClientLedgerEntries } from '@/services/client-ledger.service';
 import type { FindFunctionParamsType } from '@/types/action.type';
@@ -41,10 +45,24 @@ const NO_CLIENT_RESPONSE = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<ClientLedgerEntryModel>
 > {
-	const translations = await translateBatch(
-		['guide.title'] as const,
-		'client-ledger.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(['guide.title'] as const, 'client-ledger.action'),
+		translateBatch(
+			[
+				'field.amount',
+				'field.amount_base',
+				'field.cash_flow_id',
+				'field.entry_type',
+				'field.id',
+				'field.occurred_at',
+				...enumTranslationKeys(
+					'enum.entry_type',
+					ClientLedgerEntryTypeEnum,
+				),
+			] as const,
+			'client-ledger',
+		),
+	]);
 
 	function displayButtonCashFlow(
 		auth: AccountModel | null,
@@ -78,21 +96,25 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 				},
 				{
 					field: 'entry_type',
-					header: 'Type',
+					header: labels['field.entry_type'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: formatEnumLabel(entry.entry_type),
+							customValue: translateEnumLabel(
+								labels,
+								'enum.entry_type',
+								entry.entry_type,
+							),
 						}),
 				},
 				{
 					field: 'amount',
-					header: 'Amount',
+					header: labels['field.amount'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -104,7 +126,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'amount_base',
-					header: 'Base Amount',
+					header: labels['field.amount_base'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							// In the deployment base currency, at the rate frozen on the row
@@ -116,7 +138,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'cash_flow_id',
-					header: 'Cash Flow',
+					header: labels['field.cash_flow_id'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayButton: displayButtonCashFlow(auth, entry),
@@ -124,7 +146,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'occurred_at',
-					header: 'Occurred At',
+					header: labels['field.occurred_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -145,7 +167,7 @@ export default async function dataSourceConfig(): Promise<
 		displayEntryLabel: (entry: ClientLedgerEntryModel) => {
 			const formatted = formatAmount(entry.amount, entry.currency);
 
-			return `${formatEnumLabel(entry.entry_type)} ${formatted.value} ${formatted.currency}`;
+			return `${translateEnumLabel(labels, 'enum.entry_type', entry.entry_type)} ${formatted.value} ${formatted.currency}`;
 		},
 		actions: {
 			guide: {

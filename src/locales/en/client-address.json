@@ -24,5 +24,22 @@
 			"success": "Client address deleted successfully",
 			"confirm": "Are you sure you want to remove this address from the client? It cannot be restored. The address itself is kept."
 		}
+	},
+	"field": {
+		"type": "Type",
+		"address": "Address",
+		"details": "Details",
+		"notes": "Notes"
+	},
+	"text": {
+		"placeholder_details": "e.g.: Ap. 12, floor 3",
+		"placeholder_notes": "e.g.: Ring twice, entrance from the back",
+		"create_address": "Create address \"{{value}}\""
+	},
+	"enum": {
+		"type": {
+			"billing": "Billing",
+			"delivery": "Delivery"
+		}
 	}
 }

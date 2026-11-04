@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+'use client';
+
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
 	FormComponentEmail,
 	FormComponentName,
@@ -7,8 +9,13 @@ import {
 	FormComponentSelect,
 } from '@/components/form/form-element.component';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	languageOwnName,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { isAdmin } from '@/models/account.model';
 import {
 	type UserOperatorType,
@@ -20,6 +27,19 @@ import { useAuth } from '@/providers/auth.provider';
 import { useWindowForm } from '@/providers/window-form.provider';
 import { type Language, LanguageEnum } from '@/types/common.type';
 
+const TRANSLATION_KEYS = [
+	'user.field.email',
+	'user.field.language',
+	'user.field.name',
+	'user.field.operator_type',
+	'user.field.password',
+	'user.field.password_confirm',
+	'user.field.role',
+	'user.text.placeholder_password_confirm',
+	...enumTranslationKeys('user.enum.role', UserRoleEnum),
+	...enumTranslationKeys('user.enum.operator_type', UserOperatorTypeEnum),
+] as const;
+
 export type UserFormValuesType = {
 	name: string | null;
 	email: string | null;
@@ -30,19 +50,35 @@ export type UserFormValuesType = {
 	operator_type: UserOperatorType | null;
 };
 
-const roles = toOptionsFromEnum(UserRoleEnum, {
-	formatter: formatEnumLabel,
-});
-
 const languages = toOptionsFromEnum(LanguageEnum, {
-	formatter: formatEnumLabel,
-});
-
-const operatorTypes = toOptionsFromEnum(UserOperatorTypeEnum, {
-	formatter: formatEnumLabel,
+	formatter: languageOwnName,
 });
 
 export function FormManageUser() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const operatorTypes = useMemo(
+		() =>
+			toOptionsFromEnum(UserOperatorTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'user.enum.operator_type',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const roles = useMemo(
+		() =>
+			toOptionsFromEnum(UserRoleEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'user.enum.role', value),
+			}),
+		[translations],
+	);
+
 	const { formOperation, formValues, errors, handleChange, pending } =
 		useWindowForm<UserFormValuesType>();
 
@@ -89,7 +125,7 @@ export function FormManageUser() {
 	return (
 		<>
 			<FormComponentName<UserFormValuesType>
-				labelText="Name"
+				labelText={translations['user.field.name']}
 				id={elementIds.name}
 				fieldValue={formValues.name ?? ''}
 				disabled={pending}
@@ -98,7 +134,7 @@ export function FormManageUser() {
 			/>
 
 			<FormComponentEmail<UserFormValuesType>
-				labelText="Email"
+				labelText={translations['user.field.email']}
 				id={elementIds.email}
 				fieldValue={formValues.email ?? ''}
 				disabled={pending}
@@ -107,7 +143,7 @@ export function FormManageUser() {
 			/>
 
 			<FormComponentPassword<UserFormValuesType>
-				labelText="Password"
+				labelText={translations['user.field.password']}
 				id={elementIds.password}
 				fieldName="password"
 				fieldValue={formValues.password ?? ''}
@@ -120,11 +156,13 @@ export function FormManageUser() {
 			/>
 
 			<FormComponentPassword<UserFormValuesType>
-				labelText="Confirm Password"
+				labelText={translations['user.field.password_confirm']}
 				id={elementIds.passwordConfirm}
 				fieldName="password_confirm"
 				fieldValue={formValues.password_confirm ?? ''}
-				placeholderText="Password confirmation"
+				placeholderText={
+					translations['user.text.placeholder_password_confirm']
+				}
 				isRequired={isPasswordRequired}
 				disabled={pending}
 				onChange={(e) =>
@@ -135,7 +173,7 @@ export function FormManageUser() {
 			/>
 
 			<FormComponentSelect<UserFormValuesType>
-				labelText="Language"
+				labelText={translations['user.field.language']}
 				id={elementIds.language}
 				fieldName="language"
 				fieldValue={formValues.language}
@@ -148,7 +186,7 @@ export function FormManageUser() {
 			/>
 
 			<FormComponentRadio<UserFormValuesType>
-				labelText="Role"
+				labelText={translations['user.field.role']}
 				id={elementIds.role}
 				fieldName="role"
 				fieldValue={formValues.role}
@@ -160,7 +198,7 @@ export function FormManageUser() {
 
 			{formValues.role === UserRoleEnum.OPERATOR && (
 				<FormComponentSelect<UserFormValuesType>
-					labelText="Operator Type"
+					labelText={translations['user.field.operator_type']}
 					id={elementIds.operatorType}
 					fieldName="operator_type"
 					fieldValue={formValues.operator_type ?? ''}

@@ -20,7 +20,11 @@ import {
 	requestUpdateStatus,
 	requestView,
 } from '@/helpers/services.helper';
-import { toKebabCase } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	toKebabCase,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import {
 	BaseValidator,
 	resolveValidatorMessages,
@@ -165,21 +169,33 @@ export type BrandDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<BrandModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'view.title',
-			'delete.title',
-			'restore.title',
-			'enable.title',
-			'disable.title',
-			'order.title',
-			'managerImages.title',
-			'guide.title',
-		] as const,
-		'brand.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'view.title',
+				'delete.title',
+				'restore.title',
+				'enable.title',
+				'disable.title',
+				'order.title',
+				'managerImages.title',
+				'guide.title',
+			] as const,
+			'brand.action',
+		),
+		translateBatch(
+			[
+				'field.brand_type',
+				'field.id',
+				'field.name',
+				'field.status',
+				...enumTranslationKeys('enum.type', BrandTypeEnum),
+			] as const,
+			'brand',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -232,7 +248,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -243,20 +259,24 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'brand_type',
-					header: 'Type',
+					header: labels['field.brand_type'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							capitalize: true,
+							customValue: translateEnumLabel(
+								labels,
+								'enum.type',
+								entry.brand_type,
+							),
 						}),
 				},
 				{
 					field: 'name',
-					header: 'Name',
+					header: labels['field.name'],
 					sortable: true,
 				},
 				{
 					field: 'status',
-					header: 'Status',
+					header: labels['field.status'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							dataSource: 'brand',
