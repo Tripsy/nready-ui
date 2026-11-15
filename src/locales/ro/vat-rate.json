@@ -1,0 +1,81 @@
+{
+	"meta": {
+		"title": "Cote TVA - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_country_code": "Țară invalidă; folosește un cod ISO 3166-1 de 2 litere, ex. RO",
+		"invalid_category": "Alege o clasă de TVA",
+		"invalid_rate": "Cota trebuie să fie un procent de la 0 la sub 100, cu cel mult {{decimals}} zecimale",
+		"invalid_valid_from": "Data de început trebuie să fie o zi validă",
+		"invalid_notes": "Note invalide"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă cotă TVA",
+			"label": "Adaugă",
+			"success": "Cota TVA a fost adăugată"
+		},
+		"update": {
+			"title": "Actualizează cota TVA - {{entry}}",
+			"label": "Actualizează",
+			"success": "Cota TVA a fost actualizată"
+		},
+		"delete": {
+			"title": "Șterge cota TVA - {{entry}}",
+			"label": "Șterge",
+			"success": "Cota TVA a fost ștearsă",
+			"confirm": "Ștergerea este definitivă. Rândul anterior pentru aceeași țară și clasă își reia perioada. Comenzile și facturile deja emise își păstrează cota. Ești sigur?"
+		},
+		"view": {
+			"title": "Detalii cotă TVA - {{entry}}",
+			"label": "Vezi detalii"
+		},
+		"guide": {
+			"title": "Cum funcționează cotele TVA",
+			"label": "Ghid de utilizare"
+		}
+	},
+	"help": {
+		"intro": "Un rând spune ce procent are o clasă de TVA într-o țară începând cu o anumită zi - RO, Redusă, 11%, din 2025-08-01. Un produs declară o clasă, niciodată un procent; procentul este căutat aici când se calculează un coș sau catalogul, după cotele țării magazinului.",
+		"step_1_title": "O schimbare de cotă înseamnă un rând nou",
+		"step_1_body": "Rândurile au o zi de început și nicio zi de sfârșit: cota în vigoare într-o zi este rândul cu cea mai recentă zi de început până în acea zi inclusiv. Pentru o lege nouă, adaugă un rând datat cu ziua în care intră în vigoare. O zi viitoare este în regulă - noua cotă preia singură la miezul nopții, ora companiei, iar rândul vechi acoperă în continuare zilele dinainte.",
+		"step_2_title": "Ce clase au rânduri",
+		"step_2_body": "Standard, Redusă și A doua redusă au un procent și sunt păstrate aici. Cota zero și Scutit sunt 0% peste tot și nu au rânduri. O clasă fără rând într-o țară este taxată la cota Standard a țării - supra-taxarea este eroarea mai sigură - iar o țară fără cotă Standard în vigoare refuză calculul până când se adaugă una.",
+		"step_3_title": "Corecturi",
+		"step_3_body": "Doar cota și notele se pot edita. Țara, clasa și ziua de început identifică rândul, așa că un rând introdus greșit se șterge și se introduce din nou. O corectură ajunge în coșuri și în prețurile catalogului; ștergerea unui rând îi redă perioada rândului anterior.",
+		"step_4_title": "Documentele își păstrează cota",
+		"step_4_body": "O linie de comandă și o linie de factură îngheață cota cu care au fost calculate, deci nimic schimbat aici nu modifică o comandă, o factură sau un raport deja emis. Lista se ordonează după ziua de început, țară sau id, cele mai noi primele; filtrează după clasă sau caută un id ori note de la trei caractere.",
+		"note": "Cotele României din 2017 încoace sunt inserate la migrarea bazei de date. Verifică fiecare lege nouă față de clasele produselor înainte de a adăuga rândul: clasa unui preparat se setează pe produs, nu aici.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API"
+	},
+	"field": {
+		"search": "ID / Țară / Note",
+		"id": "ID",
+		"country_code": "Țară",
+		"category": "Clasă TVA",
+		"rate": "Cotă",
+		"valid_from": "Valabil din",
+		"notes": "Note",
+		"created_at": "Creat la",
+		"updated_at": "Actualizat la"
+	},
+	"text": {
+		"country_label": "Țară (cod ISO 3166-1 de {{chars}} litere)",
+		"placeholder_country": "ex.: RO",
+		"rate_label": "Cotă, % (cel mult {{decimals}} zecimale)",
+		"placeholder_rate": "ex.: 11"
+	},
+	"section": {
+		"rate": "Cotă",
+		"other": "Altele",
+		"timestamps": "Marcaje temporale"
+	},
+	"enum": {
+		"category": {
+			"standard": "Standard",
+			"reduced": "Redusă",
+			"second_reduced": "A doua redusă"
+		}
+	}
+}

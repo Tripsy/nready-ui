@@ -39,6 +39,7 @@ export const LogHistoryEntities = [
 	'template',
 	'term',
 	'user',
+	'vat_rate',
 	'vendor',
 	'warehouse',
 ];

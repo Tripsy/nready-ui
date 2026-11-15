@@ -67,6 +67,7 @@
 			"template": "Template",
 			"term": "Term",
 			"user": "User",
+			"vat_rate": "VAT Rate",
 			"vendor": "Vendor",
 			"warehouse": "Warehouse",
 			"operational_record": "Operational Record"

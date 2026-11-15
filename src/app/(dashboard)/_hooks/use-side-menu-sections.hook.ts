@@ -30,6 +30,7 @@ const TRANSLATION_KEYS = [
 	'dashboard.labels.invoice',
 	'dashboard.labels.discount',
 	'dashboard.labels.exchange-rate',
+	'dashboard.labels.vat-rate',
 	'dashboard.labels.vendor',
 
 	'dashboard.labels.content',
@@ -143,6 +144,13 @@ export function useSideMenuSections(): {
 						text: translations['dashboard.labels.exchange-rate'],
 						icon: Icons.ExchangeRate,
 						permission: hasPermission(auth, 'exchange-rate'),
+					},
+					{
+						page: 'vat-rate',
+						href: Routes.get('vat-rate'),
+						text: translations['dashboard.labels.vat-rate'],
+						icon: Icons.VatRate,
+						permission: hasPermission(auth, 'vat-rate'),
 					},
 					{
 						page: 'vendor',

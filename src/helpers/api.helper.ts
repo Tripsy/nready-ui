@@ -411,6 +411,7 @@ const PLURAL_ENDPOINT_KEYS: ReadonlySet<DataSourceKey> = new Set([
 	'shipping',
 	'term',
 	'user',
+	'vat-rate',
 	'vendor',
 	'warehouse',
 ]);

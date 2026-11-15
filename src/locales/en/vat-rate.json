@@ -1,0 +1,81 @@
+{
+	"meta": {
+		"title": "VAT Rates - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_country_code": "Invalid country; use a 2-letter ISO 3166-1 code, e.g. RO",
+		"invalid_category": "Choose a VAT class",
+		"invalid_rate": "Rate must be a percentage from 0 to below 100, with at most {{decimals}} decimals",
+		"invalid_valid_from": "Start date must be a valid day",
+		"invalid_notes": "Invalid notes"
+	},
+	"action": {
+		"create": {
+			"title": "Add new VAT rate",
+			"label": "Add",
+			"success": "New VAT rate added successfully"
+		},
+		"update": {
+			"title": "Update VAT rate - {{entry}}",
+			"label": "Update",
+			"success": "VAT rate updated successfully"
+		},
+		"delete": {
+			"title": "Delete VAT rate - {{entry}}",
+			"label": "Delete",
+			"success": "VAT rate deleted successfully",
+			"confirm": "Deleting a rate is permanent. The previous row for the same country and class takes its period back. Orders and invoices already written keep their own rate. Are you sure?"
+		},
+		"view": {
+			"title": "VAT rate details - {{entry}}",
+			"label": "View details"
+		},
+		"guide": {
+			"title": "How VAT rates work",
+			"label": "Usage guide"
+		}
+	},
+	"help": {
+		"intro": "A row says what percentage a VAT class carries in a country from a given day - RO, Reduced, 11%, from 2025-08-01. A product declares a class, never a percentage; the percentage is looked up here when a cart or the catalog is priced, at the rates of the shop's own country.",
+		"step_1_title": "A rate change is one new row",
+		"step_1_body": "Rows have a start day and no end: the rate in force on a day is the row with the newest start day on or before it. To apply a new law, add a row dated the day it takes effect. A future day is fine - the new rate takes over on its own at midnight, company time, and the old row keeps covering every day before it.",
+		"step_2_title": "Which classes have rows",
+		"step_2_body": "Standard, Reduced and Second reduced carry a percentage and are stored here. Zero-rated and Exempt are 0% everywhere and have no rows. A class a country has no row for is priced at that country's Standard rate - over-charging VAT is the safer error - and a country with no Standard rate in force refuses to price at all until one is added.",
+		"step_3_title": "Corrections",
+		"step_3_body": "Only the rate and the notes are editable. The country, the class and the start day identify the row, so a row entered for the wrong one is deleted and entered again. A correction reaches carts and catalog prices; deleting a row hands its period back to the row before it.",
+		"step_4_title": "Documents keep their own rate",
+		"step_4_body": "An order line and an invoice line freeze the rate they were priced at, so nothing changed here moves an order, an invoice or a report already written. The list orders by start day, country or id, newest first; filter by class, or search an id or the notes from three characters.",
+		"note": "Romania's rates from 2017 on are inserted when the database is migrated. Check each new law against the class mapping before adding its row: a dish's class is set on the product, not here.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
+	},
+	"field": {
+		"search": "ID / Country / Notes",
+		"id": "ID",
+		"country_code": "Country",
+		"category": "VAT class",
+		"rate": "Rate",
+		"valid_from": "Valid From",
+		"notes": "Notes",
+		"created_at": "Created At",
+		"updated_at": "Updated At"
+	},
+	"text": {
+		"country_label": "Country ({{chars}}-letter ISO 3166-1 code)",
+		"placeholder_country": "e.g.: RO",
+		"rate_label": "Rate, % (up to {{decimals}} decimals)",
+		"placeholder_rate": "e.g.: 11"
+	},
+	"section": {
+		"rate": "Rate",
+		"other": "Other",
+		"timestamps": "Timestamps"
+	},
+	"enum": {
+		"category": {
+			"standard": "Standard",
+			"reduced": "Reduced",
+			"second_reduced": "Second reduced"
+		}
+	}
+}

@@ -31,6 +31,7 @@ import type { ShippingModel } from '@/models/shipping.model';
 import type { TemplateModel } from '@/models/template.model';
 import type { TermModel } from '@/models/term.model';
 import type { UserModel } from '@/models/user.model';
+import type { VatRateModel } from '@/models/vat-rate.model';
 import type { VendorModel } from '@/models/vendor.model';
 import type { WarehouseModel } from '@/models/warehouse.model';
 
@@ -89,6 +90,7 @@ export type DatasourceModels = {
 	template: TemplateModel;
 	term: TermModel;
 	user: UserModel;
+	'vat-rate': VatRateModel;
 	vendor: VendorModel;
 	warehouse: WarehouseModel;
 };

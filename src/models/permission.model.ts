@@ -34,6 +34,7 @@ export const PermissionEntitiesSuggestions = [
 	'template',
 	'term',
 	'user',
+	'vat-rate',
 	'vendor',
 	'warehouse',
 ] as const;

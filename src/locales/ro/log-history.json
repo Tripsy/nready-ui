@@ -67,6 +67,7 @@
 			"template": "Șablon",
 			"term": "Termen",
 			"user": "Utilizator",
+			"vat_rate": "Cotă TVA",
 			"vendor": "Furnizor",
 			"warehouse": "Depozit",
 			"operational_record": "Înregistrare operațională"

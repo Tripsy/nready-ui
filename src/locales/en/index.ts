@@ -58,6 +58,7 @@ import status from '@/locales/en/status.json';
 import template from '@/locales/en/template.json';
 import term from '@/locales/en/term.json';
 import user from '@/locales/en/user.json';
+import vat_rate from '@/locales/en/vat-rate.json';
 import vendor from '@/locales/en/vendor.json';
 import warehouse from '@/locales/en/warehouse.json';
 
@@ -122,6 +123,7 @@ const en = {
 	term,
 	user,
 	status,
+	'vat-rate': vat_rate,
 	vendor,
 	warehouse,
 

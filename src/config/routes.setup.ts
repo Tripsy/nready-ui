@@ -301,6 +301,9 @@ Routes.group('dashboard')
 	.add('exchange-rate', '/dashboard/exchange-rate', {
 		permissionEntity: 'exchange-rate',
 	})
+	.add('vat-rate', '/dashboard/vat-rate', {
+		permissionEntity: 'vat-rate',
+	})
 	.add('image', '/dashboard/image', {
 		permissionEntity: 'image',
 	})
