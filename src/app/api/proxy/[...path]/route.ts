@@ -15,7 +15,7 @@ const UPSTREAM_TIMEOUT = 30000;
  * Backend response headers the browser can use. `RateLimit-*` / `Retry-After` let a caller see
  * its budget and back off; `ETag` pairs with the forwarded `If-None-Match` so an unchanged
  * read comes back as an empty 304; `X-Request-ID` ties a failure seen in the browser to the
- * backend's log line.
+ * backend's log line; `X-App-Version` names the backend build that answered.
  */
 const FORWARDED_RESPONSE_HEADERS = [
 	'content-disposition',
@@ -26,6 +26,7 @@ const FORWARDED_RESPONSE_HEADERS = [
 	'ratelimit-reset',
 	'retry-after',
 	'x-request-id',
+	'x-app-version',
 ];
 
 const FORWARDED_REQUEST_HEADERS = ['if-none-match'];
