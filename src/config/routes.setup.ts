@@ -9,6 +9,8 @@ export const RouteAuthEnum = {
 	UNAUTHENTICATED: 'unauthenticated',
 	AUTHENTICATED: 'authenticated',
 	PROTECTED: 'protected', // `admin` OR `operator` OR `member`
+	// An admin and nobody else - no grant reaches it, so it takes no permission entity.
+	ADMIN: 'admin',
 } as const;
 
 export type RouteAuth = (typeof RouteAuthEnum)[keyof typeof RouteAuthEnum];
@@ -158,8 +160,11 @@ class RoutesCollection {
 const Routes = new RoutesCollection();
 
 Routes.add('home', '/');
-Routes.add('api-docs', '/api-docs');
-Routes.add('api-docs-feature', '/api-docs/:feature');
+// Admin only, as the backend's `ApiDocsPolicy` is: every other caller would get a 401/403 there.
+Routes.add('api-docs', '/api-docs', { auth: RouteAuthEnum.ADMIN });
+Routes.add('api-docs-feature', '/api-docs/:feature', {
+	auth: RouteAuthEnum.ADMIN,
+});
 Routes.add('page', '/page/:label');
 Routes.add('products', '/products');
 Routes.add('products-categories', '/products/categories');
@@ -401,9 +406,11 @@ export function isExcludedRoute(pathname: string) {
  */
 export function isProtectedRoute(
 	auth: RouteAuth,
-): auth is 'authenticated' | 'protected' {
+): auth is 'authenticated' | 'protected' | 'admin' {
 	return (
-		auth === RouteAuthEnum.AUTHENTICATED || auth === RouteAuthEnum.PROTECTED
+		auth === RouteAuthEnum.AUTHENTICATED ||
+		auth === RouteAuthEnum.PROTECTED ||
+		auth === RouteAuthEnum.ADMIN
 	);
 }
 

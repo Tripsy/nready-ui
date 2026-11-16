@@ -5,6 +5,8 @@ import { ApiDocs } from '@/components/api-docs.component';
 import { Icons } from '@/components/icon.component';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTranslation } from '@/hooks/use-translation.hook';
+import { isAdmin } from '@/models/account.model';
+import { useAuth } from '@/providers/auth.provider';
 
 /**
  * One API-docs tab. `feature` is the backend route module `GET /public/api-docs/:feature` serves, which
@@ -21,8 +23,11 @@ export type UsageGuideDocsTab = {
 const TAB_INFO = 'info';
 
 /**
- * The window behind every entity's "Usage guide" action: a written checklist, then one tab per
- * documented route module.
+ * The window behind every entity's "Usage guide" action: a written checklist, then - for an
+ * admin only - one tab per documented route module. Every other role gets the checklist alone.
+ *
+ * The backend enforces the same rule (`GET /public/api-docs/:feature` answers 403 to a
+ * non-admin), so the tabs are dropped here rather than left to render that error.
  *
  * Entity-specific only through `entity`, which is both the locale namespace (`<entity>.help.*`)
  * and the step numbering, so a new entity is a locale block plus a one-line wrapper rather than
@@ -31,12 +36,15 @@ const TAB_INFO = 'info';
 export function UsageGuide({
 	entity,
 	stepCount,
-	docsTabs,
+	docsTabs: allDocsTabs,
 }: {
 	entity: string;
 	stepCount: number;
 	docsTabs: UsageGuideDocsTab[];
 }) {
+	const { auth } = useAuth();
+	const docsTabs = isAdmin(auth) ? allDocsTabs : [];
+
 	const steps = Array.from({ length: stepCount }, (_, index) =>
 		String(index + 1),
 	);

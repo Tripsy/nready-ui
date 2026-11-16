@@ -1,14 +1,28 @@
 import { Heart } from 'lucide-react';
+import { headers } from 'next/headers';
 import NextLink from 'next/link';
 import { Icons } from '@/components/icon.component';
 import { LogoComponent } from '@/components/layout/logo.default';
 import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
+import { logger } from '@/helpers/logger.helper';
+import { type AccountModel, isAdmin } from '@/models/account.model';
 import { isApiDocsEnabled } from '@/types/api-docs.type';
 
 type FooterLinkSection = {
 	name: string;
 	links: { label: string; href: string; title?: string }[];
+};
+
+const DEVELOPERS_SECTION: FooterLinkSection = {
+	name: 'Developers',
+	links: [
+		{
+			label: 'API reference',
+			href: Routes.get('api-docs'),
+			title: 'API reference',
+		},
+	],
 };
 
 const footerLinkSections: FooterLinkSection[] = [
@@ -27,21 +41,6 @@ const footerLinkSections: FooterLinkSection[] = [
 			{ label: 'Articles', href: Routes.get('articles') },
 		],
 	},
-	// Goes with the pages it links to, which `notFound()` when the reference is off.
-	...(isApiDocsEnabled()
-		? [
-				{
-					name: 'Developers',
-					links: [
-						{
-							label: 'API reference',
-							href: Routes.get('api-docs'),
-							title: 'API reference',
-						},
-					],
-				},
-			]
-		: []),
 	{
 		name: 'Company',
 		links: [
@@ -89,7 +88,37 @@ const socialLinks = [
 	},
 ];
 
-export function Footer() {
+/**
+ * The account the middleware resolved for this request, or `null` for a visitor. Read from
+ * `x-auth-data` rather than fetched, so the footer costs no backend call.
+ */
+async function readAuth(): Promise<AccountModel | null> {
+	const authHeader = (await headers()).get('x-auth-data');
+
+	try {
+		return authHeader ? JSON.parse(authHeader) : null;
+	} catch (error: unknown) {
+		logger.error('Failed to parse the x-auth-data header', error);
+
+		return null;
+	}
+}
+
+export async function Footer() {
+	/*
+	 * The API reference goes with the pages it links to, which `notFound()` when the reference
+	 * is off and admit an admin alone - so the link is offered to nobody else. It keeps its
+	 * column after Blog.
+	 */
+	const sections =
+		isApiDocsEnabled() && isAdmin(await readAuth())
+			? [
+					...footerLinkSections.slice(0, 2),
+					DEVELOPERS_SECTION,
+					...footerLinkSections.slice(2),
+				]
+			: footerLinkSections;
+
 	return (
 		<footer className="border-t border-border bg-surface-secondary/30">
 			<div className="container-default py-8 md:py-12">
@@ -125,7 +154,7 @@ export function Footer() {
 					</div>
 
 					<div className="grid grid-cols-3 gap-8 md:flex md:justify-around md:gap-20">
-						{footerLinkSections.map((section) => (
+						{sections.map((section) => (
 							<div key={section.name}>
 								<h3 className="text-sm font-semibold text-foreground mb-4">
 									{section.name}

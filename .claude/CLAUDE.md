@@ -150,7 +150,7 @@ entities/operations, DB schema, business rules read the code in `../nready-api`
   three timezone conventions (device clock / company time / display) are in `.claude/rules/dates.md`.
 - **Route groups**: `src/app/(public)/*` is the public site (marketing/auth/account), and
   `src/app/(dashboard)/dashboard/*` is the admin panel - each has its own `layout.tsx`. Route access
-  (`public` / `unauthenticated` / `authenticated` / `protected`, plus permission entity/operation) is
+  (`public` / `unauthenticated` / `authenticated` / `protected` / `admin`, plus permission entity/operation) is
   declared centrally in `src/config/routes.setup.ts` via `Routes.group(...)`, not per-page - `src/proxy.ts`
   reads this table to redirect/authorize before a page ever renders.
 - **Auth flow**: session token lives in an httpOnly cookie (`Configuration.get('user.sessionToken')`).
@@ -158,6 +158,10 @@ entities/operations, DB schema, business rules read the code in `../nready-api`
   resulting `AccountModel` (user + `permissions` map) as the `x-auth-data` response header; `hasPermission()` in
   `src/models/account.model.ts` gates `protected` routes. `src/providers/auth.provider.tsx` exposes this to
   client components.
+- **API reference is admin-only** on both sides despite its `/public/api-docs` path: the backend's
+  `ApiDocsPolicy` answers 401/403 to anyone else, the `/api-docs` pages are `admin` routes fetching
+  with the admin's session (uncached), and the footer link and `UsageGuide` docs tabs show for an
+  admin alone.
 - **Social login (OAuth)** - authorization-code flow across two legs on this origin:
   `/api/oauth/:provider` starts it, `/account/oauth/:provider` redeems the code. The `state` uuid
   carried in the httpOnly `oauth-state` cookie is the entire CSRF defence for the provider round

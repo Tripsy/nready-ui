@@ -14,6 +14,7 @@ import { apiHeaders } from '@/helpers/system.helper';
 import {
 	type AccountModel,
 	hasPermission,
+	isAdmin,
 	prepareAccountModel,
 } from '@/models/account.model';
 import type { ApiResponseFetch } from '@/types/api.type';
@@ -268,6 +269,7 @@ class MiddlewareContext {
 					return this.success();
 				case RouteAuthEnum.AUTHENTICATED:
 				case RouteAuthEnum.PROTECTED:
+				case RouteAuthEnum.ADMIN:
 					return this.redirectToLogin();
 				default:
 					return this.redirectToError('undefined_route');
@@ -286,7 +288,8 @@ class MiddlewareContext {
 					return this.success();
 				}
 				case RouteAuthEnum.AUTHENTICATED:
-				case RouteAuthEnum.PROTECTED: {
+				case RouteAuthEnum.PROTECTED:
+				case RouteAuthEnum.ADMIN: {
 					this.res = this.redirectToError('unauthorized');
 
 					// Destroy session -> token exists but is invalid
@@ -318,6 +321,10 @@ class MiddlewareContext {
 			) {
 				return this.redirectToError('unauthorized');
 			}
+		}
+
+		if (routeAuth === RouteAuthEnum.ADMIN && !isAdmin(authResult)) {
+			return this.redirectToError('unauthorized');
 		}
 
 		this.setAuthData(authResult);
