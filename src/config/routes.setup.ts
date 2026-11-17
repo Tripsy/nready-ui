@@ -334,6 +334,9 @@ Routes.group('dashboard')
 	.add('warehouse', '/dashboard/warehouse', {
 		permissionEntity: 'warehouse',
 	})
+	.add('grn', '/dashboard/grn', {
+		permissionEntity: 'grn',
+	})
 	.add('order', '/dashboard/order', {
 		permissionEntity: 'order',
 	})

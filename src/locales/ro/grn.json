@@ -1,0 +1,133 @@
+{
+	"meta": {
+		"title": "Recepții (NIR) - Panou | {{app_name}}"
+	},
+	"validation": {
+		"invalid_warehouse_id": "Alege depozitul în care au sosit mărfurile",
+		"invalid_vendor_id": "Alege furnizorul de la care au venit mărfurile",
+		"invalid_supplier_document_number": "Număr de document al furnizorului invalid",
+		"invalid_received_at": "Alege ziua în care au sosit mărfurile",
+		"invalid_currency": "Alege o monedă",
+		"invalid_exchange_rate": "Curs de schimb invalid",
+		"invalid_items": "Prea multe linii pe o singură recepție",
+		"duplicate_variant": "O variantă poate apărea o singură dată pe recepție - introdu un al doilea lot al ei ca recepție separată",
+		"invalid_variant_id": "Alege o variantă",
+		"invalid_qty": "Cantitate invalidă",
+		"invalid_unit_cost": "Cost unitar invalid",
+		"invalid_vat_rate": "Cotă TVA invalidă",
+		"invalid_lot_code": "Cod de lot invalid"
+	},
+	"error": {
+		"cannot_update_status": "Această recepție a ajuns într-o stare din care nu mai poate trece mai departe"
+	},
+	"status": {
+		"draft": "Ciornă",
+		"confirmed": "Confirmată",
+		"canceled": "Anulată",
+		"deleted": "Ștearsă"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă recepție nouă",
+			"label": "Adaugă",
+			"success": "Recepția a fost adăugată cu succes"
+		},
+		"update": {
+			"title": "Actualizează recepția - {{entry}}",
+			"label": "Actualizează",
+			"success": "Recepția a fost actualizată cu succes"
+		},
+		"delete": {
+			"title": "Șterge recepția - {{entry}}",
+			"label": "Șterge",
+			"success": "Recepția a fost ștearsă cu succes",
+			"confirm": "Sigur vrei să ștergi această recepție?"
+		},
+		"restore": {
+			"title": "Restaurează recepția - {{entry}}",
+			"label": "Restaurează",
+			"success": "Recepția a fost restaurată cu succes",
+			"confirm": "Sigur vrei să restaurezi această recepție?"
+		},
+		"view": {
+			"title": "Detalii recepție - {{entry}}",
+			"label": "Vezi detalii"
+		},
+		"statusTransition": {
+			"title": "Confirmă sau anulează - {{entry}}",
+			"label": "Schimbă statusul",
+			"success": "Statusul recepției a fost actualizat cu succes"
+		},
+		"guide": {
+			"title": "Cum funcționează recepțiile",
+			"label": "Ghid de utilizare"
+		}
+	},
+	"help": {
+		"intro": "O recepție (NIR) este singurul mod prin care stocul intră într-un depozit - inclusiv stocul pe care îl ai deja în prima zi. Fiecare linie devine un lot: aceste unități, la acest cost, primite în această zi. Nimic nu se mișcă până când recepția nu este confirmată.",
+		"step_1_title": "Introdu-o ca ciornă",
+		"step_1_body": "Alege depozitul, furnizorul, ziua în care au sosit mărfurile și moneda facturii furnizorului. Numărul NIR este alocat la salvare și rămâne chiar dacă recepția este anulată ulterior. O ciornă poate fi salvată fără linii și modificată liber, inclusiv liniile - încă nu a atins stocul.",
+		"step_2_title": "Adaugă o linie pe variantă",
+		"step_2_body": "Pot fi recepționate doar variantele care țin stoc. O variantă apare o singură dată pe recepție; un al doilea lot al ei - altă producție, altă dată de expirare - se introduce ca recepție separată. Un cost unitar zero este acceptat pentru mostre gratuite. Codul de lot și data expirării sunt opționale.",
+		"step_3_title": "Află cum se convertește moneda străină",
+		"step_3_body": "În moneda de bază nu e nevoie de curs. În oricare alta, lasă cursul gol pentru a folosi cursul publicat al zilei de recepție, sau scrie cursul la care a fost convertită factura. Costul fiecărei linii este convertit o singură dată și înghețat; schimbarea monedei sau a zilei de recepție a unei ciorne reconvertește toate liniile, dar un curs scris de tine rămâne cum l-ai scris - șterge-l ca să fie căutat din nou.",
+		"step_4_title": "Confirm-o",
+		"step_4_body": "Confirmarea deschide lotul fiecărei linii, înregistrează o mișcare de intrare pe linie și recalculează costul mediu al fiecărei variante față de stocul pe care îl are deja în toate depozitele. O recepție fără linii nu poate fi confirmată. După confirmare se mai pot schimba doar numărul documentului furnizorului și notele.",
+		"step_5_title": "Anuleaz-o dacă a fost greșită",
+		"step_5_body": "Anularea unei ciorne nu schimbă nimic altceva. Anularea unei recepții confirmate înregistrează o mișcare inversă pe linie și scoate loturile din costul mediu - dar doar cât timp nicio unitate nu a ieșit din loturile ei. Odată ce s-a consumat stoc din ea, corecția este un retur sau o ajustare, nu o anulare.",
+		"note": "O recepție confirmată nu poate fi ștearsă - loturile ei fac parte din stocul existent - așa că anuleaz-o. Ciornele și recepțiile anulate pot fi șterse și restaurate. Căutarea acceptă numărul NIR, o referință completă precum NIR-42 sau numărul documentului furnizorului.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API"
+	},
+	"field": {
+		"search": "NIR / Document furnizor",
+		"id": "ID",
+		"reference": "NIR",
+		"supplier_document_number": "Document furnizor",
+		"warehouse": "Depozit",
+		"vendor": "Furnizor",
+		"received_at": "Recepționat la",
+		"confirmed_at": "Confirmat la",
+		"currency": "Monedă",
+		"exchange_rate": "Curs de schimb",
+		"notes": "Note",
+		"variant": "Variantă",
+		"qty": "Cantitate",
+		"qty_remaining": "În stoc",
+		"unit_cost": "Cost unitar",
+		"unit_cost_base": "Cost de bază",
+		"vat_rate": "TVA %",
+		"lot_code": "Cod lot",
+		"expires_at": "Expiră la",
+		"status": "Status",
+		"created_at": "Creat la",
+		"updated_at": "Actualizat la",
+		"deleted_at": "Șters la"
+	},
+	"section": {
+		"details": "Detalii",
+		"items": "Linii",
+		"info": "Info",
+		"notes": "Note",
+		"timestamps": "Marcaje de timp"
+	},
+	"text": {
+		"add_line": "Adaugă linie",
+		"label_remove_line": "Elimină linia {{number}}",
+		"label_unit_cost_currency": "Cost unitar ({{currency}})",
+		"placeholder_exchange_rate": "Cursul publicat al zilei",
+		"placeholder_supplier_document_number": "ex.: AVZ 004512",
+		"items_hint": "O linie pe variantă. Sunt oferite doar variantele care țin stoc.",
+		"locked_confirmed": "Această recepție este confirmată și a mișcat stocul - se mai pot schimba doar numărul documentului furnizorului și notele.",
+		"no_items": "Nicio linie încă",
+		"remove": "Elimină",
+		"change_status_to": "Mută această recepție în:",
+		"confirm_effect": "Deschide loturile, înregistrează mișcările de stoc și recalculează costul mediu al fiecărei variante.",
+		"cancel_draft_effect": "Retrage ciorna. Nimic nu s-a mișcat, deci nimic nu se inversează.",
+		"cancel_confirmed_effect": "Inversează mișcările de stoc și scoate loturile din costul mediu. Refuzat odată ce o unitate a ieșit din loturi.",
+		"details": "Detalii",
+		"items": "Linii",
+		"not_confirmed": "Neconfirmată",
+		"variant_ref": "Varianta #{{id}}"
+	}
+}

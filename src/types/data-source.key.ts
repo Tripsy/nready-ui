@@ -14,6 +14,7 @@ import type { CronHistoryModel } from '@/models/cron-history.model';
 import type { DiscountModel } from '@/models/discount.model';
 import type { DocumentSeriesModel } from '@/models/document-series.model';
 import type { ExchangeRateModel } from '@/models/exchange-rate.model';
+import type { GrnModel } from '@/models/grn.model';
 import type { ImageModel } from '@/models/image.model';
 import type { InvoiceModel } from '@/models/invoice.model';
 import type { LogDataModel } from '@/models/log-data.model';
@@ -63,6 +64,8 @@ export type DatasourceModels = {
 	discount: DiscountModel;
 	'document-series': DocumentSeriesModel;
 	'exchange-rate': ExchangeRateModel;
+	// Goods received notes - the only way stock enters a warehouse; `items` come with the read only
+	grn: GrnModel;
 	image: ImageModel;
 	invoice: InvoiceModel;
 	'log-data': LogDataModel;

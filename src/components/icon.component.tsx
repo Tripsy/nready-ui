@@ -27,6 +27,7 @@ import {
 	CircleUser,
 	CircleX,
 	ClipboardClock,
+	ClipboardList,
 	Clock,
 	ClockFading,
 	ClockPlus,
@@ -237,6 +238,8 @@ export const Icons = {
 	// A parcel of an order, as against `Carrier`, which is who carries it
 	Shipping: createIcon(PackageCheck),
 	Warehouse: createIcon(Warehouse),
+	// A goods receipt - the document stock is checked in against
+	Grn: createIcon(ClipboardList),
 	Carrier: createIcon(Truck),
 	Logistics: createIcon(Package),
 	Clock: createIcon(Clock),
