@@ -9,7 +9,7 @@ import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
 import { translate, translateBatch } from '@/config/translate.setup';
 import { ApiError } from '@/exceptions/api.error';
-import { requestAdminFeatureDocs } from '@/services/docs.service';
+import { requestAdminFeatureDocs } from '@/services/docs-admin.service';
 import {
 	type ApiDocs,
 	apiDocsActionAnchor,

@@ -8,7 +8,7 @@ import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
 import { translate, translateBatch } from '@/config/translate.setup';
 import { logger } from '@/helpers/logger.helper';
-import { requestDocsCatalogue } from '@/services/docs.service';
+import { requestDocsCatalogue } from '@/services/docs-admin.service';
 import {
 	type ApiDocsAuthorization,
 	type ApiDocsCatalogue,
