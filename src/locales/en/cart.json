@@ -64,6 +64,10 @@
 		"continue_shopping": "Continue shopping",
 		"has_issues": "Some lines can no longer be bought. Remove them to continue.",
 		"bundle_changed": "This bundle has changed since you added it - remove it and add it again.",
+		"insufficient_stock": "Only {{available}} left in stock - lower the quantity to continue.",
+		"out_of_stock": "Out of stock - remove it to continue.",
+		"insufficient_stock_bundle": "Part of this bundle is out of stock - remove it to continue.",
+		"stock_low": "Only {{available}} left",
 		"loading": "Loading…",
 		"checkout_sign_in_hint": "You will be asked to sign in or create an account first - your cart comes with you.",
 		"meta_title": "Your cart | {{app_name}}",
@@ -109,7 +113,8 @@
 			"no_price": "No Price",
 			"option_gone": "Option Gone",
 			"option_selection": "Option Selection",
-			"bundle_changed": "Bundle Changed"
+			"bundle_changed": "Bundle Changed",
+			"insufficient_stock": "Insufficient Stock"
 		}
 	}
 }

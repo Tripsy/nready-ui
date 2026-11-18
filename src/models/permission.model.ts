@@ -37,6 +37,7 @@ export const PermissionEntitiesSuggestions = [
 	'vat-rate',
 	'vendor',
 	'warehouse',
+	'warehouse-movement',
 ] as const;
 
 export type PermissionEntityType =

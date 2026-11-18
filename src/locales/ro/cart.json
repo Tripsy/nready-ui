@@ -64,6 +64,10 @@
 		"continue_shopping": "Continuă cumpărăturile",
 		"has_issues": "Unele linii nu mai pot fi cumpărate. Elimină-le ca să continui.",
 		"bundle_changed": "Acest pachet s-a schimbat de când l-ai adăugat - elimină-l și adaugă-l din nou.",
+		"insufficient_stock": "Doar {{available}} în stoc - micșorează cantitatea pentru a continua.",
+		"out_of_stock": "Stoc epuizat - elimină produsul pentru a continua.",
+		"insufficient_stock_bundle": "O parte din acest pachet nu mai este în stoc - elimină-l pentru a continua.",
+		"stock_low": "Doar {{available}} rămase",
 		"loading": "Se încarcă…",
 		"checkout_sign_in_hint": "Vei fi rugat să te autentifici sau să îți creezi un cont - coșul tău rămâne cu tine.",
 		"meta_title": "Coșul tău | {{app_name}}",
@@ -109,7 +113,8 @@
 			"no_price": "Fără preț",
 			"option_gone": "Opțiune indisponibilă",
 			"option_selection": "Selecție de opțiuni invalidă",
-			"bundle_changed": "Pachet modificat"
+			"bundle_changed": "Pachet modificat",
+			"insufficient_stock": "Stoc insuficient"
 		}
 	}
 }

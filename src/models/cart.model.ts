@@ -30,6 +30,11 @@ export const CartLineIssueEnum = {
 	OPTION_SELECTION: 'option_selection',
 	/** The bundle's composition moved under the line - it has to be removed and added again. */
 	BUNDLE_CHANGED: 'bundle_changed',
+	/**
+	 * The basket asks for more of a stock-tracked variant than is left to sell. A short component
+	 * flags its whole bundle. Lowering the quantity to `stock_available` clears it.
+	 */
+	INSUFFICIENT_STOCK: 'insufficient_stock',
 } as const;
 
 export type CartLineIssue =
@@ -126,6 +131,13 @@ export type CartLineModel = {
 	/** `subtotal - discount_reduction`, excluding VAT. */
 	total: number;
 	vat_amount: number;
+
+	/**
+	 * What is left to sell of the variant, floored at 0 - sent only when the line is short or at or
+	 * under the variant's low-stock threshold, so a storefront can say "only N left". Null on a
+	 * well-stocked or untracked variant, and always on a bundle header.
+	 */
+	stock_available: number | null;
 
 	issue: CartLineIssue | null;
 };
