@@ -64,9 +64,9 @@
 		}
 	},
 	"help": {
-		"intro": "A goods receipt (NIR) is the only way stock enters a warehouse - including the stock you already hold on day one. Each line becomes a lot: these units, at this cost, received on this day. Nothing moves until the receipt is confirmed.",
+		"intro": "A goods received note (GRN) is the only way stock enters a warehouse - including the stock you already hold on day one. Each line becomes a lot: these units, at this cost, received on this day. Nothing moves until the receipt is confirmed.",
 		"step_1_title": "Enter it as a draft",
-		"step_1_body": "Pick the warehouse, the supplier, the day the goods arrived and the currency of the supplier's invoice. The NIR number is allocated when you save and kept even if the receipt is later canceled. A draft can be saved without lines and changed freely, lines included - it has not touched stock yet.",
+		"step_1_body": "Pick the warehouse, the supplier, the day the goods arrived and the currency of the supplier's invoice. The GRN number is allocated when you save and kept even if the receipt is later canceled. A draft can be saved without lines and changed freely, lines included - it has not touched stock yet.",
 		"step_2_title": "Add one line per variant",
 		"step_2_body": "Only variants that track stock can be received. A variant appears once per receipt; a second lot of it - another production run, another expiry date - is entered as its own receipt. A unit cost of zero is accepted for free samples. Lot code and expiry date are optional.",
 		"step_3_title": "Know how foreign currency is converted",
@@ -75,14 +75,14 @@
 		"step_4_body": "Confirming opens each line's lot, records a receipt movement per line, and re-averages each variant's cost price against the stock it already has across every warehouse. A receipt with no lines cannot be confirmed. Once confirmed, only the supplier document number and the notes can still change.",
 		"step_5_title": "Cancel it if it was wrong",
 		"step_5_body": "Canceling a draft changes nothing else. Canceling a confirmed receipt posts a reversing movement per line and takes the lots back out of the cost average - but only while no unit has left any of its lots. Once stock has been drawn from it, the correction is a return or an adjustment, not a cancel.",
-		"note": "A confirmed receipt cannot be deleted - its lots are part of the stock on hand - so cancel it instead. Drafts and canceled receipts can be deleted and restored. Search takes the NIR number, a full reference like NIR-42, or the supplier's document number.",
+		"note": "A confirmed receipt cannot be deleted - its lots are part of the stock on hand - so cancel it instead. Drafts and canceled receipts can be deleted and restored. Search takes the GRN number, the full reference (series and number), or the supplier's document number.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
 	},
 	"field": {
-		"search": "NIR / Supplier document",
+		"search": "GRN / Supplier document",
 		"id": "ID",
-		"reference": "NIR",
+		"reference": "GRN",
 		"supplier_document_number": "Supplier document",
 		"warehouse": "Warehouse",
 		"vendor": "Supplier",
@@ -113,6 +113,7 @@
 	},
 	"text": {
 		"add_line": "Add line",
+		"create_product": "Create product \"{{value}}\"",
 		"label_remove_line": "Remove line {{number}}",
 		"label_unit_cost_currency": "Unit cost ({{currency}})",
 		"placeholder_exchange_rate": "Published rate of the day",

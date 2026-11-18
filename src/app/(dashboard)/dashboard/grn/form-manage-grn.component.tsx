@@ -1,6 +1,8 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { emptyVariant } from '@/app/(dashboard)/dashboard/product/form-variants-product.component';
 import {
 	FormComponentAutoComplete,
 	FormComponentCalendar,
@@ -12,6 +14,7 @@ import { Icons } from '@/components/icon.component';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Configuration } from '@/config/settings.config';
+import { getLanguageClient } from '@/config/translate.setup';
 import {
 	countErrorMessages,
 	ownErrorMessages,
@@ -23,11 +26,13 @@ import { replaceVars } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
 import { useTranslation } from '@/hooks/use-translation.hook';
+import { hasPermission } from '@/models/account.model';
 import {
 	GRN_ITEMS_MAX,
 	type GrnStatus,
 	GrnStatusEnum,
 } from '@/models/grn.model';
+import type { ProductModel } from '@/models/product.model';
 import {
 	displayProductVariantLabel,
 	type ProductVariantModel,
@@ -37,9 +42,12 @@ import {
 	displayWarehouseLabel,
 	type WarehouseModel,
 } from '@/models/warehouse.model';
+import { useAuth } from '@/providers/auth.provider';
 import { useWindowForm } from '@/providers/window-form.provider';
+import { useModalStore } from '@/stores/window.store';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import { CurrencyEnum } from '@/types/common.type';
+import { DataSourceSectionEnum } from '@/types/data-source.type';
 
 const TRANSLATION_KEYS = [
 	'grn.field.warehouse',
@@ -58,6 +66,7 @@ const TRANSLATION_KEYS = [
 	'grn.section.details',
 	'grn.section.items',
 	'grn.text.add_line',
+	'grn.text.create_product',
 	'grn.text.label_remove_line',
 	'grn.text.label_unit_cost_currency',
 	'grn.text.placeholder_exchange_rate',
@@ -139,6 +148,9 @@ export const emptyGrnItem = (): GrnItemFormType => ({
 
 const currencies = toOptionsFromEnum(CurrencyEnum);
 
+/** What a search has to reach before the picker queries - and so before "create" is offered. */
+const VARIANT_SEARCH_MIN_LENGTH = 3;
+
 /**
  * One received line. The picker lists stock-tracked variants only (`track_stock` filter) - the
  * backend refuses a line for an untracked one, since a lot nothing draws down is stock that never
@@ -174,10 +186,18 @@ function GrnItemRow({
 
 	const [search, setSearch] = useState('');
 
+	const { open, focus, getCurrentWindow } = useModalStore();
+	const queryClient = useQueryClient();
+	const { auth } = useAuth();
+
+	const canCreateProduct = hasPermission(auth, 'product', 'create');
+
+	const suggestionsKey = ['s-grn-variant', String(index)];
+
 	const { suggestions, isFetching } =
 		useRemoteAutocomplete<ProductVariantModel>({
 			query: search,
-			queryKey: ['s-grn-variant', String(index)],
+			queryKey: suggestionsKey,
 			queryFn: async (term) => {
 				const response:
 					| FindFunctionResponseType<ProductVariantModel>
@@ -188,8 +208,93 @@ function GrnItemRow({
 
 				return response?.entries ?? [];
 			},
-			minLength: 3,
+			minLength: VARIANT_SEARCH_MIN_LENGTH,
 		});
+
+	const selectVariant = (variant: ProductVariantModel) => {
+		onChange({
+			label: displayProductVariantLabel(variant),
+			variant_id: variant.id,
+			/*
+			 * The variant's current average cost is the likeliest figure on the supplier's
+			 * invoice - but only in the base currency, where it is stated. Never overwrites a
+			 * cost already typed.
+			 */
+			unit_cost:
+				item.unit_cost ??
+				(currency === BASE_CURRENCY ? variant.cost_price : null),
+		});
+	};
+
+	/**
+	 * Creates the product from here once the search comes back empty, in the product's own
+	 * create window - a product needs content, prices and a SKU the line has nowhere to ask for.
+	 * The window opens with the typed text as the label in the current language and its first
+	 * variant already tracking stock, since the picker offers nothing else.
+	 *
+	 * On success the line takes the new product's variant when exactly one tracks stock - the
+	 * normal case. With several (or none, if the editor unticked it) the line keeps the typed
+	 * text and the refreshed search lists what there is, because which variant was delivered is
+	 * not something to guess.
+	 *
+	 * `open` minimizes the GRN window, so it is captured beforehand and focused again after.
+	 */
+	const createProduct = (typedValue: string) => {
+		const parentWindow = getCurrentWindow();
+
+		open({
+			minimized: false,
+			section: DataSourceSectionEnum.DASHBOARD,
+			dataSource: 'product',
+			action: 'create',
+			data: {
+				prefillEntry: {
+					contents: [
+						{
+							language: getLanguageClient(),
+							label: typedValue,
+							slug: '',
+							description: null,
+							meta: { title: null },
+						},
+					],
+					variants: [{ ...emptyVariant(0, true), track_stock: true }],
+				},
+			},
+			events: {
+				success: async (entry?: ProductModel) => {
+					if (parentWindow) {
+						focus(parentWindow.uid);
+					}
+
+					// The searches already run are cached, and the term that sent the editor
+					// here is one of them - holding the empty result that prompted the create.
+					await queryClient.invalidateQueries({
+						queryKey: suggestionsKey,
+					});
+
+					if (!entry) {
+						return;
+					}
+
+					const response = await requestFind<ProductVariantModel>(
+						'product-variant',
+						{
+							filter: { product_id: entry.id, track_stock: true },
+							limit: 2,
+						},
+					);
+
+					const variants = response?.entries ?? [];
+
+					if (variants.length === 1) {
+						selectVariant(variants[0]);
+						setSearch('');
+					}
+				},
+			},
+		});
+	};
 
 	const toNumber = (value: string): number | null =>
 		value === '' ? null : Number(value);
@@ -218,25 +323,21 @@ function GrnItemRow({
 						autoCompleteProps={{
 							suggestions: suggestions,
 							isLoading: isFetching,
-							onSelect: (variant) => {
-								onChange({
-									label: displayProductVariantLabel(variant),
-									variant_id: variant.id,
-									/*
-									 * The variant's current average cost is the likeliest figure on
-									 * the supplier's invoice - but only in the base currency, where
-									 * it is stated. Never overwrites a cost already typed.
-									 */
-									unit_cost:
-										item.unit_cost ??
-										(currency === BASE_CURRENCY
-											? variant.cost_price
-											: null),
-								});
-							},
+							onSelect: selectVariant,
 							getOptionLabel: (variant) =>
 								displayProductVariantLabel(variant),
 							getOptionKey: (variant) => variant.id,
+							// Below the minimum no search ran, so an empty list says nothing yet
+							allowCreate:
+								canCreateProduct &&
+								search.trim().length >=
+									VARIANT_SEARCH_MIN_LENGTH,
+							onCreate: createProduct,
+							createLabel: (value) =>
+								replaceVars(
+									translations['grn.text.create_product'],
+									{ value },
+								),
 						}}
 					/>
 				</div>

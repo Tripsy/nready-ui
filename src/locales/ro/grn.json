@@ -113,6 +113,7 @@
 	},
 	"text": {
 		"add_line": "Adaugă linie",
+		"create_product": "Creează produsul „{{value}}”",
 		"label_remove_line": "Elimină linia {{number}}",
 		"label_unit_cost_currency": "Cost unitar ({{currency}})",
 		"placeholder_exchange_rate": "Cursul publicat al zilei",
