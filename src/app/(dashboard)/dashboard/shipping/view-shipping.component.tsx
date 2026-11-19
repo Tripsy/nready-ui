@@ -19,12 +19,19 @@ import {
 	displayShippingDestination,
 	displayShippingDocument,
 	displayShippingEnd,
+	ShippingLineConditionEnum,
 	ShippingMethodEnum,
 	type ShippingModel,
 	ShippingScopeEnum,
 } from '@/models/shipping.model';
 
 const TRANSLATION_KEYS = [
+	'shipping.field.condition',
+	'shipping.text.not_inspected',
+	...enumTranslationKeys(
+		'shipping.enum.condition',
+		ShippingLineConditionEnum,
+	),
 	'shipping.field.contact_email',
 	'shipping.field.contact_name',
 	'shipping.field.contact_phone',
@@ -76,6 +83,9 @@ export function ViewShipping({ entry }: { entry: ShippingModel }) {
 	const { translations } = useTranslation(TRANSLATION_KEYS);
 
 	const lines = entry.lines ?? [];
+
+	// Only goods coming back are inspected, so only a return reads a condition per line
+	const isReturn = entry.scope === ShippingScopeEnum.RETURN;
 
 	const pickup = displayShippingEnd(
 		entry.pickup_data,
@@ -328,6 +338,15 @@ export function ViewShipping({ entry }: { entry: ShippingModel }) {
 													]
 												}
 											</th>
+											{isReturn && (
+												<th className="py-2 pr-4 text-left font-medium">
+													{
+														translations[
+															'shipping.field.condition'
+														]
+													}
+												</th>
+											)}
 											<th className="py-2 text-right font-medium">
 												{
 													translations[
@@ -374,6 +393,25 @@ export function ViewShipping({ entry }: { entry: ShippingModel }) {
 														</div>
 													)}
 												</td>
+												{isReturn && (
+													<td className="py-2 pr-4 align-top">
+														{line.condition ? (
+															translateEnumLabel(
+																translations,
+																'shipping.enum.condition',
+																line.condition,
+															)
+														) : (
+															<span className="text-warning">
+																{
+																	translations[
+																		'shipping.text.not_inspected'
+																	]
+																}
+															</span>
+														)}
+													</td>
+												)}
 												<td className="py-2 text-right align-top">
 													{Number(line.quantity)}
 												</td>

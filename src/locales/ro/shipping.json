@@ -23,7 +23,8 @@
 		"invalid_contact_email": "Email de contact invalid",
 		"invalid_variant_id": "Variantă invalidă",
 		"invalid_quantity": "Cantitate invalidă",
-		"price_needs_vat_rate": "Prețul și cota TVA merg împreună - completează-le pe amândouă sau lasă-le goale pentru a folosi tarifele de livrare"
+		"price_needs_vat_rate": "Prețul și cota TVA merg împreună - completează-le pe amândouă sau lasă-le goale pentru a folosi tarifele de livrare",
+		"invalid_condition": "Stare invalidă - revandabil sau deteriorat"
 	},
 	"error": {
 		"cannot_update_status": "Această mișcare a ajuns într-o stare din care nu mai poate fi mutată"
@@ -129,7 +130,8 @@
 		"pickup_warehouse": "Depozit de ridicare",
 		"destination_warehouse": "Depozit de destinație",
 		"pickup_address": "Adresă de ridicare",
-		"destination_address": "Adresă de destinație"
+		"destination_address": "Adresă de destinație",
+		"condition": "Stare"
 	},
 	"text": {
 		"loading_order_lines": "Se încarcă liniile comenzii...",
@@ -153,7 +155,9 @@
 		"no_lines": "Această mișcare nu are linii.",
 		"order_no_lines": "Această comandă nu are linii.",
 		"doc_ref": "Doc. #{{ref}}",
-		"self_pickup_destination": "Ridicat de client"
+		"self_pickup_destination": "Ridicat de client",
+		"condition_hint": "Setează starea fiecărei linii după verificarea mărfii - un retur poate fi recepționat doar când toate liniile au stare. Mărfurile revandabile revin în stoc, cele deteriorate sunt casate.",
+		"not_inspected": "Neverificat"
 	},
 	"section": {
 		"info": "Info",
@@ -175,6 +179,10 @@
 			"delivery": "Livrare",
 			"relocation": "Relocare",
 			"return": "Retur"
+		},
+		"condition": {
+			"resellable": "Revandabil",
+			"damaged": "Deteriorat"
 		}
 	}
 }

@@ -27,6 +27,16 @@ export const statusList: Record<
 		variant: 'warning',
 		icon: Icons.Status.Pending,
 	},
+	// A return asked for and not decided on yet
+	requested: {
+		variant: 'warning',
+		icon: Icons.Status.Pending,
+	},
+	// A return whose goods are back in the warehouse
+	received: {
+		variant: 'info',
+		icon: Icons.Status.Delivered,
+	},
 	inactive: {
 		variant: 'error',
 		icon: Icons.Status.Inactive,

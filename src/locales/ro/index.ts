@@ -42,6 +42,7 @@ import logout from '@/locales/ro/logout.json';
 import mail_queue from '@/locales/ro/mail-queue.json';
 import oauth from '@/locales/ro/oauth.json';
 import order from '@/locales/ro/order.json';
+import order_return from '@/locales/ro/order-return.json';
 import password_recover from '@/locales/ro/password-recover.json';
 import password_recover_change from '@/locales/ro/password-recover-change.json';
 import permission from '@/locales/ro/permission.json';
@@ -110,6 +111,7 @@ const ro = {
 	'password-recover': password_recover,
 	'password-recover-change': password_recover_change,
 	order,
+	'order-return': order_return,
 	shipping: shipping,
 	permission,
 	place,

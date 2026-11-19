@@ -24,6 +24,7 @@ export const PermissionEntitiesSuggestions = [
 	'log-history',
 	'mail-queue',
 	'order',
+	'order-return',
 	'shipping',
 	'permission',
 	'place',

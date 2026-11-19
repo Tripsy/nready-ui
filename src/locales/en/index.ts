@@ -42,6 +42,7 @@ import logout from '@/locales/en/logout.json';
 import mail_queue from '@/locales/en/mail-queue.json';
 import oauth from '@/locales/en/oauth.json';
 import order from '@/locales/en/order.json';
+import order_return from '@/locales/en/order-return.json';
 import password_recover from '@/locales/en/password-recover.json';
 import password_recover_change from '@/locales/en/password-recover-change.json';
 import permission from '@/locales/en/permission.json';
@@ -110,6 +111,7 @@ const en = {
 	'password-recover': password_recover,
 	'password-recover-change': password_recover_change,
 	order,
+	'order-return': order_return,
 	shipping: shipping,
 	permission,
 	place,

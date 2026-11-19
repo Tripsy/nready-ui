@@ -29,6 +29,7 @@ export const LogHistoryEntities = [
 	'invoice',
 	'operational_record',
 	'order',
+	'order_return',
 	'shipping',
 	'shipping_line',
 	'permission',

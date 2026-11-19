@@ -21,6 +21,7 @@ import type { LogDataModel } from '@/models/log-data.model';
 import type { LogHistoryModel } from '@/models/log-history.model';
 import type { MailQueueModel } from '@/models/mail-queue.model';
 import type { OrderModel } from '@/models/order.model';
+import type { OrderReturnModel } from '@/models/order-return.model';
 import type { PermissionModel } from '@/models/permission.model';
 import type { PlaceModel } from '@/models/place.model';
 import type { ProductModel } from '@/models/product.model';
@@ -77,6 +78,8 @@ export type DatasourceModels = {
 	 * is what lets a basket whose goods sit in two places travel as two shipments.
 	 */
 	shipping: ShippingModel;
+	// A return authorization - the request and the decision; the goods travel on a `return` shipping
+	'order-return': OrderReturnModel;
 	permission: PermissionModel;
 	place: PlaceModel;
 	product: ProductModel;

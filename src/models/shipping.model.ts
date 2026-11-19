@@ -138,6 +138,20 @@ export type ShippingAddressSnapshot = {
 	notes: string | null;
 };
 
+/**
+ * What a returned unit is fit for, mirroring `ShippingLineConditionEnum` on
+ * `../nready-api/src/features/shipping/shipping-line.entity.ts`. A `return` line only - the
+ * backend drops it on every other scope and refuses to receive a return while a line has none:
+ * resellable goods go back into the lot they were sold from, damaged ones are written off.
+ */
+export const ShippingLineConditionEnum = {
+	RESELLABLE: 'resellable',
+	DAMAGED: 'damaged',
+} as const;
+
+export type ShippingLineCondition =
+	(typeof ShippingLineConditionEnum)[keyof typeof ShippingLineConditionEnum];
+
 /** How much of a variant travels in a given movement. */
 export type ShippingLineModel<D = Date | string> = {
 	id: number;
@@ -145,6 +159,7 @@ export type ShippingLineModel<D = Date | string> = {
 	variant_id: number;
 	product_id: number;
 	quantity: number;
+	condition: ShippingLineCondition | null;
 	notes: string | null;
 
 	/** Attached by the read: the variant's SKU and the product's name, null when unresolved. */

@@ -35,6 +35,8 @@ import {
 } from '@/models/order.model';
 import {
 	SHIPPING_SCOPE_SHAPE,
+	type ShippingLineCondition,
+	ShippingLineConditionEnum,
 	ShippingMethodEnum,
 	type ShippingScope,
 	ShippingScopeEnum,
@@ -60,6 +62,8 @@ const TRANSLATION_KEYS = [
 	'shipping.field.order',
 	'shipping.field.price',
 	'shipping.field.quantity',
+	'shipping.field.condition',
+	'shipping.text.condition_hint',
 	'shipping.field.scope',
 	'shipping.field.tracking_number',
 	'shipping.field.tracking_url',
@@ -87,6 +91,10 @@ const TRANSLATION_KEYS = [
 	'shipping.text.placeholder_estimate',
 	...enumTranslationKeys('shipping.enum.method', ShippingMethodEnum),
 	...enumTranslationKeys('shipping.enum.scope', ShippingScopeEnum),
+	...enumTranslationKeys(
+		'shipping.enum.condition',
+		ShippingLineConditionEnum,
+	),
 ] as const;
 
 type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
@@ -99,6 +107,8 @@ export type ShippingLineFormType = {
 	variant_id: number;
 	product_id: number;
 	quantity: number | null;
+	/** A `return` line's only - what the warehouse found the goods fit for. */
+	condition: ShippingLineCondition | null;
 	notes: string | null;
 };
 
@@ -152,7 +162,12 @@ const currencies = toOptionsFromEnum(CurrencyEnum);
  *
  * A row left at zero is simply not carried. The backend owns the real rule: a quantity above what
  * the order still has unshipped for that variant comes back as a 409, because what another movement
- * already claimed is not knowable from this form alone.
+ * already claimed is not knowable from this form alone. For a `return` the cap is what was
+ * delivered and is not already coming back, checked the same way.
+ *
+ * **A `return` line also takes its condition** once the goods are looked at. The return cannot be
+ * received until every line has one: resellable goods go back into stock, damaged ones are written
+ * off. The quantity can be corrected at the same time, to what actually arrived.
  */
 function ShippingLinesEditor({
 	translations,
@@ -184,6 +199,19 @@ function ShippingLinesEditor({
 		},
 		enabled: !!orderId,
 	});
+
+	const conditions = useMemo(
+		() =>
+			toOptionsFromEnum(ShippingLineConditionEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'shipping.enum.condition',
+						value,
+					),
+			}),
+		[translations],
+	);
 
 	if (scope === ShippingScopeEnum.RELOCATION) {
 		return (
@@ -217,8 +245,27 @@ function ShippingLinesEditor({
 		);
 	}
 
+	const isReturn = scope === ShippingScopeEnum.RETURN;
+
+	const lineFor = (variantId: number): ShippingLineFormType | undefined =>
+		lines.find((line) => line.variant_id === variantId);
+
 	const quantityFor = (variantId: number): number | null =>
-		lines.find((line) => line.variant_id === variantId)?.quantity ?? null;
+		lineFor(variantId)?.quantity ?? null;
+
+	const setCondition = (variantId: number, value: string) => {
+		onChange(
+			lines.map((line) =>
+				line.variant_id === variantId
+					? {
+							...line,
+							condition: (value ||
+								null) as ShippingLineCondition | null,
+						}
+					: line,
+			),
+		);
+	};
 
 	const setQuantity = (
 		variantId: number,
@@ -235,13 +282,16 @@ function ShippingLinesEditor({
 			return;
 		}
 
+		const current = lineFor(variantId);
+
 		onChange([
 			...without,
 			{
 				variant_id: variantId,
 				product_id: productId,
 				quantity: quantity,
-				notes: null,
+				condition: current?.condition ?? null,
+				notes: current?.notes ?? null,
 			},
 		]);
 	};
@@ -290,8 +340,34 @@ function ShippingLinesEditor({
 							)
 						}
 					/>
+
+					{isReturn && (
+						<FormComponentSelect<ShippingLineFormType>
+							labelText={translations['shipping.field.condition']}
+							id={`shipping-line-condition-${orderLine.variant_id}`}
+							fieldName="condition"
+							fieldValue={
+								lineFor(orderLine.variant_id)?.condition ?? ''
+							}
+							isRequired={false}
+							disabled={
+								disabled || !lineFor(orderLine.variant_id)
+							}
+							className="w-44"
+							options={conditions}
+							onChange={(value) =>
+								setCondition(orderLine.variant_id, value)
+							}
+						/>
+					)}
 				</div>
 			))}
+
+			{isReturn && (
+				<p className="text-xs text-muted">
+					{translations['shipping.text.condition_hint']}
+				</p>
+			)}
 
 			{error?.map((message) => (
 				<p key={message} className="text-sm text-danger">

@@ -50,6 +50,7 @@ const TRANSLATION_KEYS = [
 	'dashboard.labels.warehouse',
 	'dashboard.labels.grn',
 	'dashboard.labels.shipping',
+	'dashboard.labels.order-return',
 
 	'dashboard.labels.publishing',
 	'dashboard.labels.article',
@@ -231,6 +232,13 @@ export function useSideMenuSections(): {
 						text: translations['dashboard.labels.order'],
 						icon: Icons.Order,
 						permission: hasPermission(auth, 'order'),
+					},
+					{
+						page: 'order-return',
+						href: Routes.get('order-return'),
+						text: translations['dashboard.labels.order-return'],
+						icon: Icons.OrderReturn,
+						permission: hasPermission(auth, 'order-return'),
 					},
 				],
 			},

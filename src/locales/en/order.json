@@ -183,7 +183,8 @@
 				"returned": "Return sent back to you",
 				"canceled": "Return canceled"
 			}
-		}
+		},
+		"returns": "Returns"
 	},
 	"field": {
 		"search": "ID / Reference",

@@ -240,6 +240,8 @@ export const Icons = {
 	Warehouse: createIcon(Warehouse),
 	// A goods receipt - the document stock is checked in against
 	Grn: createIcon(ClipboardList),
+	// A return authorization - goods a buyer sends back
+	OrderReturn: createIcon(Undo2),
 	Carrier: createIcon(Truck),
 	Logistics: createIcon(Package),
 	Clock: createIcon(Clock),

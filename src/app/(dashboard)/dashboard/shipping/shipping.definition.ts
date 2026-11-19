@@ -37,6 +37,7 @@ import {
 	displayShippingEnd,
 	displayShippingLabel,
 	SHIPPING_STATUS_TRANSITIONS,
+	ShippingLineConditionEnum,
 	type ShippingMethod,
 	ShippingMethodEnum,
 	type ShippingModel,
@@ -74,6 +75,7 @@ const validatorMessages = [
 	'invalid_contact_email',
 	'invalid_variant_id',
 	'invalid_quantity',
+	'invalid_condition',
 ] as const;
 
 /** Mirrors the backend's `shipping.validator.ts` - see `../nready-api/src/features/shipping`. */
@@ -92,6 +94,13 @@ class ShippingValidator extends BaseValidator<typeof validatorMessages> {
 				onlyPositive: true,
 				allowDecimals: 2,
 			}),
+			// Optional here like on the backend: required only to receive a return, which the
+			// status move enforces with a 409
+			condition: z
+				.enum(Object.values(ShippingLineConditionEnum), {
+					message: this.getMessage('invalid_condition'),
+				})
+				.nullable(),
 			notes: z.string().nullable(),
 		});
 
@@ -332,6 +341,7 @@ function getFormState(
 					variant_id: line.variant_id,
 					product_id: line.product_id,
 					quantity: Number(line.quantity),
+					condition: line.condition ?? null,
 					notes: line.notes,
 				})) ?? [],
 			order: data?.order ? displayOrderReference(data.order) : null,

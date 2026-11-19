@@ -183,7 +183,8 @@
 				"returned": "Retur trimis înapoi către tine",
 				"canceled": "Retur anulat"
 			}
-		}
+		},
+		"returns": "Retururi"
 	},
 	"field": {
 		"search": "ID / Referință",

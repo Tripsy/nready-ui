@@ -343,6 +343,9 @@ Routes.group('dashboard')
 	.add('shipping', '/dashboard/shipping', {
 		permissionEntity: 'shipping',
 	})
+	.add('order-return', '/dashboard/order-return', {
+		permissionEntity: 'order-return',
+	})
 	.add('term', '/dashboard/term', {
 		permissionEntity: 'term',
 	})

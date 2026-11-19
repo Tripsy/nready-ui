@@ -1,0 +1,200 @@
+{
+	"meta": {
+		"title": "Returns - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_order_id": "Choose the order the goods came from",
+		"invalid_reason": "Choose why the goods are coming back",
+		"invalid_text": "The text is too long",
+		"invalid_lines": "Name at least one item to return",
+		"invalid_quantity": "Invalid quantity",
+		"invalid_price": "Invalid price",
+		"invalid_vat_rate": "Invalid VAT rate",
+		"invalid_method": "Choose how the goods travel",
+		"price_vat_pair": "State the price and the VAT rate together, or neither for a free return"
+	},
+	"error": {
+		"cannot_update_status": "This return has no status left to move to from here"
+	},
+	"status": {
+		"requested": "Requested",
+		"approved": "Approved",
+		"rejected": "Rejected",
+		"received": "Received",
+		"closed": "Closed",
+		"canceled": "Canceled",
+		"deleted": "Deleted"
+	},
+	"action": {
+		"create": {
+			"title": "Add new return",
+			"label": "Add",
+			"success": "Return added successfully"
+		},
+		"update": {
+			"title": "Update return - {{entry}}",
+			"label": "Update",
+			"success": "Return updated successfully"
+		},
+		"approve": {
+			"title": "Approve return - {{entry}}",
+			"label": "Approve",
+			"success": "Return approved - the return shipment was created"
+		},
+		"refund": {
+			"title": "Draft refund - {{entry}}",
+			"label": "Draft refund",
+			"success": "Refund drafted - issue the reversal to pay it back",
+			"confirm": "Draft the invoice reversal for the goods this return brought back? Nothing is paid out until the reversal is issued."
+		},
+		"delete": {
+			"title": "Delete return - {{entry}}",
+			"label": "Delete",
+			"success": "Return deleted successfully",
+			"confirm": "Are you sure you want to delete this return?"
+		},
+		"restore": {
+			"title": "Restore return - {{entry}}",
+			"label": "Restore",
+			"success": "Return restored successfully",
+			"confirm": "Are you sure you want to restore this return?"
+		},
+		"view": {
+			"title": "Return details - {{entry}}",
+			"label": "View details"
+		},
+		"statusTransition": {
+			"title": "Reject, cancel or close - {{entry}}",
+			"label": "Change status",
+			"success": "Return status updated successfully"
+		},
+		"guide": {
+			"title": "How returns work",
+			"label": "Usage guide"
+		}
+	},
+	"help": {
+		"intro": "A return is a buyer's request to send delivered goods back, and the decision on it. The goods travel on a return shipment and the money moves on an invoice reversal - the return is what ties the two together.",
+		"step_1_title": "A request comes in",
+		"step_1_body": "Buyers ask from their order page, within the return window after the last delivery, naming the items and why. You can also raise one here for a client - the window does not apply in the back office. Each item is capped by what was delivered and is not already coming back.",
+		"step_2_title": "Approve or reject it",
+		"step_2_body": "Approving creates the return shipment: by default the goods are collected at the address they were delivered to and go back to the warehouse they left from, free to the buyer. State a price to charge for it, or a pickup address when the order was collected in person. Rejecting closes the request - write the reason in the response, the buyer sees it.",
+		"step_3_title": "Receive the goods",
+		"step_3_body": "Open the return shipment and set each line's condition once the goods are inspected - resellable or damaged - and correct the quantity to what actually arrived. Moving the shipment to delivered puts resellable goods back into stock and writes damaged ones off; it is refused while a line has no condition.",
+		"step_4_title": "Issue the refund",
+		"step_4_body": "As the shipment arrives the return moves to received and a draft reversal of the order's invoice is raised for the goods that came back. Review it in Invoices and issue it - issuing is what refunds what the buyer paid. Draft refund raises it again if nothing could be reversed at the time.",
+		"step_5_title": "Close it",
+		"step_5_body": "Close the return once the refund is settled. A return can be canceled until its goods are on the way back; canceling an approved one also withdraws its shipment.",
+		"note": "A return that was approved has moved goods and money, so it cannot be deleted. Search takes the return number or the full reference, e.g. RMA-7.",
+		"tab_info": "Info",
+		"tab_api": "API docs",
+		"tab_public": "Public API"
+	},
+	"field": {
+		"search": "Return number",
+		"id": "ID",
+		"reference": "Return",
+		"order": "Order",
+		"reason": "Reason",
+		"customer_notes": "Buyer's message",
+		"response": "Response to the buyer",
+		"notes": "Internal notes",
+		"quantity": "Quantity",
+		"variant": "Item",
+		"destination_warehouse": "Return to warehouse",
+		"pickup_address": "Pickup address",
+		"carrier": "Carrier",
+		"method": "Method",
+		"price": "Price (excl. VAT)",
+		"vat_rate": "VAT %",
+		"shipping": "Return shipment",
+		"shipping_status": "Shipment",
+		"tracking_number": "Tracking number",
+		"refunds": "Refund drafts",
+		"status": "Status",
+		"decided_at": "Decided at",
+		"received_at": "Received at",
+		"closed_at": "Closed at",
+		"created_at": "Created At",
+		"updated_at": "Updated At",
+		"deleted_at": "Deleted At"
+	},
+	"section": {
+		"info": "Info",
+		"lines": "Items",
+		"messages": "Messages",
+		"shipment": "Return shipment",
+		"timestamps": "Timestamps"
+	},
+	"enum": {
+		"reason": {
+			"damaged": "Damaged",
+			"defective": "Defective",
+			"wrong_item": "Wrong item",
+			"not_as_described": "Not as described",
+			"no_longer_needed": "No longer needed",
+			"other": "Other"
+		},
+		"method": {
+			"courier": "Courier",
+			"self_pickup": "Brought in"
+		}
+	},
+	"text": {
+		"pick_order_first": "Pick the order first - its delivered items are offered here.",
+		"loading_returnable": "Loading what can be returned...",
+		"nothing_returnable": "Nothing on this order can be returned - no delivery has arrived, or every item is already coming back.",
+		"returnable_quantity": "Can be returned: {{quantity}}",
+		"lines_hint": "Enter how many of each item come back. Items left at zero are not part of the return.",
+		"lines_requested_hint": "What the buyer asked to return. What actually arrived, and in what condition, is on the return shipment.",
+		"decided_locked": "This return has been decided - only the messages and the internal notes can still change.",
+		"placeholder_customer_notes": "What the buyer said",
+		"placeholder_response": "Shown to the buyer",
+		"placeholder_notes": "Never shown to the buyer",
+		"placeholder_destination": "Where the goods left from",
+		"placeholder_pickup": "The address the delivery went to",
+		"placeholder_free": "Free",
+		"approve_hint": "Approving creates the return shipment. Leave a field empty to use the default: the warehouse the goods left from, the delivery address, and no charge to the buyer.",
+		"change_status_to": "Move this return to:",
+		"reject_effect": "Refuses the request. Nothing moves; the response tells the buyer why.",
+		"cancel_effect": "Withdraws the request. Nothing has moved, so nothing is reversed.",
+		"cancel_approved_effect": "Withdraws the return and its shipment. Refused once the goods are on their way back.",
+		"close_effect": "Marks the return settled - issue its refund draft first.",
+		"details": "Details",
+		"lines": "Items",
+		"no_lines": "No items",
+		"no_shipment": "No return shipment yet - it is created when the return is approved.",
+		"no_refunds": "None yet",
+		"variant_ref": "Item #{{id}}"
+	},
+	"storefront": {
+		"heading": "Returns",
+		"empty": "No returns for this order.",
+		"loading": "Loading...",
+		"error": "Returns could not be loaded - please try again.",
+		"request": "Request a return",
+		"request_title": "Request a return",
+		"request_hint": "Choose the items to send back and tell us why. We review every request and let you know how to send the items.",
+		"deadline": "You can request a return until {{date}}.",
+		"window_closed": "The return period for this order has ended.",
+		"nothing_returnable": "Nothing on this order can be returned - every delivered item is already being returned.",
+		"reason": "Reason",
+		"message": "Message (optional)",
+		"message_placeholder": "Anything we should know?",
+		"quantity_of": "Up to {{quantity}}",
+		"submit": "Send request",
+		"discard": "Discard",
+		"pick_items": "Choose at least one item to return.",
+		"pick_reason": "Choose a reason.",
+		"request_success": "Return requested - we will let you know once it is reviewed",
+		"request_failed": "The return could not be requested",
+		"response": "Our response:",
+		"tracking": "Tracking:",
+		"requested_on": "Requested on {{date}}",
+		"cancel": "Withdraw",
+		"cancel_title": "Withdraw this return request?",
+		"cancel_confirm": "The request is withdrawn and the items stay with you. You can ask again while the return period lasts.",
+		"cancel_success": "Return request withdrawn",
+		"cancel_failed": "The request could not be withdrawn"
+	}
+}

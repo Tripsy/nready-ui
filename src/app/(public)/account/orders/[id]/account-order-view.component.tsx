@@ -9,6 +9,7 @@ import {
 	Breadcrumb,
 	type BreadcrumbItem,
 } from '@/app/(public)/_components/breadcrumb.component';
+import { AccountOrderReturns } from '@/app/(public)/account/orders/[id]/account-order-returns.component';
 import { CancelOrderButton } from '@/app/(public)/account/orders/cancel-order-button.component';
 import Routes from '@/config/routes.setup';
 import { getLanguageClient } from '@/config/translate.setup';
@@ -74,6 +75,7 @@ const TRANSLATION_KEYS = [
 	'order.storefront.jump_to',
 	'order.storefront.shipments',
 	'order.storefront.shipments_empty',
+	'order.storefront.returns',
 	'order.storefront.shipment_method',
 	'order.storefront.carrier',
 	'order.storefront.tracking',
@@ -139,6 +141,7 @@ const DATE_ONLY_FORMAT = 'D MMMM YYYY';
 const SECTION_IDS = {
 	items: 'order-items',
 	delivery: 'order-delivery',
+	returns: 'order-returns',
 	billing: 'order-billing',
 	invoices: 'order-invoices',
 	summary: 'order-summary',
@@ -586,6 +589,14 @@ export function AccountOrderView({
 	const deliveries = shipments.filter(
 		(shipment) => shipment.scope === ShippingScopeEnum.DELIVERY,
 	);
+
+	// Goods can be asked back once something has arrived; the backend caps what and until when
+	const isReturnable =
+		(order.status === OrderStatusEnum.CONFIRMED ||
+			order.status === OrderStatusEnum.COMPLETED) &&
+		deliveries.some(
+			(delivery) => delivery.status === ShippingStatusEnum.DELIVERED,
+		);
 	const isDeliveryCanceled =
 		deliveries.length > 0 &&
 		deliveries.every(
@@ -663,6 +674,14 @@ export function AccountOrderView({
 								SECTION_IDS.delivery,
 								'order.storefront.shipments',
 							],
+							...(isReturnable
+								? ([
+										[
+											SECTION_IDS.returns,
+											'order.storefront.returns',
+										],
+									] as const)
+								: []),
 							[SECTION_IDS.billing, 'order.storefront.billing'],
 							[
 								SECTION_IDS.invoices,
@@ -814,6 +833,17 @@ export function AccountOrderView({
 							</ul>
 						)}
 					</Card>
+
+					{/*
+					 * Only an accepted order can have delivered goods to send back; the section reads
+					 * for itself what is still returnable and until when.
+					 */}
+					{isReturnable && (
+						<AccountOrderReturns
+							orderId={order.id}
+							sectionId={SECTION_IDS.returns}
+						/>
+					)}
 
 					<Card
 						id={SECTION_IDS.billing}
