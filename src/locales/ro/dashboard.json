@@ -37,6 +37,8 @@
 		"carrier": "Curieri",
 		"warehouse": "Depozite",
 		"grn": "Recepții (NIR)",
+		"warehouse-movement": "Registru stoc",
+		"low-stock": "Stoc redus",
 		"shop": "Magazin",
 		"product": "Produse",
 		"publishing": "Publicare",

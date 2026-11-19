@@ -37,6 +37,8 @@
 		"carrier": "Carriers",
 		"warehouse": "Warehouses",
 		"grn": "GRN",
+		"warehouse-movement": "Stock ledger",
+		"low-stock": "Low stock",
 		"shop": "Shop",
 		"product": "Products",
 		"publishing": "Publishing",

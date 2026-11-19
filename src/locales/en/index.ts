@@ -39,6 +39,7 @@ import log_data from '@/locales/en/log-data.json';
 import log_history from '@/locales/en/log-history.json';
 import login from '@/locales/en/login.json';
 import logout from '@/locales/en/logout.json';
+import low_stock from '@/locales/en/low-stock.json';
 import mail_queue from '@/locales/en/mail-queue.json';
 import oauth from '@/locales/en/oauth.json';
 import order from '@/locales/en/order.json';
@@ -63,6 +64,7 @@ import user from '@/locales/en/user.json';
 import vat_rate from '@/locales/en/vat-rate.json';
 import vendor from '@/locales/en/vendor.json';
 import warehouse from '@/locales/en/warehouse.json';
+import warehouse_movement from '@/locales/en/warehouse-movement.json';
 
 const en = {
 	// BE
@@ -104,6 +106,7 @@ const en = {
 	invoice,
 	'log-data': log_data,
 	'log-history': log_history,
+	'low-stock': low_stock,
 	login,
 	logout,
 	'mail-queue': mail_queue,
@@ -130,6 +133,7 @@ const en = {
 	'vat-rate': vat_rate,
 	vendor,
 	warehouse,
+	'warehouse-movement': warehouse_movement,
 
 	// FE
 	layout,

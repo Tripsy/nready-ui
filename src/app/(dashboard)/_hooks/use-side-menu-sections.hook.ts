@@ -49,6 +49,8 @@ const TRANSLATION_KEYS = [
 	'dashboard.labels.carrier',
 	'dashboard.labels.warehouse',
 	'dashboard.labels.grn',
+	'dashboard.labels.warehouse-movement',
+	'dashboard.labels.low-stock',
 	'dashboard.labels.shipping',
 	'dashboard.labels.order-return',
 
@@ -275,6 +277,22 @@ export function useSideMenuSections(): {
 						text: translations['dashboard.labels.grn'],
 						icon: Icons.Grn,
 						permission: hasPermission(auth, 'grn'),
+					},
+					{
+						page: 'warehouse-movement',
+						href: Routes.get('warehouse-movement'),
+						text: translations[
+							'dashboard.labels.warehouse-movement'
+						],
+						icon: Icons.StockLedger,
+						permission: hasPermission(auth, 'warehouse-movement'),
+					},
+					{
+						page: 'low-stock',
+						href: Routes.get('low-stock'),
+						text: translations['dashboard.labels.low-stock'],
+						icon: Icons.LowStock,
+						permission: hasPermission(auth, 'warehouse-movement'),
 					},
 					{
 						page: 'shipping',

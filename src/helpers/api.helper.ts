@@ -384,6 +384,7 @@ export class ApiRequest {
 const IRREGULAR_ENDPOINT_KEYS: Partial<Record<DataSourceKey, string>> = {
 	category: 'categories',
 	'client-address': 'client-addresses',
+	'low-stock': 'warehouse-movements/low-stock',
 };
 
 /** Data sources whose backend endpoint is the plural of the key. */
@@ -416,6 +417,7 @@ const PLURAL_ENDPOINT_KEYS: ReadonlySet<DataSourceKey> = new Set([
 	'vat-rate',
 	'vendor',
 	'warehouse',
+	'warehouse-movement',
 ]);
 
 export function resolveRequestPath(key: DataSourceKey) {

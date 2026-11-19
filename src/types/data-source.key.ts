@@ -36,6 +36,10 @@ import type { UserModel } from '@/models/user.model';
 import type { VatRateModel } from '@/models/vat-rate.model';
 import type { VendorModel } from '@/models/vendor.model';
 import type { WarehouseModel } from '@/models/warehouse.model';
+import type {
+	LowStockModel,
+	WarehouseMovementModel,
+} from '@/models/warehouse-movement.model';
 
 export type DatasourceModels = {
 	// `account` is a virtual data source (no list endpoint) - its entry is the
@@ -99,6 +103,13 @@ export type DatasourceModels = {
 	'vat-rate': VatRateModel;
 	vendor: VendorModel;
 	warehouse: WarehouseModel;
+	// The stock ledger - read-only, every row posted by the document that moved the goods
+	'warehouse-movement': WarehouseMovementModel;
+	/*
+	 * Tracked variants at or under their low-stock threshold - a report over the ledger, gated as
+	 * a `find` of `warehouse-movement` and keyed by `variant_id`, having no id of its own.
+	 */
+	'low-stock': LowStockModel;
 };
 
 export type DataSourceKey = keyof DatasourceModels;

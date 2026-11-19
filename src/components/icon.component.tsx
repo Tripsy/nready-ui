@@ -82,6 +82,7 @@ import {
 	Newspaper,
 	Package,
 	PackageCheck,
+	PackageMinus,
 	PackagePlus,
 	PenLine,
 	Percent,
@@ -96,6 +97,7 @@ import {
 	Route,
 	Rss,
 	Save,
+	ScrollText,
 	Search,
 	Send,
 	Settings,
@@ -240,6 +242,10 @@ export const Icons = {
 	Warehouse: createIcon(Warehouse),
 	// A goods receipt - the document stock is checked in against
 	Grn: createIcon(ClipboardList),
+	// The stock ledger - every movement in and out of a warehouse
+	StockLedger: createIcon(ScrollText),
+	// Tracked variants at or under their low-stock threshold
+	LowStock: createIcon(PackageMinus),
 	// A return authorization - goods a buyer sends back
 	OrderReturn: createIcon(Undo2),
 	Carrier: createIcon(Truck),
@@ -389,6 +395,8 @@ export const Icons = {
 		// Keys an action is registered under whose icon is named for something else - every
 		// action key resolves to an entry here, which is what `ActionIconKey` checks
 		Guide: createIcon(Info),
+		// A variant's stock - on hand per warehouse, reserved and available
+		Stock: createIcon(Boxes),
 		ManagerImages: createIcon(Camera),
 		LinkAccount: createIcon(Link),
 		UnlinkAccount: createIcon(Unlink),

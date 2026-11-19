@@ -1,0 +1,92 @@
+{
+	"meta": {
+		"title": "Stock ledger - Dashboard | {{app_name}}"
+	},
+	"action": {
+		"view": {
+			"title": "Movement - {{entry}}",
+			"label": "View details"
+		},
+		"stock": {
+			"title": "Stock - {{entry}}",
+			"label": "Variant stock"
+		},
+		"guide": {
+			"title": "How the stock ledger works",
+			"label": "Usage guide"
+		}
+	},
+	"field": {
+		"id": "ID",
+		"occurred_at": "Occurred at",
+		"movement_type": "Movement",
+		"variant": "Variant",
+		"warehouse": "Warehouse",
+		"qty": "Quantity",
+		"unit_cost_base": "Unit cost (base)",
+		"source": "Source",
+		"source_type": "Source type",
+		"lot": "Lot",
+		"reversal_of": "Reverses",
+		"notes": "Notes",
+		"created_at": "Recorded at",
+		"sku": "SKU",
+		"on_hand": "On hand",
+		"reserved": "Reserved",
+		"available": "Available",
+		"low_stock_threshold": "Low-stock threshold",
+		"status": "Status"
+	},
+	"section": {
+		"info": "Movement",
+		"source": "Where it came from",
+		"stock": "Stock",
+		"warehouses": "By warehouse"
+	},
+	"enum": {
+		"movement_type": {
+			"receipt": "Receipt",
+			"sale": "Sale",
+			"sale_return": "Sale return",
+			"supplier_return": "Supplier return",
+			"adjustment": "Adjustment",
+			"write_off": "Write-off",
+			"transfer_in": "Transfer in",
+			"transfer_out": "Transfer out"
+		},
+		"source_type": {
+			"grn_item": "Goods receipt line",
+			"shipping_line": "Shipment line",
+			"adjustment": "Entered by hand"
+		},
+		"warehouse_status": {
+			"active": "Active",
+			"inactive": "Inactive"
+		}
+	},
+	"text": {
+		"stock_hint": "On hand counts open lots in active warehouses. Reserved is what live orders have promised and not shipped yet. Available is what is left to sell - negative when the variant is over-committed.",
+		"no_stock": "Nothing of this variant is in any warehouse.",
+		"inactive_site": "Inactive - not counted",
+		"over_committed": "Over-committed: live orders have promised more than is on hand.",
+		"loading": "Loading stock...",
+		"load_failed": "The stock could not be loaded.",
+		"lot_ref": "Lot #{{id}}",
+		"movement_ref": "Movement #{{id}}",
+		"source_ref": "{{type}} #{{id}}"
+	},
+	"help": {
+		"intro": "The stock ledger is the history of every unit that entered or left a warehouse. Nobody writes to it by hand: each row is posted by the document that moved the goods, and a mistake is corrected by a reversing row, never by an edit.",
+		"step_1_title": "Receipts",
+		"step_1_body": "Confirming a goods receipt posts one receipt per line - a lot opens at its cost in the base currency. Canceling a confirmed receipt posts an adjustment reversing it.",
+		"step_2_title": "Sales",
+		"step_2_body": "A delivery leaving the warehouse posts one sale per lot it draws from, oldest lot first, so one line can show as several rows at different costs. A parcel that comes back undelivered posts a sale return reversing each.",
+		"step_3_title": "Client returns",
+		"step_3_body": "Goods a buyer sends back are booked into the lots the order's sales came from. Damaged goods are booked in and written off on the same lot, so they never return to the shelf.",
+		"step_4_title": "Variant stock",
+		"step_4_body": "Variant stock shows on hand per warehouse, what live orders have reserved, and what is left to sell. Low stock lists the variants at or under their own threshold.",
+		"note": "Quantities are signed: positive brings stock in, negative takes it out. On hand is not summed from the ledger - it is what the open lots still hold, and the nightly stock check reports any lot whose ledger stops explaining it.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
+	}
+}

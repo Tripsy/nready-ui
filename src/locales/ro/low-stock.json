@@ -1,0 +1,14 @@
+{
+	"meta": {
+		"title": "Stoc redus - Dashboard | {{app_name}}"
+	},
+	"action": {
+		"stock": {
+			"title": "Stoc - {{entry}}",
+			"label": "Stocul variantei"
+		}
+	},
+	"text": {
+		"hint": "Variantele urmărite aflate la sau sub propriul prag de stoc redus, măsurat pe ce este disponibil de vândut. Cele mai mici primele. O variantă fără prag nu apare niciodată."
+	}
+}
