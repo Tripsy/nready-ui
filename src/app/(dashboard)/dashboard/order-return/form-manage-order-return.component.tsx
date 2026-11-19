@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import {
 	FormComponentAutoComplete,
+	FormComponentCheckbox,
 	FormComponentInput,
 	FormComponentSelect,
 	FormComponentTextarea,
@@ -41,6 +42,7 @@ const TRANSLATION_KEYS = [
 	'order-return.field.customer_notes',
 	'order-return.field.response',
 	'order-return.field.notes',
+	'order-return.field.refund_shipping',
 	'order-return.field.quantity',
 	'order-return.section.lines',
 	'order-return.text.pick_order_first',
@@ -72,7 +74,14 @@ export type OrderReturnFormValuesType = {
 	response: string | null;
 	notes: string | null;
 	lines: OrderReturnLineFormType[];
+	refund_shipping: boolean;
 	// display-only fields, not part of validation
+	/**
+	 * Whether the refund is still ahead - a live return with nothing drafted. `refund_shipping` is
+	 * read by the draft, so the backend takes it only while this holds. Submitted as
+	 * `refund_open` and never sent on.
+	 */
+	refund_open: boolean;
 	/** The order autocomplete's visible text. Submitted as `order_label` and never sent on. */
 	order: string | null;
 	/**
@@ -272,6 +281,7 @@ export function FormManageOrderReturn() {
 		'customer_notes',
 		'response',
 		'notes',
+		'refund_shipping',
 	] as const);
 
 	const isExisting = formValues.status !== null;
@@ -335,6 +345,11 @@ export function FormManageOrderReturn() {
 			 * and the pipeline reads it back with `getFormDataAsJsonList`.
 			 */}
 			<input type="hidden" name="lines" value={JSON.stringify(lines)} />
+			<input
+				type="hidden"
+				name="refund_open"
+				value={formValues.refund_open ? '1' : ''}
+			/>
 
 			{isDecided && (
 				<p className="text-sm text-muted">
@@ -433,6 +448,21 @@ export function FormManageOrderReturn() {
 				onChange={(e) => handleChange('notes', e.target.value)}
 				error={errors.notes}
 			/>
+
+			{isExisting && formValues.refund_open && (
+				<FormComponentCheckbox<OrderReturnFormValuesType>
+					id={elementIds.refund_shipping}
+					fieldName="refund_shipping"
+					checked={formValues.refund_shipping}
+					disabled={pending}
+					error={errors.refund_shipping}
+					onCheckedChange={(value) =>
+						handleChange('refund_shipping', value)
+					}
+				>
+					{translations['order-return.field.refund_shipping']}
+				</FormComponentCheckbox>
+			)}
 
 			{!isDecided && (
 				<>

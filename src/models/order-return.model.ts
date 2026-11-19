@@ -101,6 +101,8 @@ export type OrderReturnModel<D = Date | string> = {
 	closed_at: D | null;
 	/** The draft reversals raised for the returned goods - issuing one is what refunds. */
 	reversal_invoice_ids?: number[];
+	/** Whether the refund also pays back the outbound delivery fee - read when it is drafted. */
+	refund_shipping?: boolean;
 
 	order_id: number;
 	shipping_id?: number | null;

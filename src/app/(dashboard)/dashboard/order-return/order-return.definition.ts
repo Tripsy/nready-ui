@@ -15,6 +15,7 @@ import { ViewOrderReturn } from '@/app/(dashboard)/dashboard/order-return/view-o
 import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import {
+	getFormDataAsBoolean,
 	getFormDataAsJsonList,
 	getFormDataAsNumber,
 	getFormDataAsString,
@@ -116,6 +117,7 @@ class OrderReturnValidator extends BaseValidator<typeof validatorMessages> {
 			customer_notes: this.text(),
 			response: this.text(),
 			notes: this.text(),
+			refund_shipping: z.boolean(),
 			lines: z
 				.array(this.line())
 				.min(1, { message: this.getMessage('invalid_lines') })
@@ -132,6 +134,7 @@ class OrderReturnValidator extends BaseValidator<typeof validatorMessages> {
 			customer_notes: this.text(),
 			response: this.text(),
 			notes: this.text(),
+			refund_shipping: z.boolean(),
 			status: z.string().nullable(),
 		});
 
@@ -169,6 +172,7 @@ class OrderReturnValidator extends BaseValidator<typeof validatorMessages> {
 					{ message: this.getMessage('invalid_vat_rate') },
 				),
 				response: this.text(),
+				refund_shipping: z.boolean(),
 			})
 			// Stated as a pair, like on a shipment - the backend refuses one without the other
 			.superRefine((data, ctx) => {
@@ -187,6 +191,12 @@ async function getValidator() {
 		await resolveValidatorMessages(validatorMessages, 'order-return'),
 	);
 }
+
+/** The refund is still ahead: a live return with nothing drafted - mirrors the backend's rule. */
+const isRefundOpen = (entry: OrderReturnModel): boolean =>
+	entry.status !== OrderReturnStatusEnum.REJECTED &&
+	entry.status !== OrderReturnStatusEnum.CANCELED &&
+	(entry.reversal_invoice_ids ?? []).length === 0;
 
 const isDecidedStatus = (status: OrderReturnStatus | null): boolean =>
 	status !== null && status !== OrderReturnStatusEnum.REQUESTED;
@@ -210,6 +220,8 @@ function getFormValues(formData: FormData): OrderReturnFormValuesType {
 			formData,
 			'lines',
 		),
+		refund_shipping: getFormDataAsBoolean(formData, 'refund_shipping'),
+		refund_open: getFormDataAsBoolean(formData, 'refund_open'),
 		order: getFormDataAsString(formData, 'order_label'),
 		status: (getFormDataAsString(formData, 'status') ||
 			null) as OrderReturnStatus | null,
@@ -235,6 +247,8 @@ function getFormState(
 					quantity: Number(line.quantity),
 					label: line.label ?? line.sku ?? null,
 				})) ?? [],
+			refund_shipping: data?.refund_shipping ?? false,
+			refund_open: data ? isRefundOpen(data) : false,
 			order: data?.order
 				? displayOrderReference(data.order)
 				: data?.order_id
@@ -268,6 +282,10 @@ function prepareUpdateParams(values: OrderReturnFormValuesType) {
 		customer_notes: values.customer_notes,
 		response: values.response,
 		notes: values.notes,
+		// Sent only while the backend takes it - it answers 409 once the refund is drafted
+		...(values.refund_open
+			? { refund_shipping: values.refund_shipping }
+			: {}),
 	};
 
 	if (isDecidedStatus(values.status)) {
@@ -305,6 +323,7 @@ function getApproveFormValues(
 		price: getFormDataAsNumber(formData, 'price'),
 		vat_rate: getFormDataAsNumber(formData, 'vat_rate'),
 		response: getFormDataAsString(formData, 'response'),
+		refund_shipping: getFormDataAsBoolean(formData, 'refund_shipping'),
 		destination_warehouse: getFormDataAsString(
 			formData,
 			'destination_warehouse_label',
@@ -333,6 +352,7 @@ function getApproveFormState(
 			price: null,
 			vat_rate: null,
 			response: data?.response ?? null,
+			refund_shipping: data?.refund_shipping ?? false,
 			destination_warehouse: null,
 			pickup_client_address: null,
 			carrier: null,
@@ -360,6 +380,7 @@ function prepareApproveParams(values: OrderReturnApproveFormValuesType) {
 			? { price: values.price, vat_rate: values.vat_rate }
 			: {}),
 		...(values.response ? { response: values.response } : {}),
+		refund_shipping: values.refund_shipping,
 	};
 }
 

@@ -32,6 +32,9 @@ const TRANSLATION_KEYS = [
 	'order-return.field.shipping_status',
 	'order-return.field.tracking_number',
 	'order-return.field.refunds',
+	'order-return.field.refund_shipping_view',
+	'dashboard.text.yes',
+	'dashboard.text.no',
 	'order-return.field.variant',
 	'order-return.field.quantity',
 	'order-return.field.decided_at',
@@ -127,6 +130,18 @@ export function ViewOrderReturn({ entry }: { entry: OrderReturnModel }) {
 									: translations[
 											'order-return.text.no_refunds'
 										]
+							}
+						/>
+						<ViewField
+							label={
+								translations[
+									'order-return.field.refund_shipping_view'
+								]
+							}
+							value={
+								entry.refund_shipping
+									? translations['dashboard.text.yes']
+									: translations['dashboard.text.no']
 							}
 						/>
 					</ViewSection>

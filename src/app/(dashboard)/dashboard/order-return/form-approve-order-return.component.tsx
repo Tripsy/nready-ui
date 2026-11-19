@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import {
 	FormComponentAutoComplete,
+	FormComponentCheckbox,
 	FormComponentInput,
 	FormComponentSelect,
 	FormComponentTextarea,
@@ -39,6 +40,7 @@ const TRANSLATION_KEYS = [
 	'order-return.field.price',
 	'order-return.field.vat_rate',
 	'order-return.field.response',
+	'order-return.field.refund_shipping',
 	'order-return.text.approve_hint',
 	'order-return.text.placeholder_destination',
 	'order-return.text.placeholder_pickup',
@@ -55,6 +57,7 @@ export type OrderReturnApproveFormValuesType = {
 	price: number | null;
 	vat_rate: number | null;
 	response: string | null;
+	refund_shipping: boolean;
 	// display-only fields, not part of validation
 	/** The autocompletes' visible text. Submitted as `*_label` and never sent on. */
 	destination_warehouse: string | null;
@@ -84,6 +87,7 @@ export function FormApproveOrderReturn() {
 		'price',
 		'vat_rate',
 		'response',
+		'refund_shipping',
 	] as const);
 
 	const methods = useMemo(
@@ -396,6 +400,20 @@ export function FormApproveOrderReturn() {
 				onChange={(e) => handleChange('response', e.target.value)}
 				error={errors.response}
 			/>
+
+			{/* A wrong item sent or a full withdrawal - the operator's call, read when the refund is drafted */}
+			<FormComponentCheckbox<OrderReturnApproveFormValuesType>
+				id={elementIds.refund_shipping}
+				fieldName="refund_shipping"
+				checked={formValues.refund_shipping}
+				disabled={pending}
+				error={errors.refund_shipping}
+				onCheckedChange={(value) =>
+					handleChange('refund_shipping', value)
+				}
+			>
+				{translations['order-return.field.refund_shipping']}
+			</FormComponentCheckbox>
 		</div>
 	);
 }

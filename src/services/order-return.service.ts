@@ -38,6 +38,8 @@ export type OrderReturnApprovePayload = {
 	price?: number;
 	vat_rate?: number;
 	response?: string | null;
+	/** Pay the outbound delivery fee back with the goods; left out, it is not. */
+	refund_shipping?: boolean;
 };
 
 /** Dashboard: approves a request and writes its return shipment (`POST /order-returns/:id/approve`). */
