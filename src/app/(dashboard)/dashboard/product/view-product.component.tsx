@@ -5,7 +5,9 @@ import {
 	ViewField,
 	ViewSection,
 } from '@/app/(dashboard)/_components/view-detail';
+import { StockVariant } from '@/app/(dashboard)/dashboard/warehouse-movement/stock-variant.component';
 import { ManagerLanguageSwitcher } from '@/components/manager-language-switcher.component';
+import { Button } from '@/components/ui/button';
 import { getLanguageClient } from '@/config/translate.setup';
 import {
 	formatDate,
@@ -20,6 +22,7 @@ import {
 	translateEnumLabel,
 } from '@/helpers/string.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
+import { hasPermission } from '@/models/account.model';
 import {
 	displayOptionLabel,
 	ProductCompositionEnum,
@@ -27,10 +30,12 @@ import {
 	type ProductOptionPriceType,
 	ProductTypeEnum,
 	ProductUnitEnum,
+	type ProductVariantType,
 	ProductVatCategoryEnum,
 	toCategoryRefs,
 	toTagRefs,
 } from '@/models/product.model';
+import { useAuth } from '@/providers/auth.provider';
 import type { Language } from '@/types/common.type';
 
 const TRANSLATION_KEYS = [
@@ -52,6 +57,7 @@ const TRANSLATION_KEYS = [
 	'product.section.description',
 	'product.section.info',
 	'product.section.options',
+	'product.section.stock',
 	'product.section.ordering_interval',
 	'product.section.timestamps',
 	'product.section.variants',
@@ -68,6 +74,7 @@ const TRANSLATION_KEYS = [
 	'product.text.no_variants_loaded',
 	'product.text.sku_default',
 	'product.text.no_price',
+	'product.text.no_tracked_variants',
 	...ISO_WEEKDAY_KEYS,
 	...enumTranslationKeys('product.enum.type', ProductTypeEnum),
 	...enumTranslationKeys('product.enum.composition', ProductCompositionEnum),
@@ -155,8 +162,78 @@ function displayDeltas(
 		.join(' · ');
 }
 
+/**
+ * Live stock for the product's tracked variants, one at a time - the same window the ledger and
+ * the low-stock report open, so the figures read the same wherever a variant is looked at. One
+ * variant is shown at a time because each is its own uncached request; the default variant is
+ * the one most often asked about, so it opens first when it tracks stock.
+ */
+function StockProduct({
+	variants,
+	emptyText,
+}: {
+	variants: ProductVariantType[];
+	emptyText: string;
+}) {
+	// A variant the API has not stored yet has no id, and nothing was ever received against it
+	const tracked = variants.filter(
+		(variant): variant is ProductVariantType & { id: number } =>
+			variant.track_stock && variant.id !== undefined,
+	);
+
+	const [selectedId, setSelectedId] = useState<number | undefined>(
+		() => (tracked.find((variant) => variant.is_default) ?? tracked[0])?.id,
+	);
+
+	if (tracked.length === 0 || selectedId === undefined) {
+		return <p className="text-sm text-muted">{emptyText}</p>;
+	}
+
+	return (
+		<div className="space-y-4">
+			{tracked.length > 1 && (
+				<div className="flex flex-wrap items-center gap-2">
+					{tracked.map((variant) => (
+						<Button
+							key={variant.id}
+							type="button"
+							size="sm"
+							variant={
+								variant.id === selectedId
+									? 'default'
+									: 'outline'
+							}
+							aria-pressed={variant.id === selectedId}
+							className="font-mono"
+							onClick={() => setSelectedId(variant.id)}
+						>
+							{variant.sku}
+							{variant.is_default && ' ★'}
+						</Button>
+					))}
+				</div>
+			)}
+
+			{/* Keyed so a switch remounts the panel rather than flashing the previous figures */}
+			<StockVariant
+				key={selectedId}
+				entries={[{ variant_id: selectedId }]}
+			/>
+		</div>
+	);
+}
+
 export function ViewProduct({ entry }: { entry: ProductModel }) {
 	const { translations } = useTranslation(TRANSLATION_KEYS);
+	const { auth } = useAuth();
+
+	/*
+	 * Left out rather than shown failing without the grant - the stock read answers 403. A
+	 * bundle has no stock of its own (its variants never track it), so it gets no section.
+	 */
+	const canReadStock =
+		hasPermission(auth, 'warehouse-movement', 'read') &&
+		entry.composition !== ProductCompositionEnum.BUNDLE;
 
 	const contents = entry.contents ?? [];
 	const languages = contents.map((content) => content.language);
@@ -405,6 +482,20 @@ export function ViewProduct({ entry }: { entry: ProductModel }) {
 					))
 				)}
 			</ViewSection>
+
+			{canReadStock && (
+				<ViewSection
+					title={translations['product.section.stock']}
+					layout="rows"
+				>
+					<StockProduct
+						variants={variants}
+						emptyText={
+							translations['product.text.no_tracked_variants']
+						}
+					/>
+				</ViewSection>
+			)}
 
 			{/*
 			 * Below the variants because a delta is measured against a variant's price, and

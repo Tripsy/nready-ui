@@ -254,6 +254,7 @@
 		"no_price_effect": "no price effect",
 		"no_variants_loaded": "No variants loaded",
 		"sku_default": "{{sku}} (default)",
+		"no_tracked_variants": "No variant of this product tracks stock.",
 		"no_price": "no price",
 		"attribute_declare_bundle": "Declare a new attribute for one of this bundle's categories",
 		"attribute_declare_product": "Declare a new attribute for one of this product's categories",
@@ -328,6 +329,7 @@
 		"optional_components_delta_hint": "Every unit taken adds the component's own price plus the adjustment on its row. Usually negative - the discount for taking it inside the kit."
 	},
 	"section": {
+		"stock": "Stock by variant",
 		"attributes": "Attributes",
 		"ordering_interval": "Ordering interval",
 		"choices": "Choices",

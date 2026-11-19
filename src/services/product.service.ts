@@ -8,6 +8,7 @@ import { requestFind } from '@/helpers/services.helper';
 import type {
 	ProductListEntryType,
 	ProductPublicModel,
+	ProductVariantStockType,
 	ProductWorkflow,
 } from '@/models/product.model';
 import { ProductCompositionEnum } from '@/models/product.model';
@@ -134,6 +135,21 @@ export async function requestPublicProduct(params: {
 				next: { revalidate },
 			},
 		);
+}
+
+/**
+ * The stock level of each variant of a sellable product (`GET /public/products/:id/stock`) - a
+ * level, never a count. Asked from the browser when the page renders rather than with the product
+ * read: that read sits in Next's data cache for minutes, and a level is only worth showing while it
+ * is true. The backend does not cache it either.
+ */
+export async function requestPublicProductStock(
+	productId: number,
+): Promise<ApiResponseFetch<{ entries: ProductVariantStockType[] }>> {
+	return await new ApiRequest().doFetch(
+		`/public/products/${productId}/stock`,
+		{ method: 'GET' },
+	);
 }
 
 /**

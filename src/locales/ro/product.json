@@ -254,6 +254,7 @@
 		"no_price_effect": "fără efect asupra prețului",
 		"no_variants_loaded": "Nicio variantă încărcată",
 		"sku_default": "{{sku}} (implicită)",
+		"no_tracked_variants": "Nicio variantă a acestui produs nu urmărește stocul.",
 		"no_price": "fără preț",
 		"attribute_declare_bundle": "Declară un atribut nou pentru una dintre categoriile acestui pachet",
 		"attribute_declare_product": "Declară un atribut nou pentru una dintre categoriile acestui produs",
@@ -328,6 +329,7 @@
 		"optional_components_delta_hint": "Fiecare unitate luată adaugă prețul propriu al componentei plus ajustarea de pe rândul ei. De obicei negativă - reducerea pentru luarea ei în pachet."
 	},
 	"section": {
+		"stock": "Stoc pe variante",
 		"attributes": "Atribute",
 		"ordering_interval": "Interval de comandă",
 		"choices": "Alegeri",
