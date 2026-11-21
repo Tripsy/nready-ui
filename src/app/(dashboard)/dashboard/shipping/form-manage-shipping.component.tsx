@@ -77,6 +77,9 @@ const TRANSLATION_KEYS = [
 	'shipping.text.lines_hint',
 	'shipping.text.variant_ref',
 	'shipping.text.ordered_quantity',
+	'shipping.text.line_part',
+	'shipping.text.line_no_options',
+	'shipping.text.line_in_bundle',
 	'shipping.section.details',
 	'shipping.section.lines',
 	'dashboard.text.tab_errors',
@@ -160,6 +163,12 @@ const currencies = toOptionsFromEnum(CurrencyEnum);
  * that does not exist yet, so the editor says so rather than offering a picker that cannot be
  * validated.
  *
+ * **One row per variant**, as a movement's lines are (unique per variant on the backend). A variant
+ * the order holds on several lines - a bundle component and a standalone line of the same shirt -
+ * is one row, its ordered quantity summed across them. Beneath it, read-only, the order lines it
+ * covers - quantity, options, the bundle a component came in - since the movement records the
+ * variant alone and the operator packing it still has to know which configuration goes in.
+ *
  * A row left at zero is simply not carried. The backend owns the real rule: a quantity above what
  * the order still has unshipped for that variant comes back as a 409, because what another movement
  * already claimed is not knowable from this form alone. For a `return` the cap is what was
@@ -213,6 +222,79 @@ function ShippingLinesEditor({
 		[translations],
 	);
 
+	const variantRows = useMemo(() => {
+		const rows = new Map<
+			number,
+			{
+				variant_id: number;
+				product_id: number;
+				label: string | null;
+				quantity: number;
+				parts: {
+					key: number;
+					quantity: number;
+					description: string;
+					/** No options and no bundle - a line that adds nothing to the row */
+					is_plain: boolean;
+				}[];
+			}
+		>();
+
+		const lineById = new Map(
+			(orderLines ?? []).map((orderLine) => [orderLine.id, orderLine]),
+		);
+
+		for (const orderLine of orderLines ?? []) {
+			const options = (orderLine.options ?? [])
+				.map((option) => option.label)
+				.join(', ');
+			const bundle = orderLine.parent_id
+				? lineById.get(orderLine.parent_id)?.label
+				: null;
+
+			const description = [
+				options || translations['shipping.text.line_no_options'],
+				bundle
+					? replaceVars(
+							translations['shipping.text.line_in_bundle'],
+							{
+								bundle: bundle,
+							},
+						)
+					: null,
+			]
+				.filter(Boolean)
+				.join(' · ');
+
+			const part = {
+				key: orderLine.id,
+				quantity: Number(orderLine.quantity),
+				description: description,
+				is_plain: !options && !bundle,
+			};
+
+			const row = rows.get(orderLine.variant_id);
+
+			if (row) {
+				// Quantities are `numeric(12,2)`; keep the sum at that scale
+				row.quantity =
+					Math.round((row.quantity + part.quantity) * 100) / 100;
+				row.label = row.label ?? orderLine.label ?? null;
+				row.parts.push(part);
+			} else {
+				rows.set(orderLine.variant_id, {
+					variant_id: orderLine.variant_id,
+					product_id: orderLine.product_id,
+					label: orderLine.label ?? null,
+					quantity: part.quantity,
+					parts: [part],
+				});
+			}
+		}
+
+		return [...rows.values()];
+	}, [orderLines, translations]);
+
 	if (scope === ShippingScopeEnum.RELOCATION) {
 		return (
 			<p className="text-sm text-muted">
@@ -237,7 +319,7 @@ function ShippingLinesEditor({
 		);
 	}
 
-	if (!orderLines || orderLines.length === 0) {
+	if (variantRows.length === 0) {
 		return (
 			<p className="text-sm text-muted">
 				{translations['shipping.text.order_no_lines']}
@@ -298,18 +380,18 @@ function ShippingLinesEditor({
 
 	return (
 		<div className="flex flex-col gap-3">
-			{orderLines.map((orderLine) => (
+			{variantRows.map((row) => (
 				<div
-					key={orderLine.id}
+					key={row.variant_id}
 					className="flex flex-wrap items-end gap-3 rounded-lg border border-line p-3"
 				>
 					<div className="min-w-0 flex-1">
 						<div className="font-medium">
-							{orderLine.label ??
+							{row.label ??
 								replaceVars(
 									translations['shipping.text.variant_ref'],
 									{
-										id: orderLine.variant_id,
+										id: row.variant_id,
 									},
 								)}
 						</div>
@@ -317,25 +399,44 @@ function ShippingLinesEditor({
 							{replaceVars(
 								translations['shipping.text.ordered_quantity'],
 								{
-									quantity: orderLine.quantity,
+									quantity: row.quantity,
 								},
 							)}
 						</div>
+
+						{/* A single plain line says nothing the row does not */}
+						{(row.parts.length > 1 || !row.parts[0].is_plain) && (
+							<ul className="mt-1 text-xs text-muted">
+								{row.parts.map((part) => (
+									<li key={part.key}>
+										{replaceVars(
+											translations[
+												'shipping.text.line_part'
+											],
+											{
+												quantity: part.quantity,
+												description: part.description,
+											},
+										)}
+									</li>
+								))}
+							</ul>
+						)}
 					</div>
 
 					<FormComponentInput<ShippingLineFormType>
 						labelText={translations['shipping.field.quantity']}
-						id={`shipping-line-${orderLine.variant_id}`}
+						id={`shipping-line-${row.variant_id}`}
 						fieldName="quantity"
-						fieldValue={quantityFor(orderLine.variant_id) ?? ''}
+						fieldValue={quantityFor(row.variant_id) ?? ''}
 						isRequired={false}
 						disabled={disabled}
 						className="w-32"
 						placeholderText="0"
 						onChange={(e) =>
 							setQuantity(
-								orderLine.variant_id,
-								orderLine.product_id,
+								row.variant_id,
+								row.product_id,
 								e.target.value,
 							)
 						}
@@ -344,19 +445,17 @@ function ShippingLinesEditor({
 					{isReturn && (
 						<FormComponentSelect<ShippingLineFormType>
 							labelText={translations['shipping.field.condition']}
-							id={`shipping-line-condition-${orderLine.variant_id}`}
+							id={`shipping-line-condition-${row.variant_id}`}
 							fieldName="condition"
 							fieldValue={
-								lineFor(orderLine.variant_id)?.condition ?? ''
+								lineFor(row.variant_id)?.condition ?? ''
 							}
 							isRequired={false}
-							disabled={
-								disabled || !lineFor(orderLine.variant_id)
-							}
+							disabled={disabled || !lineFor(row.variant_id)}
 							className="w-44"
 							options={conditions}
 							onChange={(value) =>
-								setCondition(orderLine.variant_id, value)
+								setCondition(row.variant_id, value)
 							}
 						/>
 					)}
