@@ -385,6 +385,7 @@ const IRREGULAR_ENDPOINT_KEYS: Partial<Record<DataSourceKey, string>> = {
 	category: 'categories',
 	'client-address': 'client-addresses',
 	'low-stock': 'warehouse-movements/low-stock',
+	'cost-over-floor': 'grns/cost-over-floor',
 };
 
 /** Data sources whose backend endpoint is the plural of the key. */

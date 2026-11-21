@@ -123,6 +123,7 @@ import {
 	TicketCheck,
 	TicketPercent,
 	Trash2,
+	TrendingDown,
 	TrendingUp,
 	TriangleAlert,
 	Truck,
@@ -248,6 +249,8 @@ export const Icons = {
 	StockLedger: createIcon(ScrollText),
 	// Tracked variants at or under their low-stock threshold
 	LowStock: createIcon(PackageMinus),
+	// Prices whose floor is at or under what the goods cost
+	CostOverFloor: createIcon(TrendingDown),
 	StockAdjustment: createIcon(ClipboardCheck),
 	// A return authorization - goods a buyer sends back
 	OrderReturn: createIcon(Undo2),

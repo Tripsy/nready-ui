@@ -23,6 +23,7 @@ import client_address from '@/locales/en/client-address.json';
 import client_ledger from '@/locales/en/client-ledger.json';
 import comment from '@/locales/en/comment.json';
 import complaint from '@/locales/en/complaint.json';
+import cost_over_floor from '@/locales/en/cost-over-floor.json';
 import cron_history from '@/locales/en/cron-history.json';
 import dashboard from '@/locales/en/dashboard.json';
 import discount from '@/locales/en/discount.json';
@@ -94,6 +95,7 @@ const en = {
 	'client-ledger': client_ledger,
 	comment,
 	complaint,
+	'cost-over-floor': cost_over_floor,
 	'cron-history': cron_history,
 	dashboard,
 	discount,

@@ -14,7 +14,7 @@ import type { CronHistoryModel } from '@/models/cron-history.model';
 import type { DiscountModel } from '@/models/discount.model';
 import type { DocumentSeriesModel } from '@/models/document-series.model';
 import type { ExchangeRateModel } from '@/models/exchange-rate.model';
-import type { GrnModel } from '@/models/grn.model';
+import type { CostOverFloorModel, GrnModel } from '@/models/grn.model';
 import type { ImageModel } from '@/models/image.model';
 import type { InvoiceModel } from '@/models/invoice.model';
 import type { LogDataModel } from '@/models/log-data.model';
@@ -111,6 +111,11 @@ export type DatasourceModels = {
 	 * a `find` of `warehouse-movement` and keyed by `variant_id`, having no id of its own.
 	 */
 	'low-stock': LowStockModel;
+	/*
+	 * Price rows whose floor is at or under the variant's cost - a report over receipts and prices,
+	 * gated as a `find` of `grn`, keyed by position, having no id of its own.
+	 */
+	'cost-over-floor': CostOverFloorModel;
 	// Write-offs and shelf counts entered by hand - posted, then reversed at most once
 	'stock-adjustment': StockAdjustmentModel;
 };

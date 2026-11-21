@@ -55,6 +55,7 @@ const TRANSLATION_KEYS = [
 
 	'dashboard.labels.reports',
 	'dashboard.labels.low-stock',
+	'dashboard.labels.cost-over-floor',
 
 	'dashboard.labels.publishing',
 	'dashboard.labels.article',
@@ -316,6 +317,14 @@ export function useSideMenuSections(): {
 							'warehouse-movement',
 							'find',
 						),
+					},
+					{
+						page: 'cost-over-floor',
+						href: Routes.get('cost-over-floor'),
+						text: translations['dashboard.labels.cost-over-floor'],
+						icon: Icons.CostOverFloor,
+						// The endpoint checks a `find` of receipts, which set the cost it compares
+						permission: hasPermission(auth, 'grn', 'find'),
 					},
 				],
 			},

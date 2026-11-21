@@ -345,6 +345,11 @@ Routes.group('dashboard')
 		permissionEntity: 'warehouse-movement',
 		permissionOperation: 'find',
 	})
+	// A report over receipts and prices, gated the way the backend gates it: a `find` of `grn`
+	.add('cost-over-floor', '/dashboard/cost-over-floor', {
+		permissionEntity: 'grn',
+		permissionOperation: 'find',
+	})
 	.add('stock-adjustment', '/dashboard/stock-adjustment', {
 		permissionEntity: 'stock-adjustment',
 	})

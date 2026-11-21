@@ -1,0 +1,17 @@
+{
+	"meta": {
+		"title": "Prețuri sub cost - Dashboard | {{app_name}}"
+	},
+	"field": {
+		"sku": "SKU",
+		"currency": "Monedă",
+		"floor": "Prag",
+		"floor_base": "Prag (moneda de bază)",
+		"cost_price": "Cost",
+		"gap": "Prag minus cost"
+	},
+	"text": {
+		"hint": "Prețurile al căror prag - prețul minim, sau prețul de vânzare acolo unde nu există preț minim - este la sau sub costul variantei, deci o vânzare la acel prag nu aduce nimic sau aduce pierdere. Prețurile sunt fără TVA; costul este media ponderată din recepțiile confirmate, în moneda de bază. Cele mai strânse primele. Nimic nu este repreciat automat; aceeași listă este trimisă pe email în fiecare dimineață.",
+		"no_min_price": "preț de vânzare"
+	}
+}

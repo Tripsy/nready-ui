@@ -87,6 +87,26 @@ export type GrnModel<D = Date | string> = {
 };
 
 /** The reference printed on the document, `NIR-42`. */
+/**
+ * A price row whose floor no longer covers what the variant costs (`GET /grns/cost-over-floor`),
+ * tightest first. The floor is `min_price`, or `sale_price` where none is set; both exclude VAT
+ * and are in the row's `currency`. `cost_price` is the weighted average set by confirmed receipts
+ * and `floor_base` the floor converted to it, both in the base currency (`Configuration.currency()`).
+ *
+ * `id` is the row's position in the report, set by the definition's `find`: the backend row has
+ * none, and one variant appears once per currency, so `variant_id` cannot stand in.
+ */
+export type CostOverFloorModel = {
+	id: number;
+	variant_id: number;
+	sku: string;
+	cost_price: number;
+	currency: string;
+	sale_price: number;
+	min_price: number | null;
+	floor_base: number;
+};
+
 export const displayGrnReference = (
 	entry: Pick<GrnModel, 'ref_code' | 'ref_number'>,
 ): string => `${entry.ref_code}-${entry.ref_number}`;

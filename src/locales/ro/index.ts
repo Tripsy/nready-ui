@@ -23,6 +23,7 @@ import client_address from '@/locales/ro/client-address.json';
 import client_ledger from '@/locales/ro/client-ledger.json';
 import comment from '@/locales/ro/comment.json';
 import complaint from '@/locales/ro/complaint.json';
+import cost_over_floor from '@/locales/ro/cost-over-floor.json';
 import cron_history from '@/locales/ro/cron-history.json';
 import dashboard from '@/locales/ro/dashboard.json';
 import discount from '@/locales/ro/discount.json';
@@ -94,6 +95,7 @@ const ro = {
 	'client-ledger': client_ledger,
 	comment,
 	complaint,
+	'cost-over-floor': cost_over_floor,
 	'cron-history': cron_history,
 	dashboard,
 	discount,
