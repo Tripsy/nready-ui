@@ -11,7 +11,7 @@
 		"gap": "Floor less cost"
 	},
 	"text": {
-		"hint": "Prices whose floor - the min price, or the sale price where no min price is set - is at or under what the variant costs, so a sale at that floor earns nothing or loses money. Prices exclude VAT; cost is the weighted average from confirmed goods receipts, in the base currency. Tightest first. Nothing is repriced automatically; the same list is emailed every morning.",
+		"hint": "Prices whose floor - the min price, or the sale price where no min price is set - is under what the variant costs, so a sale at that floor loses money. Prices exclude VAT; cost is the weighted average from confirmed goods receipts, in the base currency. Tightest first. Nothing is repriced automatically; the same list is emailed every morning.",
 		"no_min_price": "sale price"
 	}
 }

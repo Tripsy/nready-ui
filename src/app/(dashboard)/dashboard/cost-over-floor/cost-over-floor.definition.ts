@@ -8,7 +8,7 @@ import type { FindFunctionParamsType } from '@/types/action.type';
 import type { DataSourceConfigType } from '@/types/data-source.type';
 
 /**
- * Price rows whose floor - `min_price`, or `sale_price` where none is set - is at or under the
+ * Price rows whose floor - `min_price`, or `sale_price` where none is set - is under the
  * variant's cost: `GET /grns/cost-over-floor`, the list the `cost-over-floor` cron mails every
  * morning. A report, not a list of records: no filters, no actions, and one fixed order (tightest
  * first), which is the only one the backend takes.
@@ -90,7 +90,7 @@ export default async function dataSourceConfig(): Promise<
 						}),
 				},
 				{
-					// Floor less cost, in base currency - zero or negative on every row listed
+					// Floor less cost, in base currency - negative on every row listed
 					field: 'gap',
 					header: labels['field.gap'],
 					body: (entry, column) =>

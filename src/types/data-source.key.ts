@@ -112,7 +112,7 @@ export type DatasourceModels = {
 	 */
 	'low-stock': LowStockModel;
 	/*
-	 * Price rows whose floor is at or under the variant's cost - a report over receipts and prices,
+	 * Price rows whose floor is under the variant's cost - a report over receipts and prices,
 	 * gated as a `find` of `grn`, keyed by position, having no id of its own.
 	 */
 	'cost-over-floor': CostOverFloorModel;
