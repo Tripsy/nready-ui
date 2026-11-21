@@ -42,6 +42,7 @@ import {
 	requestPublicCities,
 } from '@/services/client-address.service';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /** The place with its county or country, so two places of the same name are told apart. */
 function displayCityLabel(city: PlaceModel, language: Language): string {
@@ -94,16 +95,16 @@ export function CheckoutAddresses({
 	onSelect,
 }: {
 	/** The billed client, or null while it has not been saved yet. */
-	readonly clientId: number | null;
+	readonly clientId: EntityId | null;
 	readonly type: ClientAddressType;
 	readonly title: string;
-	readonly selectedId: number | null;
+	readonly selectedId: EntityId | null;
 	/** Checkout was attempted without an address of this type chosen. */
 	readonly isMissingSelection: boolean;
 	readonly missingMessageKey: CheckoutTranslationKey;
 	readonly translations: CheckoutTranslations;
 	readonly disabled: boolean;
-	readonly onSelect: (addressId: number | null) => void;
+	readonly onSelect: (addressId: EntityId | null) => void;
 }): JSX.Element {
 	const queryClient = useQueryClient();
 	const { showToast } = useToast();
@@ -146,7 +147,7 @@ export function CheckoutAddresses({
 	 * The client an empty list has already opened the form for. Once per client: after a shopper
 	 * cancels, the list staying empty must not keep reopening the form over them.
 	 */
-	const autoOpenedFor = useRef<number | null>(null);
+	const autoOpenedFor = useRef<EntityId | null>(null);
 
 	const openForm = () => {
 		setValues(getEmptyAddressValues());
@@ -311,7 +312,7 @@ export function CheckoutAddresses({
 							value={
 								selectedId === null ? null : String(selectedId)
 							}
-							onChange={(value) => onSelect(Number(value))}
+							onChange={(value) => onSelect(value)}
 							isDisabled={isBusy}
 							className="divide-y divide-border"
 						>

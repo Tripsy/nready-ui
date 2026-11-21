@@ -50,7 +50,7 @@
 		"tab_api": "Documentație API"
 	},
 	"field": {
-		"search": "ID / Țară / Note",
+		"search": "Țară / Note",
 		"id": "ID",
 		"country_code": "Țară",
 		"category": "Clasă TVA",

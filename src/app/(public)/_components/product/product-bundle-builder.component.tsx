@@ -17,9 +17,10 @@ import {
 } from '@/models/product.model';
 import { quoteBundleNet, toBundleChoices } from '@/models/product-bundle.model';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /** A component as the storefront read hands it back - `id` is always present there. */
-type BundleComponent = ProductBundleItemType & { id: number };
+type BundleComponent = ProductBundleItemType & { id: EntityId };
 
 /**
  * What taking `units` of a component adds to one bundle, in the bundle's own currency: the
@@ -89,8 +90,8 @@ export function ProductBundleBuilder({
 	language,
 	translations,
 }: {
-	readonly productId: number;
-	readonly variantId: number;
+	readonly productId: EntityId;
+	readonly variantId: EntityId;
 	readonly isAvailable: boolean;
 	/** The bundle variant's own headline price, excluding VAT; `null` when it quotes none in any market. */
 	readonly bundlePrice: { currency: string; sale_price: number } | null;
@@ -120,19 +121,20 @@ export function ProductBundleBuilder({
 	);
 
 	// Candidate picked per group, keyed by group id.
-	const [picks, setPicks] = useState<Record<number, number | undefined>>(() =>
-		Object.fromEntries(
-			groups.map((group) => [
-				group.id,
-				components.find(
-					(item) => item.group_id === group.id && item.is_default,
-				)?.id,
-			]),
-		),
+	const [picks, setPicks] = useState<Record<EntityId, EntityId | undefined>>(
+		() =>
+			Object.fromEntries(
+				groups.map((group) => [
+					group.id,
+					components.find(
+						(item) => item.group_id === group.id && item.is_default,
+					)?.id,
+				]),
+			),
 	);
 
 	// Units taken per ticked extra; an unticked extra has no entry.
-	const [extraUnits, setExtraUnits] = useState<Record<number, number>>(() =>
+	const [extraUnits, setExtraUnits] = useState<Record<EntityId, number>>(() =>
 		Object.fromEntries(
 			extras
 				.filter((item) => item.is_default)
@@ -306,7 +308,7 @@ export function ProductBundleBuilder({
 							onChange={(value: string) =>
 								setPicks((current) => ({
 									...current,
-									[group.id]: Number(value),
+									[group.id]: value,
 								}))
 							}
 						>

@@ -11,6 +11,7 @@ import {
 	requestCreateReview,
 	requestUpdateOwnReview,
 } from '@/services/review.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * One submit, two possible writes - which one depends on whether the reader already holds a review
@@ -21,7 +22,7 @@ import {
  * revision is not the moment to change that: the text may be rewritten, what was bought cannot.
  */
 async function writeReviewOperation(values: ReviewFormValuesType) {
-	const productId = values.product_id as number;
+	const productId = values.product_id as EntityId;
 	const rating = reviewRatingFromValues(values);
 	const content = values.content as string;
 

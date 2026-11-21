@@ -3,6 +3,7 @@ import {
 	type ProductBundleItemType,
 	roundMoney,
 } from '@/models/product.model';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * What a bundle's composition means, read the way the backend's `ProductBundleSelectionService`
@@ -15,11 +16,11 @@ import {
  */
 
 /** A component as a read hands it back - every read carries `id`. */
-export type BundleComponentType = ProductBundleItemType & { id: number };
+export type BundleComponentType = ProductBundleItemType & { id: EntityId };
 
 /** One decision, in the payload shape the cart and the order both take. */
 export type BundleChoiceType = {
-	item_id: number;
+	item_id: EntityId;
 	/** Units of a tick box; a candidate is taken at its own `quantity`. */
 	units?: number;
 };
@@ -84,8 +85,8 @@ export function normalizeBundleChoices(
 	stored: readonly BundleChoiceType[],
 ): BundleChoiceType[] {
 	const byId = new Map(items.map((item) => [item.id, item]));
-	const pickByGroup = new Map<number, number>();
-	const extraUnits = new Map<number, number>();
+	const pickByGroup = new Map<EntityId, EntityId>();
+	const extraUnits = new Map<EntityId, number>();
 
 	for (const choice of stored) {
 		const item = byId.get(choice.item_id);

@@ -37,6 +37,7 @@ import {
 	requestProductReviews,
 } from '@/services/review.service';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const PAGE_SIZE = 5;
 
@@ -54,13 +55,13 @@ export function ReviewSection({
 	language,
 	translations,
 }: {
-	productId: number;
+	productId: EntityId;
 	/**
 	 * The variant the reader actually chose - `?variant=` on the product page - or null. A page
 	 * opened without one has a variant selected for display, which is not the same as the buyer
 	 * saying which they bought, so it is not passed here.
 	 */
-	variantId: number | null;
+	variantId: EntityId | null;
 	/** The reader's language, for the posted-at date - see `formatDate`. */
 	language: Language;
 	translations: ReviewTranslations;

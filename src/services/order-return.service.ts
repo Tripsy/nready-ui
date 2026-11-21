@@ -7,6 +7,7 @@ import type {
 } from '@/models/order-return.model';
 import type { ShippingMethod } from '@/models/shipping.model';
 import type { ApiResponseFetch } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Return authorizations - `../nready-api/src/features/order-return`. The dashboard half
@@ -17,7 +18,7 @@ import type { ApiResponseFetch } from '@/types/api.type';
 
 /** Dashboard: per variant, what of an order can still be returned. */
 export async function requestOrderReturnable(
-	orderId: number,
+	orderId: EntityId,
 ): Promise<ApiResponseFetch<OrderReturnableModel>> {
 	return await new ApiRequest().doFetch(
 		`/order-returns/returnable/${orderId}`,
@@ -31,9 +32,9 @@ export async function requestOrderReturnable(
  * `price` and `vat_rate` are stated together.
  */
 export type OrderReturnApprovePayload = {
-	destination_warehouse_id?: number;
-	pickup_client_address_id?: number;
-	carrier_id?: number;
+	destination_warehouse_id?: EntityId;
+	pickup_client_address_id?: EntityId;
+	carrier_id?: EntityId;
 	method?: ShippingMethod;
 	price?: number;
 	vat_rate?: number;
@@ -44,7 +45,7 @@ export type OrderReturnApprovePayload = {
 
 /** Dashboard: approves a request and writes its return shipment (`POST /order-returns/:id/approve`). */
 export async function requestApproveOrderReturn(
-	id: number,
+	id: EntityId,
 	payload: OrderReturnApprovePayload,
 ): Promise<ApiResponseFetch<OrderReturnModel>> {
 	return await new ApiRequest().doFetch(`/order-returns/${id}/approve`, {
@@ -58,7 +59,7 @@ export async function requestApproveOrderReturn(
  * carry the `response` the buyer is shown - the reason for a rejection, typically.
  */
 export async function requestUpdateOrderReturnStatus(
-	id: number,
+	id: EntityId,
 	status: OrderReturnStatus,
 	response?: string | null,
 ): Promise<ApiResponseFetch<null>> {
@@ -76,8 +77,8 @@ export async function requestUpdateOrderReturnStatus(
  * backend raises it on its own as the goods arrive; this is for when that found nothing to reverse.
  */
 export async function requestOrderReturnRefund(
-	id: number,
-): Promise<ApiResponseFetch<{ reversal_invoice_ids: number[] }>> {
+	id: EntityId,
+): Promise<ApiResponseFetch<{ reversal_invoice_ids: EntityId[] }>> {
 	return await new ApiRequest().doFetch(`/order-returns/${id}/refund`, {
 		method: 'POST',
 	});
@@ -85,7 +86,7 @@ export async function requestOrderReturnRefund(
 
 /** Storefront: the returns of one of the account's own orders, oldest first. */
 export async function requestOwnOrderReturns(
-	orderId: number,
+	orderId: EntityId,
 ): Promise<ApiResponseFetch<{ entries: OrderReturnModel[] }>> {
 	return await new ApiRequest().doFetch(`/public/orders/${orderId}/returns`, {
 		method: 'GET',
@@ -94,7 +95,7 @@ export async function requestOwnOrderReturns(
 
 /** Storefront: what of an own order can still be returned, and until when. */
 export async function requestOwnOrderReturnable(
-	orderId: number,
+	orderId: EntityId,
 ): Promise<ApiResponseFetch<OrderReturnableModel>> {
 	return await new ApiRequest().doFetch(
 		`/public/orders/${orderId}/returnable`,
@@ -105,12 +106,12 @@ export async function requestOwnOrderReturnable(
 export type OrderReturnRequestPayload = {
 	reason: OrderReturnReason;
 	customer_notes: string | null;
-	lines: { variant_id: number; quantity: number }[];
+	lines: { variant_id: EntityId; quantity: number }[];
 };
 
 /** Storefront: asks to return items of an own order. The order comes from the path only. */
 export async function requestCreateOwnOrderReturn(
-	orderId: number,
+	orderId: EntityId,
 	payload: OrderReturnRequestPayload,
 ): Promise<
 	ApiResponseFetch<
@@ -125,8 +126,8 @@ export async function requestCreateOwnOrderReturn(
 
 /** Storefront: withdraws an own request while it is still undecided. */
 export async function requestCancelOwnOrderReturn(
-	orderId: number,
-	id: number,
+	orderId: EntityId,
+	id: EntityId,
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(
 		`/public/orders/${orderId}/returns/${id}/cancel`,

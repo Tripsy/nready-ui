@@ -62,6 +62,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType, ValidatorOutput } from '@/types/form.type';
 
 /**
@@ -177,7 +178,7 @@ class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 	idListSchema(message: string, requiredMessage?: string) {
 		const schema = z.array(
 			z.object({
-				id: this.validateNumber(message, { onlyPositive: true }),
+				id: this.validateId(message),
 			}),
 			{ message },
 		);
@@ -355,11 +356,11 @@ function parseContents(formData: FormData): ArticleFormValuesType['contents'] {
 	}
 }
 
-function parseIdList(formData: FormData, key: string): { id: number }[] {
+function parseIdList(formData: FormData, key: string): { id: EntityId }[] {
 	return formData
 		.getAll(key)
-		.map((id) => ({ id: Number(id) }))
-		.filter((entry) => Number.isFinite(entry.id));
+		.filter((id): id is string => typeof id === 'string' && id !== '')
+		.map((id) => ({ id: id }));
 }
 
 function getFormValues(formData: FormData): ArticleFormValuesType {
@@ -604,11 +605,11 @@ export type ArticleDataTableFiltersType = {
 	// Autocomplete pairs: the `*_id` half is the filter the backend accepts, the other holds
 	// the picked label so the input can render it. The label is dropped by the backend.
 	author: { value: string | null; matchMode: 'equals' };
-	author_id: { value: number | null; matchMode: 'equals' };
+	author_id: { value: EntityId | null; matchMode: 'equals' };
 	category: { value: string | null; matchMode: 'equals' };
-	category_id: { value: number | null; matchMode: 'equals' };
+	category_id: { value: EntityId | null; matchMode: 'equals' };
 	tag: { value: string | null; matchMode: 'equals' };
-	tag_id: { value: number | null; matchMode: 'equals' };
+	tag_id: { value: EntityId | null; matchMode: 'equals' };
 };
 
 export default async function dataSourceConfig(): Promise<
@@ -730,23 +731,14 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					// Not sortable: the backend orders on the article row, and the title lives
 					// in the joined translation (`OrderByEnum`).
 					field: 'title',
 					header: labels['field.title'],
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
+							markDeleted: true,
+							displayButton: displayButtonView(auth),
 							customValue: DisplayFlagged({
 								value: getArticleContentProp(
 									entry,
@@ -759,7 +751,6 @@ export default async function dataSourceConfig(): Promise<
 									: undefined,
 								className: 'text-warning fill-warning',
 							}),
-							markDeleted: true,
 						}),
 				},
 				{
@@ -864,7 +855,7 @@ export default async function dataSourceConfig(): Promise<
 				customEntryCheck: (entry: ArticleModel) => !entry.deleted_at, // Return true if the entry is not deleted
 				operationFunction: (
 					values: ArticleManageOutput,
-					id: number,
+					id: EntityId,
 				) => {
 					const params = prepareParamsFromFormValues(values);
 
@@ -875,7 +866,7 @@ export default async function dataSourceConfig(): Promise<
 					);
 				},
 				// A list row carries neither the markdown nor the link rows - only `read` does.
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<ArticleModel>('article', id),
 				buttonPosition: 'left',
 				button: {
@@ -1075,7 +1066,7 @@ export default async function dataSourceConfig(): Promise<
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
 				// The list row has no markdown; the view needs it.
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<ArticleModel>('article', id),
 			},
 			guide: {

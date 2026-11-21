@@ -2,6 +2,7 @@ import type { BadgeVariant } from '@/components/ui/badge';
 import { Badge } from '@/components/ui/badge';
 import { capitalizeFirstLetter } from '@/helpers/string.helper';
 import type { ProductRefType } from '@/models/product.model';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The tones a tag may take, in a fixed order.
@@ -25,8 +26,9 @@ const TAG_TONES: BadgeVariant[] = [
  * The alternative, coloring by position in this product's own list, would give the same tag a
  * different color on every product it appears on, which is worse than a single color would be.
  */
-function tagTone(id: number): BadgeVariant {
-	return TAG_TONES[Math.abs(id) % TAG_TONES.length];
+function tagTone(id: EntityId): BadgeVariant {
+	// The uuid's last hex digits are random, so they spread tags evenly over the tones
+	return TAG_TONES[Number.parseInt(id.slice(-6), 16) % TAG_TONES.length];
 }
 
 /**

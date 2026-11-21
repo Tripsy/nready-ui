@@ -48,6 +48,7 @@ import { useModalStore } from '@/stores/window.store';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import { CurrencyEnum } from '@/types/common.type';
 import { DataSourceSectionEnum } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'grn.field.warehouse',
@@ -85,7 +86,7 @@ const BASE_CURRENCY = Configuration.get('app.currency');
 
 /** One line as the form holds it, before it is sent as part of the `items` payload. */
 export type GrnItemFormType = {
-	variant_id: number | null;
+	variant_id: EntityId | null;
 	qty: number | null;
 	unit_cost: number | null;
 	vat_rate: number | null;
@@ -100,8 +101,8 @@ export type GrnItemFormType = {
 };
 
 export type GrnFormValuesType = {
-	warehouse_id: number | null;
-	vendor_id: number | null;
+	warehouse_id: EntityId | null;
+	vendor_id: EntityId | null;
 	supplier_document_number: string | null;
 	received_at: string | null;
 	currency: string | null;

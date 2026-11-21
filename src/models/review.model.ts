@@ -1,5 +1,6 @@
 import { replaceVars } from '@/helpers/string.helper';
 import type { Language, StatusTransitions } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Mirrors `review` in the backend. A review is written by a buyer through `/public/reviews`, so
@@ -71,13 +72,13 @@ export const REVIEW_RATING_MAX = 5;
  * is the same.
  */
 export type ReviewModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
-	product_id: number;
+	product_id: EntityId;
 	/** The variant the review is about; null when it was written from the product page. */
-	variant_id: number | null;
+	variant_id: EntityId | null;
 	variant?: {
-		id: number;
+		id: EntityId;
 		sku: string;
 	} | null;
 
@@ -87,13 +88,13 @@ export type ReviewModel<D = Date | string> = {
 	 * product with none in it arrives with an empty array and the target falls back to the id.
 	 */
 	product?: {
-		id: number;
+		id: EntityId;
 		contents?: { language: Language; label: string; slug: string }[];
 		/**
 		 * The default variant alone, joined for its code. The backend aliases the join, so this
 		 * is never the product's full variant set - only the one row that stands for it.
 		 */
-		variants?: { id: number; sku: string }[];
+		variants?: { id: EntityId; sku: string }[];
 	} | null;
 
 	/**
@@ -104,7 +105,7 @@ export type ReviewModel<D = Date | string> = {
 	 *
 	 * Returned by the dashboard read and list only; the storefront never sees it.
 	 */
-	order_id?: number | null;
+	order_id?: EntityId | null;
 
 	rating?: ReviewRating;
 	/**
@@ -117,9 +118,9 @@ export type ReviewModel<D = Date | string> = {
 	status: ReviewStatus;
 
 	/** Always an account: `user_id` is not nullable, so a review has no guest path. */
-	user_id: number;
+	user_id: EntityId;
 	user?: {
-		id: number;
+		id: EntityId;
 		name: string;
 		email?: string;
 	} | null;
@@ -136,7 +137,7 @@ export type ReviewModel<D = Date | string> = {
 	 * without a foreign key so the trail outlives the user.
 	 */
 	moderator?: {
-		id: number;
+		id: EntityId;
 		name: string;
 	} | null;
 	moderation_reason?: string | null;

@@ -86,7 +86,7 @@
 		"tab_api": "API docs"
 	},
 	"field": {
-		"search": "ID / Email / Name",
+		"search": "Email / Name",
 		"status": "Status",
 		"role": "Role",
 		"name": "Name",

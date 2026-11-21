@@ -44,6 +44,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -126,7 +127,7 @@ export type CommentDataTableFiltersType = {
 	parent_id: { value: string | null; matchMode: 'equals' };
 	is_pinned: { value: boolean | null; matchMode: 'equals' };
 	user: { value: string | null; matchMode: 'equals' };
-	user_id: { value: number | null; matchMode: 'equals' };
+	user_id: { value: EntityId | null; matchMode: 'equals' };
 };
 
 export default async function dataSourceConfig(): Promise<
@@ -243,16 +244,6 @@ export default async function dataSourceConfig(): Promise<
 			// Sortable only where the backend's `OrderByEnum` allows it: id, created_at, status.
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					field: 'entity_type',
 					header: labels['field.entity_type'],
 					body: (entry, column) =>
@@ -264,8 +255,9 @@ export default async function dataSourceConfig(): Promise<
 					field: 'content',
 					header: labels['field.content'],
 					minWidth: 260,
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
+							displayButton: displayButtonView(auth),
 							// Trimmed here rather than in the model: the view window shows the
 							// whole text, and only the list has a width to respect.
 							customValue: `${entry.is_pinned ? '📌 ' : ''}${entry.content.slice(0, 120)}${entry.content.length > 120 ? '…' : ''}`,
@@ -344,7 +336,7 @@ export default async function dataSourceConfig(): Promise<
 				entriesSelection: 'single',
 				operationFunction: (
 					params: CommentFormValuesType,
-					id: number,
+					id: EntityId,
 				) =>
 					requestUpdate<CommentModel, CommentFormValuesType>(
 						'comment',

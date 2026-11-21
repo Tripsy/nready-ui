@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { Configuration } from '@/config/settings.config';
+import { isEntityId } from '@/helpers/id.helper';
 import { logger } from '@/helpers/logger.helper';
 import { hasPermission } from '@/models/account.model';
 import {
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
 
 	const file = formData.get('file');
 	const section = formData.get('section');
-	const entity_id = Number(formData.get('entity_id'));
+	const entity_id = formData.get('entity_id');
 
 	if (!(file instanceof File)) {
 		return NextResponse.json({ error: 'Missing file' }, { status: 400 });
@@ -59,7 +60,7 @@ export async function POST(request: NextRequest) {
 		return NextResponse.json({ error: 'Invalid section' }, { status: 400 });
 	}
 
-	if (!Number.isInteger(entity_id) || entity_id <= 0) {
+	if (!isEntityId(entity_id)) {
 		return NextResponse.json(
 			{ error: 'Invalid entity_id' },
 			{ status: 400 },

@@ -2,6 +2,7 @@ import { arrayHasValue } from '@/helpers/objects.helper';
 import type { ClientModel } from '@/models/client.model';
 import type { VendorModel } from '@/models/vendor.model';
 import type { Currency, StatusTransitions } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export const CashFlowDirectionEnum = {
 	IN: 'in', // money received relative to company
@@ -288,7 +289,7 @@ export type CashFlowOperationalRecordsType = Partial<{
 }>;
 
 export type CashFlowModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	// Classification
 	direction: CashFlowDirection;
@@ -318,7 +319,7 @@ export type CashFlowModel<D = Date | string> = {
 	exchange_rate: number;
 
 	external_reference: string | null;
-	parent_id: number | null;
+	parent_id: EntityId | null;
 
 	// Other
 	notes: string | null;

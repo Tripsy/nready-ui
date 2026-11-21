@@ -22,6 +22,7 @@ import type { InvoiceModel } from '@/models/invoice.model';
 import { useWindowForm } from '@/providers/window-form.provider';
 import { useModalStore } from '@/stores/window.store';
 import type { FindFunctionResponseType } from '@/types/action.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'invoice.field.amount',
@@ -31,7 +32,7 @@ const TRANSLATION_KEYS = [
 ] as const;
 
 export type InvoiceAllocatePaymentFormValuesType = {
-	cash_flow_id: number | null;
+	cash_flow_id: EntityId | null;
 	amount: number | null;
 	notes: string | null;
 	/** What the picker shows; the id beside it is what is submitted. */

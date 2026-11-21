@@ -46,7 +46,7 @@
 		"details": "Detalii",
 		"postal_code": "Cod poștal",
 		"id": "ID",
-		"search": "ID / Adresă / Cod poștal",
+		"search": "Adresă / Cod poștal",
 		"created_at": "Creat la",
 		"updated_at": "Actualizat la"
 	},

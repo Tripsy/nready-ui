@@ -73,7 +73,7 @@
 		"tab_api": "API docs"
 	},
 	"field": {
-		"search": "ID / Code / Name",
+		"search": "Code / Name",
 		"status": "Status",
 		"is_default": "Default",
 		"address": "Address",

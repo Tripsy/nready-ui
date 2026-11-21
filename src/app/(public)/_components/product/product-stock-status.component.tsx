@@ -9,6 +9,7 @@ import {
 	type ProductVariantStockType,
 } from '@/models/product.model';
 import { requestPublicProductStock } from '@/services/product.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 /** The copy for each level, handed down from the page's server-side batch. */
 export type ProductStockStatusLabels = Record<ProductStockStatus, string>;
@@ -38,8 +39,8 @@ export function ProductStockStatusLine({
 	labels,
 	className,
 }: {
-	productId: number;
-	variantId: number;
+	productId: EntityId;
+	variantId: EntityId;
 	labels: ProductStockStatusLabels;
 	className?: string;
 }) {

@@ -20,6 +20,7 @@ import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { type CommentStatus, CommentStatusEnum } from '@/models/comment.model';
 import { useToast } from '@/providers/toast.provider';
 import { requestModerateCommentStatus } from '@/services/comment.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 /** The backend's own cap on `moderation_reason`; a longer one comes back as a validation error. */
 const MODERATION_REASON_MAX = 255;
@@ -42,7 +43,7 @@ export function CommentHideDialog({
 	onClose,
 	onHidden,
 }: {
-	entry: { id: number };
+	entry: { id: EntityId };
 	translations: CommentTranslations;
 	isOpen: boolean;
 	onClose: () => void;

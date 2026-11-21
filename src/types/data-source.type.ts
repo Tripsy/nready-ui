@@ -21,6 +21,7 @@ import type {
 } from '@/types/action.type';
 import type { QueryValueType } from '@/types/api.type';
 import type { DataSourceKey } from '@/types/data-source.key';
+import type { EntityId } from '@/types/entity-id.type';
 import type {
 	FormSituationType,
 	FormValuesType,
@@ -103,7 +104,7 @@ export type DataTableValueOptionsType<Entry> = {
 		dataSource?: DataSourceKey; // If present will override the dataSource passed in the main options
 		action: string | ((entry: Entry) => string | undefined);
 		title?: string;
-		alternateEntryId?: number;
+		alternateEntryId?: EntityId;
 	};
 };
 

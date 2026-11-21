@@ -21,6 +21,7 @@ import {
 	type PlaceModel,
 	PlaceTypeEnum,
 } from '@/models/place.model';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'order.field.address_city',
@@ -70,7 +71,7 @@ export function OrderBillingAddress({
 	error,
 	onChange,
 }: {
-	readonly clientId: number | null;
+	readonly clientId: EntityId | null;
 	readonly value: OrderBillingAddressType | null;
 	readonly disabled: boolean;
 	readonly error: string[] | undefined;
@@ -138,7 +139,7 @@ export function OrderBillingAddress({
 		try {
 			const entry = await requestView<ClientAddressModel>(
 				'client-address',
-				Number(addressId),
+				addressId,
 			);
 
 			if (entry?.snapshot) {

@@ -51,7 +51,7 @@
 		"tab_api": "Documentație API"
 	},
 	"field": {
-		"search": "ID / Monedă / Furnizor",
+		"search": "Monedă / Furnizor",
 		"source": "Sursă",
 		"rate_date": "Data cursului",
 		"id": "ID",

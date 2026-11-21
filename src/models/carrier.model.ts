@@ -1,5 +1,7 @@
+import type { EntityId } from '@/types/entity-id.type';
+
 export type CarrierModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	name: string;
 	website: string | null;

@@ -101,7 +101,7 @@
 		"user_id": "Account",
 		"status": "Status",
 		"created_at": "Created At",
-		"search": "ID / Name / CUI / CNP",
+		"search": "Name / CUI / CNP",
 		"user": "Account",
 		"person_identification_number": "Person - CNP",
 		"iban": "IBAN",

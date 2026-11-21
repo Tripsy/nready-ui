@@ -3,6 +3,7 @@ import { replaceVars } from '@/helpers/string.helper';
 import type { OrderPaymentMethod } from '@/models/order.model';
 import { roundMoney } from '@/models/product.model';
 import type { ShippingMethod } from '@/models/shipping.model';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Mirrors `cart` and `cart_item` in the backend.
@@ -42,7 +43,7 @@ export type CartLineIssue =
 
 /** What each chosen option did to the line price, in the cart's currency. */
 export type CartOptionSnapshot = {
-	option_id?: number;
+	option_id?: EntityId;
 	label: string;
 	price_delta: number;
 	currency: string;
@@ -57,7 +58,7 @@ export type CartDiscountSnapshot = {
 	type: string;
 	value: number;
 	/** The rule it came from; absent on snapshots written before it was recorded. */
-	discount_id?: number;
+	discount_id?: EntityId;
 	/**
 	 * What this rule alone took off the line. A line may carry its own discount and, stacked on
 	 * top, its share of an order-wide campaign - `discount_reduction` is their sum.
@@ -95,15 +96,15 @@ export function cartLineHref(
 }
 
 export type CartLineModel = {
-	id: number;
+	id: EntityId;
 	/** The bundle line this one belongs to; null on every line the shopper added directly. */
-	parent_id: number | null;
+	parent_id: EntityId | null;
 	/** Which `product_bundle_item` this line materializes; null unless it is a component. */
-	bundle_item_id: number | null;
+	bundle_item_id: EntityId | null;
 	/** True on a bundle header, so the components below it can be rendered as its contents. */
 	is_bundle: boolean;
-	variant_id: number;
-	product_id: number;
+	variant_id: EntityId;
+	product_id: EntityId;
 	sku: string | null;
 	/** The product's name in the served content language; null when it has none there. */
 	label: string | null;
@@ -174,7 +175,7 @@ export type CartPricingModel = {
  * Use `CartWithPricingModel` wherever they are guaranteed.
  */
 export type CartModel = {
-	id: number;
+	id: EntityId;
 	/**
 	 * The guest handle. Held server-side as an httpOnly cookie and attached by the proxy, so a
 	 * browser-side caller never has to read or store it - it is here because the backend returns
@@ -185,7 +186,7 @@ export type CartModel = {
 	 */
 	token: string;
 	currency: string;
-	user_id: number | null;
+	user_id: EntityId | null;
 	expires_at: string;
 	created_at: string;
 	updated_at: string | null;
@@ -224,7 +225,7 @@ export type CartWithPricingModel = CartModel & {
 /** The delivery a checkout read asks to be quoted. */
 export type CartDeliveryChoice = {
 	method: string;
-	addressId: number | null;
+	addressId: EntityId | null;
 };
 
 /**
@@ -272,8 +273,8 @@ export function displayCartLineName(line: CartLineModel): string {
  */
 export function groupCartComponents(
 	lines: readonly CartLineModel[],
-): Map<number, CartLineModel[]> {
-	const componentsByParent = new Map<number, CartLineModel[]>();
+): Map<EntityId, CartLineModel[]> {
+	const componentsByParent = new Map<EntityId, CartLineModel[]>();
 
 	for (const line of lines) {
 		if (line.parent_id === null) {
@@ -349,17 +350,17 @@ export function getCartLineGrossUnitPrice(
  * delivery one onto its first shipment.
  */
 export type CartCheckoutParams = {
-	client_id: number;
-	billing_address_id: number;
+	client_id: EntityId;
+	billing_address_id: EntityId;
 	delivery_method: ShippingMethod;
-	delivery_address_id?: number | null;
+	delivery_address_id?: EntityId | null;
 	payment_method: OrderPaymentMethod;
 	notes?: string | null;
 };
 
 /** What checkout answers with. The cart is deleted at that point, so no basket comes back. */
 export type CartCheckoutModel = {
-	order_id: number;
+	order_id: EntityId;
 	ref_code: string;
 	ref_number: number;
 	status: string;
@@ -368,10 +369,10 @@ export type CartCheckoutModel = {
 
 /** The payload for adding a line. `product_id` must be the variant's own - the backend refuses a mismatch. */
 export type CartAddItemParams = {
-	variant_id: number;
-	product_id: number;
+	variant_id: EntityId;
+	product_id: EntityId;
 	quantity: number;
-	options?: number[];
+	options?: EntityId[];
 	/**
 	 * What was chosen inside a bundle: the `product_bundle_item` rows ticked or picked, and for a
 	 * tick box how many units of it.
@@ -382,6 +383,6 @@ export type CartAddItemParams = {
 	 *
 	 * Accepted only on a bundle, and required when the bundle has choices to make.
 	 */
-	components?: { item_id: number; units?: number }[];
+	components?: { item_id: EntityId; units?: number }[];
 	notes?: string;
 };

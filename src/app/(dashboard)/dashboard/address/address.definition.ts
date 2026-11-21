@@ -8,10 +8,7 @@ import { UsageGuideAddress } from '@/app/(dashboard)/dashboard/address/usage-gui
 import { ViewAddress } from '@/app/(dashboard)/dashboard/address/view-address.component';
 import { Icons } from '@/components/icon.component';
 import { getLanguageClient, translateBatch } from '@/config/translate.setup';
-import {
-	getFormDataAsNumber,
-	getFormDataAsString,
-} from '@/helpers/form.helper';
+import { getFormDataAsString } from '@/helpers/form.helper';
 import {
 	requestCreate,
 	requestDelete,
@@ -28,6 +25,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -88,7 +86,7 @@ async function validateForm(
 
 function getFormValues(formData: FormData): AddressFormValuesType {
 	return {
-		city_id: getFormDataAsNumber(formData, 'city_id'),
+		city_id: getFormDataAsString(formData, 'city_id'),
 		city: getFormDataAsString(formData, 'city'),
 		details: getFormDataAsString(formData, 'details'),
 		postal_code: getFormDataAsString(formData, 'postal_code'),
@@ -162,22 +160,13 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
+					field: 'city',
+					header: labels['field.city'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							dataSource: 'address',
 							markDeleted: true,
 							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
-					field: 'city',
-					header: labels['field.city'],
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
 							customValue: entry.city
 								? getPlaceContentProp(
 										entry.city,
@@ -227,7 +216,7 @@ export default async function dataSourceConfig(): Promise<
 				customEntryCheck: (entry: AddressModel) => !entry.deleted_at, // Return true if the entry is not deleted
 				operationFunction: (
 					params: AddressFormValuesType,
-					id: number,
+					id: EntityId,
 				) =>
 					requestUpdate<AddressModel, AddressFormValuesType>(
 						'address',

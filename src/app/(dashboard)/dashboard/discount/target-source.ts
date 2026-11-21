@@ -17,6 +17,7 @@ import {
 } from '@/models/product-variant.model';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { DataSourceKey } from '@/types/data-source.key';
+import type { EntityId } from '@/types/entity-id.type';
 
 /** Spread into a component's TRANSLATION_KEYS to resolve every `labelKey` below. */
 export const TARGET_LABEL_KEYS = [
@@ -101,8 +102,8 @@ export const TARGET_SOURCES: Record<DiscountTargetScope, TargetSource> = {
  */
 export async function findTargetLabels(
 	scope: DiscountTargetScope,
-	ids: readonly number[],
-): Promise<Record<number, string>> {
+	ids: readonly EntityId[],
+): Promise<Record<EntityId, string>> {
 	if (ids.length === 0) {
 		return {};
 	}
@@ -118,7 +119,7 @@ export async function findTargetLabels(
 
 	return Object.fromEntries(
 		(response?.entries ?? []).map((entry) => [
-			entry.id as number,
+			entry.id as EntityId,
 			source.getOptionLabel(entry),
 		]),
 	);

@@ -1,8 +1,9 @@
 import { type JSX, useMemo, useState } from 'react';
 import { FormPickerRefs } from '@/components/form/form-picker-refs.component';
 import type { DataSourceKey } from '@/types/data-source.key';
+import type { EntityId } from '@/types/entity-id.type';
 
-type Props<Model extends { id: number }> = {
+type Props<Model extends { id: EntityId }> = {
 	labelText: string;
 	/** Name of the hidden inputs carrying the selection into `FormData`. */
 	fieldName: string;
@@ -11,8 +12,8 @@ type Props<Model extends { id: number }> = {
 	filter?: Record<string, string>;
 	getOptionLabel: (entry: Model) => string;
 	/** Selected ids. The only thing that reaches the API. */
-	value: readonly number[];
-	onChange: (ids: number[]) => void;
+	value: readonly EntityId[];
+	onChange: (ids: EntityId[]) => void;
 	emptyText?: string;
 	disabled?: boolean;
 	/** Validation messages for the selection as a whole, not for any one entry. */
@@ -29,7 +30,7 @@ type Props<Model extends { id: number }> = {
 	 * Labels for the ids the form starts with, so the chips read as names before the editor
 	 * searches for anything. Ids missing from it fall back to `#id`.
 	 */
-	initialLabels?: Record<number, string>;
+	initialLabels?: Record<EntityId, string>;
 };
 
 /**
@@ -40,7 +41,7 @@ type Props<Model extends { id: number }> = {
  * present. That is the difference from the product picker, which carries labels in its value
  * because its payload is one JSON field.
  */
-export function FormPickerArticle<Model extends { id: number }>({
+export function FormPickerArticle<Model extends { id: EntityId }>({
 	labelText,
 	fieldName,
 	dataSource,
@@ -57,7 +58,7 @@ export function FormPickerArticle<Model extends { id: number }>({
 }: Props<Model>): JSX.Element {
 	// Seeded once: everything picked afterwards is added below, and re-seeding on a prop change
 	// would undo a label the editor's own search just resolved.
-	const [labels, setLabels] = useState<Record<number, string>>(
+	const [labels, setLabels] = useState<Record<EntityId, string>>(
 		() => initialLabels ?? {},
 	);
 

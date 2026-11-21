@@ -11,6 +11,7 @@ import {
 } from '@/models/article.model';
 import { requestPublicArticles } from '@/services/article.service';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * One page of the feed. The infinite scroll asks for the next page with the same size, so
@@ -48,11 +49,11 @@ export type ArticleListTranslations = Record<
  */
 export async function loadPublicArticles(params: {
 	language: Language;
-	category_id?: number;
+	category_id?: EntityId;
 	/** Any of these tags, for the article page's "similar articles" box. */
-	tag_id?: number[];
+	tag_id?: EntityId[];
 	/** Article to leave out, so a sidebar never recommends the page it sits on. */
-	exclude_id?: number;
+	exclude_id?: EntityId;
 	featured_status?: ArticleFeaturedStatus;
 	limit?: number;
 }): Promise<{ entries: ArticleModel[]; total: number } | null> {

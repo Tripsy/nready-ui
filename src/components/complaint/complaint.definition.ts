@@ -3,7 +3,6 @@ import { translateBatch } from '@/config/translate.setup';
 import {
 	getFormDataAsBoolean,
 	getFormDataAsEnum,
-	getFormDataAsNumber,
 	getFormDataAsString,
 } from '@/helpers/form.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
@@ -13,6 +12,7 @@ import {
 	type ComplaintReason,
 	ComplaintReasonEnum,
 } from '@/models/complaint.model';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormErrorsType, FormSituationType } from '@/types/form.type';
 
 /**
@@ -100,7 +100,7 @@ export const COMPLAINT_COMMENT_REASONS: readonly ComplaintReason[] = [
  */
 export type ComplaintFormValuesType = {
 	entity_type: ComplaintEntityType | null;
-	entity_id: number | null;
+	entity_id: EntityId | null;
 	has_own: boolean;
 	reason: ComplaintReason | null;
 	description: string | null;
@@ -117,7 +117,7 @@ export type ComplaintStateType = {
 
 export function buildComplaintState(
 	entityType: ComplaintEntityType,
-	entityId: number,
+	entityId: EntityId,
 	own: { reason: ComplaintReason; description: string | null } | null,
 ): ComplaintStateType {
 	return {
@@ -149,7 +149,7 @@ class ComplaintValidator extends BaseValidator<typeof validatorMessages> {
 	 */
 	report = z.object({
 		entity_type: z.enum(ComplaintEntityTypeEnum).nullable(),
-		entity_id: z.number().nullable(),
+		entity_id: z.string().nullable(),
 		has_own: z.boolean(),
 
 		reason: this.validateEnum(
@@ -192,7 +192,7 @@ export function getComplaintFormValues(
 			'entity_type',
 			ComplaintEntityTypeEnum,
 		),
-		entity_id: getFormDataAsNumber(formData, 'entity_id'),
+		entity_id: getFormDataAsString(formData, 'entity_id'),
 		has_own: getFormDataAsBoolean(formData, 'has_own'),
 		reason: getFormDataAsEnum(formData, 'reason', ComplaintReasonEnum),
 		description: getFormDataAsString(formData, 'description'),

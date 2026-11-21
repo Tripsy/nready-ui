@@ -1,4 +1,5 @@
 import type { Currency } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Which way the money went. Mirrors `ClientLedgerEntryTypeEnum` in the API's
@@ -18,10 +19,10 @@ export type ClientLedgerEntryType =
  * edited - and written when the movement completes, never by a form.
  */
 export type ClientLedgerEntryModel<D = Date | string> = {
-	id: number;
-	client_id: number;
+	id: EntityId;
+	client_id: EntityId;
 	entry_type: ClientLedgerEntryType;
-	cash_flow_id: number;
+	cash_flow_id: EntityId;
 	currency: Currency;
 	amount: number; // signed: positive, money received; negative, money paid back
 	exchange_rate: number;

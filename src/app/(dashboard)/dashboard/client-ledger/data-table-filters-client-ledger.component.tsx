@@ -27,6 +27,7 @@ import {
 	ClientLedgerEntryTypeEnum,
 } from '@/models/client-ledger.model';
 import { type Currency, CurrencyEnum } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'client-ledger.field.client',
@@ -45,7 +46,7 @@ const currencies = toOptionsFromEnum(CurrencyEnum);
 export const DataTableFiltersClientLedger = ({
 	initialClientId,
 }: {
-	initialClientId: number | null;
+	initialClientId: EntityId | null;
 }): JSX.Element => {
 	const { translations } = useTranslation(TRANSLATION_KEYS);
 

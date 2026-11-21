@@ -61,7 +61,7 @@
 		"tab_api": "API docs"
 	},
 	"field": {
-		"search": "ID / Name",
+		"search": "Name",
 		"place_type": "Type",
 		"language": "Language",
 		"code": "Code",

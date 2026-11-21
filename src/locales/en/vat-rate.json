@@ -50,7 +50,7 @@
 		"tab_api": "API docs"
 	},
 	"field": {
-		"search": "ID / Country / Notes",
+		"search": "Country / Notes",
 		"id": "ID",
 		"country_code": "Country",
 		"category": "VAT class",

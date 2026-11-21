@@ -64,6 +64,7 @@ import type { ReviewSummaryType } from '@/models/review.model';
 import { requestPublicProduct } from '@/services/product.service';
 import { requestPublicProductReviewSummary } from '@/services/review.service';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 // A product changes on a catalog rhythm, not per request, so the read is served from Next's
 // data cache. Same window as the article page, and short enough that a price edit reaches the
@@ -176,7 +177,7 @@ function resolveSelectedVariant(
  * the HTML a crawler receives.
  */
 async function getReviewSummary(
-	productId: number,
+	productId: EntityId,
 ): Promise<ReviewSummaryType | null> {
 	try {
 		const response = await requestPublicProductReviewSummary({

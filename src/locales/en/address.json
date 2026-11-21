@@ -46,7 +46,7 @@
 		"details": "Details",
 		"postal_code": "Postal Code",
 		"id": "ID",
-		"search": "ID / Address / Postal Code",
+		"search": "Address / Postal Code",
 		"created_at": "Created At",
 		"updated_at": "Updated At"
 	},

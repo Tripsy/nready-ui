@@ -1,4 +1,5 @@
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export const TemplateTypeEnum = {
 	PAGE: 'page',
@@ -37,7 +38,7 @@ export type TemplateContentPageType = {
 };
 
 export type TemplateModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 	label: string;
 	language: Language;
 	type: TemplateType;

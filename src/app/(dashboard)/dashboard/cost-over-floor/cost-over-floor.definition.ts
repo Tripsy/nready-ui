@@ -120,7 +120,7 @@ export default async function dataSourceConfig(): Promise<
 						...response,
 						entries: response.entries.map((entry, index) => ({
 							...entry,
-							id: offset + index + 1,
+							id: String(offset + index + 1),
 						})),
 					}
 				);

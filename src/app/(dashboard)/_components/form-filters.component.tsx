@@ -27,6 +27,7 @@ import { useAuth } from '@/providers/auth.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { DataSourceKey } from '@/types/data-source.key';
 import type { DataTableFiltersType } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'dashboard.text.placeholder_search',
@@ -69,7 +70,7 @@ export function FormFiltersAutoComplete<
 	/** Extra filter params the data source needs beyond `term` (e.g. `{ type: 'tag' }`). */
 	filter?: Record<string, string>;
 	getOptionLabel: (m: Model) => string;
-	getOptionKey: (m: Model) => number;
+	getOptionKey: (m: Model) => EntityId;
 }) {
 	const elementKey = `search-${String(fieldName)}`;
 	const elementIds = useElementIds([elementKey]);

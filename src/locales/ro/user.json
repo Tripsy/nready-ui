@@ -86,7 +86,7 @@
 		"tab_api": "Documentație API"
 	},
 	"field": {
-		"search": "ID / Email / Nume",
+		"search": "Email / Nume",
 		"status": "Status",
 		"role": "Rol",
 		"name": "Nume",

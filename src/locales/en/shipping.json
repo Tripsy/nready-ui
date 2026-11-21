@@ -93,7 +93,7 @@
 		"tab_api": "API docs"
 	},
 	"field": {
-		"search": "ID / Order / Tracking number",
+		"search": "Order / Tracking number",
 		"scope": "Type",
 		"status": "Status",
 		"method": "Method",

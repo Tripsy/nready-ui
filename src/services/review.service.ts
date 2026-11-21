@@ -6,6 +6,7 @@ import type {
 	ReviewSummaryType,
 } from '@/models/review.model';
 import type { ApiResponseFetch } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The reader-facing review endpoints (`/public/reviews`). There is no guest path - `user_id` is
@@ -27,8 +28,8 @@ import type { ApiResponseFetch } from '@/types/api.type';
  * and it is what decides between offering the form and offering the edit.
  */
 export async function requestProductReviews(
-	productId: number,
-	params?: { page?: number; limit?: number; variant_id?: number },
+	productId: EntityId,
+	params?: { page?: number; limit?: number; variant_id?: EntityId },
 ): Promise<ApiResponseFetch<ReviewPublicListType>> {
 	const query = new URLSearchParams();
 
@@ -60,7 +61,7 @@ export async function requestProductReviews(
  * through the reviews must not change the score beside them.
  */
 export async function requestProductReviewSummary(
-	productId: number,
+	productId: EntityId,
 ): Promise<ApiResponseFetch<ReviewSummaryType>> {
 	return await new ApiRequest().doFetch(
 		`/public/reviews/${productId}/summary`,
@@ -81,7 +82,7 @@ export async function requestProductReviewSummary(
  * puts the score in the HTML a crawler receives.
  */
 export async function requestPublicProductReviewSummary(params: {
-	productId: number;
+	productId: EntityId;
 	revalidate?: number;
 }): Promise<ApiResponseFetch<ReviewSummaryType>> {
 	return await new ApiRequest()
@@ -101,8 +102,8 @@ export async function requestPublicProductReviewSummary(params: {
  * through `requestUpdateOwnReview` instead.
  */
 export async function requestCreateReview(params: {
-	product_id: number;
-	variant_id?: number;
+	product_id: EntityId;
+	variant_id?: EntityId;
 	rating: ReviewRating;
 	content: string;
 }): Promise<ApiResponseFetch<ReviewOwnModel>> {
@@ -120,7 +121,7 @@ export async function requestCreateReview(params: {
  * moderator has decided, that text is the record their decision was taken against.
  */
 export async function requestUpdateOwnReview(
-	productId: number,
+	productId: EntityId,
 	params: { rating?: ReviewRating; content?: string },
 ): Promise<ApiResponseFetch<ReviewOwnModel>> {
 	return await new ApiRequest().doFetch(`/public/reviews/${productId}`, {
@@ -137,7 +138,7 @@ export async function requestUpdateOwnReview(
  * write a new one afterwards.
  */
 export async function requestDeleteOwnReview(
-	productId: number,
+	productId: EntityId,
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(`/public/reviews/${productId}`, {
 		method: 'DELETE',

@@ -2,6 +2,7 @@ import type { JSX } from 'react';
 import { FormPickerRefs } from '@/components/form/form-picker-refs.component';
 import type { ProductRefType } from '@/models/product.model';
 import type { DataSourceKey } from '@/types/data-source.key';
+import type { EntityId } from '@/types/entity-id.type';
 
 type Props = {
 	labelText: string;
@@ -41,7 +42,7 @@ export function FormPickerProduct({
 	error,
 }: Props): JSX.Element {
 	return (
-		<FormPickerRefs<Record<string, unknown> & { id: number }>
+		<FormPickerRefs<Record<string, unknown> & { id: EntityId }>
 			labelText={labelText}
 			fieldName={fieldName}
 			dataSource={dataSource}

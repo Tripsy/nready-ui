@@ -30,6 +30,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Exactly the keys in the backend's `find.filterSchema`. `term` is the free-text search - it
@@ -48,7 +49,7 @@ export type ComplaintDataTableFiltersType = {
 	reason: { value: ComplaintReason | null; matchMode: 'equals' };
 	is_resolved: { value: boolean | null; matchMode: 'equals' };
 	user: { value: string | null; matchMode: 'equals' };
-	user_id: { value: number | null; matchMode: 'equals' };
+	user_id: { value: EntityId | null; matchMode: 'equals' };
 	is_deleted: { value: boolean; matchMode: 'equals' };
 };
 
@@ -191,21 +192,12 @@ export default async function dataSourceConfig(): Promise<
 			// resolved_at.
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
+					field: 'entity_type',
+					header: labels['field.entity_type'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
 							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
-					field: 'entity_type',
-					header: labels['field.entity_type'],
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
 							customValue: displayComplaintTarget(
 								entry,
 								translateEnumLabel(

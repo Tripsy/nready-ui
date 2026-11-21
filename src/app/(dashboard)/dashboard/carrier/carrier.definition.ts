@@ -24,6 +24,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -150,23 +151,13 @@ export default async function dataSourceConfig(): Promise<
 			// columns the backend's `OrderByEnum` accepts.
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
+					field: 'name',
+					header: labels['field.name'],
 					sortable: true,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
 							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
-					field: 'name',
-					header: labels['field.name'],
-					sortable: true,
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
-							markDeleted: true,
 						}),
 				},
 				{
@@ -224,7 +215,7 @@ export default async function dataSourceConfig(): Promise<
 				customEntryCheck: (entry: CarrierModel) => !entry.deleted_at, // Return true if the entry is not deleted
 				operationFunction: (
 					params: CarrierFormValuesType,
-					id: number,
+					id: EntityId,
 				) =>
 					requestUpdate<CarrierModel, CarrierFormValuesType>(
 						'carrier',

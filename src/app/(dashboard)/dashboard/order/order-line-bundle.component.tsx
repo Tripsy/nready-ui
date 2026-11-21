@@ -25,6 +25,7 @@ import {
 } from '@/models/product-bundle.model';
 import { displayProductVariantLabel } from '@/models/product-variant.model';
 import { findVariantsByIds } from '@/services/product.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'order.section.included',
@@ -63,8 +64,8 @@ export function OrderLineBundle({
 	onChange,
 }: {
 	readonly index: number;
-	readonly productId: number;
-	readonly variantId: number;
+	readonly productId: EntityId;
+	readonly variantId: EntityId;
 	readonly currency: string | null;
 	readonly choices: BundleChoiceType[] | null;
 	readonly disabled: boolean;
@@ -91,7 +92,7 @@ export function OrderLineBundle({
 	// The bundle's own variant and every component's, for SKUs and standalone prices
 	const variantIds = [
 		...new Set([variantId, ...items.map((item) => item.variant_id)]),
-	].sort((left, right) => left - right);
+	].sort();
 
 	const { data: variantsById } = useQuery({
 		queryKey: ['order-line-bundle-variants', variantIds],
@@ -99,7 +100,7 @@ export function OrderLineBundle({
 		enabled: items.length > 0,
 	});
 
-	const priceOf = (id: number): number | null => {
+	const priceOf = (id: EntityId): number | null => {
 		const sale = variantsById
 			?.get(id)
 			?.prices?.find((price) => price.currency === currency)?.sale_price;
@@ -253,7 +254,7 @@ export function OrderLineBundle({
 									...current.filter(
 										(choice) => choice !== picked,
 									),
-									{ item_id: Number(value) },
+									{ item_id: value },
 								])
 							}
 						>

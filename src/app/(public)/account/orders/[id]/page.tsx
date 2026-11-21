@@ -39,7 +39,7 @@ export default async function Page({ params }: Props) {
 				 * nothing to decide a status from, and the page is noindex regardless.
 				 */}
 				<AccountOrderView
-					id={Number(id)}
+					id={id}
 					trail={[
 						{
 							label: translations['layout.menu.account'],

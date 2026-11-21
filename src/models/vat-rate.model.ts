@@ -1,3 +1,5 @@
+import type { EntityId } from '@/types/entity-id.type';
+
 /**
  * The VAT classes that carry a percentage and so have rows - mirrors `RatedVatCategoryEnum` on
  * the backend entity. `zero` and `exempt` are 0 everywhere, resolved without a row, and cannot be
@@ -30,7 +32,7 @@ export const VAT_RATE_MAX_DECIMALS = 2;
  * `ExchangeRateModel` gives.
  */
 export type VatRateModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	country_code: string;
 	category: VatRateCategory;

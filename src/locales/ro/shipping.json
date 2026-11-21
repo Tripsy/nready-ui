@@ -93,7 +93,7 @@
 		"tab_api": "Documentație API"
 	},
 	"field": {
-		"search": "ID / Comandă / Număr AWB",
+		"search": "Comandă / Număr AWB",
 		"scope": "Tip",
 		"status": "Status",
 		"method": "Metodă",

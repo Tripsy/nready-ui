@@ -62,6 +62,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType, ValidatorOutput } from '@/types/form.type';
 
 const validatorMessages = [
@@ -198,19 +199,19 @@ function getFormValues(formData: FormData): CashFlowFormValuesType {
 			getFormDataAsEnum(formData, 'currency', CurrencyEnum) ||
 			Configuration.currency(),
 		external_reference: getFormDataAsString(formData, 'external_reference'),
-		parent_id: getFormDataAsNumber(formData, 'parent_id'),
+		parent_id: getFormDataAsString(formData, 'parent_id'),
 		notes: getFormDataAsString(formData, 'notes'),
 		// Operational records
 		operational_records: {
-			[OperationalRecordTypeEnum.CLIENT]: getFormDataAsNumber(
+			[OperationalRecordTypeEnum.CLIENT]: getFormDataAsString(
 				formData,
 				'operational_records.client',
 			),
-			[OperationalRecordTypeEnum.VENDOR]: getFormDataAsNumber(
+			[OperationalRecordTypeEnum.VENDOR]: getFormDataAsString(
 				formData,
 				'operational_records.vendor',
 			),
-			[OperationalRecordTypeEnum.ORDER]: getFormDataAsNumber(
+			[OperationalRecordTypeEnum.ORDER]: getFormDataAsString(
 				formData,
 				'operational_records.order',
 			),
@@ -273,9 +274,9 @@ export type CashFlowDataTableFiltersType = {
 	is_deleted: { value: boolean; matchMode: 'equals' };
 
 	client: { value: string | null; matchMode: 'equals' };
-	client_id: { value: number | null; matchMode: 'equals' };
+	client_id: { value: EntityId | null; matchMode: 'equals' };
 	vendor: { value: string | null; matchMode: 'equals' };
-	vendor_id: { value: number | null; matchMode: 'equals' };
+	vendor_id: { value: EntityId | null; matchMode: 'equals' };
 };
 
 export default async function dataSourceConfig(): Promise<
@@ -382,22 +383,13 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
+					field: 'category_type',
+					header: labels['field.category_type'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							dataSource: 'cash-flow',
 							markDeleted: true,
 							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
-					field: 'category_type',
-					header: labels['field.category_type'],
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
 							customValue: translateEnumLabel(
 								labels,
 								'enum.category_type',
@@ -547,7 +539,7 @@ export default async function dataSourceConfig(): Promise<
 					!entry.deleted_at,
 				operationFunction: (
 					values: CashFlowManageOutput,
-					id: number,
+					id: EntityId,
 				) => {
 					const params = prepareParamsFromFormValues(values);
 

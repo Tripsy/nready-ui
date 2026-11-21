@@ -31,6 +31,7 @@ import {
 import { useWindowForm } from '@/providers/window-form.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import { type Language, LanguageEnum } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { PageMeta } from '@/types/page-meta.type';
 
 const TRANSLATION_KEYS = [
@@ -50,7 +51,7 @@ const TRANSLATION_KEYS = [
 
 export type CategoryFormValuesType = {
 	type: CategoryType;
-	parent_id: number | null;
+	parent_id: EntityId | null;
 	parent: string | null;
 
 	contents: CategoryContentType[];

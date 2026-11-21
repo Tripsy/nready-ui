@@ -4,6 +4,7 @@ import { Icons } from '@/components/icon.component';
 import { Configuration } from '@/config/settings.config';
 import { translateBatch } from '@/config/translate.setup';
 import { DisplayAmount, formatAmount } from '@/helpers/display.helper';
+import { isEntityId } from '@/helpers/id.helper';
 import {
 	enumTranslationKeys,
 	translateEnumLabel,
@@ -21,6 +22,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * `client` is the label the autocomplete shows and `client_id` what is sent; the API reads the id
@@ -29,7 +31,7 @@ import type {
  */
 export type ClientLedgerDataTableFiltersType = {
 	client: { value: string; matchMode: 'equals' };
-	client_id: { value: number | null; matchMode: 'equals' };
+	client_id: { value: EntityId | null; matchMode: 'equals' };
 	entry_type: { value: ClientLedgerEntryType | null; matchMode: 'equals' };
 	currency: { value: Currency | null; matchMode: 'equals' };
 	occurred_at_start: { value: string | null; matchMode: 'equals' };
@@ -95,12 +97,6 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-				},
-				{
 					field: 'entry_type',
 					header: labels['field.entry_type'],
 					body: (entry, column) =>
@@ -155,9 +151,9 @@ export default async function dataSourceConfig(): Promise<
 				},
 			],
 			find: (params: FindFunctionParamsType) => {
-				const clientId = Number(params.filter?.client_id);
+				const clientId = params.filter?.client_id;
 
-				if (!clientId) {
+				if (!isEntityId(clientId)) {
 					return Promise.resolve(NO_CLIENT_RESPONSE);
 				}
 

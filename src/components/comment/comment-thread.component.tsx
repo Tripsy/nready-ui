@@ -38,6 +38,7 @@ import {
 	requestCommentThread,
 } from '@/services/comment.service';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const PAGE_SIZE = 10;
 
@@ -56,16 +57,16 @@ const ANCHOR_MAX_ATTEMPTS = 20;
  */
 function threadKey(
 	entityType: CommentEntityType,
-	entityId: number,
-	parentId: number | null = null,
+	entityId: EntityId,
+	parentId: EntityId | null = null,
 ) {
 	return ['comment', entityType, entityId, parentId ?? 'roots'] as const;
 }
 
 async function fetchThread(
 	entityType: CommentEntityType,
-	entityId: number,
-	parentId: number | null,
+	entityId: EntityId,
+	parentId: EntityId | null,
 	page: number,
 ): Promise<CommentThreadType> {
 	const response = await requestCommentThread(entityType, entityId, {
@@ -89,12 +90,13 @@ async function fetchThread(
  */
 function useReplies(
 	entityType: CommentEntityType,
-	entityId: number,
-	parentId: number | null,
+	entityId: EntityId,
+	parentId: EntityId | null,
 ) {
 	return useQuery({
 		queryKey: threadKey(entityType, entityId, parentId),
-		queryFn: () => fetchThread(entityType, entityId, parentId as number, 1),
+		queryFn: () =>
+			fetchThread(entityType, entityId, parentId as EntityId, 1),
 		enabled: parentId !== null,
 	});
 }
@@ -124,7 +126,7 @@ function CommentEntry({
 }: {
 	entry: CommentModel;
 	entityType: CommentEntityType;
-	entityId: number;
+	entityId: EntityId;
 	/** The reader's language, for the posted-at date - see `formatRelativeDate`. */
 	language: Language;
 	/** Shown under this comment while its thread is collapsed; absent when it has no replies. */
@@ -140,7 +142,7 @@ function CommentEntry({
 	onRatingChanged: () => void;
 	onPosted: () => void;
 	/** The thread a link asked for, which this comment unrolls when the link named it. */
-	openRepliesFor?: number | null;
+	openRepliesFor?: EntityId | null;
 	/** The comment a link led to, marked until the reader looks away from it. */
 	highlightedAnchor?: string | null;
 }) {
@@ -472,7 +474,7 @@ export function CommentThread({
 	complaintTranslations,
 }: {
 	entityType: CommentEntityType;
-	entityId: number;
+	entityId: EntityId;
 	/** The reader's language, for the posted-at date - see `formatRelativeDate`. */
 	language: Language;
 	translations: CommentTranslations;
@@ -607,7 +609,7 @@ export function CommentThread({
 	const firstReplies = Object.assign(
 		{},
 		...(data?.pages.map((page) => page.first_replies ?? {}) ?? []),
-	) as Record<number, CommentModel>;
+	) as Record<EntityId, CommentModel>;
 
 	/*
 	 * One request for everything on screen, previews included, re-keyed as more is paged in -

@@ -15,6 +15,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export type MailQueueDataTableFiltersType = {
 	status: { value: MailQueueStatus | null; matchMode: 'equals' };
@@ -95,17 +96,6 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					field: 'template',
 					header: labels['field.template'],
 					body: (entry, column, auth) =>
@@ -120,8 +110,10 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'to',
 					header: labels['field.to'],
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
+							markDeleted: true,
+							displayButton: displayButtonView(auth),
 							customValue: entry.to.address,
 						}),
 				},
@@ -158,7 +150,7 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['delete.title'],
 				permission: ['mail-queue', 'delete'],
 				entriesSelection: 'multiple',
-				operationFunction: (ids: number[]) =>
+				operationFunction: (ids: EntityId[]) =>
 					requestDeleteMultiple('mail-queue', ids),
 				buttonPosition: 'left',
 				button: {

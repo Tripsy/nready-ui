@@ -3,6 +3,7 @@
 import NextLink from 'next/link';
 import type { JSX } from 'react';
 import Routes from '@/config/routes.setup';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Opens one client's ledger: the page reads `client_id` from the query and adopts it as its
@@ -15,7 +16,7 @@ export function LinkClientLedger({
 	clientId,
 	label,
 }: {
-	clientId: number;
+	clientId: EntityId;
 	label: string;
 }): JSX.Element {
 	return (

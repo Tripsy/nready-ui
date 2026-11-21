@@ -141,7 +141,7 @@
 		"tab_public": "API public"
 	},
 	"field": {
-		"search": "ID / Nume / SKU variantă",
+		"search": "Nume / SKU variantă",
 		"workflow": "Flux de lucru",
 		"type": "Tip",
 		"composition": "Compoziție",

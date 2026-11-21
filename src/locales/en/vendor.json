@@ -73,7 +73,7 @@
 		"tab_api": "API docs"
 	},
 	"field": {
-		"search": "ID / Name",
+		"search": "Name",
 		"type": "Type",
 		"status": "Status",
 		"name": "Name",

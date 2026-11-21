@@ -7,6 +7,7 @@ import type { CategoryModel, CategoryType } from '@/models/category.model';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { ApiResponseFetch } from '@/types/api.type';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The anonymous listing (`GET /public/categories`), which returns only active categories and
@@ -21,7 +22,7 @@ export async function requestPublicCategories(params: {
 	type: CategoryType;
 	language?: Language;
 	is_root?: boolean;
-	parent_id?: number;
+	parent_id?: EntityId;
 	limit?: number;
 	revalidate?: number;
 }): Promise<ApiResponseFetch<FindFunctionResponseType<CategoryModel>>> {
@@ -49,8 +50,8 @@ export async function requestPublicCategories(params: {
  */
 export async function orderUpdate(
 	type: CategoryType,
-	parent_id: number | null,
-	positions: number[],
+	parent_id: EntityId | null,
+	positions: EntityId[],
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(
 		`/${resolveRequestPath('category')}/${type}/order`,

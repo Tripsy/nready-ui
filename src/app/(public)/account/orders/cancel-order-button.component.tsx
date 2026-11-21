@@ -13,6 +13,7 @@ import {
 	OWN_ORDERS_QUERY_KEY,
 	requestCancelOwnOrder,
 } from '@/services/order.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'order.storefront.cancel',
@@ -37,7 +38,7 @@ export function CancelOrderButton({
 	orderId,
 	iconOnly = false,
 }: {
-	readonly orderId: number;
+	readonly orderId: EntityId;
 	readonly iconOnly?: boolean;
 }): JSX.Element {
 	const { translations } = useTranslation(TRANSLATION_KEYS);

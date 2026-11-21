@@ -1,5 +1,6 @@
 import { replaceVars } from '@/helpers/string.helper';
 import type { StatusTransitions } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Mirrors `comment` in the backend. The table has no `deleted_at` - a removed comment is gone,
@@ -77,10 +78,10 @@ export type CommentType =
 export const COMMENT_DEFAULT_TYPE: CommentType = CommentTypeEnum.COMMENT;
 
 export type CommentLocationModel = {
-	id: number;
+	id: EntityId;
 	entity_type: CommentEntityType;
-	entity_id: number;
-	parent_id: number | null;
+	entity_id: EntityId;
+	parent_id: EntityId | null;
 };
 
 /**
@@ -104,7 +105,7 @@ export type CommentSubscriptionType =
  */
 export type CommentSubscriptionModel = {
 	entity_type: CommentEntityType;
-	entity_id: number;
+	entity_id: EntityId;
 	user_email: string;
 	/** What the notification was written in - and what the landing page renders in. */
 	language: string;
@@ -117,19 +118,19 @@ export type CommentSubscriptionModel = {
  * `guest_email` comes back on the single read only, not in the list.
  */
 export type CommentModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	entity_type: CommentEntityType;
-	entity_id: number;
+	entity_id: EntityId;
 	type: CommentType;
 	content: string;
 	status: CommentStatus;
 
 	/** Null for a root comment; otherwise the comment this one replies to. */
-	parent_id: number | null;
+	parent_id: EntityId | null;
 
 	/** Null for a guest, who is identified by the origin address alone. */
-	user_id: number | null;
+	user_id: EntityId | null;
 	/**
 	 * `avatar` is not part of the public read today - the backend selects only the id and the
 	 * name, and the `user` table carries no avatar column - so a member's comment renders the
@@ -137,7 +138,7 @@ export type CommentModel<D = Date | string> = {
 	 * the day either of those changes.
 	 */
 	user?: {
-		id: number;
+		id: EntityId;
 		name: string;
 		email?: string;
 		avatar?: string | null;

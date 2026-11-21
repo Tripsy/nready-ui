@@ -94,7 +94,7 @@
 		"category": "Category",
 		"status": "Status",
 		"created_at": "Created At",
-		"search": "ID / Reference / Notes",
+		"search": "Reference / Notes",
 		"direction": "Direction",
 		"client": "Client",
 		"order": "Order",

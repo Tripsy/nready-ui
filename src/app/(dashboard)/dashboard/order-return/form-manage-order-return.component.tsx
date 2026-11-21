@@ -35,6 +35,7 @@ import {
 import { useWindowForm } from '@/providers/window-form.provider';
 import { requestOrderReturnable } from '@/services/order-return.service';
 import type { FindFunctionResponseType } from '@/types/action.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'order-return.field.order',
@@ -62,13 +63,13 @@ type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
 
 /** One line as the form holds it; `label` names it on screen and is never sent. */
 export type OrderReturnLineFormType = {
-	variant_id: number;
+	variant_id: EntityId;
 	quantity: number | null;
 	label: string | null;
 };
 
 export type OrderReturnFormValuesType = {
-	order_id: number | null;
+	order_id: EntityId | null;
 	reason: string | null;
 	customer_notes: string | null;
 	response: string | null;
@@ -110,7 +111,7 @@ function OrderReturnLinesEditor({
 	onChange,
 }: {
 	translations: TranslationsType;
-	readonly orderId: number | null;
+	readonly orderId: EntityId | null;
 	readonly lines: OrderReturnLineFormType[];
 	readonly disabled: boolean;
 	readonly error: string[] | undefined;
@@ -135,8 +136,8 @@ function OrderReturnLinesEditor({
 
 	const rows = useMemo(() => {
 		const byVariant = new Map<
-			number,
-			{ variant_id: number; label: string; available: number }
+			EntityId,
+			{ variant_id: EntityId; label: string; available: number }
 		>();
 
 		for (const line of returnable ?? []) {
@@ -194,10 +195,10 @@ function OrderReturnLinesEditor({
 		);
 	}
 
-	const quantityFor = (variantId: number): number | null =>
+	const quantityFor = (variantId: EntityId): number | null =>
 		lines.find((line) => line.variant_id === variantId)?.quantity ?? null;
 
-	const setQuantity = (variantId: number, label: string, value: string) => {
+	const setQuantity = (variantId: EntityId, label: string, value: string) => {
 		const quantity = value === '' ? null : Number(value);
 		const without = lines.filter((line) => line.variant_id !== variantId);
 

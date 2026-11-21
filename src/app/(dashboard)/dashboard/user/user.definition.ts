@@ -48,6 +48,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -362,20 +363,14 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
+					field: 'name',
+					header: labels['field.name'],
 					sortable: true,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
 							displayButton: displayButtonView(auth),
 						}),
-				},
-				{
-					field: 'name',
-					header: labels['field.name'],
-					sortable: true,
 				},
 				{
 					field: 'email',
@@ -454,7 +449,7 @@ export default async function dataSourceConfig(): Promise<
 				entriesSelection: 'single',
 				customEntryCheck: (entry: UserModel, auth) =>
 					!entry.deleted_at && canManageTarget(entry, auth),
-				operationFunction: (params: UserFormValuesType, id: number) =>
+				operationFunction: (params: UserFormValuesType, id: EntityId) =>
 					requestUpdate<UserModel, UserFormValuesType>(
 						'user',
 						params,

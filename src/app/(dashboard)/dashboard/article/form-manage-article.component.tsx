@@ -44,6 +44,7 @@ import {
 import { useAuth } from '@/providers/auth.provider';
 import { useWindowForm } from '@/providers/window-form.provider';
 import { type Language, LanguageEnum } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { PageMeta } from '@/types/page-meta.type';
 
 const TRANSLATION_KEYS = [
@@ -145,8 +146,8 @@ export type ArticleContentFormType = {
  * id arrays the API takes.
  */
 /** The `{ id, label }` pairs a seeded form holds, as the id-keyed map the pickers take. */
-function toLabelMap(links: { id: number; label?: string }[] | undefined) {
-	const map: Record<number, string> = {};
+function toLabelMap(links: { id: EntityId; label?: string }[] | undefined) {
+	const map: Record<EntityId, string> = {};
 
 	for (const link of links ?? []) {
 		if (link.label) {
@@ -196,8 +197,8 @@ export type ArticleFormValuesType = {
 	 * by the validator and never submitted: `getFormValues` rebuilds these from the hidden
 	 * inputs, which carry ids alone.
 	 */
-	categories: { id: number; label?: string }[];
-	tags: { id: number; label?: string }[];
+	categories: { id: EntityId; label?: string }[];
+	tags: { id: EntityId; label?: string }[];
 	contents: ArticleContentFormType[];
 };
 

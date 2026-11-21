@@ -36,8 +36,8 @@ export default async function Page({ params }: Props) {
 
 	return (
 		<DocumentInvoice
-			orderId={Number(order_id)}
-			invoiceId={Number(id)}
+			orderId={order_id}
+			invoiceId={id}
 			translations={translations}
 		/>
 	);

@@ -91,7 +91,7 @@
 		"brand_type": "Tip",
 		"name": "Nume",
 		"status": "Status",
-		"search": "ID / Nume",
+		"search": "Nume",
 		"language": "Limbă",
 		"description": "Descriere",
 		"created_at": "Creat la",

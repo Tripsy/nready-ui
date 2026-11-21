@@ -51,7 +51,7 @@
 		"tab_api": "API docs"
 	},
 	"field": {
-		"search": "ID / Currency / Provider",
+		"search": "Currency / Provider",
 		"source": "Source",
 		"rate_date": "Rate Date",
 		"id": "ID",

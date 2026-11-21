@@ -1,4 +1,5 @@
 import type { ApiResponseFetch, QueryFiltersType } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export type FindFunctionParamsType = {
 	order_by?: string;
@@ -27,7 +28,7 @@ export type CreateFunctionType<Model, Params> = (
 
 export type UpdateFunctionType<Model, Params> = (
 	params: Params,
-	id: number,
+	id: EntityId,
 ) => Promise<ApiResponseFetch<Partial<Model>>>;
 
 export type FormOperationFunctionType<Entry, Params> =
@@ -35,11 +36,11 @@ export type FormOperationFunctionType<Entry, Params> =
 	| UpdateFunctionType<Entry, Params>;
 
 export type DeleteMultipleFunctionType = (
-	ids: number[],
+	ids: EntityId[],
 ) => Promise<ApiResponseFetch<null>>;
 
 export type RestoreMultipleFunctionType = (
-	ids: number[],
+	ids: EntityId[],
 ) => Promise<ApiResponseFetch<null>>;
 
 export type ActionOperationMultipleFunctionType =
@@ -70,7 +71,7 @@ export type DisplayEntryLabelFnType<Entry> = (entry: Entry) => string;
 export type EntriesSelectionType = 'free' | 'single' | 'multiple'; // Allowed entries selection for an action (eg: `free` means no selection)
 
 export type ReloadEntryFnType<Entry> = (
-	id: number,
+	id: EntityId,
 ) => Promise<Entry | undefined>;
 
 export type PrepareEntryFnType<Entry> = (entry: Entry) => Partial<Entry>;

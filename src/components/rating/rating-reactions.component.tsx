@@ -19,6 +19,7 @@ import {
 	requestDeleteRating,
 	requestUpdateRating,
 } from '@/services/rating.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 const RATING_TYPE = RatingTypeEnum.EMOJI;
 
@@ -67,7 +68,7 @@ const REACTIONS: {
 
 type RatingReactionsProps = {
 	entityType: RatingEntityType;
-	entityId: number;
+	entityId: EntityId;
 	/** Absent when nobody has reacted yet - the target simply has no rows. */
 	summary?: RatingSummaryType;
 	own?: RatingOwnEntryType[];

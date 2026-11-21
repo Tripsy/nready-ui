@@ -10,6 +10,7 @@ import { useCart } from '@/hooks/use-cart.hook';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import type { CartAddItemParams } from '@/models/cart.model';
 import { useToast } from '@/providers/toast.provider';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'cart.storefront.add',
@@ -46,14 +47,14 @@ export function AddToCart({
 	options,
 	isReady = true,
 }: {
-	readonly productId: number;
-	readonly variantId: number;
+	readonly productId: EntityId;
+	readonly variantId: EntityId;
 	/** False while the product is outside its sellable window - the backend would refuse the line anyway. */
 	readonly isAvailable?: boolean;
 	/** A bundle's picks, from `ProductBundleBuilder`; omitted on a simple product. */
 	readonly components?: CartAddItemParams['components'];
 	/** The chosen `product_option` ids, from `ProductOptionsBuilder`; omitted when the product asks nothing. */
-	readonly options?: number[];
+	readonly options?: EntityId[];
 	/** False while a bundle still has a choice unanswered - the backend would refuse the line. */
 	readonly isReady?: boolean;
 }): JSX.Element {

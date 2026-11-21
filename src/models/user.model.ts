@@ -1,4 +1,5 @@
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export const UserRoleEnum = {
 	ADMIN: 'admin',
@@ -26,7 +27,7 @@ export type UserOperatorType =
 	(typeof UserOperatorTypeEnum)[keyof typeof UserOperatorTypeEnum];
 
 export type UserModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 	name: string;
 	email: string;
 	email_verified_at: D;

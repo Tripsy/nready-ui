@@ -19,6 +19,7 @@ import {
 	requestRatingSummary,
 	requestUpdateRating,
 } from '@/services/rating.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * A **type** rather than the `as const` key array its server-rendered siblings export: this
@@ -43,7 +44,7 @@ export function ArticleRating({
 	articleId,
 	translations,
 }: {
-	articleId: number;
+	articleId: EntityId;
 	translations: ArticleRatingTranslations;
 }) {
 	const queryClient = useQueryClient();

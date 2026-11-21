@@ -50,7 +50,7 @@
 		}
 	},
 	"field": {
-		"search": "ID / PID / Message / Context",
+		"search": "PID / Message / Context",
 		"category": "Category",
 		"level": "Level",
 		"created_at": "Created At",

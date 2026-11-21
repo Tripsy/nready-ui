@@ -36,6 +36,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export type ImageDataTableFiltersType = {
 	global: { value: string | null; matchMode: 'contains' };
@@ -137,21 +138,12 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
+					field: 'display-image',
+					header: labels['field.image'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
 							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
-					field: 'display-image',
-					header: labels['field.image'],
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
 							customValue: displayImage({
 								src: showImage(entry.path, entry.storage),
 								alt:
@@ -293,7 +285,7 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['image', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<ImageModel>('image', id),
 			},
 			guide: {

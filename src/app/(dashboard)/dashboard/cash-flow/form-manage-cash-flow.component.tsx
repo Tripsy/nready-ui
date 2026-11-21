@@ -56,6 +56,7 @@ import { useModalStore } from '@/stores/window.store';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { ApiResponseFetch } from '@/types/api.type';
 import { type Currency, CurrencyEnum } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormErrorsType } from '@/types/form.type';
 
 const TRANSLATION_KEYS = [
@@ -89,12 +90,12 @@ export type CashFlowFormValuesType = {
 
 	external_reference: string | null;
 
-	parent_id: number | null;
+	parent_id: EntityId | null;
 
 	notes: string | null;
 
 	operational_records?: {
-		[key in OperationalRecordType]?: number | null;
+		[key in OperationalRecordType]?: EntityId | null;
 	};
 	// display-only fields, not part of validation
 	client: string | null;
@@ -154,7 +155,7 @@ export function FormManageCashFlow({ action }: { action: string }) {
 		? resolveWindowEntries(windowConfig, 'form')
 		: {};
 
-	const entryId = entry && 'id' in entry ? (entry.id as number) : undefined;
+	const entryId = entry && 'id' in entry ? (entry.id as EntityId) : undefined;
 
 	const { data: operationalRecords } = useQuery({
 		queryKey: ['cash-flow', 'operational-records', entryId],
@@ -179,7 +180,7 @@ export function FormManageCashFlow({ action }: { action: string }) {
 		| undefined;
 
 	const handleOperationalRecordChange = useCallback(
-		(field: OperationalRecordType, value: number | null) => {
+		(field: OperationalRecordType, value: EntityId | null) => {
 			handleChange('operational_records', {
 				...formValues.operational_records,
 				[field]: value,
@@ -598,7 +599,7 @@ export function FormManageCashFlow({ action }: { action: string }) {
 								);
 								handleOperationalRecordChange(
 									OperationalRecordTypeEnum.VENDOR,
-									newVendor.id as number,
+									newVendor.id as EntityId,
 								);
 
 								await invalidateVendorSuggestions();

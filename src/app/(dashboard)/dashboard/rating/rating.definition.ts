@@ -25,6 +25,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Exactly the keys in the backend's `find.filterSchema` - it accepts no free-text term, so
@@ -38,7 +39,7 @@ export type RatingDataTableFiltersType = {
 	type: { value: RatingType | null; matchMode: 'equals' };
 	reaction: { value: RatingEmoji | null; matchMode: 'equals' };
 	user: { value: string | null; matchMode: 'equals' };
-	user_id: { value: number | null; matchMode: 'equals' };
+	user_id: { value: EntityId | null; matchMode: 'equals' };
 };
 
 export default async function dataSourceConfig(): Promise<
@@ -122,20 +123,11 @@ export default async function dataSourceConfig(): Promise<
 			// `OrderByEnum` accepts.
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
+					field: 'entity_type',
+					header: labels['field.entity_type'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
-					field: 'entity_type',
-					header: labels['field.entity_type'],
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
 							customValue: translateEnumLabel(
 								labels,
 								'enum.entity_type',

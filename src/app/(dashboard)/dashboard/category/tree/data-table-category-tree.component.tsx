@@ -36,6 +36,7 @@ import {
 } from '@/models/category.model';
 import { useAuth } from '@/providers/auth.provider';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'dashboard.text.back_to_list',
@@ -65,8 +66,8 @@ const TREE_LIMIT = 500;
 
 function collectParentIds(
 	nodes: CategoryTreeNode[],
-	ids: number[] = [],
-): number[] {
+	ids: EntityId[] = [],
+): EntityId[] {
 	for (const node of nodes) {
 		if (node.children.length > 0) {
 			ids.push(node.entry.id);
@@ -82,8 +83,8 @@ type CategoryTreeItemProps = {
 	translations: TranslationsType;
 	node: CategoryTreeNode;
 	language: Language;
-	collapsedIds: Set<number>;
-	onToggle: (id: number) => void;
+	collapsedIds: Set<EntityId>;
+	onToggle: (id: EntityId) => void;
 	canUpdate: boolean;
 	canDelete: boolean;
 	detachedTitle: string;
@@ -220,7 +221,7 @@ const DataTableCategoryTreeContent = (): JSX.Element => {
 		(state) => state.tableState.filters,
 	) as CategoryDataTableFiltersType;
 
-	const [collapsedIds, setCollapsedIds] = useState<Set<number>>(new Set());
+	const [collapsedIds, setCollapsedIds] = useState<Set<EntityId>>(new Set());
 
 	const refreshDataTable = useRefreshDataTable();
 

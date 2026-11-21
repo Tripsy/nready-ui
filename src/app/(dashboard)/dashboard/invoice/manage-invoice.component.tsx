@@ -36,6 +36,7 @@ import {
 	type SellerDetails,
 } from '@/models/invoice.model';
 import { useToast } from '@/providers/toast.provider';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'invoice.field.discount_reduction',
@@ -128,7 +129,7 @@ function describeRefusal(response: {
 
 /** One line as `update` takes it: with `id` a line restated, without one a new adjustment. */
 type LineParams = {
-	id?: number;
+	id?: EntityId;
 	label: string;
 	quantity: number;
 	unit_price: number;
@@ -146,7 +147,7 @@ type InvoiceSaveParams = DetailsDraft & {
 	seller_details?: SellerDetails | null;
 };
 
-function toLineParams(draft: LineDraft, id?: number): LineParams {
+function toLineParams(draft: LineDraft, id?: EntityId): LineParams {
 	return {
 		...(id === undefined ? {} : { id: id }),
 		label: draft.label.trim(),
@@ -357,8 +358,8 @@ export function ManageInvoice({ entries }: { entries: InvoiceModel[] }) {
 	const elementIds = useElementIds(['dueAt', 'notes'] as const);
 
 	const [details, setDetails] = useState<DetailsDraft | null>(null);
-	const [drafts, setDrafts] = useState<Record<number, LineDraft>>({});
-	const [removedIds, setRemovedIds] = useState<Set<number>>(new Set());
+	const [drafts, setDrafts] = useState<Record<EntityId, LineDraft>>({});
+	const [removedIds, setRemovedIds] = useState<Set<EntityId>>(new Set());
 	const [added, setAdded] = useState<{ key: number; draft: LineDraft }[]>([]);
 	const [newLine, setNewLine] = useState<LineDraft>(EMPTY_LINE);
 	// `undefined` while untouched; `null` once the operator asked for the automatic details back
@@ -514,7 +515,7 @@ export function ManageInvoice({ entries }: { entries: InvoiceModel[] }) {
 		}));
 	};
 
-	const toggleRemoved = (lineId: number) => {
+	const toggleRemoved = (lineId: EntityId) => {
 		setRemovedIds((previous) => {
 			const next = new Set(previous);
 

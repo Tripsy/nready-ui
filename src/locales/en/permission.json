@@ -51,7 +51,7 @@
 		"tab_api": "API docs"
 	},
 	"field": {
-		"search": "ID / Entity / Operation",
+		"search": "Entity / Operation",
 		"entity": "Entity",
 		"operation": "Operation",
 		"id": "ID"

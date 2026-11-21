@@ -8,6 +8,7 @@ import type {
 } from '@/models/product-category-attribute.model';
 import { MEASURE_UNIT_SYMBOLS } from '@/models/product-category-attribute.model';
 import type { Language, StatusTransitions } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { ImagePropertiesType } from '@/types/image.type';
 import type { PageMeta } from '@/types/page-meta.type';
 
@@ -184,7 +185,7 @@ export type ProductVariantType = {
 	 * keys a variant on `sku`, so a payload never needs it. What the stock endpoints address a
 	 * variant by.
 	 */
-	id?: number;
+	id?: EntityId;
 	sku: string;
 	barcode: string | null;
 	// Both nullable on the backend, where `nonNegative` is an optional check.
@@ -224,7 +225,7 @@ export type ProductVariantAxisType = ProductAttributeDisplayType;
  * client-side `key` instead, since an unsaved row has no id yet.
  */
 export type ProductListVariantType = {
-	id: number;
+	id: EntityId;
 	sku: string;
 	position: number | null;
 	is_default: boolean;
@@ -271,7 +272,7 @@ export type ProductStockStatus =
  * (a dish, a download) or the deployment keeps none - and the page then says nothing.
  */
 export type ProductVariantStockType = {
-	variant_id: number;
+	variant_id: EntityId;
 	stock_status: ProductStockStatus | null;
 };
 
@@ -338,7 +339,7 @@ export type ProductListEntryType = Omit<
  * images through the `image` feature instead.
  */
 export type ProductCoverImageType = {
-	id: number;
+	id: EntityId;
 	path: string;
 	storage: ImageStorage;
 	properties: ImagePropertiesType | null;
@@ -409,8 +410,8 @@ export type ProductBundleGroupType = {
 	 * components are held flat beside its groups rather than nested inside them, so this is what
 	 * `ProductBundleItemType.group_id` names.
 	 */
-	id: number;
-	label_id: number;
+	id: EntityId;
+	label_id: EntityId;
 	position: number | null;
 	/** Joined by the read, like the option group's own. */
 	label?: ProductTermRefType | null;
@@ -450,12 +451,12 @@ export type ProductBundleItemType = {
 	 * Optional because the dashboard's bundle form holds unsaved rows that have none yet. Every
 	 * read hands it back, so a storefront that needs it can rely on it once the row came from one.
 	 */
-	id?: number;
-	variant_id: number;
+	id?: EntityId;
+	variant_id: EntityId;
 	quantity: number;
 	position: number;
 	/** The group this component is a candidate for; `null` when it belongs to none. */
-	group_id: number | null;
+	group_id: EntityId | null;
 	is_optional: boolean;
 	is_default: boolean;
 	prices: ProductBundleItemPriceType[];
@@ -479,7 +480,7 @@ export type ProductBundleItemType = {
  * a row holding an id alone cannot be drawn.
  */
 export type ProductTermRefType = {
-	id: number;
+	id: EntityId;
 	contents?: { language: Language; value: string }[];
 };
 
@@ -501,8 +502,8 @@ export type ProductOptionPriceType = {
  */
 export type ProductOptionType = {
 	/** Present on a read; absent on a row the editor has not saved yet. */
-	id?: number;
-	label_id: number;
+	id?: EntityId;
+	label_id: EntityId;
 	position: number | null;
 	is_default: boolean;
 	prices: ProductOptionPriceType[];
@@ -524,8 +525,8 @@ export type ProductOptionType = {
  */
 export type ProductOptionGroupType = {
 	/** Present on a read; absent on a row the editor has not saved yet. */
-	id?: number;
-	label_id: number;
+	id?: EntityId;
+	label_id: EntityId;
 	min_select: number | null;
 	max_select: number | null;
 	position: number | null;
@@ -535,7 +536,7 @@ export type ProductOptionGroupType = {
 };
 
 export type ProductModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	workflow: ProductWorkflow;
 	sale_status: ProductSaleStatus;
@@ -550,7 +551,7 @@ export type ProductModel<D = Date | string> = {
 
 	details: Record<string, string | number | boolean> | null;
 
-	brand_id: number | null;
+	brand_id: EntityId | null;
 
 	// Timestamps
 	created_at: D;
@@ -569,19 +570,19 @@ export type ProductModel<D = Date | string> = {
 	attributes?: ProductAttributeValueType[];
 	availabilities?: ProductAvailabilityType[];
 	/** `slug` comes from the public listing only, which is the surface that links a brand. */
-	brand?: { id: number; name: string; slug?: string } | null;
+	brand?: { id: EntityId; name: string; slug?: string } | null;
 	categories?: {
-		category_id: number;
+		category_id: EntityId;
 		category?: {
-			id: number;
+			id: EntityId;
 			// `slug` comes from the public read only; the dashboard's list and view omit it.
 			contents?: { language: Language; label: string; slug?: string }[];
 		} | null;
 	}[];
 	tags?: {
-		tag_id: number;
+		tag_id: EntityId;
 		tag?: {
-			id: number;
+			id: EntityId;
 			contents?: { language: Language; value: string }[];
 		} | null;
 	}[];
@@ -606,7 +607,7 @@ export type ProductModel<D = Date | string> = {
 
 /** One selected reference as the form holds it: the id it submits, and the label it shows. */
 export type ProductRefType = {
-	id: number;
+	id: EntityId;
 	label: string;
 };
 
@@ -620,7 +621,7 @@ function refLabel(
 		| null
 		| undefined,
 	language: Language,
-	fallbackId: number,
+	fallbackId: EntityId,
 ): string {
 	const wanted = contents?.find((content) => content.language === language);
 	const first = contents?.find((content) => content.label || content.value);
@@ -680,7 +681,7 @@ export function toTagRefs(
 export function displayOptionLabel(
 	label: ProductTermRefType | null | undefined,
 	language: Language,
-	fallbackId: number,
+	fallbackId: EntityId,
 ): string {
 	return refLabel(label?.contents, language, fallbackId);
 }
@@ -851,7 +852,7 @@ export type ProductVariantChoiceType = {
 
 /** One axis of the grid - the question, and the values the variants answer it with. */
 export type ProductVariantAxisGroupType = {
-	label_id: number;
+	label_id: EntityId;
 	label: string;
 	choices: ProductVariantChoiceType[];
 };
@@ -887,7 +888,7 @@ function axisValueKey(axis: ProductVariantAxisType): string | null {
 function readVariantAxes(
 	variant: ProductListVariantType,
 ): Map<
-	number,
+	EntityId,
 	{ label: string; value_key: string; value_label: string }
 > | null {
 	const axes = variant.attributes ?? [];
@@ -897,7 +898,7 @@ function readVariantAxes(
 	}
 
 	const result = new Map<
-		number,
+		EntityId,
 		{ label: string; value_key: string; value_label: string }
 	>();
 
@@ -945,7 +946,7 @@ export function buildVariantAxisGroups(
 	}
 
 	const axesByVariant: Map<
-		number,
+		EntityId,
 		{ label: string; value_key: string; value_label: string }
 	>[] = [];
 
@@ -1152,7 +1153,7 @@ export function buildProductGallery(
 		...(entry.variants ?? []).flatMap((variant) => variant.images ?? []),
 	];
 
-	const seen = new Set<number>();
+	const seen = new Set<EntityId>();
 
 	return candidates.filter((image) => {
 		if (seen.has(image.id)) {

@@ -26,6 +26,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The pickers carry their visible text (`warehouse`, `variant`) beside the id they filter on; only
@@ -33,9 +34,9 @@ import type {
  */
 export type WarehouseMovementDataTableFiltersType = {
 	warehouse: { value: string | null; matchMode: 'equals' };
-	warehouse_id: { value: number | null; matchMode: 'equals' };
+	warehouse_id: { value: EntityId | null; matchMode: 'equals' };
 	variant: { value: string | null; matchMode: 'equals' };
-	variant_id: { value: number | null; matchMode: 'equals' };
+	variant_id: { value: EntityId | null; matchMode: 'equals' };
 	movement_type: {
 		value: WarehouseMovementType | null;
 		matchMode: 'equals';
@@ -117,21 +118,12 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
+					field: 'occurred_at',
+					header: labels['field.occurred_at'],
 					sortable: true,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayButton: displayButton(auth, 'view'),
-						}),
-				},
-				{
-					field: 'occurred_at',
-					header: labels['field.occurred_at'],
-					sortable: true,
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
 							displayDate: true,
 						}),
 				},

@@ -51,7 +51,7 @@
 		"tab_api": "API docs"
 	},
 	"field": {
-		"search": "ID / Code",
+		"search": "Code",
 		"document_type": "Document type",
 		"id": "ID",
 		"code": "Code",

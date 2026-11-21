@@ -1,3 +1,5 @@
+import type { EntityId } from '@/types/entity-id.type';
+
 export const LogHistorySourceEnum = {
 	CRON: 'cron',
 	API: 'api',
@@ -55,13 +57,13 @@ export const LogHistoryActions = [
 ];
 
 export type LogHistoryModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	entity: string;
-	entity_id: number;
+	entity_id: EntityId;
 	action: string;
 
-	auth_id: number | null;
+	auth_id: EntityId | null;
 	performed_by: string;
 
 	request_id: string;

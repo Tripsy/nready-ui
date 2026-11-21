@@ -6,11 +6,12 @@ import type {
 	ImageStorage,
 } from '@/models/image.model';
 import type { ApiResponseFetch } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export async function createImage<P>(
 	params: Partial<P>,
 	section: ImageSection,
-	entity_id: number,
+	entity_id: EntityId,
 ): Promise<ApiResponseFetch<ImageModel>> {
 	return await new ApiRequest().doFetch(
 		`/${resolveRequestPath('image')}/${section}/${entity_id}`,
@@ -23,8 +24,8 @@ export async function createImage<P>(
 
 export async function orderUpdate(
 	section: ImageSection,
-	entity_id: number,
-	positions: { id: number; sort_order: number }[],
+	entity_id: EntityId,
+	positions: { id: EntityId; sort_order: number }[],
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(
 		`/${resolveRequestPath('image')}/${section}/${entity_id}/order`,

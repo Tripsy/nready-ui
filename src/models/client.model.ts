@@ -1,3 +1,5 @@
+import type { EntityId } from '@/types/entity-id.type';
+
 export const ClientTypeEnum = {
 	PERSON: 'person',
 	COMPANY: 'company',
@@ -48,7 +50,7 @@ export type ClientContact = {
 };
 
 type ClientBase<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	status: ClientStatus;
 
@@ -56,9 +58,9 @@ type ClientBase<D = Date | string> = {
 	 * The account the client belongs to, or null for one typed in from the back office. One account
 	 * may hold several clients; checkout accepts only the caller's own.
 	 */
-	user_id: number | null;
+	user_id: EntityId | null;
 	/** Joined by the dashboard read and listing, so both can name the account. */
-	user?: { id: number; name: string; email: string } | null;
+	user?: { id: EntityId; name: string; email: string } | null;
 
 	notes: string | null;
 

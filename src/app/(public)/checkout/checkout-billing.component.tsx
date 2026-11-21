@@ -26,6 +26,7 @@ import {
 	ClientTypeEnum,
 	displayClientLabel,
 } from '@/models/client.model';
+import type { EntityId } from '@/types/entity-id.type';
 
 type TextField = Exclude<keyof BillingValues, 'client_type'>;
 
@@ -54,7 +55,7 @@ export function CheckoutBilling({
 	onSave,
 }: {
 	readonly clients: readonly ClientModel[];
-	readonly selectedClientId: number | null;
+	readonly selectedClientId: EntityId | null;
 	readonly editor: BillingEditor | null;
 	readonly values: BillingValues;
 	readonly errors: BillingErrors;
@@ -63,7 +64,7 @@ export function CheckoutBilling({
 	readonly isMissingSelection: boolean;
 	readonly translations: CheckoutTranslations;
 	readonly disabled: boolean;
-	readonly onSelect: (clientId: number) => void;
+	readonly onSelect: (clientId: EntityId) => void;
 	readonly onChange: (field: keyof BillingValues, value: string) => void;
 	readonly onCreate: () => void;
 	readonly onEdit: (client: ClientModel) => void;
@@ -130,7 +131,7 @@ export function CheckoutBilling({
 								? null
 								: String(selectedClientId)
 						}
-						onChange={(value) => onSelect(Number(value))}
+						onChange={(value) => onSelect(value)}
 						isDisabled={disabled}
 					>
 						{clients.map((client) => (

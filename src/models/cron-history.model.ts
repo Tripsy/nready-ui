@@ -1,3 +1,5 @@
+import type { EntityId } from '@/types/entity-id.type';
+
 export const CronHistoryStatusEnum = {
 	ERROR: 'error',
 	OK: 'ok',
@@ -9,7 +11,7 @@ export type CronHistoryStatus =
 	(typeof CronHistoryStatusEnum)[keyof typeof CronHistoryStatusEnum];
 
 export type CronHistoryModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 	label: string;
 	status: CronHistoryStatus;
 	start_at: D;

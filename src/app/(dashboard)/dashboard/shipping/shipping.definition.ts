@@ -51,6 +51,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -246,25 +247,25 @@ async function validateForm(values: ShippingFormValuesType) {
 function getFormValues(formData: FormData): ShippingFormValuesType {
 	return {
 		scope: getFormDataAsString(formData, 'scope'),
-		order_id: getFormDataAsNumber(formData, 'order_id'),
-		document_ref: getFormDataAsNumber(formData, 'document_ref'),
-		pickup_warehouse_id: getFormDataAsNumber(
+		order_id: getFormDataAsString(formData, 'order_id'),
+		document_ref: getFormDataAsString(formData, 'document_ref'),
+		pickup_warehouse_id: getFormDataAsString(
 			formData,
 			'pickup_warehouse_id',
 		),
-		pickup_client_address_id: getFormDataAsNumber(
+		pickup_client_address_id: getFormDataAsString(
 			formData,
 			'pickup_client_address_id',
 		),
-		destination_warehouse_id: getFormDataAsNumber(
+		destination_warehouse_id: getFormDataAsString(
 			formData,
 			'destination_warehouse_id',
 		),
-		destination_client_address_id: getFormDataAsNumber(
+		destination_client_address_id: getFormDataAsString(
 			formData,
 			'destination_client_address_id',
 		),
-		carrier_id: getFormDataAsNumber(formData, 'carrier_id'),
+		carrier_id: getFormDataAsString(formData, 'carrier_id'),
 		method: getFormDataAsString(formData, 'method'),
 		tracking_number: getFormDataAsString(formData, 'tracking_number'),
 		tracking_url: getFormDataAsString(formData, 'tracking_url'),
@@ -507,21 +508,12 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
+					field: 'scope',
+					header: labels['field.scope'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
 							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
-					field: 'scope',
-					header: labels['field.scope'],
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
 							customValue: translateEnumLabel(
 								labels,
 								'enum.scope',
@@ -640,11 +632,11 @@ export default async function dataSourceConfig(): Promise<
 				 * the row first. Seeding it from the table row would submit an empty allocation and
 				 * wipe what the parcel was carrying.
 				 */
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<ShippingModel>('shipping', id),
 				operationFunction: (
 					params: ShippingFormValuesType,
-					id: number,
+					id: EntityId,
 				) =>
 					requestUpdate<
 						ShippingModel,
@@ -712,7 +704,7 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['shipping', 'read'],
 				entriesSelection: 'single',
 				// The allocated lines are on the read only, as above
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<ShippingModel>('shipping', id),
 				buttonPosition: 'hidden',
 			},

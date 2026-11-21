@@ -187,7 +187,7 @@
 		"returns": "Returns"
 	},
 	"field": {
-		"search": "ID / Reference",
+		"search": "Reference",
 		"client": "Client",
 		"status": "Status",
 		"created": "Created",

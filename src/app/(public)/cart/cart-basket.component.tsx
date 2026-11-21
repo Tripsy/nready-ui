@@ -21,6 +21,7 @@ import {
 import { roundMoney } from '@/models/product.model';
 import { useAuth } from '@/providers/auth.provider';
 import { useToast } from '@/providers/toast.provider';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'cart.storefront.empty',
@@ -312,7 +313,7 @@ export function CartBasket(): JSX.Element {
 
 	const componentsByParent = groupCartComponents(lines);
 
-	const onQuantity = (id: number, quantity: number) => {
+	const onQuantity = (id: EntityId, quantity: number) => {
 		updateItem.mutate(
 			{ id, quantity },
 			{
@@ -325,7 +326,7 @@ export function CartBasket(): JSX.Element {
 		);
 	};
 
-	const onRemove = (id: number) => {
+	const onRemove = (id: EntityId) => {
 		removeItem.mutate(id, {
 			onError: () =>
 				showToast({

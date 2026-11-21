@@ -33,6 +33,7 @@ import {
 import { useAuth } from '@/providers/auth.provider';
 import { useModalStore } from '@/stores/window.store';
 import { DataSourceSectionEnum } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'product.text.add_a_value_to',
@@ -47,7 +48,7 @@ type Props = {
 	 * Keyed by `attribute_label_id`, since that is what a definition is addressed by everywhere
 	 * else - the index in the list is not stable across a category change.
 	 */
-	errors?: Record<number, string[] | undefined>;
+	errors?: Record<EntityId, string[] | undefined>;
 	disabled: boolean;
 	/**
 	 * Namespaces the element ids. The variant editor renders this once per row, so a bare
@@ -350,7 +351,7 @@ export function FormAttributesProduct({
 							<fieldset aria-label={labelText}>
 								<div className="flex flex-wrap items-center gap-x-4 gap-y-1">
 									{options.map((option) => {
-										const termId = Number(option.value);
+										const termId = option.value;
 										const checked = value.terms.some(
 											(term) => term.id === termId,
 										);
@@ -417,7 +418,7 @@ export function FormAttributesProduct({
 							ariaLabel={labelText}
 							onChange={(next) =>
 								update(definition, {
-									terms: next ? [{ id: Number(next) }] : [],
+									terms: next ? [{ id: next }] : [],
 								})
 							}
 						/>
@@ -436,7 +437,7 @@ export function FormAttributesProduct({
 							ariaLabel={labelText}
 							onChange={(next) =>
 								update(definition, {
-									terms: next ? [{ id: Number(next) }] : [],
+									terms: next ? [{ id: next }] : [],
 								})
 							}
 						/>

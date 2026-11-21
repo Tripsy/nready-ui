@@ -51,6 +51,7 @@ import { useWindowForm } from '@/providers/window-form.provider';
 import { findVariantsByIds } from '@/services/product.service';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import { CurrencyEnum } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 import { OrderBillingAddress } from './order-billing-address.component';
 import { OrderLineBundle } from './order-line-bundle.component';
 
@@ -109,13 +110,13 @@ type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
 
 /** One line as the form holds it, before it is sent as part of the `lines` payload. */
 export type OrderLineFormType = {
-	variant_id: number | null;
-	product_id: number | null;
+	variant_id: EntityId | null;
+	product_id: EntityId | null;
 	quantity: number | null;
 	price: number | null;
 	vat_rate: number | null;
 	/** The `product_option` ids chosen on the line; the backend turns them into snapshots. */
-	options: number[];
+	options: EntityId[];
 	/**
 	 * A discount the operator typed for this line, in the order's currency - an `amount` is per
 	 * unit. Replaces the catalog's rule for the line; null leaves the catalog to decide.
@@ -166,7 +167,7 @@ export function nextOrderLineKey(): string {
 }
 
 export type OrderFormValuesType = {
-	client_id: number | null;
+	client_id: EntityId | null;
 	/**
 	 * The order's own billing address, edited field by field. Editable while the lines are; an
 	 * issued invoice froze it.
@@ -882,12 +883,12 @@ function OrderLineOptions({
 }: {
 	translations: TranslationsType;
 	readonly index: number;
-	readonly productId: number;
+	readonly productId: EntityId;
 	readonly currency: string | null;
-	readonly selected: number[];
+	readonly selected: EntityId[];
 	readonly disabled: boolean;
 	readonly error: string[] | undefined;
-	readonly onChange: (options: number[]) => void;
+	readonly onChange: (options: EntityId[]) => void;
 }) {
 	const { data: groups, isLoading } = useQuery({
 		queryKey: ['order-line-option-groups', productId],
@@ -917,7 +918,7 @@ function OrderLineOptions({
 
 	const toggle = (
 		group: ProductOptionGroupType,
-		optionId: number,
+		optionId: EntityId,
 		checked: boolean,
 	) => {
 		if (!checked) {
@@ -1089,7 +1090,7 @@ export function FormManageOrder() {
 		...new Set(
 			lines.flatMap((line) => (line.variant_id ? [line.variant_id] : [])),
 		),
-	].sort((left, right) => left - right);
+	].sort();
 
 	const { data: variantsById } = useQuery({
 		queryKey: ['order-line-variants', variantIds],

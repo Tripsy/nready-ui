@@ -1,3 +1,5 @@
+import type { EntityId } from '@/types/entity-id.type';
+
 /**
  * The stock ledger and the stock figures read from it - `../nready-api/src/features/warehouse-movement`.
  * Read-only: every row is posted by the document that moved the goods (a goods receipt, a delivery
@@ -35,30 +37,30 @@ export type WarehouseMovementSource =
  * the read joins; either is null when the row it points at has gone since.
  */
 export type WarehouseMovementModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 	movement_type: WarehouseMovementType;
 	qty: number;
 	unit_cost_base: number;
 	source_type: WarehouseMovementSource;
-	source_id: number | null;
+	source_id: EntityId | null;
 	occurred_at: D;
 	notes: string | null;
-	warehouse_id: number;
-	variant_id: number;
+	warehouse_id: EntityId;
+	variant_id: EntityId;
 	/** The lot (`grn_item`) the units came from or went back into. */
-	grn_item_id: number | null;
+	grn_item_id: EntityId | null;
 	/** The row this one answers - a canceled receipt, a parcel back undelivered. */
-	reversal_of_id: number | null;
+	reversal_of_id: EntityId | null;
 
-	warehouse?: { id: number; code: string; name: string } | null;
-	variant?: { id: number; sku: string; product_id: number } | null;
+	warehouse?: { id: EntityId; code: string; name: string } | null;
+	variant?: { id: EntityId; sku: string; product_id: EntityId } | null;
 
 	created_at: D;
 };
 
 /** One warehouse's share of a variant's stock (`GET /warehouse-movements/stock/:variant_id`). */
 export type WarehouseStockModel = {
-	warehouse_id: number;
+	warehouse_id: EntityId;
 	code: string;
 	name: string;
 	/** An inactive site's lots are listed but not counted as on hand - it ships nothing. */
@@ -71,7 +73,7 @@ export type WarehouseStockModel = {
  * sell. `available` goes negative when the variant is over-committed.
  */
 export type VariantStockModel = {
-	variant_id: number;
+	variant_id: EntityId;
 	on_hand: number;
 	reserved: number;
 	available: number;
@@ -86,9 +88,9 @@ export type VariantStockModel = {
  * of its own, and the data table and the window stack identify an entry by `id`.
  */
 export type LowStockModel = {
-	id: number;
-	variant_id: number;
-	product_id: number;
+	id: EntityId;
+	variant_id: EntityId;
+	product_id: EntityId;
 	sku: string;
 	on_hand: number;
 	reserved: number;

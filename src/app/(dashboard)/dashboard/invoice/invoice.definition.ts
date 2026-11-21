@@ -67,6 +67,7 @@ import {
 	DataSourceSectionEnum,
 	type DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType, ValidatorOutput } from '@/types/form.type';
 
 const validatorMessages = [
@@ -148,7 +149,7 @@ type InvoiceAllocatePaymentOutput = ValidatorOutput<
 
 export type InvoiceDataTableFiltersType = {
 	global: { value: string | null; matchMode: 'contains' };
-	order_id: { value: number | null; matchMode: 'equals' };
+	order_id: { value: EntityId | null; matchMode: 'equals' };
 	status: { value: InvoiceStatus | null; matchMode: 'equals' };
 	payment_status: { value: InvoicePaymentStatus | null; matchMode: 'equals' };
 	scope: { value: InvoiceScope | null; matchMode: 'equals' };
@@ -273,23 +274,14 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
+					field: 'ref_number',
+					header: labels['field.ref_number'],
 					sortable: true,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							dataSource: 'invoice',
 							markDeleted: true,
 							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
-					field: 'ref_number',
-					header: labels['field.ref_number'],
-					sortable: true,
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
 							// A draft holds no number - the series only hands one out on issue
 							customValue: entry.ref_number
 								? `${entry.ref_code}-${entry.ref_number}`
@@ -415,9 +407,9 @@ export default async function dataSourceConfig(): Promise<
 				entriesSelection: 'free',
 				operationFunction: (values: InvoiceCreateOutput) =>
 					requestInvoiceCustomCreate({
-						// `validateId` resolves to `number | null` here; the schema has already
+						// `validateId` resolves to `EntityId | null` here; the schema has already
 						// established it is present
-						client_id: Number(values.client_id),
+						client_id: values.client_id as EntityId,
 					}),
 				events: {
 					// The draft is empty: straight into the window its lines and parties are
@@ -502,13 +494,13 @@ export default async function dataSourceConfig(): Promise<
 					entry.payment_status !== InvoicePaymentStatusEnum.PAID,
 				operationFunction: (
 					values: InvoiceAllocatePaymentOutput,
-					id: number,
+					id: EntityId,
 				) =>
 					requestInvoicePaymentCreate(id, {
 						...values,
-						// `validateId` resolves to `number | null` here; the schema has
+						// `validateId` resolves to `EntityId | null` here; the schema has
 						// already established it is present
-						cash_flow_id: Number(values.cash_flow_id),
+						cash_flow_id: values.cash_flow_id as EntityId,
 					}),
 				buttonPosition: 'left',
 				button: {
@@ -563,9 +555,12 @@ export default async function dataSourceConfig(): Promise<
 				 * Re-read: the listing row carries no lines, and the read is what reports how
 				 * much of each line earlier reversals already took back.
 				 */
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<InvoiceModel>('invoice', id),
-				operationFunction: (values: InvoiceReverseOutput, id: number) =>
+				operationFunction: (
+					values: InvoiceReverseOutput,
+					id: EntityId,
+				) =>
 					requestInvoiceReverse(id, {
 						notes: values.notes,
 						lines: values.lines
@@ -609,7 +604,7 @@ export default async function dataSourceConfig(): Promise<
 				 * them - so the row the data table hands over would render a document that
 				 * itemizes nothing.
 				 */
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<InvoiceModel>('invoice', id),
 				buttonPosition: 'hidden',
 			},
@@ -641,7 +636,7 @@ async function validateCreateForm(values: InvoiceCreateFormValuesType) {
 
 function getCreateFormValues(formData: FormData): InvoiceCreateFormValuesType {
 	return {
-		client_id: getFormDataAsNumber(formData, 'client_id'),
+		client_id: getFormDataAsString(formData, 'client_id'),
 		// display-only, not submitted to the validator
 		client: getFormDataAsString(formData, 'client'),
 	};
@@ -746,7 +741,7 @@ function getAllocatePaymentFormValues(
 	formData: FormData,
 ): InvoiceAllocatePaymentFormValuesType {
 	return {
-		cash_flow_id: getFormDataAsNumber(formData, 'cash_flow_id'),
+		cash_flow_id: getFormDataAsString(formData, 'cash_flow_id'),
 		amount: getFormDataAsNumber(formData, 'amount'),
 		notes: getFormDataAsString(formData, 'notes'),
 		// display-only, not submitted to the validator

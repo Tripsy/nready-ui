@@ -6,6 +6,7 @@ import type {
 } from '@/models/client-address.model';
 import type { PlaceModel } from '@/models/place.model';
 import type { ApiResponseFetch } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The shopper's own addresses (`/public/client-addresses`) and the two searches the add form types
@@ -19,8 +20,8 @@ import type { ApiResponseFetch } from '@/types/api.type';
  * `details` is the flat, floor or apartment; `notes` the instructions. There is no update.
  */
 export type OwnClientAddressParams = {
-	address_id?: number;
-	city_id?: number;
+	address_id?: EntityId;
+	city_id?: EntityId;
 	street?: string;
 	postal_code?: string | null;
 	details?: string | null;
@@ -29,7 +30,7 @@ export type OwnClientAddressParams = {
 
 /** One client's addresses, newest first, with the city, region and country named. */
 export async function requestOwnClientAddresses(
-	clientId: number,
+	clientId: EntityId,
 	type?: ClientAddressType,
 ): Promise<ApiResponseFetch<{ entries: OwnClientAddressModel[] }>> {
 	const query = new URLSearchParams({ client_id: String(clientId) });
@@ -46,7 +47,7 @@ export async function requestOwnClientAddresses(
 
 export async function requestCreateOwnClientAddress(
 	params: OwnClientAddressParams & {
-		client_id: number;
+		client_id: EntityId;
 		type: ClientAddressType;
 	},
 ): Promise<ApiResponseFetch<OwnClientAddressModel>> {

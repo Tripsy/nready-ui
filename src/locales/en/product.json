@@ -141,7 +141,7 @@
 		"tab_public": "Public API"
 	},
 	"field": {
-		"search": "ID / Name / Variant SKU",
+		"search": "Name / Variant SKU",
 		"workflow": "Workflow",
 		"type": "Type",
 		"composition": "Composition",

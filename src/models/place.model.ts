@@ -1,6 +1,7 @@
 import { Configuration } from '@/config/settings.config';
 import { capitalizeFirstLetter } from '@/helpers/string.helper';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export const PlaceTypeEnum = {
 	COUNTRY: 'country',
@@ -19,7 +20,7 @@ export type PlaceContent = {
 };
 
 export type PlaceModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 	place_type: PlaceType;
 	/** The place's abbreviation and the seed's natural key - alpha-3 on a country. */
 	code: string | null;
@@ -30,7 +31,7 @@ export type PlaceModel<D = Date | string> = {
 	alpha2_code: string | null;
 
 	// Parent relationship
-	parent_id: number | null;
+	parent_id: EntityId | null;
 	parent?: PlaceModel<D> | null;
 
 	// Children relationships

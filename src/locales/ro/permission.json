@@ -51,7 +51,7 @@
 		"tab_api": "Documentație API"
 	},
 	"field": {
-		"search": "ID / Entitate / Operațiune",
+		"search": "Entitate / Operațiune",
 		"entity": "Entitate",
 		"operation": "Operațiune",
 		"id": "ID"

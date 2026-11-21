@@ -65,7 +65,7 @@
 		"tab_public": "Public API"
 	},
 	"field": {
-		"search": "ID / Label / Content",
+		"search": "Label / Content",
 		"language": "Language",
 		"type": "Type",
 		"label": "Label",

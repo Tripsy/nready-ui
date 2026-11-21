@@ -51,6 +51,7 @@ import {
 	removeImageFile,
 } from '@/services/image.service';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 import {
 	type ImageMime,
 	ImageMimeEnum,
@@ -132,7 +133,7 @@ export type ImageEntry = {
 	status?: ImageStatus;
 
 	// Set only for entries recorded in DB
-	id?: number; // Database `id`
+	id?: EntityId; // Database `id`
 	storage?: ImageStorage;
 
 	// Only for staged images
@@ -705,7 +706,7 @@ export function ManagerImages({
 	attributeLanguages,
 }: {
 	section: ImageSection;
-	entity_id: number;
+	entity_id: EntityId;
 	types: ImageType[];
 	permissions: {
 		edit: boolean;
@@ -868,7 +869,7 @@ export function ManagerImages({
 		}
 
 		const existingOrder = gallery
-			.filter((e): e is ImageEntry & { id: number } => !!e.id)
+			.filter((e): e is ImageEntry & { id: EntityId } => !!e.id)
 			.map((e) => ({ id: e.id, sort_order: e.sort_order }));
 
 		const savePromises: Promise<unknown>[] = [

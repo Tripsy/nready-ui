@@ -1,8 +1,9 @@
 import { displayPlaceLabel, type PlaceModel } from '@/models/place.model';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export type AddressModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	city: PlaceModel<D> | null;
 	details: string;

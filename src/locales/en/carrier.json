@@ -64,7 +64,7 @@
 		"phone": "Phone",
 		"email": "Email",
 		"created_at": "Created At",
-		"search": "ID / Name / Website",
+		"search": "Name / Website",
 		"notes": "Notes",
 		"updated_at": "Updated At",
 		"deleted_at": "Deleted At"

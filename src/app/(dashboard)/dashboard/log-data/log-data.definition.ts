@@ -21,6 +21,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export type LogDataDataTableFiltersType = {
 	global: { value: string | null; matchMode: 'contains' };
@@ -79,21 +80,12 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
+					field: 'category',
+					header: labels['field.category'],
 					sortable: true,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
-					field: 'category',
-					header: labels['field.category'],
-					sortable: true,
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
 							customValue: translateEnumLabel(
 								labels,
 								'enum.category',
@@ -140,7 +132,7 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['delete.title'],
 				permission: ['log-data', 'delete'],
 				entriesSelection: 'multiple',
-				operationFunction: (ids: number[]) =>
+				operationFunction: (ids: EntityId[]) =>
 					requestDeleteMultiple('log-data', ids),
 				buttonPosition: 'left',
 				button: {

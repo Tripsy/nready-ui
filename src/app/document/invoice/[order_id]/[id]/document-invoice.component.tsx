@@ -7,10 +7,12 @@ import type { InvoiceDocumentTranslations } from '@/components/document/invoice-
 import Routes from '@/config/routes.setup';
 import { ApiError } from '@/exceptions/api.error';
 import { getResponseData } from '@/helpers/api.helper';
+import { isEntityId } from '@/helpers/id.helper';
 import {
 	OWN_ORDERS_QUERY_KEY,
 	requestOwnOrderInvoice,
 } from '@/services/order.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 /** The buyer's copy of one of their order's invoices. */
 export function DocumentInvoice({
@@ -18,15 +20,11 @@ export function DocumentInvoice({
 	invoiceId,
 	translations,
 }: {
-	readonly orderId: number;
-	readonly invoiceId: number;
+	readonly orderId: EntityId;
+	readonly invoiceId: EntityId;
 	readonly translations: InvoiceDocumentTranslations;
 }): JSX.Element {
-	const isValidId =
-		Number.isInteger(orderId) &&
-		orderId > 0 &&
-		Number.isInteger(invoiceId) &&
-		invoiceId > 0;
+	const isValidId = isEntityId(orderId) && isEntityId(invoiceId);
 
 	const invoiceQuery = useQuery({
 		queryKey: [...OWN_ORDERS_QUERY_KEY, 'invoice', orderId, invoiceId],

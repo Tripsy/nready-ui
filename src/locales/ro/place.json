@@ -61,7 +61,7 @@
 		"tab_api": "Documentație API"
 	},
 	"field": {
-		"search": "ID / Nume",
+		"search": "Nume",
 		"place_type": "Tip",
 		"language": "Limbă",
 		"code": "Cod",

@@ -14,11 +14,12 @@ import {
 } from '@/models/client.model';
 import { useWindowForm } from '@/providers/window-form.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = ['invoice.field.client'] as const;
 
 export type InvoiceCreateFormValuesType = {
-	client_id: number | null;
+	client_id: EntityId | null;
 	/** What the picker shows; the id beside it is what is submitted. */
 	client: string | null;
 };

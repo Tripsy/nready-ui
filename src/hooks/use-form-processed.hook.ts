@@ -9,6 +9,7 @@ import { useModalStore } from '@/stores/window.store';
 import type { ActionEventType } from '@/types/action.type';
 import type { DataSourceKey } from '@/types/data-source.key';
 import { DataSourceSectionEnum } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType, FormValuesType } from '@/types/form.type';
 import type { WindowConfig } from '@/types/window.type';
 
@@ -16,7 +17,7 @@ type UseWindowFormProcessedParams<FormValues extends FormValuesType, Entry> = {
 	state: FormStateType<FormValues>;
 	windowConfig: WindowConfig;
 	windowEvents?: Record<string, ActionEventType<Entry>>;
-	entryId?: number;
+	entryId?: EntityId;
 };
 
 export function useWindowFormProcessed<

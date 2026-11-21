@@ -21,6 +21,7 @@ import {
 	type ShippingAddressSnapshot,
 	ShippingMethodEnum,
 } from '@/models/shipping.model';
+import type { EntityId } from '@/types/entity-id.type';
 
 /** A document is dated by the day - the time it was issued at is no part of what it states. */
 const DATE_FORMAT = 'DD.MM.YYYY';
@@ -60,7 +61,7 @@ const buildPageStyle = (reference: string | null) => `
 const formatAmount = (value: number): string => value.toFixed(2);
 
 const displayReference = (entry: {
-	id: number;
+	id: EntityId;
 	ref_code: string | null;
 	ref_number: number | null;
 }): string =>

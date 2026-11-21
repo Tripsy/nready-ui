@@ -9,6 +9,7 @@ import type {
 	FindFunctionResponseType,
 } from '@/types/action.type';
 import type { ApiResponseFetch, QueryFiltersType } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Where the backend mounts the grants - a resource of its own, gated by the `permission`
@@ -20,7 +21,7 @@ import type { ApiResponseFetch, QueryFiltersType } from '@/types/api.type';
 const USER_PERMISSION_PATH = '/user-permissions';
 
 export async function getUserPermissions(
-	user_id: number,
+	user_id: EntityId,
 	params: FindFunctionParamsType,
 ) {
 	const query = buildQueryString(params as QueryFiltersType);
@@ -35,9 +36,9 @@ export async function getUserPermissions(
 }
 
 export async function createUserPermissions(
-	user_id: number,
-	permission_ids: number[],
-): Promise<ApiResponseFetch<{ permission_id: number; message: string }[]>> {
+	user_id: EntityId,
+	permission_ids: EntityId[],
+): Promise<ApiResponseFetch<{ permission_id: EntityId; message: string }[]>> {
 	return await new ApiRequest().doFetch(
 		`${USER_PERMISSION_PATH}/${user_id}`,
 		{
@@ -51,8 +52,8 @@ export async function createUserPermissions(
 }
 
 export async function deleteUserPermission(
-	user_id: number,
-	permission_id: number,
+	user_id: EntityId,
+	permission_id: EntityId,
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(
 		`${USER_PERMISSION_PATH}/${user_id}/${permission_id}`,

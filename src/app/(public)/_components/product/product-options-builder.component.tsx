@@ -14,11 +14,12 @@ import {
 	roundMoney,
 } from '@/models/product.model';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /** An option as the storefront read hands it back - `id` is always present there. */
-type PublicOption = ProductOptionType & { id: number };
+type PublicOption = ProductOptionType & { id: EntityId };
 type PublicGroup = Omit<ProductOptionGroupType, 'options'> & {
-	id: number;
+	id: EntityId;
 	options: PublicOption[];
 };
 
@@ -47,7 +48,10 @@ function resolveDelta(option: PublicOption, currency: string): number {
  * Whether a group's answers sit inside its bounds. Mirrors `ProductOptionSelectionService.findProblem`
  * on the backend, which has the last word; this only keeps the add disabled until it would pass.
  */
-function isAnswered(group: PublicGroup, picked: ReadonlySet<number>): boolean {
+function isAnswered(
+	group: PublicGroup,
+	picked: ReadonlySet<EntityId>,
+): boolean {
 	const count = group.options.filter((option) =>
 		picked.has(option.id),
 	).length;
@@ -81,8 +85,8 @@ export function ProductOptionsBuilder({
 	language,
 	translations,
 }: {
-	readonly productId: number;
-	readonly variantId: number;
+	readonly productId: EntityId;
+	readonly variantId: EntityId;
 	readonly isAvailable: boolean;
 	/** The selected variant's price, excluding VAT, in the market the page quotes; `null` when it has none. */
 	readonly price: { currency: string; net_sale_price: number } | null;
@@ -109,7 +113,7 @@ export function ProductOptionsBuilder({
 		[groups],
 	);
 
-	const [picked, setPicked] = useState<ReadonlySet<number>>(
+	const [picked, setPicked] = useState<ReadonlySet<EntityId>>(
 		() =>
 			new Set(
 				sortedGroups.flatMap((group) =>
@@ -154,7 +158,7 @@ export function ProductOptionsBuilder({
 				)
 			: null;
 
-	const toggle = (group: PublicGroup, optionId: number, checked: boolean) =>
+	const toggle = (group: PublicGroup, optionId: EntityId, checked: boolean) =>
 		setPicked((current) => {
 			const next = new Set(current);
 
@@ -273,7 +277,7 @@ export function ProductOptionsBuilder({
 										?.id.toString() ?? null
 								}
 								onChange={(value: string) =>
-									toggle(group, Number(value), true)
+									toggle(group, value, true)
 								}
 							>
 								{group.options.map((option) => (

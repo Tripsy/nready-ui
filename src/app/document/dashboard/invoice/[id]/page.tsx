@@ -31,9 +31,6 @@ export default async function Page({ params }: Props) {
 	);
 
 	return (
-		<DashboardDocumentInvoice
-			invoiceId={Number(id)}
-			translations={translations}
-		/>
+		<DashboardDocumentInvoice invoiceId={id} translations={translations} />
 	);
 }

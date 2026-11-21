@@ -73,7 +73,7 @@
 		"tab_api": "Documentație API"
 	},
 	"field": {
-		"search": "ID / Cod / Nume",
+		"search": "Cod / Nume",
 		"status": "Status",
 		"is_default": "Implicit",
 		"address": "Adresă",

@@ -14,11 +14,7 @@ import { ViewClient } from '@/app/(dashboard)/dashboard/client/view-client.compo
 import { LinkClientLedger } from '@/app/(dashboard)/dashboard/client-ledger/link-client-ledger.component';
 import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
-import {
-	getFormDataAsEnum,
-	getFormDataAsNumber,
-	getFormDataAsString,
-} from '@/helpers/form.helper';
+import { getFormDataAsEnum, getFormDataAsString } from '@/helpers/form.helper';
 import { arrayHasValue } from '@/helpers/objects.helper';
 import {
 	requestCreate,
@@ -50,6 +46,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -175,7 +172,7 @@ async function validateAccountForm(values: ClientAccountFormValuesType) {
 
 function getAccountFormValues(formData: FormData): ClientAccountFormValuesType {
 	return {
-		user_id: getFormDataAsNumber(formData, 'user_id'),
+		user_id: getFormDataAsString(formData, 'user_id'),
 		user: getFormDataAsString(formData, 'user_label'),
 	};
 }
@@ -397,17 +394,6 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					field: 'client_type',
 					header: labels['field.client_type'],
 					sortable: true,
@@ -428,6 +414,8 @@ export default async function dataSourceConfig(): Promise<
 
 						// The name opens the client's ledger, for whoever may read it
 						return DataTableValue(entry, column, {
+							markDeleted: true,
+							displayButton: displayButtonView(auth),
 							customValue:
 								label &&
 								hasPermission(auth, 'client-ledger', 'find')
@@ -511,7 +499,10 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['client', 'update'],
 				entriesSelection: 'single',
 				customEntryCheck: (entry: ClientModel) => !entry.deleted_at, // Return true if the entry is not deleted
-				operationFunction: (params: ClientFormValuesType, id: number) =>
+				operationFunction: (
+					params: ClientFormValuesType,
+					id: EntityId,
+				) =>
 					requestUpdate<ClientModel, ClientFormValuesType>(
 						'client',
 						params,
@@ -547,7 +538,7 @@ export default async function dataSourceConfig(): Promise<
 				// partial entry back, and an empty one says the same thing
 				operationFunction: async (
 					values: ClientAccountFormValuesType,
-					id: number,
+					id: EntityId,
 				): Promise<ApiResponseFetch<Partial<ClientModel>>> => {
 					const response = await requestUpdateClientAccount(
 						id,

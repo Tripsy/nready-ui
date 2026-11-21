@@ -7,6 +7,7 @@ import type {
 	ComplaintReason,
 } from '@/models/complaint.model';
 import type { ApiResponseFetch } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The moderation decision on a complaint, and its reversal.
@@ -39,7 +40,7 @@ export async function requestResolveComplaint(
 /** The target's path segments, in the order the three addressed routes take them. */
 function buildComplaintTargetPath(
 	entityType: ComplaintEntityType,
-	entityId: number,
+	entityId: EntityId,
 ): string {
 	return `/public/complaints/${entityType}/${entityId}`;
 }
@@ -51,7 +52,7 @@ function buildComplaintTargetPath(
  */
 export async function requestOwnComplaint(
 	entityType: ComplaintEntityType,
-	entityId: number,
+	entityId: EntityId,
 ): Promise<ApiResponseFetch<ComplaintPublicReadType>> {
 	return await new ApiRequest().doFetch(
 		buildComplaintTargetPath(entityType, entityId),
@@ -65,7 +66,7 @@ export async function requestOwnComplaint(
  */
 export async function requestCreateComplaint(params: {
 	entity_type: ComplaintEntityType;
-	entity_id: number;
+	entity_id: EntityId;
 	reason: ComplaintReason;
 	description?: string;
 }): Promise<ApiResponseFetch<ComplaintOwnEntryType>> {
@@ -82,7 +83,7 @@ export async function requestCreateComplaint(params: {
  */
 export async function requestUpdateComplaint(
 	entityType: ComplaintEntityType,
-	entityId: number,
+	entityId: EntityId,
 	params: { reason?: ComplaintReason; description?: string },
 ): Promise<ApiResponseFetch<ComplaintOwnEntryType>> {
 	return await new ApiRequest().doFetch(
@@ -101,7 +102,7 @@ export async function requestUpdateComplaint(
  */
 export async function requestDeleteComplaint(
 	entityType: ComplaintEntityType,
-	entityId: number,
+	entityId: EntityId,
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(
 		buildComplaintTargetPath(entityType, entityId),

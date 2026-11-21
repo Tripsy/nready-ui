@@ -42,6 +42,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 /**
@@ -213,16 +214,6 @@ export default async function dataSourceConfig(): Promise<
 			// `OrderByEnum` accepts.
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					field: 'document_type',
 					header: labels['field.document_type'],
 					body: (entry, column) =>
@@ -238,6 +229,10 @@ export default async function dataSourceConfig(): Promise<
 					field: 'code',
 					header: labels['field.code'],
 					sortable: true,
+					body: (entry, column, auth) =>
+						DataTableValue(entry, column, {
+							displayButton: displayButtonView(auth),
+						}),
 				},
 				{
 					field: 'start_number',
@@ -293,7 +288,7 @@ export default async function dataSourceConfig(): Promise<
 				entriesSelection: 'single',
 				operationFunction: (
 					params: DocumentSeriesUpdateParamsType,
-					id: number,
+					id: EntityId,
 				) =>
 					requestUpdate<
 						DocumentSeriesModel,

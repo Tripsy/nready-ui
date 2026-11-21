@@ -37,6 +37,7 @@ import {
 } from '@/models/product.model';
 import { useAuth } from '@/providers/auth.provider';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'product.field.available_from',
@@ -177,11 +178,11 @@ function StockProduct({
 }) {
 	// A variant the API has not stored yet has no id, and nothing was ever received against it
 	const tracked = variants.filter(
-		(variant): variant is ProductVariantType & { id: number } =>
+		(variant): variant is ProductVariantType & { id: EntityId } =>
 			variant.track_stock && variant.id !== undefined,
 	);
 
-	const [selectedId, setSelectedId] = useState<number | undefined>(
+	const [selectedId, setSelectedId] = useState<EntityId | undefined>(
 		() => (tracked.find((variant) => variant.is_default) ?? tracked[0])?.id,
 	);
 

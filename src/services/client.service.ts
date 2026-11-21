@@ -1,6 +1,7 @@
 import { ApiRequest } from '@/helpers/api.helper';
 import type { ClientModel, ClientType } from '@/models/client.model';
 import type { ApiResponseFetch } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The shopper's own clients (`/public/clients`) - who an order may be billed to. Both calls need a
@@ -15,8 +16,8 @@ import type { ApiResponseFetch } from '@/types/api.type';
  * The response carries a message and no entry.
  */
 export async function requestUpdateClientAccount(
-	id: number,
-	user_id: number | null,
+	id: EntityId,
+	user_id: EntityId | null,
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(`/clients/${id}/account`, {
 		method: 'PATCH',
@@ -73,7 +74,7 @@ export async function requestCreateOwnClient(
  * 409 as create applies when a company's name, CUI or registration number is already on file.
  */
 export async function requestUpdateOwnClient(
-	id: number,
+	id: EntityId,
 	params: Partial<OwnClientCreateParams>,
 ): Promise<ApiResponseFetch<ClientModel>> {
 	return await new ApiRequest().doFetch(`/public/clients/${id}`, {

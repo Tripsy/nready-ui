@@ -8,6 +8,7 @@ import type {
 	CommentSubscriptionType,
 } from '@/models/comment.model';
 import type { ApiResponseFetch } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The reader-facing comment endpoints (`/public/comments`), open to guests and members alike.
@@ -31,7 +32,7 @@ export type CommentThreadType = {
 	 * shows its first reply without being unrolled, and this is what spares one request per root
 	 * to find it. Empty when reading a reply list, which is already replies.
 	 */
-	first_replies: Record<number, CommentModel>;
+	first_replies: Record<EntityId, CommentModel>;
 };
 
 /**
@@ -40,8 +41,8 @@ export type CommentThreadType = {
  */
 export async function requestCommentThread(
 	entityType: CommentEntityType,
-	entityId: number,
-	params?: { parent_id?: number; page?: number; limit?: number },
+	entityId: EntityId,
+	params?: { parent_id?: EntityId; page?: number; limit?: number },
 ): Promise<ApiResponseFetch<CommentThreadType>> {
 	const query = new URLSearchParams();
 
@@ -74,10 +75,10 @@ export async function requestCommentThread(
  */
 export async function requestCreateComment(params: {
 	entity_type: CommentEntityType;
-	entity_id: number;
+	entity_id: EntityId;
 	content: string;
 	type?: string;
-	parent_id?: number;
+	parent_id?: EntityId;
 	guest_name?: string;
 	guest_email?: string;
 	guest_website?: string;
@@ -97,7 +98,7 @@ export async function requestCreateComment(params: {
  * existed gives.
  */
 export async function requestUpdateComment(
-	id: number,
+	id: EntityId,
 	params: { content: string },
 ): Promise<ApiResponseFetch<CommentModel>> {
 	return await new ApiRequest().doFetch(`/public/comments/${id}`, {
@@ -111,7 +112,7 @@ export async function requestUpdateComment(
  * delete - and its replies go with it.
  */
 export async function requestDeleteComment(
-	id: number,
+	id: EntityId,
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(`/public/comments/${id}`, {
 		method: 'DELETE',
@@ -132,7 +133,7 @@ export async function requestDeleteComment(
 
 /** Rewrites another reader's comment, or pins it. A partial update - send only what changes. */
 export async function requestModerateComment(
-	id: number,
+	id: EntityId,
 	params: { content?: string; is_pinned?: boolean },
 ): Promise<ApiResponseFetch<CommentModel>> {
 	return await new ApiRequest().doFetch(`/comments/${id}`, {
@@ -146,7 +147,7 @@ export async function requestModerateComment(
  * thread under it goes too - which is why the control behind this confirms first.
  */
 export async function requestModerateDeleteComment(
-	id: number,
+	id: EntityId,
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(`/comments/${id}`, {
 		method: 'DELETE',
@@ -163,7 +164,7 @@ export async function requestModerateDeleteComment(
  * decision; the backend caps it and accepts its absence.
  */
 export async function requestModerateCommentStatus(
-	id: number,
+	id: EntityId,
 	status: CommentStatus,
 	moderationReason?: string,
 ): Promise<ApiResponseFetch<null>> {
@@ -217,7 +218,7 @@ export async function requestUpdateCommentSubscription(
  * than from a cache.
  */
 export async function requestCommentLocation(
-	id: number,
+	id: EntityId,
 ): Promise<ApiResponseFetch<CommentLocationModel>> {
 	return await new ApiRequest()
 		.setRequestMode('remote-api')

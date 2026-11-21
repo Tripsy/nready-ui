@@ -20,6 +20,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Exactly the keys in the backend's `find.filterSchema`.
@@ -111,26 +112,16 @@ export default async function dataSourceConfig(): Promise<
 			 */
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					field: 'user_id',
 					header: labels['field.shopper'],
 					defaultWidth: 160,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
+							displayButton: displayButtonViewUser(auth, entry),
 							customValue: displayCartOwner(entry, {
 								user: labels['text.user_ref'],
 								guest,
 							}),
-							displayButton: displayButtonViewUser(auth, entry),
 						}),
 				},
 				{
@@ -167,9 +158,11 @@ export default async function dataSourceConfig(): Promise<
 					field: 'created_at',
 					header: labels['field.created_at'],
 					sortable: true,
-					body: (entry, column) =>
+					// A cart has no name of its own, so its view opens from when it was started
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayDate: true,
+							displayButton: displayButtonView(auth),
 						}),
 				},
 			],
@@ -217,7 +210,8 @@ export default async function dataSourceConfig(): Promise<
 				 * prices the lines - against the catalog as it is at that moment, which is also
 				 * why a cached copy would be wrong.
 				 */
-				reloadEntry: (id: number) => requestView<CartModel>('cart', id),
+				reloadEntry: (id: EntityId) =>
+					requestView<CartModel>('cart', id),
 			},
 			guide: {
 				windowType: 'other',

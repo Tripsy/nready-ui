@@ -42,6 +42,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -221,21 +222,12 @@ export default async function dataSourceConfig(): Promise<
 			// moved to `term_content`, since ordering on it would mean picking a language first.
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
+					field: 'type',
+					header: labels['field.type'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
 							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
-					field: 'type',
-					header: labels['field.type'],
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
 							customValue: translateEnumLabel(
 								labels,
 								'enum.type',
@@ -301,7 +293,7 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['term', 'update'],
 				entriesSelection: 'single',
 				customEntryCheck: (entry: TermModel) => !entry.deleted_at, // Return true if the entry is not deleted
-				operationFunction: (params: TermFormValuesType, id: number) =>
+				operationFunction: (params: TermFormValuesType, id: EntityId) =>
 					requestUpdate<TermModel, TermFormValuesType>(
 						'term',
 						params,
@@ -309,7 +301,8 @@ export default async function dataSourceConfig(): Promise<
 					),
 				// The list already carries every translation, but the entry must be re-read
 				// after a save so the form reopens on the stored set rather than the stale one
-				reloadEntry: (id: number) => requestView<TermModel>('term', id),
+				reloadEntry: (id: EntityId) =>
+					requestView<TermModel>('term', id),
 				buttonPosition: 'left',
 				button: {
 					variant: 'outline',
@@ -359,7 +352,8 @@ export default async function dataSourceConfig(): Promise<
 				buttonPosition: 'hidden',
 				// The list row carries only the filtered language; the details window shows
 				// every wording, which is what `read` returns when no language is requested
-				reloadEntry: (id: number) => requestView<TermModel>('term', id),
+				reloadEntry: (id: EntityId) =>
+					requestView<TermModel>('term', id),
 			},
 			guide: {
 				windowType: 'other',

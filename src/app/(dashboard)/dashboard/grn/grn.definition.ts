@@ -48,6 +48,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -165,7 +166,7 @@ class GrnValidator extends BaseValidator<typeof validatorMessages> {
 			 * lot of the same variant is entered as a separate receipt.
 			 */
 			.superRefine((data, ctx) => {
-				const seen = new Set<number>();
+				const seen = new Set<EntityId>();
 
 				for (const item of data.items) {
 					// An unpicked row is reported on its own field; it duplicates nothing
@@ -215,8 +216,8 @@ async function validateForm(values: GrnFormValuesType) {
  */
 function getFormValues(formData: FormData): GrnFormValuesType {
 	return {
-		warehouse_id: getFormDataAsNumber(formData, 'warehouse_id'),
-		vendor_id: getFormDataAsNumber(formData, 'vendor_id'),
+		warehouse_id: getFormDataAsString(formData, 'warehouse_id'),
+		vendor_id: getFormDataAsString(formData, 'vendor_id'),
 		supplier_document_number: getFormDataAsString(
 			formData,
 			'supplier_document_number',
@@ -324,9 +325,9 @@ export type GrnDataTableFiltersType = {
 	status: { value: GrnStatus | null; matchMode: 'equals' };
 	// The label is the autocomplete's text, kept so a redrawn filter bar still shows the pick
 	warehouse: { value: string | null; matchMode: 'equals' };
-	warehouse_id: { value: number | null; matchMode: 'equals' };
+	warehouse_id: { value: EntityId | null; matchMode: 'equals' };
 	vendor: { value: string | null; matchMode: 'equals' };
-	vendor_id: { value: number | null; matchMode: 'equals' };
+	vendor_id: { value: EntityId | null; matchMode: 'equals' };
 	received_at_start: { value: string | null; matchMode: 'equals' };
 	received_at_end: { value: string | null; matchMode: 'equals' };
 	is_deleted: { value: boolean; matchMode: 'equals' };
@@ -418,22 +419,13 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
+					field: 'ref_number',
+					header: labels['field.reference'],
 					sortable: true,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
 							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
-					field: 'ref_number',
-					header: labels['field.reference'],
-					sortable: true,
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
 							customValue: displayGrnReference(entry),
 						}),
 				},
@@ -543,8 +535,8 @@ export default async function dataSourceConfig(): Promise<
 				 * row first. Seeding it from the table row would submit an empty line set and wipe
 				 * the draft's lines.
 				 */
-				reloadEntry: (id: number) => requestView<GrnModel>('grn', id),
-				operationFunction: (params: GrnFormValuesType, id: number) =>
+				reloadEntry: (id: EntityId) => requestView<GrnModel>('grn', id),
+				operationFunction: (params: GrnFormValuesType, id: EntityId) =>
 					requestUpdate<
 						GrnModel,
 						ReturnType<typeof prepareParamsFromFormValues>
@@ -614,7 +606,7 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['grn', 'read'],
 				entriesSelection: 'single',
 				// The lines are on the read only, as above
-				reloadEntry: (id: number) => requestView<GrnModel>('grn', id),
+				reloadEntry: (id: EntityId) => requestView<GrnModel>('grn', id),
 				buttonPosition: 'hidden',
 			},
 			guide: {

@@ -18,6 +18,7 @@ import {
 	deleteUserPermission,
 	getUserPermissions,
 } from '@/services/user.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'app.error.title',
@@ -92,15 +93,13 @@ export function SetupUserPermissions({ entries }: { entries: UserModel[] }) {
 		isLoadingUserPermissions;
 	const permissions = permissionsData?.entries ?? [];
 
-	const [userPermissions, setUserPermissions] = useState<number[]>([]);
+	const [userPermissions, setUserPermissions] = useState<EntityId[]>([]);
 
 	useEffect(() => {
 		if (userPermissionsData?.entries) {
 			setUserPermissions([
 				...new Set(
-					userPermissionsData.entries.map((p) =>
-						Number(p.permission_id),
-					),
+					userPermissionsData.entries.map((p) => p.permission_id),
 				),
 			]);
 		}
@@ -143,7 +142,7 @@ export function SetupUserPermissions({ entries }: { entries: UserModel[] }) {
 			}
 
 			const entityPerms = listPermissions[entity];
-			const entityPermIds = entityPerms.map((p) => Number(p.id));
+			const entityPermIds = entityPerms.map((p) => p.id);
 
 			setUserPermissions((prev) =>
 				checked
@@ -199,22 +198,20 @@ export function SetupUserPermissions({ entries }: { entries: UserModel[] }) {
 	);
 
 	const handleTogglePermission = useCallback(
-		async (permission_id: number, checked: boolean, label: string) => {
+		async (permission_id: EntityId, checked: boolean, label: string) => {
 			if (!entry.id) {
 				return;
 			}
 
-			const numericId = Number(permission_id);
-
 			setUserPermissions((prev) =>
 				checked
-					? [...new Set([...prev, numericId])]
-					: prev.filter((id) => id !== numericId),
+					? [...new Set([...prev, permission_id])]
+					: prev.filter((id) => id !== permission_id),
 			);
 
 			try {
 				if (checked) {
-					await createUserPermissions(entry.id, [numericId]);
+					await createUserPermissions(entry.id, [permission_id]);
 
 					showToast({
 						severity: 'success',
@@ -225,7 +222,7 @@ export function SetupUserPermissions({ entries }: { entries: UserModel[] }) {
 						),
 					});
 				} else {
-					await deleteUserPermission(entry.id, numericId);
+					await deleteUserPermission(entry.id, permission_id);
 
 					showToast({
 						severity: 'info',
@@ -239,8 +236,8 @@ export function SetupUserPermissions({ entries }: { entries: UserModel[] }) {
 			} catch (err) {
 				setUserPermissions((prev) =>
 					checked
-						? prev.filter((id) => id !== numericId)
-						: [...new Set([...prev, numericId])],
+						? prev.filter((id) => id !== permission_id)
+						: [...new Set([...prev, permission_id])],
 				);
 				showToast({
 					severity: 'error',
@@ -268,7 +265,7 @@ export function SetupUserPermissions({ entries }: { entries: UserModel[] }) {
 		<div className="flex flex-col gap-4">
 			{sortedPermissions.map(([entity, perms]) => {
 				const allChecked = perms.every((perm) =>
-					userPermissions.includes(Number(perm.id)),
+					userPermissions.includes(perm.id),
 				);
 
 				return (
@@ -290,9 +287,7 @@ export function SetupUserPermissions({ entries }: { entries: UserModel[] }) {
 								(
 								{
 									perms.filter((perm) =>
-										userPermissions.includes(
-											Number(perm.id),
-										),
+										userPermissions.includes(perm.id),
 									).length
 								}
 								/{perms.length})
@@ -302,7 +297,7 @@ export function SetupUserPermissions({ entries }: { entries: UserModel[] }) {
 						<div className="flex flex-wrap gap-2">
 							{perms.map((perm) => {
 								const checked = userPermissions.includes(
-									Number(perm.id),
+									perm.id,
 								);
 
 								return (
@@ -312,7 +307,7 @@ export function SetupUserPermissions({ entries }: { entries: UserModel[] }) {
 										isSelected={checked}
 										onChange={(checked) =>
 											handleTogglePermission(
-												Number(perm.id),
+												perm.id,
 												checked,
 												`${entity}.${perm.operation}`,
 											)

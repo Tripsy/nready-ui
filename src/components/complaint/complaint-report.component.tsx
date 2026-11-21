@@ -48,11 +48,12 @@ import {
 	requestDeleteComplaint,
 	requestOwnComplaint,
 } from '@/services/complaint.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 type ComplaintReportProps = {
 	/** What is being reported - an article today, a comment next. */
 	entityType: ComplaintEntityType;
-	entityId: number;
+	entityId: EntityId;
 	/**
 	 * The reasons this target is offered, in the order they are shown. A subset of the backend
 	 * enum: which of the seven make sense depends on what is being reported.
@@ -209,7 +210,7 @@ function ComplaintReportForm({
  */
 function useOwnComplaint(
 	entityType: ComplaintEntityType,
-	entityId: number,
+	entityId: EntityId,
 	enabled: boolean,
 ) {
 	// Memoized because the callbacks below invalidate it: a key rebuilt each render would make

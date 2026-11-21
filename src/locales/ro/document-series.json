@@ -51,7 +51,7 @@
 		"tab_api": "Documentație API"
 	},
 	"field": {
-		"search": "ID / Cod",
+		"search": "Cod",
 		"document_type": "Tip document",
 		"id": "ID",
 		"code": "Cod",

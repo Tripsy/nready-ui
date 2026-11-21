@@ -22,6 +22,7 @@ import { Icons } from '@/components/icon.component';
 import { Button } from '@/components/ui/button';
 import { getLanguageClient } from '@/config/translate.setup';
 import { ownErrorMessages, rowErrorsAt } from '@/helpers/form.helper';
+import { compareIds } from '@/helpers/id.helper';
 import { requestFind } from '@/helpers/services.helper';
 import { replaceVars } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
@@ -40,6 +41,7 @@ import {
 	findBundleCandidates,
 	findVariantsByIds,
 } from '@/services/product.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'product.field.is_default',
@@ -749,13 +751,13 @@ function ComponentSection({
 	pending: boolean;
 	entries: { component: ProductBundleComponentFormType; index: number }[];
 	/** Every variant the bundle holds, across both lists. */
-	chosen: Set<number>;
+	chosen: Set<EntityId>;
 	errors: unknown;
 	/** The set-wide message, which only the base list can break. */
 	setError?: string[];
 	currencies: string[];
 	groups: ProductBundleGroupFormType[];
-	resolvedVariants?: Map<number, ProductVariantModel>;
+	resolvedVariants?: Map<EntityId, ProductVariantModel>;
 	onAdd: (variant: ProductVariantModel) => void;
 	onChangeAt: (index: number, value: ProductBundleComponentFormType) => void;
 	onRemoveAt: (index: number) => void;
@@ -1011,7 +1013,7 @@ export function FormComponentsBundle({
 	 */
 	const componentIds = value
 		.map((component) => component.variant_id)
-		.sort((left, right) => left - right);
+		.sort(compareIds);
 
 	const { data: resolvedVariants } = useQuery({
 		queryKey: ['bundle-component-names', componentIds.join(',')],
