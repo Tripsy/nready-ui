@@ -103,16 +103,21 @@ export function displaySignedQuantity(qty: number): string {
 	return value > 0 ? `+${value}` : String(value);
 }
 
-/** The movement's warehouse as `CODE - Name`, or its id when the join came back empty. */
+/**
+ * The row's warehouse as `CODE - Name`, or its id when the join came back empty. Takes any row
+ * carrying the joined warehouse - a ledger movement or a stock adjustment.
+ */
 export function displayMovementWarehouse(
-	entry: WarehouseMovementModel,
+	entry: Pick<WarehouseMovementModel, 'warehouse' | 'warehouse_id'>,
 ): string {
 	return entry.warehouse
 		? `${entry.warehouse.code} - ${entry.warehouse.name}`
 		: `#${entry.warehouse_id}`;
 }
 
-/** The movement's variant by SKU, or its id when the join came back empty. */
-export function displayMovementVariant(entry: WarehouseMovementModel): string {
+/** The row's variant by SKU, or its id when the join came back empty. */
+export function displayMovementVariant(
+	entry: Pick<WarehouseMovementModel, 'variant' | 'variant_id'>,
+): string {
 	return entry.variant?.sku ?? `#${entry.variant_id}`;
 }

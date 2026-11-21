@@ -412,6 +412,7 @@ const PLURAL_ENDPOINT_KEYS: ReadonlySet<DataSourceKey> = new Set([
 	'order',
 	'order-return',
 	'shipping',
+	'stock-adjustment',
 	'term',
 	'user',
 	'vat-rate',

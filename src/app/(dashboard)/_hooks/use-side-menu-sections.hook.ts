@@ -30,7 +30,6 @@ const TRANSLATION_KEYS = [
 	'dashboard.labels.invoice',
 	'dashboard.labels.discount',
 	'dashboard.labels.exchange-rate',
-	'dashboard.labels.vat-rate',
 	'dashboard.labels.vendor',
 
 	'dashboard.labels.content',
@@ -50,9 +49,12 @@ const TRANSLATION_KEYS = [
 	'dashboard.labels.warehouse',
 	'dashboard.labels.grn',
 	'dashboard.labels.warehouse-movement',
-	'dashboard.labels.low-stock',
+	'dashboard.labels.stock-adjustment',
 	'dashboard.labels.shipping',
 	'dashboard.labels.order-return',
+
+	'dashboard.labels.reports',
+	'dashboard.labels.low-stock',
 
 	'dashboard.labels.publishing',
 	'dashboard.labels.article',
@@ -65,6 +67,7 @@ const TRANSLATION_KEYS = [
 	'dashboard.labels.settings',
 	'dashboard.labels.template',
 	'dashboard.labels.document-series',
+	'dashboard.labels.vat-rate',
 
 	'dashboard.labels.logs',
 	'dashboard.labels.log-data',
@@ -148,13 +151,6 @@ export function useSideMenuSections(): {
 						text: translations['dashboard.labels.exchange-rate'],
 						icon: Icons.ExchangeRate,
 						permission: hasPermission(auth, 'exchange-rate'),
-					},
-					{
-						page: 'vat-rate',
-						href: Routes.get('vat-rate'),
-						text: translations['dashboard.labels.vat-rate'],
-						icon: Icons.VatRate,
-						permission: hasPermission(auth, 'vat-rate'),
 					},
 					{
 						page: 'vendor',
@@ -288,11 +284,11 @@ export function useSideMenuSections(): {
 						permission: hasPermission(auth, 'warehouse-movement'),
 					},
 					{
-						page: 'low-stock',
-						href: Routes.get('low-stock'),
-						text: translations['dashboard.labels.low-stock'],
-						icon: Icons.LowStock,
-						permission: hasPermission(auth, 'warehouse-movement'),
+						page: 'stock-adjustment',
+						href: Routes.get('stock-adjustment'),
+						text: translations['dashboard.labels.stock-adjustment'],
+						icon: Icons.StockAdjustment,
+						permission: hasPermission(auth, 'stock-adjustment'),
 					},
 					{
 						page: 'shipping',
@@ -300,6 +296,26 @@ export function useSideMenuSections(): {
 						text: translations['dashboard.labels.shipping'],
 						icon: Icons.Shipping,
 						permission: hasPermission(auth, 'shipping'),
+					},
+				],
+			},
+			{
+				label: 'reports',
+				text: translations['dashboard.labels.reports'],
+				icon: Icons.Reports,
+				isExpanded: false,
+				items: [
+					{
+						page: 'low-stock',
+						href: Routes.get('low-stock'),
+						text: translations['dashboard.labels.low-stock'],
+						icon: Icons.LowStock,
+						// The endpoint checks a `find` of the ledger - `read` alone would open a page that 403s
+						permission: hasPermission(
+							auth,
+							'warehouse-movement',
+							'find',
+						),
 					},
 				],
 			},
@@ -365,6 +381,13 @@ export function useSideMenuSections(): {
 						text: translations['dashboard.labels.document-series'],
 						icon: Icons.DocumentSeries,
 						permission: hasPermission(auth, 'document-series'),
+					},
+					{
+						page: 'vat-rate',
+						href: Routes.get('vat-rate'),
+						text: translations['dashboard.labels.vat-rate'],
+						icon: Icons.VatRate,
+						permission: hasPermission(auth, 'vat-rate'),
 					},
 				],
 			},

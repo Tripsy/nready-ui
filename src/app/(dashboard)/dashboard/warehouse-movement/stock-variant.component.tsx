@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
 	ViewField,
 	ViewSection,
@@ -9,12 +9,20 @@ import {
 	ErrorComponent,
 	LoadingComponent,
 } from '@/components/status.component';
+import { Button } from '@/components/ui/button';
 import { getResponseData } from '@/helpers/api.helper';
 import { cn } from '@/helpers/css.helper';
 import { translateEnumLabel } from '@/helpers/string.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
-import type { VariantStockModel } from '@/models/warehouse-movement.model';
+import { hasPermission } from '@/models/account.model';
+import type {
+	VariantStockModel,
+	WarehouseStockModel,
+} from '@/models/warehouse-movement.model';
+import { useAuth } from '@/providers/auth.provider';
 import { requestVariantStock } from '@/services/warehouse-movement.service';
+import { useModalStore } from '@/stores/window.store';
+import { DataSourceSectionEnum } from '@/types/data-source.type';
 
 const TRANSLATION_KEYS = [
 	'warehouse-movement.field.on_hand',
@@ -32,6 +40,7 @@ const TRANSLATION_KEYS = [
 	'warehouse-movement.text.over_committed',
 	'warehouse-movement.text.loading',
 	'warehouse-movement.text.load_failed',
+	'stock-adjustment.action.create.label',
 ] as const;
 
 /**
@@ -40,13 +49,67 @@ const TRANSLATION_KEYS = [
  * shipment, so this window is never seeded from the row it was opened from.
  */
 export function StockVariant({
+	uid,
 	entries,
 }: {
-	entries: { variant_id: number }[];
+	// Absent when embedded in another view (the product's), which has no window of its own here
+	uid?: string;
+	// The SKU travels under either name: a ledger row joins it as `variant`, a low-stock row
+	// carries it flat
+	entries: {
+		variant_id: number;
+		sku?: string;
+		variant?: { sku: string } | null;
+	}[];
 }) {
 	const { translations } = useTranslation(TRANSLATION_KEYS);
+	const { auth } = useAuth();
+	const { open, focus } = useModalStore();
+	const queryClient = useQueryClient();
 
 	const variantId = entries[0]?.variant_id;
+	const sku = entries[0]?.variant?.sku ?? entries[0]?.sku;
+
+	// An inactive site's stock is not counted, and the backend refuses to adjust it
+	const canAdjust = hasPermission(auth, 'stock-adjustment', 'create');
+
+	/**
+	 * Opens a stock adjustment with this warehouse and this variant already picked, then comes back
+	 * here and reads the figures again - they are the ones the adjustment just moved.
+	 */
+	const openAdjustment = (site: WarehouseStockModel) => {
+		open({
+			minimized: false,
+			section: DataSourceSectionEnum.DASHBOARD,
+			dataSource: 'stock-adjustment',
+			action: 'create',
+			data: {
+				prefillEntry: {
+					warehouse_id: site.warehouse_id,
+					warehouse: {
+						id: site.warehouse_id,
+						code: site.code,
+						name: site.name,
+					},
+					variant_id: variantId,
+					variant: sku
+						? { id: variantId, sku: sku, product_id: 0 }
+						: null,
+				},
+			},
+			events: {
+				success: async () => {
+					if (uid) {
+						focus(uid);
+					}
+
+					await queryClient.invalidateQueries({
+						queryKey: ['warehouse-movement', 'stock', variantId],
+					});
+				},
+			},
+		});
+	};
 
 	const { data, isLoading, isError } = useQuery({
 		queryKey: ['warehouse-movement', 'stock', variantId],
@@ -157,6 +220,7 @@ export function StockVariant({
 											]
 										}
 									</th>
+									{canAdjust && <th className="py-2" />}
 								</tr>
 							</thead>
 							<tbody className="divide-y divide-line">
@@ -187,6 +251,28 @@ export function StockVariant({
 											<td className="py-2 text-right tabular-nums">
 												{site.on_hand}
 											</td>
+											{canAdjust && (
+												<td className="py-2 pl-4 text-right">
+													{isActive && (
+														<Button
+															type="button"
+															size="sm"
+															variant="outline"
+															onClick={() =>
+																openAdjustment(
+																	site,
+																)
+															}
+														>
+															{
+																translations[
+																	'stock-adjustment.action.create.label'
+																]
+															}
+														</Button>
+													)}
+												</td>
+											)}
 										</tr>
 									);
 								})}

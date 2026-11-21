@@ -343,6 +343,10 @@ Routes.group('dashboard')
 	// A report over the ledger, so gated the way the backend gates it: a `find` of the ledger
 	.add('low-stock', '/dashboard/low-stock', {
 		permissionEntity: 'warehouse-movement',
+		permissionOperation: 'find',
+	})
+	.add('stock-adjustment', '/dashboard/stock-adjustment', {
+		permissionEntity: 'stock-adjustment',
 	})
 	.add('order', '/dashboard/order', {
 		permissionEntity: 'order',

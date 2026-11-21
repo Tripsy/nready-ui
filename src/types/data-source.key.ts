@@ -30,6 +30,7 @@ import type { ProductVariantModel } from '@/models/product-variant.model';
 import type { RatingModel } from '@/models/rating.model';
 import type { ReviewModel } from '@/models/review.model';
 import type { ShippingModel } from '@/models/shipping.model';
+import type { StockAdjustmentModel } from '@/models/stock-adjustment.model';
 import type { TemplateModel } from '@/models/template.model';
 import type { TermModel } from '@/models/term.model';
 import type { UserModel } from '@/models/user.model';
@@ -110,6 +111,8 @@ export type DatasourceModels = {
 	 * a `find` of `warehouse-movement` and keyed by `variant_id`, having no id of its own.
 	 */
 	'low-stock': LowStockModel;
+	// Write-offs and shelf counts entered by hand - posted, then reversed at most once
+	'stock-adjustment': StockAdjustmentModel;
 };
 
 export type DataSourceKey = keyof DatasourceModels;

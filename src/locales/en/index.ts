@@ -58,6 +58,7 @@ import review from '@/locales/en/review.json';
 import shared from '@/locales/en/shared.json';
 import shipping from '@/locales/en/shipping.json';
 import status from '@/locales/en/status.json';
+import stock_adjustment from '@/locales/en/stock-adjustment.json';
 import template from '@/locales/en/template.json';
 import term from '@/locales/en/term.json';
 import user from '@/locales/en/user.json';
@@ -107,6 +108,7 @@ const en = {
 	'log-data': log_data,
 	'log-history': log_history,
 	'low-stock': low_stock,
+	'stock-adjustment': stock_adjustment,
 	login,
 	logout,
 	'mail-queue': mail_queue,

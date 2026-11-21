@@ -57,7 +57,7 @@
 		"source_type": {
 			"grn_item": "Goods receipt line",
 			"shipping_line": "Shipment line",
-			"adjustment": "Entered by hand"
+			"adjustment": "Stock adjustment"
 		},
 		"warehouse_status": {
 			"active": "Active",
@@ -76,7 +76,7 @@
 		"source_ref": "{{type}} #{{id}}"
 	},
 	"help": {
-		"intro": "The stock ledger is the history of every unit that entered or left a warehouse. Nobody writes to it by hand: each row is posted by the document that moved the goods, and a mistake is corrected by a reversing row, never by an edit.",
+		"intro": "The stock ledger is the history of every unit that entered or left a warehouse. Each row is posted by whatever moved the goods - a document, or a stock adjustment entered by hand - and a mistake is corrected by a reversing row, never by an edit.",
 		"step_1_title": "Receipts",
 		"step_1_body": "Confirming a goods receipt posts one receipt per line - a lot opens at its cost in the base currency. Canceling a confirmed receipt posts an adjustment reversing it.",
 		"step_2_title": "Sales",

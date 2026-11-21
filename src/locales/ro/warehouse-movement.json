@@ -57,7 +57,7 @@
 		"source_type": {
 			"grn_item": "Linie de recepție",
 			"shipping_line": "Linie de expediere",
-			"adjustment": "Introdusă manual"
+			"adjustment": "Ajustare stoc"
 		},
 		"warehouse_status": {
 			"active": "Activ",
@@ -76,7 +76,7 @@
 		"source_ref": "{{type}} #{{id}}"
 	},
 	"help": {
-		"intro": "Registrul de stoc este istoricul fiecărei unități care a intrat sau a ieșit dintr-un depozit. Nimeni nu scrie în el manual: fiecare rând este înregistrat de documentul care a mutat marfa, iar o greșeală se corectează printr-un rând de stornare, niciodată prin editare.",
+		"intro": "Registrul de stoc este istoricul fiecărei unități care a intrat sau a ieșit dintr-un depozit. Fiecare rând este înregistrat de ce a mutat marfa - un document sau o ajustare de stoc introdusă manual - iar o greșeală se corectează printr-un rând de stornare, niciodată prin editare.",
 		"step_1_title": "Recepții",
 		"step_1_body": "Confirmarea unei recepții înregistrează câte o recepție pe linie - se deschide un lot la costul său în moneda de bază. Anularea unei recepții confirmate înregistrează o ajustare care o stornează.",
 		"step_2_title": "Vânzări",

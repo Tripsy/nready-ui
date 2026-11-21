@@ -26,6 +26,7 @@ export const PermissionEntitiesSuggestions = [
 	'order',
 	'order-return',
 	'shipping',
+	'stock-adjustment',
 	'permission',
 	'place',
 	'product',

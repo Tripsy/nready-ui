@@ -58,6 +58,7 @@ import review from '@/locales/ro/review.json';
 import shared from '@/locales/ro/shared.json';
 import shipping from '@/locales/ro/shipping.json';
 import status from '@/locales/ro/status.json';
+import stock_adjustment from '@/locales/ro/stock-adjustment.json';
 import template from '@/locales/ro/template.json';
 import term from '@/locales/ro/term.json';
 import user from '@/locales/ro/user.json';
@@ -107,6 +108,7 @@ const ro = {
 	'log-data': log_data,
 	'log-history': log_history,
 	'low-stock': low_stock,
+	'stock-adjustment': stock_adjustment,
 	login,
 	logout,
 	'mail-queue': mail_queue,

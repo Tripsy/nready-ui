@@ -18,6 +18,7 @@ import {
 	CalendarClock,
 	Camera,
 	Car,
+	ChartNoAxesColumn,
 	Check,
 	ChevronLeft,
 	CircleAlert,
@@ -26,6 +27,7 @@ import {
 	CircleSlash,
 	CircleUser,
 	CircleX,
+	ClipboardCheck,
 	ClipboardClock,
 	ClipboardList,
 	Clock,
@@ -246,10 +248,12 @@ export const Icons = {
 	StockLedger: createIcon(ScrollText),
 	// Tracked variants at or under their low-stock threshold
 	LowStock: createIcon(PackageMinus),
+	StockAdjustment: createIcon(ClipboardCheck),
 	// A return authorization - goods a buyer sends back
 	OrderReturn: createIcon(Undo2),
 	Carrier: createIcon(Truck),
 	Logistics: createIcon(Package),
+	Reports: createIcon(ChartNoAxesColumn),
 	Clock: createIcon(Clock),
 	Payment: createIcon(Coins),
 	MapPin: createIcon(MapPin),
