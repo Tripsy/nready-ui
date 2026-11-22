@@ -48,7 +48,7 @@
 			"confirm": "Sigur vrei să marchezi acest furnizor drept inactiv?"
 		},
 		"view": {
-			"title": "Detalii furnizor - {{entry}}",
+			"title": "Furnizor - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"guide": {

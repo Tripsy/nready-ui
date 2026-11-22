@@ -33,7 +33,7 @@
 			"confirm": "Sigur vrei să restaurezi reclamația selectată?"
 		},
 		"view": {
-			"title": "Detalii reclamație - {{entry}}",
+			"title": "Reclamație - {{entry}}",
 			"label": "Vezi"
 		},
 		"viewUser": {

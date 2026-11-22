@@ -10,7 +10,7 @@
 			"confirm": "Are you sure you want to delete the selected rating?"
 		},
 		"view": {
-			"title": "Rating details - {{entry}}",
+			"title": "Rating - {{entry}}",
 			"label": "View"
 		},
 		"viewUser": {

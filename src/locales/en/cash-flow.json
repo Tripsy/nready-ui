@@ -73,7 +73,7 @@
 			"confirm": "Generate the invoice for this cash flow and allocate the payment against it?"
 		},
 		"view": {
-			"title": "Cash flow details - {{entry}}",
+			"title": "Cash flow - {{entry}}",
 			"label": "View details"
 		},
 		"guide": {

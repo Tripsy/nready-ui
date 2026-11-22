@@ -233,10 +233,6 @@ export default async function dataSourceConfig(): Promise<
 					header: labels['field.country_code'],
 					defaultWidth: 112,
 					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							displayButton: displayButtonView(auth),
-						}),
 				},
 				{
 					field: 'category',
@@ -269,9 +265,10 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'created_at',
 					header: labels['field.created_at'],
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayDate: true,
+							displayButton: displayButtonView(auth),
 						}),
 				},
 			],

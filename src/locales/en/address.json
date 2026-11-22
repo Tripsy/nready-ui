@@ -33,7 +33,7 @@
 			"confirm": "Are you sure you want to restore this address?"
 		},
 		"view": {
-			"title": "Address details - {{entry}}",
+			"title": "Address - {{entry}}",
 			"label": "View details"
 		},
 		"guide": {

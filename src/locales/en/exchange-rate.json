@@ -26,7 +26,7 @@
 			"confirm": "Deleting a rate is permanent. Conversions asking for that day afterwards fall back to the last rate published before it. Are you sure?"
 		},
 		"view": {
-			"title": "Exchange rate details - {{entry}}",
+			"title": "Exchange rate - {{entry}}",
 			"label": "View details"
 		},
 		"guide": {

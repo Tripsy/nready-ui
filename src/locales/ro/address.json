@@ -33,7 +33,7 @@
 			"confirm": "Sigur vrei să restaurezi această adresă?"
 		},
 		"view": {
-			"title": "Detalii adresă - {{entry}}",
+			"title": "Adresă - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"guide": {

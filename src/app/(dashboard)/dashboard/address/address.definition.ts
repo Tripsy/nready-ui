@@ -162,11 +162,8 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'city',
 					header: labels['field.city'],
-					body: (entry, column, auth) =>
+					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							dataSource: 'address',
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
 							customValue: entry.city
 								? getPlaceContentProp(
 										entry.city,
@@ -180,6 +177,12 @@ export default async function dataSourceConfig(): Promise<
 					field: 'details',
 					header: labels['field.details'],
 					sortable: true,
+					body: (entry, column, auth) =>
+						DataTableValue(entry, column, {
+							dataSource: 'address',
+							markDeleted: true,
+							displayButton: displayButtonView(auth),
+						}),
 				},
 			],
 			find: (params: FindFunctionParamsType) =>

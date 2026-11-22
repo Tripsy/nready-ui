@@ -63,7 +63,7 @@
 			"confirm": "Are you sure you want to restore this movement?"
 		},
 		"view": {
-			"title": "Movement details - {{entry}}",
+			"title": "Movement - {{entry}}",
 			"label": "View details"
 		},
 		"statusTransition": {

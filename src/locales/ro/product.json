@@ -97,7 +97,7 @@
 			"confirm": "Marchezi acest produs ca pregătit? Din starea „pregătit” nu se mai poate ieși - fluxul nu mai poate fi parcurs înapoi."
 		},
 		"view": {
-			"title": "Detalii produs - {{entry}}",
+			"title": "Produs - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"managerImages": {

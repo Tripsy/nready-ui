@@ -53,10 +53,7 @@ import {
 	type OrderReturnStatus,
 	OrderReturnStatusEnum,
 } from '@/models/order-return.model';
-import {
-	ShippingMethodEnum,
-	ShippingStatusEnum,
-} from '@/models/shipping.model';
+import { ShippingMethodEnum } from '@/models/shipping.model';
 import {
 	requestApproveOrderReturn,
 	requestOrderReturnRefund,
@@ -409,7 +406,7 @@ export type OrderReturnDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<OrderReturnModel>
 > {
-	const [translations, labels, shippingLabels] = await Promise.all([
+	const [translations, labels] = await Promise.all([
 		translateBatch(
 			[
 				'create.title',
@@ -437,10 +434,6 @@ export default async function dataSourceConfig(): Promise<
 			] as const,
 			'order-return',
 		),
-		translateBatch(
-			[...enumTranslationKeys('status', ShippingStatusEnum)] as const,
-			'shipping',
-		),
 	]);
 
 	function displayButtonView(
@@ -452,6 +445,32 @@ export default async function dataSourceConfig(): Promise<
 					? 'view'
 					: undefined,
 			dataSource: 'order-return',
+		};
+	}
+
+	/** The listing joins the order's reference only - the window re-reads the order. */
+	function displayButtonViewOrder(
+		auth: AccountModel | null,
+		entry: OrderReturnModel,
+	): DataTableValueOptionsType<OrderReturnModel>['displayButton'] {
+		return {
+			action: () =>
+				hasPermission(auth, 'order', 'read') ? 'view' : undefined,
+			dataSource: 'order',
+			alternateEntryId: entry.order_id,
+		};
+	}
+
+	/** The return's inbound movement, re-read by id since the row joins its status only. */
+	function displayButtonViewShipment(
+		auth: AccountModel | null,
+		shippingId: EntityId,
+	): DataTableValueOptionsType<OrderReturnModel>['displayButton'] {
+		return {
+			action: () =>
+				hasPermission(auth, 'shipping', 'read') ? 'view' : undefined,
+			dataSource: 'shipping',
+			alternateEntryId: shippingId,
 		};
 	}
 
@@ -516,11 +535,12 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'order_id',
 					header: labels['field.order'],
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							customValue: entry.order
 								? displayOrderReference(entry.order)
-								: `#${entry.order_id}`,
+								: '-',
+							displayButton: displayButtonViewOrder(auth, entry),
 						}),
 				},
 				{
@@ -538,12 +558,23 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'shipping_id',
 					header: labels['field.shipping_status'],
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
-							customValue: entry.shipping
-								? `#${entry.shipping.id} - ${translateEnumLabel(shippingLabels, 'status', entry.shipping.status)}`
-								: '-',
-						}),
+					body: (entry, column, auth) => {
+						const shipment = entry.shipping;
+
+						if (!shipment) {
+							return '-';
+						}
+
+						return DataTableValue(entry, column, {
+							customValue: shipment.status,
+							isStatus: true,
+							dataSource: 'shipping',
+							displayButton: displayButtonViewShipment(
+								auth,
+								shipment.id,
+							),
+						});
+					},
 				},
 				{
 					field: 'status',

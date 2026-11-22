@@ -53,7 +53,6 @@ export default async function dataSourceConfig(): Promise<
 			[
 				'field.amount',
 				'field.amount_base',
-				'field.cash_flow_id',
 				'field.entry_type',
 				'field.id',
 				'field.occurred_at',
@@ -99,8 +98,10 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'entry_type',
 					header: labels['field.entry_type'],
-					body: (entry, column) =>
+					// Every entry is booked from a cash flow, which the type opens
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
+							displayButton: displayButtonCashFlow(auth, entry),
 							customValue: translateEnumLabel(
 								labels,
 								'enum.entry_type',
@@ -130,14 +131,6 @@ export default async function dataSourceConfig(): Promise<
 								amount: entry.amount_base,
 								currencyCode: Configuration.currency(),
 							}),
-						}),
-				},
-				{
-					field: 'cash_flow_id',
-					header: labels['field.cash_flow_id'],
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							displayButton: displayButtonCashFlow(auth, entry),
 						}),
 				},
 				{

@@ -47,7 +47,7 @@
 			"confirm": "Sigur vrei să marchezi această imagine drept inactivă?"
 		},
 		"view": {
-			"title": "Detalii imagine - {{entry}}",
+			"title": "Imagine - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"guide": {
@@ -107,6 +107,7 @@
 		"title": "Titlu",
 		"description": "Descriere",
 		"section": "Secțiune",
+		"entity": "Entitate",
 		"entity_id": "ID entitate",
 		"image_type": "Tip",
 		"id": "ID",

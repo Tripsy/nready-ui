@@ -60,7 +60,7 @@
 			"confirm": "Sigur vrei să restaurezi acest retur?"
 		},
 		"view": {
-			"title": "Detalii retur - {{entry}}",
+			"title": "Retur - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"statusTransition": {

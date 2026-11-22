@@ -54,9 +54,22 @@ export type WarehouseMovementModel<D = Date | string> = {
 
 	warehouse?: { id: EntityId; code: string; name: string } | null;
 	variant?: { id: EntityId; sku: string; product_id: EntityId } | null;
+	/**
+	 * The document the source line belongs to, resolved by the listing only: a GRN for a
+	 * `grn_item`, a shipping movement for a `shipping_line`, the adjustment itself. `reference`
+	 * is what it is cited by - absent for an adjustment. Null once the source row is gone.
+	 */
+	source_document?: { id: EntityId; reference: string | null } | null;
 
 	created_at: D;
 };
+
+/** Which dashboard data source opens a movement's source document. */
+export const MOVEMENT_SOURCE_DATA_SOURCE = {
+	[WarehouseMovementSourceEnum.GRN_ITEM]: 'grn',
+	[WarehouseMovementSourceEnum.SHIPPING_LINE]: 'shipping',
+	[WarehouseMovementSourceEnum.ADJUSTMENT]: 'stock-adjustment',
+} as const satisfies Record<WarehouseMovementSource, string>;
 
 /** One warehouse's share of a variant's stock (`GET /warehouse-movements/stock/:variant_id`). */
 export type WarehouseStockModel = {

@@ -50,7 +50,7 @@
 			"confirm": "Sigur vrei să restaurezi această recepție?"
 		},
 		"view": {
-			"title": "Detalii recepție - {{entry}}",
+			"title": "Recepție - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"statusTransition": {

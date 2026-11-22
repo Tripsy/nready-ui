@@ -69,7 +69,7 @@
 			"label": "Atribute"
 		},
 		"view": {
-			"title": "Detalii categorie - {{entry}}",
+			"title": "Categorie - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"guide": {

@@ -28,7 +28,7 @@
 			"success": "Comment status updated successfully"
 		},
 		"view": {
-			"title": "Comment details - {{entry}}",
+			"title": "Comment - {{entry}}",
 			"label": "View"
 		},
 		"viewUser": {

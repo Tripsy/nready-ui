@@ -76,16 +76,11 @@ export type ClientModel<D = Date | string> = ClientBase<D> &
 
 /**
  * The account a client belongs to, for a listing cell. A client whose account was soft-deleted
- * keeps its `user_id` while the join answers null, so the id is all there is left to name it by.
+ * keeps its `user_id` while the join answers null, so the cell has no name to show and falls
+ * back to a dash - the cell's user button still opens the account by its id.
  */
 export function displayClientAccount(client: ClientModel): string {
-	if (!client.user_id) {
-		return '-';
-	}
-
-	return client.user
-		? `${client.user.name} (#${client.user_id})`
-		: `#${client.user_id}`;
+	return client.user?.name ?? '-';
 }
 
 export function displayClientLabel(client: ClientModel): string {

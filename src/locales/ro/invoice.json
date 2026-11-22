@@ -53,7 +53,7 @@
 			"confirm": "Elimini toate plățile alocate acestei facturi? Banii revin în încasările clientului, pentru a fi alocați altei facturi a acestuia."
 		},
 		"view": {
-			"title": "Detalii factură - {{entry}}",
+			"title": "Factură - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"viewOrder": {

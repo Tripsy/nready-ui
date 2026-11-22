@@ -46,6 +46,17 @@ export type ImageDataTableFiltersType = {
 	status: { value: ImageStatus | null; matchMode: 'equals' };
 };
 
+/**
+ * Sections whose owner is a data source with a `managerImages` window. A variant's images are
+ * managed from its product's window, and `product_variant` is no data source at all - opening
+ * one by section would ask the API for a `product_variant` view that does not exist.
+ */
+const MANAGER_IMAGES_SECTIONS: ReadonlySet<ImageSection> = new Set([
+	ImageSectionEnum.ARTICLE,
+	ImageSectionEnum.BRAND,
+	ImageSectionEnum.PRODUCT,
+]);
+
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<ImageModel>
 > {
@@ -64,7 +75,7 @@ export default async function dataSourceConfig(): Promise<
 			[
 				'field.created_at',
 				'field.image',
-				'field.entity_id',
+				'field.entity',
 				'field.id',
 				'field.image_type',
 				'field.section',
@@ -109,6 +120,7 @@ export default async function dataSourceConfig(): Promise<
 	): DataTableValueOptionsType<ImageModel>['displayButton'] {
 		return {
 			action: () =>
+				MANAGER_IMAGES_SECTIONS.has(entry.section) &&
 				hasPermission(
 					auth,
 					entry.section as PermissionEntityType,
@@ -140,10 +152,8 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'display-image',
 					header: labels['field.image'],
-					body: (entry, column, auth) =>
+					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
 							customValue: displayImage({
 								src: showImage(entry.path, entry.storage),
 								alt:
@@ -180,10 +190,16 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'entity_id',
-					header: labels['field.entity_id'],
+					header: labels['field.entity'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
-							customValue: entry.entity_id.toString(),
+							// The listing carries no name for the owner - `image` is polymorphic
+							// and joins none of its targets - so the cell names its section
+							customValue: translateEnumLabel(
+								labels,
+								'enum.section',
+								entry.section,
+							),
 							displayButton: displayButtonManagerImages(
 								auth,
 								entry,
@@ -206,9 +222,11 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'created_at',
 					header: labels['field.created_at'],
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayDate: true,
+							markDeleted: true,
+							displayButton: displayButtonView(auth),
 						}),
 				},
 			],

@@ -36,7 +36,7 @@
 			"confirm": "Sigur vrei să restaurezi această localitate?"
 		},
 		"view": {
-			"title": "Detalii localitate - {{entry}}",
+			"title": "Localitate - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"guide": {

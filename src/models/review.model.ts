@@ -217,9 +217,12 @@ export const resolveReviewProduct = (
 	};
 };
 
-/** Who wrote it. The account is always there; its name is only joined by the list and read. */
+/**
+ * Who wrote it. The account is always there; its name is only joined by the list and read, and
+ * a soft-deleted account joins as null - a dash then, the cell's user button still opens it.
+ */
 export const displayReviewAuthor = (entry: ReviewModel): string =>
-	entry.user ? `${entry.user.name} (#${entry.user_id})` : `#${entry.user_id}`;
+	entry.user?.name ?? '-';
 
 /**
  * Enough of the text to recognize the row by, for a window title. The id is left out: the window

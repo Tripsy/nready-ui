@@ -45,7 +45,7 @@
 			"confirm": "Sigur vrei să restaurezi această reducere?"
 		},
 		"view": {
-			"title": "Detalii reducere - {{entry}}",
+			"title": "Reducere - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"guide": {

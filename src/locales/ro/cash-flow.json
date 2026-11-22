@@ -73,7 +73,7 @@
 			"confirm": "Generezi factura pentru acest flux de numerar și aloci plata pe ea?"
 		},
 		"view": {
-			"title": "Detalii flux de numerar - {{entry}}",
+			"title": "Flux de numerar - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"guide": {

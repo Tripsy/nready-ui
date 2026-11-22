@@ -97,7 +97,7 @@
 			"confirm": "Mark this product as ready? Nothing leads out of ready - the workflow cannot be walked back afterwards."
 		},
 		"view": {
-			"title": "Product details - {{entry}}",
+			"title": "Product - {{entry}}",
 			"label": "View details"
 		},
 		"managerImages": {

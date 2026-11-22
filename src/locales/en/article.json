@@ -99,7 +99,7 @@
 			"label": "Images"
 		},
 		"view": {
-			"title": "Article details - {{entry}}",
+			"title": "Article - {{entry}}",
 			"label": "View details"
 		},
 		"order": {

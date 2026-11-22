@@ -48,7 +48,7 @@
 			"confirm": "Sigur vrei să marchezi acest depozit ca inactiv?"
 		},
 		"view": {
-			"title": "Detalii depozit - {{entry}}",
+			"title": "Depozit - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"guide": {

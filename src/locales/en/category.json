@@ -69,7 +69,7 @@
 			"label": "Attributes"
 		},
 		"view": {
-			"title": "Category details - {{entry}}",
+			"title": "Category - {{entry}}",
 			"label": "View details"
 		},
 		"guide": {

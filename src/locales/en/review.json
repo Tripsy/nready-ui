@@ -33,7 +33,7 @@
 			"success": "Review status updated successfully"
 		},
 		"view": {
-			"title": "Review details - {{entry}}",
+			"title": "Review - {{entry}}",
 			"label": "View"
 		},
 		"viewUser": {

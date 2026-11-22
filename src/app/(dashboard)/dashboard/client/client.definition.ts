@@ -414,8 +414,6 @@ export default async function dataSourceConfig(): Promise<
 
 						// The name opens the client's ledger, for whoever may read it
 						return DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
 							customValue:
 								label &&
 								hasPermission(auth, 'client-ledger', 'find')
@@ -454,9 +452,11 @@ export default async function dataSourceConfig(): Promise<
 					field: 'created_at',
 					header: labels['field.created_at'],
 					sortable: true,
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayDate: true,
+							markDeleted: true,
+							displayButton: displayButtonView(auth),
 						}),
 				},
 			],

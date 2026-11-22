@@ -178,7 +178,7 @@ export const displayCommentAuthor = (
 	wording: { guest: string; guestNamed: string },
 ): string => {
 	if (entry.user) {
-		return `${entry.user.name} (#${entry.user_id})`;
+		return entry.user.name;
 	}
 
 	return entry.guest_name

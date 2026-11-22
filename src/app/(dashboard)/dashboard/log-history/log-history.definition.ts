@@ -109,10 +109,6 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'request_id',
 					header: labels['field.request_id'],
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							displayButton: displayButtonView(auth),
-						}),
 				},
 				{
 					field: 'entity',
@@ -159,9 +155,10 @@ export default async function dataSourceConfig(): Promise<
 					field: 'recorded_at',
 					header: labels['field.recorded_at'],
 					sortable: true,
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayDate: true,
+							displayButton: displayButtonView(auth),
 						}),
 				},
 			],

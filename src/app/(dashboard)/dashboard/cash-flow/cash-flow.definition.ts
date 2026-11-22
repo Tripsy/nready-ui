@@ -385,11 +385,8 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'category_type',
 					header: labels['field.category_type'],
-					body: (entry, column, auth) =>
+					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							dataSource: 'cash-flow',
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
 							customValue: translateEnumLabel(
 								labels,
 								'enum.category_type',
@@ -454,9 +451,12 @@ export default async function dataSourceConfig(): Promise<
 					field: 'created_at',
 					header: labels['field.created_at'],
 					sortable: true,
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
+							dataSource: 'cash-flow',
 							displayDate: true,
+							markDeleted: true,
+							displayButton: displayButtonView(auth),
 						}),
 				},
 			],

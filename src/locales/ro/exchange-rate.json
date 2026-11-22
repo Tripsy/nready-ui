@@ -26,7 +26,7 @@
 			"confirm": "Ștergerea unui curs este definitivă. Conversiile care cer ziua respectivă vor folosi ultimul curs publicat înaintea ei. Sigur vrei să continui?"
 		},
 		"view": {
-			"title": "Detalii curs valutar - {{entry}}",
+			"title": "Curs valutar - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"guide": {

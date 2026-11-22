@@ -10,7 +10,7 @@
 			"confirm": "Sigur vrei să ștergi evaluarea selectată?"
 		},
 		"view": {
-			"title": "Detalii evaluare - {{entry}}",
+			"title": "Evaluare - {{entry}}",
 			"label": "Vezi"
 		},
 		"viewUser": {

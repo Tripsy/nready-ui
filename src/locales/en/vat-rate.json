@@ -27,7 +27,7 @@
 			"confirm": "Deleting a rate is permanent. The previous row for the same country and class takes its period back. Orders and invoices already written keep their own rate. Are you sure?"
 		},
 		"view": {
-			"title": "VAT rate details - {{entry}}",
+			"title": "VAT rate - {{entry}}",
 			"label": "View details"
 		},
 		"guide": {

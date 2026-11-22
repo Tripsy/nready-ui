@@ -57,7 +57,7 @@
 			"label": "Logo"
 		},
 		"view": {
-			"title": "Detalii marcă - {{entry}}",
+			"title": "Marcă - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"order": {

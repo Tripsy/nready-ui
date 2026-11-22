@@ -53,7 +53,7 @@
 			"confirm": "Remove every payment allocated to this invoice? The money goes back to the client's cash flow entries, to be allocated to another of their invoices."
 		},
 		"view": {
-			"title": "Invoice details - {{entry}}",
+			"title": "Invoice - {{entry}}",
 			"label": "View details"
 		},
 		"viewOrder": {

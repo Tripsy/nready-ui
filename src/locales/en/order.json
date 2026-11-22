@@ -56,7 +56,7 @@
 			"success": "Order status updated successfully"
 		},
 		"view": {
-			"title": "Order details - {{entry}}",
+			"title": "Order - {{entry}}",
 			"label": "View details"
 		},
 		"guide": {

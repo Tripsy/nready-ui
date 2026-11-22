@@ -125,9 +125,8 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'entity_type',
 					header: labels['field.entity_type'],
-					body: (entry, column, auth) =>
+					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							displayButton: displayButtonView(auth),
 							customValue: translateEnumLabel(
 								labels,
 								'enum.entity_type',
@@ -173,9 +172,7 @@ export default async function dataSourceConfig(): Promise<
 					header: labels['field.rated_by'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
-							customValue: entry.user
-								? `${entry.user.name} (#${entry.user_id})`
-								: guest,
+							customValue: entry.user?.name ?? guest,
 							displayButton: displayButtonViewUser(auth, entry),
 						}),
 				},
@@ -183,9 +180,10 @@ export default async function dataSourceConfig(): Promise<
 					field: 'created_at',
 					header: labels['field.created_at'],
 					sortable: true,
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayDate: true,
+							displayButton: displayButtonView(auth),
 						}),
 				},
 			],

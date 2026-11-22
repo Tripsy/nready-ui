@@ -97,8 +97,9 @@ export const displayComplaintTarget = (
 	entityTypeLabel: string,
 ): string => `${entityTypeLabel} #${entry.entity_id}`;
 
+/** The reporter's name, or a dash when the account joins as null (soft-deleted since). */
 export const displayComplaintReporter = (entry: ComplaintModel): string =>
-	entry.user ? `${entry.user.name} (#${entry.user_id})` : `#${entry.user_id}`;
+	entry.user?.name ?? '-';
 
 /**
  * Enough to recognize the row by, for a window title. The id is left out: the window appends

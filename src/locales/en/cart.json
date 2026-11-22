@@ -10,7 +10,7 @@
 			"confirm": "Are you sure you want to delete the selected cart? The shopper loses what they had picked out, and the next visit starts a new one."
 		},
 		"view": {
-			"title": "Cart details - {{entry}}",
+			"title": "Cart - {{entry}}",
 			"label": "View"
 		},
 		"viewUser": {

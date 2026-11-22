@@ -267,9 +267,8 @@ export default async function dataSourceConfig(): Promise<
 					field: 'content',
 					header: labels['field.content'],
 					minWidth: 260,
-					body: (entry, column, auth) =>
+					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							displayButton: displayButtonView(auth),
 							// Trimmed here rather than in the model: the view window shows the
 							// whole text, and only the list has a width to respect.
 							customValue: `${entry.is_pinned ? '📌 ' : ''}${entry.content.slice(0, 120)}${entry.content.length > 120 ? '…' : ''}`,
@@ -311,9 +310,10 @@ export default async function dataSourceConfig(): Promise<
 					field: 'created_at',
 					header: labels['field.created_at'],
 					sortable: true,
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayDate: true,
+							displayButton: displayButtonView(auth),
 						}),
 				},
 			],

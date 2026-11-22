@@ -33,7 +33,7 @@
 			"confirm": "Are you sure you want to restore this carrier?"
 		},
 		"view": {
-			"title": "Carrier details - {{entry}}",
+			"title": "Carrier - {{entry}}",
 			"label": "View details"
 		},
 		"guide": {

@@ -187,6 +187,8 @@ export type CartModel = {
 	token: string;
 	currency: string;
 	user_id: EntityId | null;
+	// Joined by the dashboard listing only
+	user?: { id: EntityId; name: string } | null;
 	expires_at: string;
 	created_at: string;
 	updated_at: string | null;
@@ -243,11 +245,19 @@ export function displayCartLabel(entry: CartModel): string {
 /**
  * Who a cart belongs to. The wording comes from the caller: `user` carries an `{{id}}` slot for
  * the account id, `guest` names a cart without one.
+ *
+ * The account's name where the read joined it - the dashboard listing does - and the id
+ * wording otherwise: the single-cart read carries `user_id` only, and a soft-deleted account
+ * joins as null.
  */
 export function displayCartOwner(
 	entry: CartModel,
 	wording: { user: string; guest: string },
 ): string {
+	if (entry.user?.name) {
+		return entry.user.name;
+	}
+
 	return entry.user_id
 		? replaceVars(wording.user, { id: entry.user_id })
 		: wording.guest;

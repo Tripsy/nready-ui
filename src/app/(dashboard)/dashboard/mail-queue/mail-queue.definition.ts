@@ -110,10 +110,8 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'to',
 					header: labels['field.to'],
-					body: (entry, column, auth) =>
+					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
 							customValue: entry.to.address,
 						}),
 				},
@@ -132,9 +130,17 @@ export default async function dataSourceConfig(): Promise<
 					field: 'sent_at',
 					header: labels['field.sent_at'],
 					sortable: true,
-					body: (entry, column) =>
+					/*
+					 * Formatted here rather than through `displayDate`: a mail still queued has no
+					 * `sent_at`, and an empty value short-circuits to a bare `-` before the view
+					 * button is attached - the row would have nothing left to open it from.
+					 */
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
-							displayDate: true,
+							customValue:
+								formatDate(entry.sent_at, 'date-time') || '-',
+							markDeleted: true,
+							displayButton: displayButtonView(auth),
 						}),
 				},
 			],

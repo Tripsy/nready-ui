@@ -7,7 +7,6 @@ import {
 import { UsageGuideTerm } from '@/app/(dashboard)/dashboard/term/usage-guide-term.component';
 import { ViewTerm } from '@/app/(dashboard)/dashboard/term/view-term.component';
 import { Icons } from '@/components/icon.component';
-import { Configuration } from '@/config/settings.config';
 import { getLanguageClient, translateBatch } from '@/config/translate.setup';
 import { getFormDataAsEnum } from '@/helpers/form.helper';
 import {
@@ -29,7 +28,6 @@ import {
 } from '@/helpers/validator.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
-	displayTermLabel,
 	displayTermValue,
 	storedTermValue,
 	type TermContentType,
@@ -192,8 +190,6 @@ export default async function dataSourceConfig(): Promise<
 		),
 	]);
 
-	const defaultLanguage = Configuration.defaultLanguage();
-
 	function displayButtonView(
 		auth: AccountModel | null,
 	): DataTableValueOptionsType<TermModel>['displayButton'] {
@@ -224,10 +220,8 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'type',
 					header: labels['field.type'],
-					body: (entry, column, auth) =>
+					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
 							customValue: translateEnumLabel(
 								labels,
 								'enum.type',
@@ -243,9 +237,10 @@ export default async function dataSourceConfig(): Promise<
 					 */
 					field: 'contents',
 					header: labels['field.contents'],
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
+							displayButton: displayButtonView(auth),
 							customValue: displayTermValue(
 								entry,
 								getLanguageClient(),
@@ -264,8 +259,12 @@ export default async function dataSourceConfig(): Promise<
 			find: (params: FindFunctionParamsType) =>
 				requestFind<TermModel>('term', params),
 		},
+		/*
+		 * The wording in the language the list shows, not every translation: `view` reloads the
+		 * full set, and a title joining all of them reads as noise.
+		 */
 		displayEntryLabel: (entry: TermModel) =>
-			displayTermLabel(entry, defaultLanguage),
+			`[${entry.type}] ${displayTermValue(entry, getLanguageClient())}`,
 		actions: {
 			create: {
 				windowType: 'form',

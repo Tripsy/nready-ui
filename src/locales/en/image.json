@@ -47,7 +47,7 @@
 			"confirm": "Are you sure you want to mark this image as inactive?"
 		},
 		"view": {
-			"title": "Image details - {{entry}}",
+			"title": "Image - {{entry}}",
 			"label": "View details"
 		},
 		"guide": {
@@ -107,6 +107,7 @@
 		"title": "Title",
 		"description": "Description",
 		"section": "Section",
+		"entity": "Entity",
 		"entity_id": "Entity ID",
 		"image_type": "Type",
 		"id": "ID",

@@ -194,10 +194,8 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'entity_type',
 					header: labels['field.entity_type'],
-					body: (entry, column, auth) =>
+					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
 							customValue: displayComplaintTarget(
 								entry,
 								translateEnumLabel(
@@ -269,9 +267,11 @@ export default async function dataSourceConfig(): Promise<
 					field: 'created_at',
 					header: labels['field.created_at'],
 					sortable: true,
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayDate: true,
+							markDeleted: true,
+							displayButton: displayButtonView(auth),
 						}),
 				},
 			],

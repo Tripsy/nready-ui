@@ -229,10 +229,6 @@ export default async function dataSourceConfig(): Promise<
 					field: 'code',
 					header: labels['field.code'],
 					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							displayButton: displayButtonView(auth),
-						}),
 				},
 				{
 					field: 'start_number',
@@ -249,9 +245,10 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'created_at',
 					header: labels['field.created_at'],
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayDate: true,
+							displayButton: displayButtonView(auth),
 						}),
 				},
 			],

@@ -557,9 +557,10 @@ export default async function dataSourceConfig(): Promise<
 					field: 'label',
 					header: labels['field.label'],
 					sortable: true,
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
+							displayButton: displayButtonView(auth),
 						}),
 				},
 				{
@@ -597,11 +598,6 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'reference',
 					header: labels['field.reference'],
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
-						}),
 				},
 				{
 					field: 'start_at',

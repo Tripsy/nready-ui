@@ -510,10 +510,8 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'scope',
 					header: labels['field.scope'],
-					body: (entry, column, auth) =>
+					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
 							customValue: translateEnumLabel(
 								labels,
 								'enum.scope',
@@ -524,8 +522,10 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'order_id',
 					header: labels['field.order_id'],
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
+							markDeleted: true,
+							displayButton: displayButtonView(auth),
 							customValue: displayShippingDocument(
 								entry,
 								labels['text.doc_ref'],
