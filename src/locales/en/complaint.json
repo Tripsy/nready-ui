@@ -33,7 +33,7 @@
 			"confirm": "Are you sure you want to restore the selected complaint?"
 		},
 		"view": {
-			"title": "Complaint details - {{entry}}",
+			"title": "Complaint - {{entry}}",
 			"label": "View"
 		},
 		"viewUser": {

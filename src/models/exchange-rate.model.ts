@@ -3,6 +3,7 @@ import {
 	dateDiff,
 	stringToDate,
 } from '@/helpers/date.helper';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Where a stored rate came from, which decides whether the daily import may replace it -
@@ -37,7 +38,7 @@ const SECONDS_PER_DAY = 86400;
  * query, and the next import of that day would fail against a row nobody can see.
  */
 export type ExchangeRateModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	currency: string;
 	base_currency: string;

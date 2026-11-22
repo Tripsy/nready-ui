@@ -21,13 +21,14 @@ import { useFormValidation } from '@/hooks/use-form-validation.hook';
 import { useFormValues } from '@/hooks/use-form-values.hook';
 import type { CommentEntityType } from '@/models/comment.model';
 import { useAuth } from '@/providers/auth.provider';
+import type { EntityId } from '@/types/entity-id.type';
 
 type CommentFormProps = {
 	/** What is being commented on - an article today, a review next. */
 	entityType: CommentEntityType;
-	entityId: number;
+	entityId: EntityId;
 	/** The comment being answered, or null for a new thread. */
-	parentId?: number | null;
+	parentId?: EntityId | null;
 	translations: CommentTranslations;
 	/** Invalidates the thread; a reply form also closes itself. */
 	onSuccess?: () => void;

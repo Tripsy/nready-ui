@@ -4,6 +4,7 @@ import { commentAnchorId } from '@/components/comment/comment.definition';
 import { resolveCommentTargetPath } from '@/config/comment-target.config';
 import { getLanguage } from '@/config/translate.setup';
 import { getResponseData } from '@/helpers/api.helper';
+import { isEntityId } from '@/helpers/id.helper';
 import { logger } from '@/helpers/logger.helper';
 import type { CommentLocationModel } from '@/models/comment.model';
 import { requestCommentLocation } from '@/services/comment.service';
@@ -33,11 +34,11 @@ type Props = {
 export default async function Page(props: Props) {
 	const { id } = await props.params;
 
-	const commentId = Number(id);
-
-	if (!Number.isInteger(commentId) || commentId <= 0) {
+	if (!isEntityId(id)) {
 		notFound();
 	}
+
+	const commentId = id;
 
 	const language = await getLanguage();
 

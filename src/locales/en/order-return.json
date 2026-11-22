@@ -60,7 +60,7 @@
 			"confirm": "Are you sure you want to restore this return?"
 		},
 		"view": {
-			"title": "Return details - {{entry}}",
+			"title": "Return - {{entry}}",
 			"label": "View details"
 		},
 		"statusTransition": {

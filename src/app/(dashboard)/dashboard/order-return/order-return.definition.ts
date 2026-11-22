@@ -53,10 +53,7 @@ import {
 	type OrderReturnStatus,
 	OrderReturnStatusEnum,
 } from '@/models/order-return.model';
-import {
-	ShippingMethodEnum,
-	ShippingStatusEnum,
-} from '@/models/shipping.model';
+import { ShippingMethodEnum } from '@/models/shipping.model';
 import {
 	requestApproveOrderReturn,
 	requestOrderReturnRefund,
@@ -67,6 +64,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -141,9 +139,9 @@ class OrderReturnValidator extends BaseValidator<typeof validatorMessages> {
 	approve = () =>
 		z
 			.object({
-				destination_warehouse_id: z.number().nullable(),
-				pickup_client_address_id: z.number().nullable(),
-				carrier_id: z.number().nullable(),
+				destination_warehouse_id: z.string().nullable(),
+				pickup_client_address_id: z.string().nullable(),
+				carrier_id: z.string().nullable(),
 				method: this.validateEnum(
 					ShippingMethodEnum,
 					this.getMessage('invalid_method'),
@@ -211,7 +209,7 @@ async function validateForm(values: OrderReturnFormValuesType) {
 
 function getFormValues(formData: FormData): OrderReturnFormValuesType {
 	return {
-		order_id: getFormDataAsNumber(formData, 'order_id'),
+		order_id: getFormDataAsString(formData, 'order_id'),
 		reason: getFormDataAsString(formData, 'reason'),
 		customer_notes: getFormDataAsString(formData, 'customer_notes'),
 		response: getFormDataAsString(formData, 'response'),
@@ -310,15 +308,15 @@ function getApproveFormValues(
 	formData: FormData,
 ): OrderReturnApproveFormValuesType {
 	return {
-		destination_warehouse_id: getFormDataAsNumber(
+		destination_warehouse_id: getFormDataAsString(
 			formData,
 			'destination_warehouse_id',
 		),
-		pickup_client_address_id: getFormDataAsNumber(
+		pickup_client_address_id: getFormDataAsString(
 			formData,
 			'pickup_client_address_id',
 		),
-		carrier_id: getFormDataAsNumber(formData, 'carrier_id'),
+		carrier_id: getFormDataAsString(formData, 'carrier_id'),
 		method: getFormDataAsString(formData, 'method'),
 		price: getFormDataAsNumber(formData, 'price'),
 		vat_rate: getFormDataAsNumber(formData, 'vat_rate'),
@@ -333,7 +331,7 @@ function getApproveFormValues(
 			'pickup_client_address_label',
 		),
 		carrier: getFormDataAsString(formData, 'carrier_label'),
-		client_id: getFormDataAsNumber(formData, 'client_id'),
+		client_id: getFormDataAsString(formData, 'client_id'),
 	};
 }
 
@@ -408,7 +406,7 @@ export type OrderReturnDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<OrderReturnModel>
 > {
-	const [translations, labels, shippingLabels] = await Promise.all([
+	const [translations, labels] = await Promise.all([
 		translateBatch(
 			[
 				'create.title',
@@ -436,10 +434,6 @@ export default async function dataSourceConfig(): Promise<
 			] as const,
 			'order-return',
 		),
-		translateBatch(
-			[...enumTranslationKeys('status', ShippingStatusEnum)] as const,
-			'shipping',
-		),
 	]);
 
 	function displayButtonView(
@@ -451,6 +445,32 @@ export default async function dataSourceConfig(): Promise<
 					? 'view'
 					: undefined,
 			dataSource: 'order-return',
+		};
+	}
+
+	/** The listing joins the order's reference only - the window re-reads the order. */
+	function displayButtonViewOrder(
+		auth: AccountModel | null,
+		entry: OrderReturnModel,
+	): DataTableValueOptionsType<OrderReturnModel>['displayButton'] {
+		return {
+			action: () =>
+				hasPermission(auth, 'order', 'read') ? 'view' : undefined,
+			dataSource: 'order',
+			alternateEntryId: entry.order_id,
+		};
+	}
+
+	/** The return's inbound movement, re-read by id since the row joins its status only. */
+	function displayButtonViewShipment(
+		auth: AccountModel | null,
+		shippingId: EntityId,
+	): DataTableValueOptionsType<OrderReturnModel>['displayButton'] {
+		return {
+			action: () =>
+				hasPermission(auth, 'shipping', 'read') ? 'view' : undefined,
+			dataSource: 'shipping',
+			alternateEntryId: shippingId,
 		};
 	}
 
@@ -502,33 +522,25 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
+					field: 'ref_number',
+					header: labels['field.reference'],
 					sortable: true,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
 							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
-					field: 'ref_number',
-					header: labels['field.reference'],
-					sortable: true,
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
 							customValue: displayOrderReturnReference(entry),
 						}),
 				},
 				{
 					field: 'order_id',
 					header: labels['field.order'],
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							customValue: entry.order
 								? displayOrderReference(entry.order)
-								: `#${entry.order_id}`,
+								: '-',
+							displayButton: displayButtonViewOrder(auth, entry),
 						}),
 				},
 				{
@@ -546,12 +558,23 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'shipping_id',
 					header: labels['field.shipping_status'],
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
-							customValue: entry.shipping
-								? `#${entry.shipping.id} - ${translateEnumLabel(shippingLabels, 'status', entry.shipping.status)}`
-								: '-',
-						}),
+					body: (entry, column, auth) => {
+						const shipment = entry.shipping;
+
+						if (!shipment) {
+							return '-';
+						}
+
+						return DataTableValue(entry, column, {
+							customValue: shipment.status,
+							isStatus: true,
+							dataSource: 'shipping',
+							displayButton: displayButtonViewShipment(
+								auth,
+								shipment.id,
+							),
+						});
+					},
 				},
 				{
 					field: 'status',
@@ -617,11 +640,11 @@ export default async function dataSourceConfig(): Promise<
 					!entry.deleted_at &&
 					entry.status !== OrderReturnStatusEnum.CANCELED,
 				// The listing carries no lines - the form needs them, so it reads the row first
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<OrderReturnModel>('order-return', id),
 				operationFunction: (
 					params: OrderReturnFormValuesType,
-					id: number,
+					id: EntityId,
 				) =>
 					requestUpdate<
 						OrderReturnModel,
@@ -650,7 +673,7 @@ export default async function dataSourceConfig(): Promise<
 					entry.status === OrderReturnStatusEnum.REQUESTED,
 				operationFunction: async (
 					values: OrderReturnApproveFormValuesType,
-					id: number,
+					id: EntityId,
 				): Promise<ApiResponseFetch<Partial<OrderReturnModel>>> =>
 					requestApproveOrderReturn(id, prepareApproveParams(values)),
 				buttonPosition: 'left',
@@ -742,7 +765,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				permission: ['order-return', 'read'],
 				entriesSelection: 'single',
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<OrderReturnModel>('order-return', id),
 				buttonPosition: 'hidden',
 			},

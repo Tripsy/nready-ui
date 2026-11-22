@@ -1,3 +1,5 @@
+import type { EntityId } from '@/types/entity-id.type';
+
 /**
  * Mirrors `rating` in the backend. The table is append-only - no `updated_at`, no `deleted_at` -
  * so the dashboard only ever reads a row or removes it; there is no create, update or restore.
@@ -45,18 +47,18 @@ export type RatingEmoji =
  * place in this type.
  */
 export type RatingModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	entity_type: RatingEntityType;
-	entity_id: number;
+	entity_id: EntityId;
 	type: RatingType;
 
 	value: number | null;
 	reaction: RatingEmoji | null;
 
 	/** Null for a guest rating, which is cast against the origin address alone. */
-	user_id: number | null;
-	user?: { id: number; name: string; email?: string } | null;
+	user_id: EntityId | null;
+	user?: { id: EntityId; name: string; email?: string } | null;
 
 	/** When the visitor first rated this target. */
 	created_at: D;
@@ -89,7 +91,7 @@ export type RatingSummaryType = {
 };
 
 export type RatingOwnEntryType<D = Date | string> = {
-	id: number;
+	id: EntityId;
 	type: RatingType;
 	value: number | null;
 	reaction: RatingEmoji | null;
@@ -110,8 +112,8 @@ export type RatingPublicReadType = {
  * with a fallback: the ids asked about are the caller's own list, not something to rediscover here.
  */
 export type RatingSummaryListType = {
-	summaries: Record<number, RatingSummaryType>;
-	own: Record<number, RatingOwnEntryType[]>;
+	summaries: Record<EntityId, RatingSummaryType>;
+	own: Record<EntityId, RatingOwnEntryType[]>;
 };
 
 /** How many reactions a target carries, whichever they are. */

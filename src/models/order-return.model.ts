@@ -1,5 +1,6 @@
 import type { ShippingStatus } from '@/models/shipping.model';
 import type { StatusTransitions } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /** Mirrors `OrderReturnStatusEnum` on `../nready-api/src/features/order-return/order-return.entity.ts`. */
 export const OrderReturnStatusEnum = {
@@ -67,10 +68,10 @@ export const ORDER_RETURN_NOTES_MAX = 2000;
  * correct on arrival.
  */
 export type OrderReturnLineModel<D = Date | string> = {
-	id: number;
-	order_return_id: number;
-	variant_id: number;
-	product_id: number;
+	id: EntityId;
+	order_return_id: EntityId;
+	variant_id: EntityId;
+	product_id: EntityId;
 	quantity: number;
 
 	/** Attached by the read: the variant's SKU and the product's name, null when unresolved. */
@@ -87,7 +88,7 @@ export type OrderReturnLineModel<D = Date | string> = {
  * shipment's progress; the storefront read omits `notes`, `user_id` and `reversal_invoice_ids`.
  */
 export type OrderReturnModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	ref_code: string;
 	ref_number: number;
@@ -100,24 +101,24 @@ export type OrderReturnModel<D = Date | string> = {
 	received_at: D | null;
 	closed_at: D | null;
 	/** The draft reversals raised for the returned goods - issuing one is what refunds. */
-	reversal_invoice_ids?: number[];
+	reversal_invoice_ids?: EntityId[];
 	/** Whether the refund also pays back the outbound delivery fee - read when it is drafted. */
 	refund_shipping?: boolean;
 
-	order_id: number;
-	shipping_id?: number | null;
-	user_id?: number | null;
+	order_id: EntityId;
+	shipping_id?: EntityId | null;
+	user_id?: EntityId | null;
 
 	order?: {
-		id: number;
+		id: EntityId;
 		ref_code: string;
 		ref_number: number;
-		client_id: number;
+		client_id: EntityId;
 	} | null;
 	shipping?: {
-		id: number;
+		id: EntityId;
 		status: ShippingStatus;
-		destination_warehouse_id?: number | null;
+		destination_warehouse_id?: EntityId | null;
 		tracking_number: string | null;
 		tracking_url: string | null;
 		shipped_at?: D | null;
@@ -133,8 +134,8 @@ export type OrderReturnModel<D = Date | string> = {
 
 /** One variant of an order the return form can offer, with what is still left to send back. */
 export type OrderReturnableLineModel = {
-	variant_id: number;
-	product_id: number;
+	variant_id: EntityId;
+	product_id: EntityId;
 	sku: string | null;
 	label: string | null;
 	returnable: number;

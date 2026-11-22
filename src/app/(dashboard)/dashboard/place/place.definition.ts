@@ -8,11 +8,7 @@ import { UsageGuidePlace } from '@/app/(dashboard)/dashboard/place/usage-guide-p
 import { ViewPlace } from '@/app/(dashboard)/dashboard/place/view-place.component';
 import { Icons } from '@/components/icon.component';
 import { getLanguageClient, translateBatch } from '@/config/translate.setup';
-import {
-	getFormDataAsEnum,
-	getFormDataAsNumber,
-	getFormDataAsString,
-} from '@/helpers/form.helper';
+import { getFormDataAsEnum, getFormDataAsString } from '@/helpers/form.helper';
 import {
 	requestCreate,
 	requestDelete,
@@ -46,6 +42,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -189,7 +186,7 @@ function getFormValues(formData: FormData): PlaceFormValuesType {
 			getFormDataAsEnum(formData, 'place_type', PlaceTypeEnum) ||
 			PlaceTypeEnum.CITY,
 		code: getFormDataAsString(formData, 'code'),
-		parent_id: getFormDataAsNumber(formData, 'parent_id'),
+		parent_id: getFormDataAsString(formData, 'parent_id'),
 		parent: getFormDataAsString(formData, 'parent'),
 		contents: contents,
 	};
@@ -279,17 +276,6 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					field: 'place_type',
 					header: labels['field.place_type'],
 					sortable: true,
@@ -310,8 +296,10 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'name',
 					header: labels['field.name'],
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
+							markDeleted: true,
+							displayButton: displayButtonView(auth),
 							customValue: getPlaceContentProp(
 								entry,
 								getLanguageClient(),
@@ -362,13 +350,16 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['place', 'update'],
 				entriesSelection: 'single',
 				customEntryCheck: (entry: PlaceModel) => !entry.deleted_at, // Return true if the entry is not deleted
-				operationFunction: (params: PlaceFormValuesType, id: number) =>
+				operationFunction: (
+					params: PlaceFormValuesType,
+					id: EntityId,
+				) =>
 					requestUpdate<PlaceModel, PlaceFormValuesType>(
 						'place',
 						params,
 						id,
 					),
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<PlaceModel>('place', id),
 				buttonPosition: 'left',
 				button: {
@@ -417,7 +408,7 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['place', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<PlaceModel>('place', id),
 			},
 			guide: {

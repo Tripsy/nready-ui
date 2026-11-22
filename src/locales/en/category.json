@@ -69,7 +69,7 @@
 			"label": "Attributes"
 		},
 		"view": {
-			"title": "Category details - {{entry}}",
+			"title": "Category - {{entry}}",
 			"label": "View details"
 		},
 		"guide": {
@@ -103,7 +103,7 @@
 		"parent": "Parent",
 		"status": "Status",
 		"created_at": "Created At",
-		"search": "ID / Label",
+		"search": "Label",
 		"language": "Language",
 		"slug": "Slug",
 		"description": "Description",

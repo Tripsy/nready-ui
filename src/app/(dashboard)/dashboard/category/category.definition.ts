@@ -10,11 +10,7 @@ import { ViewCategory } from '@/app/(dashboard)/dashboard/category/view-category
 import { Icons } from '@/components/icon.component';
 import Routes from '@/config/routes.setup';
 import { getLanguageClient, translateBatch } from '@/config/translate.setup';
-import {
-	getFormDataAsEnum,
-	getFormDataAsNumber,
-	getFormDataAsString,
-} from '@/helpers/form.helper';
+import { getFormDataAsEnum, getFormDataAsString } from '@/helpers/form.helper';
 import {
 	requestCreate,
 	requestDelete,
@@ -52,6 +48,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -167,7 +164,7 @@ function getFormValues(formData: FormData): CategoryFormValuesType {
 		type:
 			getFormDataAsEnum(formData, 'type', CategoryTypeEnum) ||
 			CATEGORY_DEFAULT_TYPE,
-		parent_id: getFormDataAsNumber(formData, 'parent_id'),
+		parent_id: getFormDataAsString(formData, 'parent_id'),
 		parent: getFormDataAsString(formData, 'parent'),
 		contents: contents.map((content) => ({
 			...content,
@@ -233,7 +230,7 @@ export type CategoryDataTableFiltersType = {
 	language: { value: Language | null; matchMode: 'equals' };
 	// Scopes a listing to one sibling group. Only the order page renders a control for it;
 	// the main list leaves it at its default and shows the whole type.
-	parent_id: { value: number | null; matchMode: 'equals' };
+	parent_id: { value: EntityId | null; matchMode: 'equals' };
 	is_deleted: { value: boolean; matchMode: 'equals' };
 };
 
@@ -325,17 +322,6 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					field: 'type',
 					header: labels['field.type'],
 					body: (entry, column) =>
@@ -352,9 +338,10 @@ export default async function dataSourceConfig(): Promise<
 					// category alias, which has no `label` column, and 500s.
 					field: 'label',
 					header: labels['field.label'],
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
+							displayButton: displayButtonView(auth),
 							customValue: getCategoryContentProp(
 								entry,
 								getLanguageClient(),
@@ -434,13 +421,13 @@ export default async function dataSourceConfig(): Promise<
 				customEntryCheck: (entry: CategoryModel) => !entry.deleted_at, // Return true if the entry is not deleted
 				operationFunction: (
 					params: CategoryFormValuesType,
-					id: number,
+					id: EntityId,
 				) =>
 					requestUpdate<
 						CategoryModel,
 						ReturnType<typeof prepareUpdateParams>
 					>('category', prepareUpdateParams(params), id),
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<CategoryModel>('category', id),
 				buttonPosition: 'left',
 				button: {
@@ -525,7 +512,7 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['category', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<CategoryModel>('category', id),
 			},
 			order: {

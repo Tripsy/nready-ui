@@ -40,6 +40,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -289,20 +290,14 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
+					field: 'label',
+					header: labels['field.label'],
 					sortable: true,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
 							displayButton: displayButtonView(auth),
 						}),
-				},
-				{
-					field: 'label',
-					header: labels['field.label'],
-					sortable: true,
 				},
 				{
 					field: 'language',
@@ -371,7 +366,7 @@ export default async function dataSourceConfig(): Promise<
 				customEntryCheck: (entry: TemplateModel) => !entry.deleted_at, // Return true if the entry is not deleted
 				operationFunction: (
 					params: TemplateFormValuesType,
-					id: number,
+					id: EntityId,
 				) =>
 					requestUpdate<TemplateModel, TemplateFormValuesType>(
 						'template',

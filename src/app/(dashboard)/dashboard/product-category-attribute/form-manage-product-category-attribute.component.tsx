@@ -327,10 +327,7 @@ export function FormManageProductCategoryAttribute() {
 						value: String(option.id),
 					}))}
 					onChange={(value) =>
-						handleChange(
-							'category_id',
-							value ? Number(value) : null,
-						)
+						handleChange('category_id', value || null)
 					}
 					error={errors.category_id}
 				/>

@@ -15,6 +15,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export type MailQueueDataTableFiltersType = {
 	status: { value: MailQueueStatus | null; matchMode: 'equals' };
@@ -95,17 +96,6 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					field: 'template',
 					header: labels['field.template'],
 					body: (entry, column, auth) =>
@@ -140,9 +130,17 @@ export default async function dataSourceConfig(): Promise<
 					field: 'sent_at',
 					header: labels['field.sent_at'],
 					sortable: true,
-					body: (entry, column) =>
+					/*
+					 * Formatted here rather than through `displayDate`: a mail still queued has no
+					 * `sent_at`, and an empty value short-circuits to a bare `-` before the view
+					 * button is attached - the row would have nothing left to open it from.
+					 */
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
-							displayDate: true,
+							customValue:
+								formatDate(entry.sent_at, 'date-time') || '-',
+							markDeleted: true,
+							displayButton: displayButtonView(auth),
 						}),
 				},
 			],
@@ -158,7 +156,7 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['delete.title'],
 				permission: ['mail-queue', 'delete'],
 				entriesSelection: 'multiple',
-				operationFunction: (ids: number[]) =>
+				operationFunction: (ids: EntityId[]) =>
 					requestDeleteMultiple('mail-queue', ids),
 				buttonPosition: 'left',
 				button: {

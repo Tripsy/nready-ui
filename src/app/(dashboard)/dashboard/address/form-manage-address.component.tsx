@@ -24,6 +24,7 @@ import { useAuth } from '@/providers/auth.provider';
 import { useWindowForm } from '@/providers/window-form.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { ApiResponseFetch } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'address.field.city',
@@ -35,7 +36,7 @@ const TRANSLATION_KEYS = [
 ] as const;
 
 export type AddressFormValuesType = {
-	city_id: number | null;
+	city_id: EntityId | null;
 	city: string | null;
 	details: string | null;
 	postal_code: string | null;
@@ -148,7 +149,7 @@ export function FormManageAddress() {
 						}
 
 						handleChange('city', value);
-						handleChange('city_id', newCity.id as number);
+						handleChange('city_id', newCity.id as EntityId);
 
 						await invalidateCitySuggestions();
 					},

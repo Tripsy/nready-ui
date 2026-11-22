@@ -19,6 +19,7 @@ import { BaseValidator } from '@/helpers/validator.helper';
 import type { PermissionModel } from '@/models/permission.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type { DataSourceConfigType } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = ['invalid_entity', 'invalid_operation'] as const;
@@ -101,19 +102,13 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
+					field: 'entity',
+					header: labels['field.entity'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
 						}),
-				},
-				{
-					field: 'entity',
-					header: labels['field.entity'],
-					sortable: true,
 				},
 				{
 					field: 'operation',
@@ -162,7 +157,7 @@ export default async function dataSourceConfig(): Promise<
 				customEntryCheck: (entry: PermissionModel) => !entry.deleted_at, // Return true if the entry is not deleted
 				operationFunction: (
 					params: PermissionFormValuesType,
-					id: number,
+					id: EntityId,
 				) =>
 					requestUpdate<PermissionModel, PermissionFormValuesType>(
 						'permission',

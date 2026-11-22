@@ -17,16 +17,17 @@ import type { ProductVariantModel } from '@/models/product-variant.model';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { ApiResponseFetch } from '@/types/api.type';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export type PublicProductsParams = {
 	language?: Language;
 	term?: string;
-	category_id?: number;
-	brand_id?: number;
+	category_id?: EntityId;
+	brand_id?: EntityId;
 	/** Any of these tags. */
-	tag_id?: number[];
+	tag_id?: EntityId[];
 	/** Product to leave out, so a "related" rail never recommends the page it sits on. */
-	exclude_id?: number;
+	exclude_id?: EntityId;
 	page?: number;
 	limit?: number;
 };
@@ -144,7 +145,7 @@ export async function requestPublicProduct(params: {
  * is true. The backend does not cache it either.
  */
 export async function requestPublicProductStock(
-	productId: number,
+	productId: EntityId,
 ): Promise<ApiResponseFetch<{ entries: ProductVariantStockType[] }>> {
 	return await new ApiRequest().doFetch(
 		`/public/products/${productId}/stock`,
@@ -185,8 +186,8 @@ export async function findBundleCandidates(
  * instead of failing to load.
  */
 export async function findVariantsByIds(
-	ids: number[],
-): Promise<Map<number, ProductVariantModel>> {
+	ids: EntityId[],
+): Promise<Map<EntityId, ProductVariantModel>> {
 	if (ids.length === 0) {
 		return new Map();
 	}
@@ -203,7 +204,7 @@ export async function findVariantsByIds(
  * Moves a product through its editorial workflow (`PATCH /products/:id/workflow/:workflow`).
  */
 export async function requestUpdateProductWorkflow(
-	id: number,
+	id: EntityId,
 	workflow: ProductWorkflow,
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(
@@ -227,7 +228,7 @@ export async function requestUpdateProductWorkflow(
  * with none has no form to draw.
  */
 export async function requestResolvedAttributes(
-	categoryIds: number[],
+	categoryIds: EntityId[],
 ): Promise<ResolvedAttributeFormType> {
 	if (categoryIds.length === 0) {
 		return { product: [], variant: [] };
@@ -251,8 +252,8 @@ export async function requestResolvedAttributes(
  * anything short of it.
  */
 export async function requestAttributeOrderUpdate(
-	category_id: number,
-	positions: number[],
+	category_id: EntityId,
+	positions: EntityId[],
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(
 		`/${resolveRequestPath('product-category-attribute')}/order`,

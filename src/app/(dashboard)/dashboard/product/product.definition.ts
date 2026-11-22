@@ -38,7 +38,6 @@ import { toCalendarValue } from '@/helpers/date.helper';
 import {
 	getFormDataAsEnum,
 	getFormDataAsJsonList,
-	getFormDataAsNumber,
 	getFormDataAsString,
 } from '@/helpers/form.helper';
 import { arrayHasValue } from '@/helpers/objects.helper';
@@ -95,6 +94,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType, ValidatorOutput } from '@/types/form.type';
 
 const validatorMessages = [
@@ -233,10 +233,10 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	 * of it on write. The one rule checkable here is the one the entry carries itself.
 	 */
 	private readonly attributeEntrySchema = z.object({
-		attribute_label_id: z.number(),
+		attribute_label_id: z.string(),
 		value_type: z.string(),
 		is_required: z.boolean(),
-		terms: z.array(z.object({ id: z.number() })),
+		terms: z.array(z.object({ id: z.string() })),
 		text: z.string(),
 		boolean: z.boolean(),
 	});
@@ -575,7 +575,7 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 			 * message addressed to the array collides with the per-row errors already under
 			 * that key, and `accumulateZodErrors` has to discard one of the two.
 			 */
-			const seenGroupLabels = new Set<number>();
+			const seenGroupLabels = new Set<EntityId>();
 
 			data.option_groups.forEach((group, groupIndex) => {
 				if (typeof group.label_id === 'number') {
@@ -590,7 +590,7 @@ class ProductValidator extends BaseValidator<typeof validatorMessages> {
 					seenGroupLabels.add(group.label_id);
 				}
 
-				const seenAnswerLabels = new Set<number>();
+				const seenAnswerLabels = new Set<EntityId>();
 
 				group.options.forEach((option, optionIndex) => {
 					if (typeof option.label_id === 'number') {
@@ -679,7 +679,7 @@ export function getFormValues(formData: FormData): ProductFormValuesType {
 		available_from: getFormDataAsString(formData, 'available_from'),
 		available_until: getFormDataAsString(formData, 'available_until'),
 		discontinued_at: getFormDataAsString(formData, 'discontinued_at'),
-		brand_id: getFormDataAsNumber(formData, 'brand_id'),
+		brand_id: getFormDataAsString(formData, 'brand_id'),
 		contents: getFormDataAsJsonList<ProductContentType>(
 			formData,
 			'contents',
@@ -904,7 +904,7 @@ export type ProductDataTableFiltersType = {
 	sale_status: { value: ProductSaleStatus | null; matchMode: 'equals' };
 	/* The typed text and the brand it resolved to - the backend filters on the id alone. */
 	brand: { value: string | null; matchMode: 'equals' };
-	brand_id: { value: number | null; matchMode: 'equals' };
+	brand_id: { value: EntityId | null; matchMode: 'equals' };
 	is_deleted: { value: boolean; matchMode: 'equals' };
 };
 
@@ -1010,31 +1010,21 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					/*
 					 * `label` is not a column on the row - it comes from the joined
 					 * translation - so the value is resolved here.
 					 */
 					field: 'label',
 					header: labels['field.label'],
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
+							markDeleted: true,
+							displayButton: displayButtonView(auth),
 							// `?? undefined` because the column renders a missing
 							// translation as its own placeholder, not as a blank cell
 							customValue:
 								getProductLabel(entry, getLanguageClient()) ??
 								undefined,
-							markDeleted: true,
 						}),
 				},
 				{
@@ -1157,7 +1147,7 @@ export default async function dataSourceConfig(): Promise<
 					entry.composition !== ProductCompositionEnum.BUNDLE,
 				operationFunction: (
 					values: ProductManageOutput,
-					id: number,
+					id: EntityId,
 				) => {
 					const params = prepareParamsFromFormValues(values);
 
@@ -1174,7 +1164,7 @@ export default async function dataSourceConfig(): Promise<
 				 * wipe them. `GET /products/:id` with no `language` returns every translation
 				 * and the full variant rows, which is what the form edits.
 				 */
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<ProductModel>('product', id),
 				buttonPosition: 'left',
 				button: {
@@ -1304,7 +1294,7 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['product', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<ProductModel>('product', id),
 			},
 			/*
@@ -1367,7 +1357,7 @@ export default async function dataSourceConfig(): Promise<
 					entry.composition === ProductCompositionEnum.BUNDLE,
 				operationFunction: (
 					values: ProductBundleManageOutput,
-					id: number,
+					id: EntityId,
 				) => {
 					const params = prepareProductBundleParams(values);
 
@@ -1382,7 +1372,7 @@ export default async function dataSourceConfig(): Promise<
 				 * attaches them - so without this the form would open with an empty components
 				 * list and wipe them on save.
 				 */
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<ProductModel>('product', id),
 				/*
 				 * The rules only the server can check - a component pointing at another bundle,

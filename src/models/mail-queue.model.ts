@@ -1,5 +1,6 @@
 import type { TemplateContentEmailType } from '@/models/template.model';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export const MailQueueStatusEnum = {
 	PENDING: 'pending',
@@ -11,9 +12,9 @@ export type MailQueueStatus =
 	(typeof MailQueueStatusEnum)[keyof typeof MailQueueStatusEnum];
 
 export type MailQueueModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 	template: {
-		id: number;
+		id: EntityId;
 		label: string;
 	} | null;
 	language: Language;

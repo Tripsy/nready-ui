@@ -63,7 +63,7 @@
 			"confirm": "Sigur vrei să restaurezi această mișcare?"
 		},
 		"view": {
-			"title": "Detalii mișcare - {{entry}}",
+			"title": "Mișcare - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"statusTransition": {
@@ -93,7 +93,7 @@
 		"tab_api": "Documentație API"
 	},
 	"field": {
-		"search": "ID / Comandă / Număr AWB",
+		"search": "Comandă / Număr AWB",
 		"scope": "Tip",
 		"status": "Status",
 		"method": "Metodă",

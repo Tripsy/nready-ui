@@ -7,7 +7,6 @@ import { translateBatch } from '@/config/translate.setup';
 import { requestFind } from '@/helpers/services.helper';
 import {
 	enumTranslationKeys,
-	replaceVars,
 	translateEnumLabel,
 } from '@/helpers/string.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
@@ -15,6 +14,7 @@ import {
 	displayMovementVariant,
 	displayMovementWarehouse,
 	displaySignedQuantity,
+	MOVEMENT_SOURCE_DATA_SOURCE,
 	type WarehouseMovementModel,
 	type WarehouseMovementSource,
 	WarehouseMovementSourceEnum,
@@ -26,6 +26,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The pickers carry their visible text (`warehouse`, `variant`) beside the id they filter on; only
@@ -33,9 +34,9 @@ import type {
  */
 export type WarehouseMovementDataTableFiltersType = {
 	warehouse: { value: string | null; matchMode: 'equals' };
-	warehouse_id: { value: number | null; matchMode: 'equals' };
+	warehouse_id: { value: EntityId | null; matchMode: 'equals' };
 	variant: { value: string | null; matchMode: 'equals' };
-	variant_id: { value: number | null; matchMode: 'equals' };
+	variant_id: { value: EntityId | null; matchMode: 'equals' };
 	movement_type: {
 		value: WarehouseMovementType | null;
 		matchMode: 'equals';
@@ -70,7 +71,6 @@ export default async function dataSourceConfig(): Promise<
 				'field.qty',
 				'field.unit_cost_base',
 				'field.source',
-				'text.source_ref',
 				...enumTranslationKeys(
 					'enum.movement_type',
 					WarehouseMovementTypeEnum,
@@ -97,6 +97,23 @@ export default async function dataSourceConfig(): Promise<
 		};
 	}
 
+	/** Opens the document behind the row's source line, when the listing resolved one. */
+	function displayButtonSource(
+		auth: AccountModel | null,
+		entry: WarehouseMovementModel,
+	): DataTableValueOptionsType<WarehouseMovementModel>['displayButton'] {
+		const dataSource = MOVEMENT_SOURCE_DATA_SOURCE[entry.source_type];
+
+		return {
+			action: () =>
+				entry.source_document && hasPermission(auth, dataSource, 'read')
+					? 'view'
+					: undefined,
+			dataSource,
+			alternateEntryId: entry.source_document?.id,
+		};
+	}
+
 	return {
 		dataTable: {
 			state: {
@@ -117,21 +134,12 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
+					field: 'occurred_at',
+					header: labels['field.occurred_at'],
 					sortable: true,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayButton: displayButton(auth, 'view'),
-						}),
-				},
-				{
-					field: 'occurred_at',
-					header: labels['field.occurred_at'],
-					sortable: true,
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
 							displayDate: true,
 						}),
 				},
@@ -182,20 +190,21 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'source_type',
 					header: labels['field.source'],
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
-							customValue: replaceVars(
-								labels['text.source_ref'],
-								{
-									type: translateEnumLabel(
-										labels,
-										'enum.source_type',
-										entry.source_type,
-									),
-									id: entry.source_id ?? '-',
-								},
-							),
-						}),
+					body: (entry, column, auth) => {
+						const type = translateEnumLabel(
+							labels,
+							'enum.source_type',
+							entry.source_type,
+						);
+						const reference = entry.source_document?.reference;
+
+						return DataTableValue(entry, column, {
+							customValue: reference
+								? `${type} ${reference}`
+								: type,
+							displayButton: displayButtonSource(auth, entry),
+						});
+					},
 				},
 			],
 			find: (params: FindFunctionParamsType) =>

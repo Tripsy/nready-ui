@@ -38,6 +38,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = ['invalid_name', 'invalid_type'] as const;
@@ -170,17 +171,6 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					field: 'type',
 					header: labels['field.type'],
 					body: (entry, column) =>
@@ -196,6 +186,11 @@ export default async function dataSourceConfig(): Promise<
 					field: 'name',
 					header: labels['field.name'],
 					sortable: true,
+					body: (entry, column, auth) =>
+						DataTableValue(entry, column, {
+							markDeleted: true,
+							displayButton: displayButtonView(auth),
+						}),
 				},
 				{
 					field: 'status',
@@ -251,7 +246,10 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['vendor', 'update'],
 				entriesSelection: 'single',
 				customEntryCheck: (entry: VendorModel) => !entry.deleted_at, // Return true if the entry is not deleted
-				operationFunction: (params: VendorFormValuesType, id: number) =>
+				operationFunction: (
+					params: VendorFormValuesType,
+					id: EntityId,
+				) =>
 					requestUpdate<VendorModel, VendorFormValuesType>(
 						'vendor',
 						params,

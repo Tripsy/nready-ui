@@ -40,6 +40,7 @@ import { useSortablePosition } from '@/providers/sortable-position.provider';
 import { useToast } from '@/providers/toast.provider';
 import { orderUpdate } from '@/services/category.service';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'dashboard.text.back_to_list',
@@ -200,7 +201,7 @@ const DataTableCategoryOrderContent = (): JSX.Element => {
 	}, [data]);
 
 	const { mutate: updateOrder, isPending: loading } = useMutation({
-		mutationFn: (positions: number[]) =>
+		mutationFn: (positions: EntityId[]) =>
 			orderUpdate(type, parentId, positions),
 		onSuccess: async () => {
 			showToast({

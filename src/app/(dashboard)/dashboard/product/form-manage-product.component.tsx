@@ -74,6 +74,7 @@ import { useWindowForm } from '@/providers/window-form.provider';
 import { requestResolvedAttributes } from '@/services/product.service';
 import { useModalStore } from '@/stores/window.store';
 import { DataSourceSectionEnum } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'product.field.available_from',
@@ -128,7 +129,7 @@ export type ProductFormValuesType = {
 	available_until: string | null;
 	discontinued_at: string | null;
 
-	brand_id: number | null;
+	brand_id: EntityId | null;
 
 	contents: ProductContentType[];
 	categories: ProductRefType[];
@@ -517,7 +518,7 @@ export function FormManageProduct() {
 		return Object.fromEntries(
 			attributeValues.map((value, index) => [
 				value.attribute_label_id,
-				(list as Record<number, string[] | undefined> | undefined)?.[
+				(list as Record<EntityId, string[] | undefined> | undefined)?.[
 					index
 				],
 			]),

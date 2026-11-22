@@ -42,6 +42,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 /**
@@ -231,20 +232,14 @@ export default async function dataSourceConfig(): Promise<
 			// `OrderByEnum` accepts.
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
+					field: 'rate_date',
+					header: labels['field.rate_date'],
+					defaultWidth: 128,
 					sortable: true,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayButton: displayButtonView(auth),
 						}),
-				},
-				{
-					field: 'rate_date',
-					header: labels['field.rate_date'],
-					defaultWidth: 128,
-					sortable: true,
 				},
 				{
 					field: 'currency',
@@ -326,7 +321,7 @@ export default async function dataSourceConfig(): Promise<
 					isWithinUpdateWindow(entry),
 				operationFunction: (
 					params: ExchangeRateUpdateParamsType,
-					id: number,
+					id: EntityId,
 				) =>
 					requestUpdate<
 						ExchangeRateModel,

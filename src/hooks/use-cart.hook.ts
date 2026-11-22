@@ -19,6 +19,7 @@ import {
 	requestRemoveCartItem,
 	requestUpdateCartItem,
 } from '@/services/cart.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * One cache entry for the whole app. The header badge, the product page and the basket page all
@@ -51,9 +52,9 @@ const STALE_TIME_MS = 30_000;
  * and no window where the badge shows the old count.
  */
 export function useCart(
-	clientId?: number | null,
+	clientId?: EntityId | null,
 	delivery?: CartDeliveryChoice | null,
-	billingAddressId?: number | null,
+	billingAddressId?: EntityId | null,
 ) {
 	const queryClient = useQueryClient();
 
@@ -114,14 +115,14 @@ export function useCart(
 			id,
 			quantity,
 		}: {
-			id: number;
+			id: EntityId;
 			quantity: number;
 		}) => getResponseData(await requestUpdateCartItem(id, { quantity })),
 		onSuccess: setCart,
 	});
 
 	const removeItem = useMutation({
-		mutationFn: async (id: number) =>
+		mutationFn: async (id: EntityId) =>
 			getResponseData(await requestRemoveCartItem(id)),
 		onSuccess: setCart,
 	});

@@ -15,11 +15,12 @@ import {
 } from '@/models/warehouse.model';
 import { useWindowForm } from '@/providers/window-form.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /** The fields every adjustment starts from - where, and what. */
 export type StockAdjustmentTargetFormType = {
-	warehouse_id: number | null;
-	variant_id: number | null;
+	warehouse_id: EntityId | null;
+	variant_id: EntityId | null;
 	// display-only fields, not part of validation
 	warehouse: string | null;
 	variant: string | null;

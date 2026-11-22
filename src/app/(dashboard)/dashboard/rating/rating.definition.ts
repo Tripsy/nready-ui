@@ -25,6 +25,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Exactly the keys in the backend's `find.filterSchema` - it accepts no free-text term, so
@@ -38,7 +39,7 @@ export type RatingDataTableFiltersType = {
 	type: { value: RatingType | null; matchMode: 'equals' };
 	reaction: { value: RatingEmoji | null; matchMode: 'equals' };
 	user: { value: string | null; matchMode: 'equals' };
-	user_id: { value: number | null; matchMode: 'equals' };
+	user_id: { value: EntityId | null; matchMode: 'equals' };
 };
 
 export default async function dataSourceConfig(): Promise<
@@ -122,16 +123,6 @@ export default async function dataSourceConfig(): Promise<
 			// `OrderByEnum` accepts.
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					field: 'entity_type',
 					header: labels['field.entity_type'],
 					body: (entry, column) =>
@@ -181,9 +172,7 @@ export default async function dataSourceConfig(): Promise<
 					header: labels['field.rated_by'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
-							customValue: entry.user
-								? `${entry.user.name} (#${entry.user_id})`
-								: guest,
+							customValue: entry.user?.name ?? guest,
 							displayButton: displayButtonViewUser(auth, entry),
 						}),
 				},
@@ -191,9 +180,10 @@ export default async function dataSourceConfig(): Promise<
 					field: 'created_at',
 					header: labels['field.created_at'],
 					sortable: true,
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayDate: true,
+							displayButton: displayButtonView(auth),
 						}),
 				},
 			],

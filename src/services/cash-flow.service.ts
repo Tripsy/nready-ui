@@ -1,6 +1,7 @@
 import { ApiRequest, getResponseData } from '@/helpers/api.helper';
 import type { OperationalRecordModel } from '@/models/operational-record.model';
 import type { ApiResponseFetch } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The operational records attached to a cash flow entry.
@@ -11,7 +12,7 @@ import type { ApiResponseFetch } from '@/types/api.type';
  * it back turns "nothing to show" into a query error.
  */
 export async function requestOperationalRecords(
-	cash_flow_id: number,
+	cash_flow_id: EntityId,
 ): Promise<OperationalRecordModel[]> {
 	const response: ApiResponseFetch<OperationalRecordModel[]> =
 		await new ApiRequest().doFetch(

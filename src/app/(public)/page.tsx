@@ -1,11 +1,14 @@
 import {
 	ArrowRight,
 	LayoutDashboard,
+	MessageSquare,
 	Package,
+	Receipt,
 	ShieldCheck,
 	ShoppingCart,
+	Undo2,
 	Users,
-	Wallet,
+	Warehouse,
 } from 'lucide-react';
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
@@ -26,8 +29,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const features = [
 	{ icon: Package, key: 'catalog' },
+	{ icon: Warehouse, key: 'stock' },
 	{ icon: ShoppingCart, key: 'orders' },
-	{ icon: Wallet, key: 'cash_flow' },
+	{ icon: Receipt, key: 'billing' },
+	{ icon: Undo2, key: 'returns' },
+	{ icon: MessageSquare, key: 'content' },
 	{ icon: Users, key: 'directory' },
 	{ icon: ShieldCheck, key: 'permissions' },
 	{ icon: LayoutDashboard, key: 'dashboard' },

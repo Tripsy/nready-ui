@@ -4,6 +4,7 @@ import type { BreadcrumbType } from '@/app/(dashboard)/_providers/breadcrumb.pro
 import { DataTableClientLedger } from '@/app/(dashboard)/dashboard/client-ledger/data-table-client-ledger.component';
 import { Configuration } from '@/config/settings.config';
 import { translate } from '@/config/translate.setup';
+import { isEntityId } from '@/helpers/id.helper';
 
 export async function generateMetadata(): Promise<Metadata> {
 	return {
@@ -27,7 +28,9 @@ export default async function Page(props: Props) {
 	return (
 		<>
 			<BreadcrumbSetter page="client-ledger" items={items} />
-			<DataTableClientLedger initialClientId={Number(clientId) || null} />
+			<DataTableClientLedger
+				initialClientId={isEntityId(clientId) ? clientId : null}
+			/>
 		</>
 	);
 }

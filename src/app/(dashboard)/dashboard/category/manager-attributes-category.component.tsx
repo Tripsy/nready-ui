@@ -33,6 +33,7 @@ import { requestAttributeOrderUpdate } from '@/services/product.service';
 import { useModalStore } from '@/stores/window.store';
 import type { Language } from '@/types/common.type';
 import { DataSourceSectionEnum } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { WindowEntryType } from '@/types/window.type';
 
 const TRANSLATION_KEYS = [
@@ -303,7 +304,7 @@ export function ManagerAttributesCategory({
 	 * arrangement the drag produced.
 	 */
 	const { mutate: updateOrder } = useMutation({
-		mutationFn: (positions: number[]) =>
+		mutationFn: (positions: EntityId[]) =>
 			requestAttributeOrderUpdate(category.id, positions),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey });

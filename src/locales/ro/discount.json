@@ -45,7 +45,7 @@
 			"confirm": "Sigur vrei să restaurezi această reducere?"
 		},
 		"view": {
-			"title": "Detalii reducere - {{entry}}",
+			"title": "Reducere - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"guide": {
@@ -70,7 +70,7 @@
 		"tab_api": "Documentație API"
 	},
 	"field": {
-		"search": "ID / Etichetă / Referință",
+		"search": "Etichetă / Referință",
 		"scope": "Domeniu",
 		"reason": "Motiv",
 		"type": "Tip",

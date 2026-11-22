@@ -33,7 +33,7 @@
 			"confirm": "Sigur vrei să restaurezi această adresă?"
 		},
 		"view": {
-			"title": "Detalii adresă - {{entry}}",
+			"title": "Adresă - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"guide": {
@@ -46,7 +46,7 @@
 		"details": "Detalii",
 		"postal_code": "Cod poștal",
 		"id": "ID",
-		"search": "ID / Adresă / Cod poștal",
+		"search": "Adresă / Cod poștal",
 		"created_at": "Creat la",
 		"updated_at": "Actualizat la"
 	},

@@ -7,16 +7,18 @@ import type { InvoiceDocumentTranslations } from '@/components/document/invoice-
 import Routes from '@/config/routes.setup';
 import { ApiError } from '@/exceptions/api.error';
 import { getResponseData } from '@/helpers/api.helper';
+import { isEntityId } from '@/helpers/id.helper';
 import { requestInvoiceDocument } from '@/services/invoice.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 export function DashboardDocumentInvoice({
 	invoiceId,
 	translations,
 }: {
-	readonly invoiceId: number;
+	readonly invoiceId: EntityId;
 	readonly translations: InvoiceDocumentTranslations;
 }): JSX.Element {
-	const isValidId = Number.isInteger(invoiceId) && invoiceId > 0;
+	const isValidId = isEntityId(invoiceId);
 
 	const invoiceQuery = useQuery({
 		queryKey: ['invoice', 'print', invoiceId],

@@ -2,6 +2,7 @@ import { replaceVars } from '@/helpers/string.helper';
 import type { OrderDiscountSnapshot, OrderModel } from '@/models/order.model';
 import { roundMoney } from '@/models/product.model';
 import type { StatusTransitions } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Where a movement has got to, mirroring `ShippingStatusEnum` on `shipping.entity.ts`.
@@ -154,10 +155,10 @@ export type ShippingLineCondition =
 
 /** How much of a variant travels in a given movement. */
 export type ShippingLineModel<D = Date | string> = {
-	id: number;
-	shipping_id: number;
-	variant_id: number;
-	product_id: number;
+	id: EntityId;
+	shipping_id: EntityId;
+	variant_id: EntityId;
+	product_id: EntityId;
 	quantity: number;
 	condition: ShippingLineCondition | null;
 	notes: string | null;
@@ -185,22 +186,22 @@ export type ShippingLineModel<D = Date | string> = {
  * the carrier and stops there. A detail window re-reads the row to get them.
  */
 export type ShippingModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	scope: ShippingScope;
 	/** The order a `delivery` or a `return` serves; null on a `relocation`. */
-	order_id: number | null;
+	order_id: EntityId | null;
 	/** The relocation document, which has no table yet - so nothing resolves it. */
-	document_ref: number | null;
+	document_ref: EntityId | null;
 
 	status: ShippingStatus;
 	method: ShippingMethod;
-	carrier_id: number | null;
+	carrier_id: EntityId | null;
 
-	pickup_warehouse_id: number | null;
-	pickup_client_address_id: number | null;
-	destination_warehouse_id: number | null;
-	destination_client_address_id: number | null;
+	pickup_warehouse_id: EntityId | null;
+	pickup_client_address_id: EntityId | null;
+	destination_warehouse_id: EntityId | null;
+	destination_client_address_id: EntityId | null;
 
 	pickup_data: ShippingAddressSnapshot | null;
 	destination_data: ShippingAddressSnapshot | null;
@@ -239,9 +240,9 @@ export type ShippingModel<D = Date | string> = {
 		OrderModel<D>,
 		'id' | 'client_id' | 'ref_code' | 'ref_number' | 'status'
 	> | null;
-	pickup_warehouse?: { id: number; code: string; name: string } | null;
-	destination_warehouse?: { id: number; code: string; name: string } | null;
-	carrier?: { id: number; name: string } | null;
+	pickup_warehouse?: { id: EntityId; code: string; name: string } | null;
+	destination_warehouse?: { id: EntityId; code: string; name: string } | null;
+	carrier?: { id: EntityId; name: string } | null;
 
 	lines?: ShippingLineModel<D>[];
 	/** The client-address ends in one line each - attached by the dashboard read and list. */
@@ -301,7 +302,7 @@ export const displayAddressSnapshot = (
 export const displayShippingEnd = (
 	snapshot: ShippingAddressSnapshot | null,
 	warehouse: { code: string; name: string } | null | undefined,
-	clientAddressId: number | null,
+	clientAddressId: EntityId | null,
 	clientAddressLabel?: string | null,
 ): string => {
 	if (snapshot) {
@@ -381,8 +382,8 @@ export type OrderShipmentModel<D = Date | string> = Pick<
 	| 'currency'
 	| 'discount_reduction'
 > & {
-	pickup_warehouse: { id: number; name: string } | null;
-	carrier: { id: number; name: string } | null;
+	pickup_warehouse: { id: EntityId; name: string } | null;
+	carrier: { id: EntityId; name: string } | null;
 };
 
 /**

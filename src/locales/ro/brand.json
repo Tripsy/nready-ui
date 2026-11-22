@@ -57,7 +57,7 @@
 			"label": "Logo"
 		},
 		"view": {
-			"title": "Detalii marcă - {{entry}}",
+			"title": "Marcă - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"order": {
@@ -91,7 +91,7 @@
 		"brand_type": "Tip",
 		"name": "Nume",
 		"status": "Status",
-		"search": "ID / Nume",
+		"search": "Nume",
 		"language": "Limbă",
 		"description": "Descriere",
 		"created_at": "Creat la",

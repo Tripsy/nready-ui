@@ -57,7 +57,7 @@
 			"label": "Logo"
 		},
 		"view": {
-			"title": "Brand details - {{entry}}",
+			"title": "Brand - {{entry}}",
 			"label": "View details"
 		},
 		"order": {
@@ -91,7 +91,7 @@
 		"brand_type": "Type",
 		"name": "Name",
 		"status": "Status",
-		"search": "ID / Name",
+		"search": "Name",
 		"language": "Language",
 		"description": "Description",
 		"created_at": "Created At",

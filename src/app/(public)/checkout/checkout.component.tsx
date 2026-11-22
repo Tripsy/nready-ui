@@ -56,6 +56,7 @@ import {
 	requestUpdateOwnClient,
 } from '@/services/client.service';
 import { OWN_ORDERS_QUERY_KEY } from '@/services/order.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 /** The account's own clients - the bill-to choices. */
 const OWN_CLIENTS_QUERY_KEY = ['client', 'own'] as const;
@@ -154,7 +155,7 @@ export function CheckoutForm(): JSX.Element {
 	const [values, setValues] = useState<CheckoutValues>(
 		CHECKOUT_INITIAL_VALUES,
 	);
-	const [selectedClientId, setSelectedClientId] = useState<number | null>(
+	const [selectedClientId, setSelectedClientId] = useState<EntityId | null>(
 		null,
 	);
 
@@ -164,7 +165,7 @@ export function CheckoutForm(): JSX.Element {
 	 * answers 404 until `CheckoutAddresses` picks the new client's own.
 	 */
 	const selectClient = useCallback(
-		(clientId: number) => {
+		(clientId: EntityId) => {
 			if (clientId === selectedClientId) {
 				return;
 			}
@@ -250,7 +251,7 @@ export function CheckoutForm(): JSX.Element {
 
 	// Stable, and a no-op when unchanged: `CheckoutAddresses` calls these from an effect
 	const selectBillingAddress = useCallback(
-		(addressId: number | null) =>
+		(addressId: EntityId | null) =>
 			setValues((current) =>
 				current.billing_address_id === addressId
 					? current
@@ -260,7 +261,7 @@ export function CheckoutForm(): JSX.Element {
 	);
 
 	const selectDeliveryAddress = useCallback(
-		(addressId: number | null) =>
+		(addressId: EntityId | null) =>
 			setValues((current) =>
 				current.delivery_address_id === addressId
 					? current

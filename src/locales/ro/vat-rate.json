@@ -27,7 +27,7 @@
 			"confirm": "Ștergerea este definitivă. Rândul anterior pentru aceeași țară și clasă își reia perioada. Comenzile și facturile deja emise își păstrează cota. Ești sigur?"
 		},
 		"view": {
-			"title": "Detalii cotă TVA - {{entry}}",
+			"title": "Cotă TVA - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"guide": {
@@ -50,7 +50,7 @@
 		"tab_api": "Documentație API"
 	},
 	"field": {
-		"search": "ID / Țară / Note",
+		"search": "Țară / Note",
 		"id": "ID",
 		"country_code": "Țară",
 		"category": "Clasă TVA",

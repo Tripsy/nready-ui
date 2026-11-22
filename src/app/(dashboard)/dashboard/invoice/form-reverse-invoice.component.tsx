@@ -12,6 +12,7 @@ import { replaceVars } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import { useWindowForm } from '@/providers/window-form.provider';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'invoice.field.amount',
@@ -53,7 +54,7 @@ export type ReverseLineMode =
  * left - the API enforces the same caps, these only keep the operator from typing past them.
  */
 export type ReverseLineFormType = {
-	invoice_line_id: number;
+	invoice_line_id: EntityId;
 	label: string;
 	mode: ReverseLineMode;
 	quantity: number | null;

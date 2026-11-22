@@ -38,7 +38,6 @@
 		"entry_type": "Type",
 		"amount": "Amount",
 		"amount_base": "Base Amount",
-		"cash_flow_id": "Cash Flow",
 		"occurred_at": "Occurred At",
 		"client": "Client",
 		"currency": "Currency"

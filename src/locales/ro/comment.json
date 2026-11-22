@@ -28,7 +28,7 @@
 			"success": "Statusul comentariului a fost actualizat"
 		},
 		"view": {
-			"title": "Detalii comentariu - {{entry}}",
+			"title": "Comentariu - {{entry}}",
 			"label": "Vezi"
 		},
 		"viewUser": {

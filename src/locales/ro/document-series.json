@@ -26,7 +26,7 @@
 			"confirm": "Ștergerea unei serii îi elimină definitiv contorul. Sigur vrei să ștergi această serie de documente?"
 		},
 		"view": {
-			"title": "Detalii serie documente - {{entry}}",
+			"title": "Serie documente - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"guide": {
@@ -51,7 +51,7 @@
 		"tab_api": "Documentație API"
 	},
 	"field": {
-		"search": "ID / Cod",
+		"search": "Cod",
 		"document_type": "Tip document",
 		"id": "ID",
 		"code": "Cod",

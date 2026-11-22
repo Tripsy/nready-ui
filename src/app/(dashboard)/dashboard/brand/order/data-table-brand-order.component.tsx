@@ -38,6 +38,7 @@ import {
 import { useSortablePosition } from '@/providers/sortable-position.provider';
 import { useToast } from '@/providers/toast.provider';
 import { orderUpdate } from '@/services/brand.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'dashboard.text.back_to_list',
@@ -181,7 +182,7 @@ const DataTableBrandOrderContent = (): JSX.Element => {
 	}, [data]);
 
 	const { mutate: updateOrder, isPending: loading } = useMutation({
-		mutationFn: (positions: number[]) =>
+		mutationFn: (positions: EntityId[]) =>
 			orderUpdate(
 				tableState.filters.brand_type.value as BrandType,
 				positions,

@@ -16,16 +16,17 @@ import { useModalStore } from '@/stores/window.store';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { DataSourceKey } from '@/types/data-source.key';
 import { DataSourceSectionEnum } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = ['app.form.placeholder_search'] as const;
 
 /** One chip: whatever the caller resolved the selection to. */
 export type PickerRefType = {
-	id: number;
+	id: EntityId;
 	label: string;
 };
 
-type Props<Model extends { id: number }> = {
+type Props<Model extends { id: EntityId }> = {
 	labelText: string;
 	/**
 	 * The name the selection is submitted under. The search box gets a `_search` suffix
@@ -45,7 +46,7 @@ type Props<Model extends { id: number }> = {
 	entries: readonly PickerRefType[];
 	/** Called for a pick the selection does not already hold; deduplication happens here. */
 	onSelect: (entry: Model) => void;
-	onRemove: (id: number) => void;
+	onRemove: (id: EntityId) => void;
 	/**
 	 * The selection as real form fields. `processForm` rebuilds its values from `FormData` on
 	 * every submit, so a selection that lived only in React state would be dropped - and the
@@ -85,7 +86,7 @@ type Props<Model extends { id: number }> = {
  * chips and the empty/error line. What it does not own: how the selection reaches `FormData`
  * (`hiddenFields`) and how an id becomes a label (`entries`).
  */
-export function FormPickerRefs<Model extends { id: number }>({
+export function FormPickerRefs<Model extends { id: EntityId }>({
 	labelText,
 	fieldName,
 	dataSource,

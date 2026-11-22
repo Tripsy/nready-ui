@@ -30,6 +30,7 @@ import {
 import { useWindowForm } from '@/providers/window-form.provider';
 import { requestDiscountTargets } from '@/services/discount.service';
 import { useModalStore } from '@/stores/window.store';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'discount.field.condition_countries',
@@ -96,7 +97,7 @@ export type DiscountFormValuesType = {
 	 * Wrapped as `{ id }` records because `FormValuesType` admits arrays of records but not a
 	 * bare `number[]` - the picker itself works in plain ids and converts at this boundary.
 	 */
-	targets: { id: number }[];
+	targets: { id: EntityId }[];
 };
 
 export function FormManageDiscount() {
@@ -174,7 +175,7 @@ export function FormManageDiscount() {
 		? resolveWindowEntries(windowConfig, 'form')
 		: {};
 
-	const entryId = entry && 'id' in entry ? (entry.id as number) : undefined;
+	const entryId = entry && 'id' in entry ? (entry.id as EntityId) : undefined;
 
 	/*
 	 * Targets live behind their own endpoint, so `getFormState` - which only sees the discount

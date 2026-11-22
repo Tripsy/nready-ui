@@ -1,6 +1,7 @@
 import { capitalizeFirstLetter } from '@/helpers/string.helper';
 import { displayTermValue, type TermModel } from '@/models/term.model';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Which of the two attribute tables a value written against this definition lands in.
@@ -223,9 +224,9 @@ export const MEASURE_UNIT_SYMBOLS: Record<MeasureUnit, string> =
 
 /** One admissible value for a list-backed definition - an `attribute_value` term. */
 export type ProductCategoryAttributeOptionModel<D = Date | string> = {
-	id: number;
-	attribute_id: number;
-	term_id: number;
+	id: EntityId;
+	attribute_id: EntityId;
+	term_id: EntityId;
 	sort_order: number;
 
 	created_at: D;
@@ -237,9 +238,9 @@ export type ProductCategoryAttributeOptionModel<D = Date | string> = {
 };
 
 export type ProductCategoryAttributeModel<D = Date | string> = {
-	id: number;
-	category_id: number;
-	attribute_label_id: number;
+	id: EntityId;
+	category_id: EntityId;
+	attribute_label_id: EntityId;
 
 	scope: ProductCategoryAttributeScope;
 	value_type: ProductCategoryAttributeValueType;
@@ -269,7 +270,7 @@ export type ProductCategoryAttributeModel<D = Date | string> = {
 	 * naming the categories that window may attach the definition to. `getFormState` reads the
 	 * prefill through this same type, which is why it lives here.
 	 */
-	category_options?: { id: number; label: string }[];
+	category_options?: { id: EntityId; label: string }[];
 };
 
 /**
@@ -319,8 +320,8 @@ export type ResolvedAttributeFormType<D = Date | string> = {
  * `value_base` is derived on write from the definition's unit and is never sent back up.
  */
 export type ProductAttributeValueType = {
-	attribute_label_id: number;
-	value_term_id?: number | null;
+	attribute_label_id: EntityId;
+	value_term_id?: EntityId | null;
 	value_numeric?: number | null;
 	value_text?: string | null;
 	value_boolean?: boolean | null;
@@ -342,7 +343,7 @@ export type ProductAttributeValueType = {
  * input whose value is `String(Number(raw))` cannot hold a half-typed decimal.
  */
 export type ProductAttributeFormType = {
-	attribute_label_id: number;
+	attribute_label_id: EntityId;
 	/*
 	 * A plain string, not the union: the entry crosses a JSON boundary on every submit - the
 	 * form writes it into a hidden field and `getFormValues` parses it back - so what arrives
@@ -360,7 +361,7 @@ export type ProductAttributeFormType = {
 	 * `{ id }` rather than a bare `number[]`: `FormValuesType` admits a list of groups or a
 	 * primitive, never a list of primitives - the same shape the category and tag pickers use.
 	 */
-	terms: { id: number }[];
+	terms: { id: EntityId }[];
 	text: string;
 	boolean: boolean;
 };
@@ -390,7 +391,7 @@ export function emptyAttributeValue(
 export function groupStoredAttributes(
 	stored: ProductAttributeValueType[] | undefined,
 ): ProductAttributeFormType[] {
-	const byLabel = new Map<number, ProductAttributeFormType>();
+	const byLabel = new Map<EntityId, ProductAttributeFormType>();
 
 	for (const row of stored ?? []) {
 		const entry = byLabel.get(row.attribute_label_id) ?? {

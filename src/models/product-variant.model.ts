@@ -8,6 +8,7 @@ import type {
 	ProductWorkflow,
 } from '@/models/product.model';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * One row of the catalog listed by the thing that is actually sold.
@@ -18,8 +19,8 @@ import type { Language } from '@/types/common.type';
  * variant's own columns, the slice of its product the listing shows, and its prices.
  */
 export type ProductVariantModel<D = Date | string> = {
-	id: number;
-	product_id: number;
+	id: EntityId;
+	product_id: EntityId;
 
 	sku: string;
 	barcode: string | null;
@@ -47,16 +48,16 @@ export type ProductVariantModel<D = Date | string> = {
 	 * normalization, and a narrower projection would otherwise be a lie.
 	 */
 	product?: {
-		id: number;
+		id: EntityId;
 		workflow: ProductWorkflow;
 		sale_status: ProductSaleStatus;
 		type: ProductType;
 		composition: ProductComposition;
 		unit: ProductUnit;
 		vat_category: ProductVatCategory;
-		brand_id: number | null;
+		brand_id: EntityId | null;
 		deleted_at: D | null;
-		brand?: { id: number; name: string } | null;
+		brand?: { id: EntityId; name: string } | null;
 		contents?: { language: Language; slug: string; label: string }[];
 	} | null;
 	prices?: ProductPriceType[];

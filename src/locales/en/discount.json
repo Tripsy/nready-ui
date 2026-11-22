@@ -45,7 +45,7 @@
 			"confirm": "Are you sure you want to restore this discount?"
 		},
 		"view": {
-			"title": "Discount details - {{entry}}",
+			"title": "Discount - {{entry}}",
 			"label": "View details"
 		},
 		"guide": {
@@ -70,7 +70,7 @@
 		"tab_api": "API docs"
 	},
 	"field": {
-		"search": "ID / Label / Reference",
+		"search": "Label / Reference",
 		"scope": "Scope",
 		"reason": "Reason",
 		"type": "Type",

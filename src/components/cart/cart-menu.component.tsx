@@ -10,6 +10,7 @@ import { useCart } from '@/hooks/use-cart.hook';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import { type CartLineModel, cartLineHref } from '@/models/cart.model';
 import { roundMoney } from '@/models/product.model';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'cart.storefront.heading',
@@ -209,7 +210,7 @@ export function CartMenu(): JSX.Element | null {
 	const preview = topLevel.slice(0, PREVIEW_LINES);
 	const hidden = topLevel.length - preview.length;
 
-	const componentsOf = (id: number) =>
+	const componentsOf = (id: EntityId) =>
 		lines.filter((line) => line.parent_id === id);
 
 	// VAT-inclusive, reconciling to the total - the cart page's summary, in brief.

@@ -7,6 +7,7 @@ import {
 import type { ImageStorage } from '@/models/image.model';
 import { displayTermValue, type TermModel } from '@/models/term.model';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { ImagePropertiesType } from '@/types/image.type';
 import type { PageMeta } from '@/types/page-meta.type';
 
@@ -142,14 +143,14 @@ export const ARTICLE_DEFAULT_VISIBILITY = ArticleVisibilityEnum.PUBLIC;
  * manages images through the `image` feature instead.
  */
 export type ArticleCoverImageType = {
-	id: number;
+	id: EntityId;
 	path: string;
 	storage: ImageStorage;
 	properties: ImagePropertiesType | null;
 };
 
 export type ArticleModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 	status: ArticleStatus;
 	layout?: ArticleLayout;
 	publish_at: D | null;
@@ -167,15 +168,18 @@ export type ArticleModel<D = Date | string> = {
 	settings?: ArticleSettingsType;
 
 	// Relations
-	author_id: number | null;
-	author?: { id: number; name: string; email?: string } | null;
+	author_id: EntityId | null;
+	author?: { id: EntityId; name: string; email?: string } | null;
 	contents?: ArticleContentType[];
 	/**
 	 * Link rows. `read` selects only the foreign key; `find` also joins the category and its
 	 * translation in the requested language, so a list row can name them.
 	 */
-	categories?: { category_id: number; category?: CategoryModel<D> | null }[];
-	tags?: { tag_id: number; tag?: TermModel<D> | null }[];
+	categories?: {
+		category_id: EntityId;
+		category?: CategoryModel<D> | null;
+	}[];
+	tags?: { tag_id: EntityId; tag?: TermModel<D> | null }[];
 	visibility_rule?: ArticleVisibilityRuleType | null;
 	/** Public endpoints only; `null` when the article has no gallery image. */
 	cover_image?: ArticleCoverImageType | null;
@@ -260,7 +264,7 @@ export function displayArticleCategories(
 export function getArticlePrimaryCategory(
 	entry: ArticleModel,
 	language: Language,
-): { id: number; label: string; slug: string } | null {
+): { id: EntityId; label: string; slug: string } | null {
 	for (const link of entry.categories ?? []) {
 		if (!link.category) {
 			continue;
@@ -318,9 +322,9 @@ export function buildArticlePath(
 export function getArticleLinkLabels(
 	entry: ArticleModel | undefined,
 	language: Language,
-): { categories: Record<number, string>; tags: Record<number, string> } {
-	const categories: Record<number, string> = {};
-	const tags: Record<number, string> = {};
+): { categories: Record<EntityId, string>; tags: Record<EntityId, string> } {
+	const categories: Record<EntityId, string> = {};
+	const tags: Record<EntityId, string> = {};
 
 	for (const link of entry?.categories ?? []) {
 		if (link.category) {

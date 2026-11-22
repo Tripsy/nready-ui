@@ -21,6 +21,7 @@ import {
 	requestModerateComment,
 	requestUpdateComment,
 } from '@/services/comment.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Editing one comment in place, in the thread it sits in.
@@ -41,7 +42,7 @@ export function CommentEdit({
 	onSaved,
 	onCancel,
 }: {
-	entry: { id: number; content: string };
+	entry: { id: EntityId; content: string };
 	/**
 	 * Which endpoint the save goes to. An author edits through the public route, which needs no
 	 * permission and narrows to their own row; anybody else is a moderator going through the

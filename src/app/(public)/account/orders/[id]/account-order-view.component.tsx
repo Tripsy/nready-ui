@@ -17,6 +17,7 @@ import { ApiError } from '@/exceptions/api.error';
 import { getResponseData } from '@/helpers/api.helper';
 import { formatDate } from '@/helpers/date.helper';
 import { DisplayStatus } from '@/helpers/display.helper';
+import { isEntityId } from '@/helpers/id.helper';
 import { replaceVars } from '@/helpers/string.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import { CashFlowDirectionEnum } from '@/models/cash-flow.model';
@@ -52,6 +53,7 @@ import {
 	requestOwnOrderBilling,
 	requestOwnOrderShipments,
 } from '@/services/order.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'order.storefront.loading',
@@ -337,7 +339,7 @@ function InvoiceRow({
 	invoice,
 	translations,
 }: {
-	readonly orderId: number;
+	readonly orderId: EntityId;
 	readonly invoice: OwnOrderInvoice;
 	readonly translations: Translations;
 }) {
@@ -462,12 +464,12 @@ export function AccountOrderView({
 	id,
 	trail,
 }: {
-	readonly id: number;
+	readonly id: EntityId;
 	/** The crumbs above this page, translated by the server page that renders it. */
 	readonly trail: readonly BreadcrumbItem[];
 }): JSX.Element {
 	const { translations } = useTranslation(TRANSLATION_KEYS);
-	const isValidId = Number.isInteger(id) && id > 0;
+	const isValidId = isEntityId(id);
 
 	const orderQuery = useQuery({
 		queryKey: [...OWN_ORDERS_QUERY_KEY, 'view', id],

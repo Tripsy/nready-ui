@@ -31,6 +31,7 @@ import {
 } from '@/models/warehouse.model';
 import { useWindowForm } from '@/providers/window-form.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'order-return.field.destination_warehouse',
@@ -50,9 +51,9 @@ const TRANSLATION_KEYS = [
 ] as const;
 
 export type OrderReturnApproveFormValuesType = {
-	destination_warehouse_id: number | null;
-	pickup_client_address_id: number | null;
-	carrier_id: number | null;
+	destination_warehouse_id: EntityId | null;
+	pickup_client_address_id: EntityId | null;
+	carrier_id: EntityId | null;
 	method: string | null;
 	price: number | null;
 	vat_rate: number | null;
@@ -64,7 +65,7 @@ export type OrderReturnApproveFormValuesType = {
 	pickup_client_address: string | null;
 	carrier: string | null;
 	/** The client the order is billed to - narrows the pickup address picker. Never sent. */
-	client_id: number | null;
+	client_id: EntityId | null;
 };
 
 /**

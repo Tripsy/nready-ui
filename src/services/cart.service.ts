@@ -7,6 +7,7 @@ import type {
 	CartWithPricingModel,
 } from '@/models/cart.model';
 import type { ApiResponseFetch } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The storefront cart endpoints (`/public/cart`).
@@ -30,9 +31,9 @@ import type { ApiResponseFetch } from '@/types/api.type';
  * "start a cart" call and the badge in the header can call this unconditionally.
  */
 export async function requestCart(
-	clientId?: number | null,
+	clientId?: EntityId | null,
 	delivery?: CartDeliveryChoice | null,
-	billingAddressId?: number | null,
+	billingAddressId?: EntityId | null,
 ): Promise<ApiResponseFetch<CartWithPricingModel>> {
 	/*
 	 * `clientId` is a preview: it prices the basket against a client the caller holds, so a
@@ -80,7 +81,7 @@ export async function requestAddCartItem(
  * different line - so a change of options is a remove followed by an add.
  */
 export async function requestUpdateCartItem(
-	itemId: number,
+	itemId: EntityId,
 	params: { quantity?: number; notes?: string },
 ): Promise<ApiResponseFetch<CartWithPricingModel>> {
 	return await new ApiRequest().doFetch(`/public/cart/items/${itemId}`, {
@@ -91,7 +92,7 @@ export async function requestUpdateCartItem(
 
 /** Removes a line outright - what a shopper took out of a basket is not a record anybody keeps. */
 export async function requestRemoveCartItem(
-	itemId: number,
+	itemId: EntityId,
 ): Promise<ApiResponseFetch<CartWithPricingModel>> {
 	return await new ApiRequest().doFetch(`/public/cart/items/${itemId}`, {
 		method: 'DELETE',

@@ -31,7 +31,7 @@
 		"end_at": "End at",
 		"status": "Status",
 		"run_time": "Run time",
-		"search": "ID / Label / Content"
+		"search": "Label / Content"
 	},
 	"section": {
 		"info": "Info",

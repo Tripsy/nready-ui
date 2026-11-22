@@ -50,6 +50,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType, ValidatorOutput } from '@/types/form.type';
 
 const validatorMessages = [
@@ -187,7 +188,7 @@ class OrderValidator extends BaseValidator<typeof validatorMessages> {
 				components: z
 					.array(
 						z.object({
-							item_id: z.number(),
+							item_id: z.string(),
 							units: z.number().optional(),
 						}),
 					)
@@ -335,7 +336,7 @@ function prepareParamsFromFormValues(
 
 function getFormValues(formData: FormData): OrderFormValuesType {
 	return {
-		client_id: getFormDataAsNumber(formData, 'client_id'),
+		client_id: getFormDataAsString(formData, 'client_id'),
 		// Written as a one-entry JSON list by the form - see its hidden `billing_address` field
 		billing_address:
 			getFormDataAsJsonList<OrderBillingAddressType>(
@@ -541,7 +542,7 @@ async function findOrdersWithShipments(params: FindFunctionParamsType) {
 		limit: 100,
 	});
 
-	const byOrder = new Map<number, ShippingModel[]>();
+	const byOrder = new Map<EntityId, ShippingModel[]>();
 
 	for (const shipment of shipments?.entries ?? []) {
 		if (shipment.order_id === null) {
@@ -580,7 +581,7 @@ export type OrderDataTableFiltersType = {
 	is_deleted: { value: boolean; matchMode: 'equals' };
 
 	client: { value: string | null; matchMode: 'equals' };
-	client_id: { value: number | null; matchMode: 'equals' };
+	client_id: { value: EntityId | null; matchMode: 'equals' };
 };
 
 export default async function dataSourceConfig(): Promise<
@@ -673,22 +674,13 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
+					field: 'ref_number',
+					header: labels['field.ref_number'],
 					sortable: true,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
 							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
-					field: 'ref_number',
-					header: labels['field.ref_number'],
-					sortable: true,
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
 							customValue: displayOrderReference(entry),
 						}),
 				},
@@ -811,9 +803,12 @@ export default async function dataSourceConfig(): Promise<
 				 * form built from it would open a pending order with an empty editor and replace the
 				 * document's lines with whatever was typed into it.
 				 */
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<OrderModel>('order', id),
-				operationFunction: (values: OrderManageOutput, id: number) => {
+				operationFunction: (
+					values: OrderManageOutput,
+					id: EntityId,
+				) => {
 					const params = prepareParamsFromFormValues(
 						values,
 						values.status ?? null,
@@ -896,7 +891,7 @@ export default async function dataSourceConfig(): Promise<
 				buttonPosition: 'hidden',
 				// The row the table holds carries neither lines nor totals - the read is what
 				// resolves both
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<OrderModel>('order', id),
 			},
 			guide: {

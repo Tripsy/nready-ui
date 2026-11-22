@@ -10,12 +10,13 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Configuration } from '@/config/settings.config';
 import { type ImageStorage, ImageStorageEnum } from '@/models/image.model';
+import type { EntityId } from '@/types/entity-id.type';
 
 export interface ImageStorageService {
 	upload(
 		file: File,
 		section: string,
-		entity_id: number,
+		entity_id: EntityId,
 	): Promise<{ path: string; storage: ImageStorage }>;
 	delete(filePath: string): Promise<void>;
 	getStorageType(): ImageStorage;
@@ -94,7 +95,7 @@ class S3StorageService implements ImageStorageService {
 	async upload(
 		file: File,
 		section: string,
-		entity_id: number,
+		entity_id: EntityId,
 	): Promise<{ path: string; storage: ImageStorage }> {
 		const key = this.generateKey(section, entity_id, file.type);
 		const buffer = Buffer.from(await file.arrayBuffer());
@@ -179,7 +180,7 @@ class S3StorageService implements ImageStorageService {
 
 	private generateKey(
 		section: string,
-		entity_id: number,
+		entity_id: EntityId,
 		fileType: string,
 	): string {
 		const extension = fileType.split('/')[1] || 'bin';
@@ -205,7 +206,7 @@ class LocalStorageService implements ImageStorageService {
 
 	private generateFilePath(
 		section: string,
-		entity_id: number,
+		entity_id: EntityId,
 		fileType: string,
 	): string {
 		const extension = fileType.split('/')[1] || 'bin';
@@ -216,7 +217,7 @@ class LocalStorageService implements ImageStorageService {
 	async upload(
 		file: File,
 		section: string,
-		entity_id: number,
+		entity_id: EntityId,
 	): Promise<{ path: string; storage: ImageStorage }> {
 		const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -321,7 +322,7 @@ export const imageStorage = {
 	upload: async (
 		file: File,
 		section: string,
-		entity_id: number,
+		entity_id: EntityId,
 	): Promise<{ path: string; storage: ImageStorage }> => {
 		const service = ImageStorageFactory.getInstance().getDefaultService();
 

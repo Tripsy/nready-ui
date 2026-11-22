@@ -30,6 +30,7 @@ import {
 import { useWindowForm } from '@/providers/window-form.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import { type Language, LanguageEnum } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'place.field.code',
@@ -45,7 +46,7 @@ const TRANSLATION_KEYS = [
 export type PlaceFormValuesType = {
 	place_type: PlaceType;
 	code: string | null;
-	parent_id: number | null;
+	parent_id: EntityId | null;
 	parent: string | null;
 	contents: PlaceContent[];
 };
@@ -78,7 +79,7 @@ export function FormManagePlace() {
 		Partial<
 			Record<
 				PlaceType,
-				{ parent: string | null; parent_id: number | null }
+				{ parent: string | null; parent_id: EntityId | null }
 			>
 		>
 	>({});

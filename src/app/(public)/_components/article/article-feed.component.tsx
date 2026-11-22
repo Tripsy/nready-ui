@@ -19,6 +19,7 @@ import { showImage } from '@/models/image.model';
 import { requestPublicArticlesPage } from '@/services/article.service';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Fallback box for the cover, so a row without one keeps the same rhythm as its neighbors
@@ -323,7 +324,7 @@ export function ArticleFeed({
 	initialTotal: number;
 	pageSize: number;
 	language: Language;
-	categoryId?: number;
+	categoryId?: EntityId;
 	translations: ArticleFeedTranslations;
 }) {
 	const sentinelRef = useRef<HTMLDivElement | null>(null);

@@ -18,6 +18,7 @@ import type {
 	DataTableColumnType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { ButtonAppearanceType } from '@/types/html.type';
 
 const TRANSLATION_KEYS = ['dashboard.text.action_entry_failed'] as const;
@@ -31,7 +32,7 @@ export const DisplayButton = <Entry,>({
 	buttonAppearance: ButtonAppearanceType;
 	action: string;
 	dataSource: DataSourceKey;
-	entryOrId: Entry | number;
+	entryOrId: Entry | EntityId;
 }) => {
 	const { showToast } = useToast();
 	const { translations } = useTranslation(TRANSLATION_KEYS);
@@ -58,7 +59,7 @@ export const DisplayButton = <Entry,>({
 
 				try {
 					const entry =
-						typeof entryOrId === 'number'
+						typeof entryOrId === 'string'
 							? await requestView<Entry>(dataSource, entryOrId)
 							: entryOrId;
 

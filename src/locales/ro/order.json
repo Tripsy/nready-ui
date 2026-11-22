@@ -56,7 +56,7 @@
 			"success": "Statusul comenzii a fost actualizat cu succes"
 		},
 		"view": {
-			"title": "Detalii comandă - {{entry}}",
+			"title": "Comandă - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"guide": {
@@ -187,7 +187,7 @@
 		"returns": "Retururi"
 	},
 	"field": {
-		"search": "ID / Referință",
+		"search": "Referință",
 		"client": "Client",
 		"status": "Status",
 		"created": "Creat",

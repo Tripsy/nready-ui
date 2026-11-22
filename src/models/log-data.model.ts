@@ -1,3 +1,5 @@
+import type { EntityId } from '@/types/entity-id.type';
+
 export const LogLevelEnum = {
 	TRACE: 'trace', // 10
 	DEBUG: 'debug', // 20
@@ -19,7 +21,7 @@ export type LogCategory =
 	(typeof LogCategoryEnum)[keyof typeof LogCategoryEnum];
 
 export type LogDataModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 	pid: string;
 	request_id: string | null;
 	category: LogCategory;

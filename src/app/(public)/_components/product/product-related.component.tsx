@@ -18,6 +18,7 @@ import {
 	resolvePriceRange,
 } from '@/models/product.model';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_PREFIX = 'products';
 
@@ -41,7 +42,7 @@ const THUMBNAIL_SIZE = 64;
 
 /** One category the product is filed under, as the rail addresses it. */
 export type RelatedCategoryType = {
-	id: number;
+	id: EntityId;
 	label: string;
 	slug: string;
 };
@@ -66,7 +67,7 @@ export async function ProductRelated({
 	categories,
 	language,
 }: {
-	productId: number;
+	productId: EntityId;
 	categories: RelatedCategoryType[];
 	language: Language;
 }) {
@@ -246,7 +247,7 @@ function RelatedRow({
 export function toRelatedCategories(
 	links:
 		| {
-				category_id: number;
+				category_id: EntityId;
 				category?: {
 					contents?: { label: string; slug?: string }[];
 				} | null;

@@ -10,18 +10,19 @@ import type {
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { ApiResponseFetch } from '@/types/api.type';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export type PublicArticlesParams = {
 	language?: Language;
 	term?: string;
 	featured_status?: ArticleFeaturedStatus;
-	category_id?: number;
+	category_id?: EntityId;
 	/** Any of these tags - the article page's "similar" box passes the whole set. */
-	tag_id?: number[];
+	tag_id?: EntityId[];
 	/** Article to leave out, so a sidebar never recommends the page it sits on. */
-	exclude_id?: number;
+	exclude_id?: EntityId;
 	/** One article by id - how a permalink resolves a target it only knows the id of. */
-	id?: number;
+	id?: EntityId;
 	page?: number;
 	limit?: number;
 };
@@ -139,8 +140,8 @@ export async function requestPublicArticle(params: {
  */
 export async function orderUpdate(
 	featured_status: ArticleFeaturedStatus,
-	positions: number[],
-	category_id?: number,
+	positions: EntityId[],
+	category_id?: EntityId,
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(
 		`/${resolveRequestPath('article')}/featured/${featured_status}/order`,

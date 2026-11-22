@@ -14,6 +14,7 @@ import { ProductVariantDisplayEnum } from '@/models/product-display.model';
 import { requestPublicProductsPage } from '@/services/product.service';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /** One rendered card: a product, and the variant it stands for under the `expanded` display. */
 type ProductCardEntry = {
@@ -82,8 +83,8 @@ export function ProductFeed({
 	initialTotal: number;
 	pageSize: number;
 	language: Language;
-	categoryId?: number;
-	brandId?: number;
+	categoryId?: EntityId;
+	brandId?: EntityId;
 	/** Search term, already checked against the backend's minimum length by the page. */
 	term?: string;
 	/** Replaces `text.no_entries` - a search with no hits must not read as an empty catalog. */

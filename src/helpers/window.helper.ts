@@ -1,6 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query';
 import { replaceVars } from '@/helpers/string.helper';
 import type { EntriesSelectionType } from '@/types/action.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type {
 	WindowConfig,
 	WindowEntryType,
@@ -24,7 +25,7 @@ export const WINDOW_CACHE_LABEL = 'window-entry';
 export function invalidateWindowEntries(
 	queryClient: QueryClient,
 	dataSource: string,
-	entryIds: readonly number[],
+	entryIds: readonly EntityId[],
 ) {
 	if (entryIds.length === 0) {
 		return Promise.resolve();
@@ -35,7 +36,7 @@ export function invalidateWindowEntries(
 	return queryClient.invalidateQueries({
 		predicate: (query) =>
 			query.queryKey[0] === WINDOW_CACHE_LABEL &&
-			typeof query.queryKey[2] === 'number' &&
+			typeof query.queryKey[2] === 'string' &&
 			ids.has(query.queryKey[2]) &&
 			typeof query.queryKey[1] === 'string' &&
 			query.queryKey[1].startsWith(`${dataSource}-`),
@@ -89,7 +90,7 @@ export function generateWindowUid<Entry>({
 		}
 
 		// We assume every entry has an `id` property & entries exist
-		const entryId = (entry as unknown as { id: number }).id;
+		const entryId = (entry as unknown as { id: EntityId }).id;
 
 		return `${dataSource}-${action}-${entryId}`;
 	}

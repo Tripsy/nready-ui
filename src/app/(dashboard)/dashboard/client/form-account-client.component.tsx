@@ -10,12 +10,13 @@ import { useTranslation } from '@/hooks/use-translation.hook';
 import { displayUserLabel, type UserModel } from '@/models/user.model';
 import { useWindowForm } from '@/providers/window-form.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = ['client.field.user'] as const;
 
 export type ClientAccountFormValuesType = {
 	/** The account to link the client to. */
-	user_id: number | null;
+	user_id: EntityId | null;
 	// display-only fields, not part of validation
 	/** The autocomplete's visible text. Submitted as `user_label` and never sent on. */
 	user: string | null;

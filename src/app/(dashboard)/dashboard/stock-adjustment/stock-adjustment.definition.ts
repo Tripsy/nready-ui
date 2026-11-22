@@ -52,6 +52,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -128,8 +129,8 @@ async function validateForm(values: StockAdjustmentFormValuesType) {
 
 function getFormValues(formData: FormData): StockAdjustmentFormValuesType {
 	return {
-		warehouse_id: getFormDataAsNumber(formData, 'warehouse_id'),
-		variant_id: getFormDataAsNumber(formData, 'variant_id'),
+		warehouse_id: getFormDataAsString(formData, 'warehouse_id'),
+		variant_id: getFormDataAsString(formData, 'variant_id'),
 		direction:
 			getFormDataAsEnum(
 				formData,
@@ -192,9 +193,9 @@ function prepareParamsFromFormValues(values: StockAdjustmentFormValuesType) {
 
 export type StockAdjustmentDataTableFiltersType = {
 	warehouse: { value: string | null; matchMode: 'equals' };
-	warehouse_id: { value: number | null; matchMode: 'equals' };
+	warehouse_id: { value: EntityId | null; matchMode: 'equals' };
 	variant: { value: string | null; matchMode: 'equals' };
-	variant_id: { value: number | null; matchMode: 'equals' };
+	variant_id: { value: EntityId | null; matchMode: 'equals' };
 	adjustment_direction: {
 		value: StockAdjustmentDirection | null;
 		matchMode: 'equals';
@@ -273,21 +274,12 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
+					field: 'created_at',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
-					field: 'created_at',
-					header: labels['field.created_at'],
-					sortable: true,
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
 							displayDate: true,
 						}),
 				},
@@ -405,7 +397,7 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['stock-adjustment', 'read'],
 				entriesSelection: 'single',
 				// The list carries no movements - only the read does
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<StockAdjustmentModel>('stock-adjustment', id),
 				buttonPosition: 'hidden',
 			},

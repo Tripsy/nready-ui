@@ -8,6 +8,7 @@ import { translate } from '@/config/translate.setup';
 import { processForm } from '@/helpers/form-process.helper';
 import type { CommentEntityType } from '@/models/comment.model';
 import { requestCreateComment } from '@/services/comment.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The form's fields are not the request's shape: the guest fields are dropped for a signed-in
@@ -17,7 +18,7 @@ import { requestCreateComment } from '@/services/comment.service';
 async function createCommentOperation(values: CommentFormValuesType) {
 	return requestCreateComment({
 		entity_type: values.entity_type as CommentEntityType,
-		entity_id: values.entity_id as number,
+		entity_id: values.entity_id as EntityId,
 		content: values.content as string,
 		...(values.parent_id ? { parent_id: values.parent_id } : {}),
 		...(values.requires_guest

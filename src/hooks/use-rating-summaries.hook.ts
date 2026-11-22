@@ -3,11 +3,13 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { getResponseData } from '@/helpers/api.helper';
+import { compareIds } from '@/helpers/id.helper';
 import type {
 	RatingEntityType,
 	RatingSummaryListType,
 } from '@/models/rating.model';
 import { requestRatingSummaryList } from '@/services/rating.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The reaction counts for a list of targets, in one request.
@@ -22,14 +24,12 @@ import { requestRatingSummaryList } from '@/services/rating.service';
  */
 export function useRatingSummaries(
 	entityType: RatingEntityType,
-	entityIds: number[],
+	entityIds: EntityId[],
 ) {
 	const queryClient = useQueryClient();
 
 	// Sorted so two lists holding the same rows in a different order share one cache entry.
-	const key = [...entityIds]
-		.sort((first, second) => first - second)
-		.join(',');
+	const key = [...entityIds].sort(compareIds).join(',');
 
 	const { data } = useQuery({
 		queryKey: ['rating', entityType, key],

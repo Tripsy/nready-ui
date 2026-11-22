@@ -10,10 +10,11 @@ import type {
 } from '@/types/action.type';
 import type { ApiResponseFetch, QueryFiltersType } from '@/types/api.type';
 import type { DataSourceKey } from '@/types/data-source.key';
+import type { EntityId } from '@/types/entity-id.type';
 
 export async function requestView<Entry>(
 	dataSource: DataSourceKey,
-	id: number,
+	id: EntityId,
 ) {
 	const response: ApiResponseFetch<Entry> = await new ApiRequest().doFetch(
 		`/${resolveRequestPath(dataSource)}/${id}`,
@@ -52,7 +53,7 @@ export async function requestCreate<Entry, RequestParams>(
 export async function requestUpdate<Entry, RequestParams>(
 	dataSource: DataSourceKey,
 	params: RequestParams,
-	id: number,
+	id: EntityId,
 ): Promise<ApiResponseFetch<Partial<Entry>>> {
 	return await new ApiRequest().doFetch(
 		`/${resolveRequestPath(dataSource)}/${id}`,
@@ -63,7 +64,7 @@ export async function requestUpdate<Entry, RequestParams>(
 	);
 }
 
-export async function requestDelete<Entry extends { id: number }>(
+export async function requestDelete<Entry extends { id: EntityId }>(
 	dataSource: DataSourceKey,
 	entry: Entry,
 ): Promise<ApiResponseFetch<null>> {
@@ -77,7 +78,7 @@ export async function requestDelete<Entry extends { id: number }>(
 
 export async function requestDeleteMultiple(
 	dataSource: DataSourceKey,
-	ids: number[],
+	ids: EntityId[],
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(
 		`/${resolveRequestPath(dataSource)}`,
@@ -90,7 +91,7 @@ export async function requestDeleteMultiple(
 	);
 }
 
-export async function requestRestore<Entry extends { id: number }>(
+export async function requestRestore<Entry extends { id: EntityId }>(
 	dataSource: DataSourceKey,
 	entry: Entry,
 ): Promise<ApiResponseFetch<null>> {
@@ -103,7 +104,7 @@ export async function requestRestore<Entry extends { id: number }>(
 }
 
 export async function requestUpdateStatus<
-	Entry extends { id: number; status: string },
+	Entry extends { id: EntityId; status: string },
 >(
 	dataSource: DataSourceKey,
 	entry: Entry,

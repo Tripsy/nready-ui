@@ -1,4 +1,5 @@
 import type { StatusTransitions } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export const VendorStatusEnum = {
 	ACTIVE: 'active',
@@ -34,7 +35,7 @@ export const STATUS_TRANSITIONS: StatusTransitions<VendorStatus> = {
 };
 
 export type VendorModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	name: string;
 	type: VendorType;

@@ -1,5 +1,6 @@
 import { Configuration } from '@/config/settings.config';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Mirrors the backend's own `TermTypeEnum` - keep the two in sync when it gains a type.
@@ -52,7 +53,7 @@ export type TermContentType = {
 };
 
 export type TermModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	type: TermType;
 	contents: TermContentType[];

@@ -23,6 +23,7 @@ import { useAuth } from '@/providers/auth.provider';
 import { requestVariantStock } from '@/services/warehouse-movement.service';
 import { useModalStore } from '@/stores/window.store';
 import { DataSourceSectionEnum } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'warehouse-movement.field.on_hand',
@@ -57,7 +58,7 @@ export function StockVariant({
 	// The SKU travels under either name: a ledger row joins it as `variant`, a low-stock row
 	// carries it flat
 	entries: {
-		variant_id: number;
+		variant_id: EntityId;
 		sku?: string;
 		variant?: { sku: string } | null;
 	}[];

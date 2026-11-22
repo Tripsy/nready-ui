@@ -18,6 +18,7 @@ import { type AddressModel, displayAddressLabel } from '@/models/address.model';
 import { WAREHOUSE_CODE_MAX_LENGTH } from '@/models/warehouse.model';
 import { useWindowForm } from '@/providers/window-form.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'warehouse.field.address',
@@ -31,7 +32,7 @@ const TRANSLATION_KEYS = [
 ] as const;
 
 export type WarehouseFormValuesType = {
-	address_id: number | null;
+	address_id: EntityId | null;
 	/** The autocomplete's visible text. Submitted as `address_label` and never sent on. */
 	address: string | null;
 	code: string | null;

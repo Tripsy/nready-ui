@@ -6,6 +6,7 @@ import type {
 	RatingType,
 } from '@/models/rating.model';
 import type { ApiResponseFetch } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The reader-facing rating endpoints (`/public/ratings`), open to guests and members alike.
@@ -24,7 +25,7 @@ import type { ApiResponseFetch } from '@/types/api.type';
 /** The target's path segments, in the order every route below takes them. */
 function buildTargetPath(
 	entityType: RatingEntityType,
-	entityId: number,
+	entityId: EntityId,
 ): string {
 	return `/public/ratings/${entityType}/${entityId}`;
 }
@@ -34,7 +35,7 @@ function buildTargetPath(
  */
 export async function requestRatingSummary(
 	entityType: RatingEntityType,
-	entityId: number,
+	entityId: EntityId,
 ): Promise<ApiResponseFetch<RatingPublicReadType>> {
 	return await new ApiRequest().doFetch(
 		buildTargetPath(entityType, entityId),
@@ -51,7 +52,7 @@ export async function requestRatingSummary(
  */
 export async function requestRatingSummaryList(
 	entityType: RatingEntityType,
-	entityIds: number[],
+	entityIds: EntityId[],
 ): Promise<ApiResponseFetch<RatingSummaryListType>> {
 	const query = new URLSearchParams({ entity_ids: entityIds.join(',') });
 
@@ -68,7 +69,7 @@ export async function requestRatingSummaryList(
  */
 export async function requestCreateRating(params: {
 	entity_type: RatingEntityType;
-	entity_id: number;
+	entity_id: EntityId;
 	type: RatingType;
 	value?: number;
 	reaction?: string;
@@ -86,7 +87,7 @@ export async function requestCreateRating(params: {
  */
 export async function requestUpdateRating(
 	entityType: RatingEntityType,
-	entityId: number,
+	entityId: EntityId,
 	type: RatingType,
 	params: { value?: number; reaction?: string },
 ): Promise<ApiResponseFetch<null>> {
@@ -105,7 +106,7 @@ export async function requestUpdateRating(
  */
 export async function requestDeleteRating(
 	entityType: RatingEntityType,
-	entityId: number,
+	entityId: EntityId,
 	type: RatingType,
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(

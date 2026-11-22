@@ -30,6 +30,7 @@ import { useWindowForm } from '@/providers/window-form.provider';
 import { useModalStore } from '@/stores/window.store';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import { DataSourceSectionEnum } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'client-address.field.address',
@@ -43,8 +44,8 @@ const TRANSLATION_KEYS = [
 ] as const;
 
 export type ClientAddressFormValuesType = {
-	client_id: number | null;
-	address_id: number | null;
+	client_id: EntityId | null;
+	address_id: EntityId | null;
 	type: ClientAddressType;
 	/** Flat, floor or apartment number within the address. */
 	details: string | null;

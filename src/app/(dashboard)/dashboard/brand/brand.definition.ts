@@ -47,6 +47,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -247,17 +248,6 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					field: 'brand_type',
 					header: labels['field.brand_type'],
 					body: (entry, column) =>
@@ -273,6 +263,11 @@ export default async function dataSourceConfig(): Promise<
 					field: 'name',
 					header: labels['field.name'],
 					sortable: true,
+					body: (entry, column, auth) =>
+						DataTableValue(entry, column, {
+							markDeleted: true,
+							displayButton: displayButtonView(auth),
+						}),
 				},
 				{
 					field: 'status',
@@ -321,13 +316,16 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['brand', 'update'],
 				entriesSelection: 'single',
 				customEntryCheck: (entry: BrandModel) => !entry.deleted_at, // Return true if the entry is not deleted
-				operationFunction: (params: BrandFormValuesType, id: number) =>
+				operationFunction: (
+					params: BrandFormValuesType,
+					id: EntityId,
+				) =>
 					requestUpdate<BrandModel, BrandFormValuesType>(
 						'brand',
 						params,
 						id,
 					),
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<BrandModel>('brand', id),
 				buttonPosition: 'left',
 				button: {
@@ -426,7 +424,7 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['brand', 'read'],
 				entriesSelection: 'single',
 				buttonPosition: 'hidden',
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<BrandModel>('brand', id),
 			},
 			order: {

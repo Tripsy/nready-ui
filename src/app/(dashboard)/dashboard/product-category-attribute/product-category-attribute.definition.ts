@@ -5,7 +5,6 @@ import {
 	getFormDataAsBoolean,
 	getFormDataAsEnum,
 	getFormDataAsJsonList,
-	getFormDataAsNumber,
 	getFormDataAsString,
 } from '@/helpers/form.helper';
 import {
@@ -37,6 +36,7 @@ import {
 } from '@/models/product-category-attribute.model';
 import { displayTermValue } from '@/models/term.model';
 import type { DataSourceConfigType } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType, ValidatorOutput } from '@/types/form.type';
 
 /** How far apart consecutive rows are placed, so one can be slipped between two later. */
@@ -70,13 +70,13 @@ const validatorMessages = [
  * back nameless.
  */
 export type ProductCategoryAttributeOptionFormType = {
-	term_id: number;
+	term_id: EntityId;
 	// display-only fields, not part of validation
 	label: string;
 };
 
 export type ProductCategoryAttributeFormValuesType = {
-	category_id: number | null;
+	category_id: EntityId | null;
 	/*
 	 * The categories the window may attach this definition to. Empty when it was opened from a
 	 * category, which fixes the answer; the product form passes the product's own categories,
@@ -86,8 +86,8 @@ export type ProductCategoryAttributeFormValuesType = {
 	 *
 	 * display-only fields, not part of validation
 	 */
-	category_options: { id: number; label: string }[];
-	attribute_label_id: number | null;
+	category_options: { id: EntityId; label: string }[];
+	attribute_label_id: EntityId | null;
 
 	scope: ProductCategoryAttributeScope;
 	type: ProductCategoryAttributeType;
@@ -143,11 +143,7 @@ class ProductCategoryAttributeValidator extends BaseValidator<
 			);
 
 	private readonly optionSchema = z.object({
-		term_id: z
-			.number({ message: this.getMessage('invalid_attribute_label_id') })
-			.positive({
-				message: this.getMessage('invalid_attribute_label_id'),
-			}),
+		term_id: this.validateId(this.getMessage('invalid_attribute_label_id')),
 		label: z.string(),
 	});
 
@@ -204,7 +200,7 @@ class ProductCategoryAttributeValidator extends BaseValidator<
 			options: this.optionSchema.array(),
 			options_rule: z.string().nullable(),
 			category_options: z
-				.array(z.object({ id: z.number(), label: z.string() }))
+				.array(z.object({ id: z.string(), label: z.string() }))
 				.default([]),
 			attribute_label: z.string().nullable(),
 		})
@@ -326,8 +322,8 @@ function getFormValues(
 	formData: FormData,
 ): ProductCategoryAttributeFormValuesType {
 	return {
-		category_id: getFormDataAsNumber(formData, 'category_id'),
-		attribute_label_id: getFormDataAsNumber(formData, 'attribute_label_id'),
+		category_id: getFormDataAsString(formData, 'category_id'),
+		attribute_label_id: getFormDataAsString(formData, 'attribute_label_id'),
 		scope:
 			getFormDataAsEnum(
 				formData,
@@ -360,10 +356,10 @@ function getFormValues(
 			'options',
 		),
 		options_rule: null,
-		category_options: getFormDataAsJsonList<{ id: number; label: string }>(
-			formData,
-			'category_options',
-		),
+		category_options: getFormDataAsJsonList<{
+			id: EntityId;
+			label: string;
+		}>(formData, 'category_options'),
 		attribute_label: getFormDataAsString(formData, 'attribute_label'),
 	};
 }
@@ -542,7 +538,7 @@ export default async function dataSourceConfig(): Promise<
 					!entry.deleted_at,
 				operationFunction: (
 					values: ProductCategoryAttributeManageOutput,
-					id: number,
+					id: EntityId,
 				) => {
 					const params = prepareUpdateParams(values);
 
@@ -555,7 +551,7 @@ export default async function dataSourceConfig(): Promise<
 				 * The listing carries no options at all - only `GET /:id` joins them - so
 				 * without this the form would open with an empty list and wipe them on save.
 				 */
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<ProductCategoryAttributeModel>(
 						'product-category-attribute',
 						id,

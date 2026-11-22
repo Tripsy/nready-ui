@@ -8,6 +8,7 @@ import {
 } from '@/helpers/date.helper';
 import { replaceVars } from '@/helpers/string.helper';
 import { type Language, LanguageEnum } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Validation messages that are generic enough to be written once rather than copied into
@@ -556,28 +557,30 @@ export abstract class BaseValidator<
 	}
 
 	/**
-	 * Validate ID
+	 * Validate ID - a UUID, as the API issues them
 	 */
 	protected validateId(
 		message: string = 'Invalid ID',
 		optionsData?: { required?: boolean },
-	): z.ZodType<number | TEmpty> {
+	): z.ZodType<EntityId | TEmpty> {
 		const options = {
 			required: true,
 			...optionsData,
 		};
 
+		const baseSchema = z
+			.string({ message })
+			.trim()
+			.toLowerCase()
+			.pipe(z.uuid({ message }));
+
 		if (options.required) {
-			return this.validateNumber(message, {
-				required: true,
-				onlyPositive: true,
-			});
+			return this.coerceEmpty(baseSchema) as z.ZodType<EntityId>;
 		}
 
-		return this.validateNumber(message, {
-			required: false,
-			onlyPositive: true,
-		});
+		return this.preprocessOptional(baseSchema) as z.ZodType<
+			EntityId | TEmpty
+		>;
 	}
 
 	/**

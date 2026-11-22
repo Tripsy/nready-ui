@@ -1,4 +1,5 @@
 import type { StatusTransitions } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /** Mirrors `GrnStatusEnum` on `../nready-api/src/features/grn/grn.entity.ts`. */
 export const GrnStatusEnum = {
@@ -36,9 +37,9 @@ export const GRN_LOT_CODE_MAX = 100;
  * rate. `sku` and `label` come only with the read, resolved from the variant and its product.
  */
 export type GrnItemModel<D = Date | string> = {
-	id: number;
-	grn_id: number;
-	variant_id: number;
+	id: EntityId;
+	grn_id: EntityId;
+	variant_id: EntityId;
 
 	qty: number;
 	qty_remaining: number;
@@ -62,7 +63,7 @@ export type GrnItemModel<D = Date | string> = {
  * and vendor names; only the read carries `items`.
  */
 export type GrnModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	ref_code: string;
 	ref_number: number;
@@ -74,10 +75,10 @@ export type GrnModel<D = Date | string> = {
 	exchange_rate: number;
 	notes: string | null;
 
-	warehouse_id: number;
-	vendor_id: number;
-	warehouse?: { id: number; code: string; name: string } | null;
-	vendor?: { id: number; name: string } | null;
+	warehouse_id: EntityId;
+	vendor_id: EntityId;
+	warehouse?: { id: EntityId; code: string; name: string } | null;
+	vendor?: { id: EntityId; name: string } | null;
 
 	items?: GrnItemModel<D>[];
 
@@ -97,8 +98,8 @@ export type GrnModel<D = Date | string> = {
  * none, and one variant appears once per currency, so `variant_id` cannot stand in.
  */
 export type CostOverFloorModel = {
-	id: number;
-	variant_id: number;
+	id: EntityId;
+	variant_id: EntityId;
 	sku: string;
 	cost_price: number;
 	currency: string;

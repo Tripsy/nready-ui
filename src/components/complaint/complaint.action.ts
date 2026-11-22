@@ -14,6 +14,7 @@ import {
 	requestCreateComplaint,
 	requestUpdateComplaint,
 } from '@/services/complaint.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * One submit, two possible writes - which one depends on whether the reader already holds a live
@@ -26,7 +27,7 @@ import {
  */
 async function reportComplaintOperation(values: ComplaintFormValuesType) {
 	const entityType = values.entity_type as ComplaintEntityType;
-	const entityId = values.entity_id as number;
+	const entityId = values.entity_id as EntityId;
 	const reason = values.reason as ComplaintReason;
 	const description = values.description || undefined;
 

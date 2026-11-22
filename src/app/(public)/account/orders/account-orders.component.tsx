@@ -34,6 +34,7 @@ import {
 	requestOwnOrders,
 	requestOwnOrdersShipments,
 } from '@/services/order.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 /** A buyer holds a handful of orders; five a page keeps the list scannable without a scroll wall. */
 const PAGE_LIMIT = 5;
@@ -192,7 +193,7 @@ export function AccountOrders(): JSX.Element {
 	});
 
 	const shipmentsByOrder = useMemo(() => {
-		const grouped = new Map<number, OrderShipmentModel[]>();
+		const grouped = new Map<EntityId, OrderShipmentModel[]>();
 
 		for (const shipment of shipmentsQuery.data ?? []) {
 			if (shipment.order_id === null) {

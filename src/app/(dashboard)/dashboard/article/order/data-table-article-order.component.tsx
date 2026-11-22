@@ -38,6 +38,7 @@ import {
 import { useSortablePosition } from '@/providers/sortable-position.provider';
 import { useToast } from '@/providers/toast.provider';
 import { orderUpdate } from '@/services/article.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'dashboard.text.back_to_list',
@@ -143,7 +144,7 @@ const DataTableArticleOrderContent = (): JSX.Element => {
 
 	const featuredStatus = (tableState.filters.featured_status.value ??
 		ArticleFeaturedStatusEnum.SECTION) as ArticleFeaturedStatus;
-	const categoryId = tableState.filters.category_id.value as number | null;
+	const categoryId = tableState.filters.category_id.value as EntityId | null;
 	const language = tableState.filters.language.value as string | null;
 
 	/**
@@ -198,7 +199,7 @@ const DataTableArticleOrderContent = (): JSX.Element => {
 	}, [data]);
 
 	const { mutate: updateOrder, isPending: loading } = useMutation({
-		mutationFn: (positions: number[]) =>
+		mutationFn: (positions: EntityId[]) =>
 			orderUpdate(featuredStatus, positions, categoryId ?? undefined),
 		onSuccess: async () => {
 			showToast({

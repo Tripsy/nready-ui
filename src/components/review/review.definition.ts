@@ -14,6 +14,7 @@ import {
 	type ReviewRating,
 	type ReviewRatingDimension,
 } from '@/models/review.model';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormErrorsType, FormSituationType } from '@/types/form.type';
 
 /**
@@ -108,8 +109,8 @@ export const REVIEW_CONTENT_MAX = 5000;
  * carry. `reviewRatingFromValues` folds them back into the `rating` the API takes.
  */
 export type ReviewFormValuesType = {
-	product_id: number | null;
-	variant_id: number | null;
+	product_id: EntityId | null;
+	variant_id: EntityId | null;
 	has_own: boolean;
 	quality: number | null;
 	price: number | null;
@@ -133,8 +134,8 @@ export type ReviewStateType = {
  * buyer saying which they bought.
  */
 export function buildReviewState(
-	productId: number,
-	variantId: number | null,
+	productId: EntityId,
+	variantId: EntityId | null,
 	own: ReviewOwnModel | null,
 ): ReviewStateType {
 	return {
@@ -211,8 +212,8 @@ class ReviewValidator extends BaseValidator<typeof validatorMessages> {
 	 */
 	manage = z
 		.object({
-			product_id: z.number().nullable(),
-			variant_id: z.number().nullable(),
+			product_id: z.string().nullable(),
+			variant_id: z.string().nullable(),
 			has_own: z.boolean(),
 
 			quality: this.score(),
@@ -255,8 +256,8 @@ export async function validateFormReview(values: ReviewFormValuesType) {
 
 export function getReviewFormValues(formData: FormData): ReviewFormValuesType {
 	return {
-		product_id: getFormDataAsNumber(formData, 'product_id'),
-		variant_id: getFormDataAsNumber(formData, 'variant_id'),
+		product_id: getFormDataAsString(formData, 'product_id'),
+		variant_id: getFormDataAsString(formData, 'variant_id'),
 		has_own: getFormDataAsBoolean(formData, 'has_own'),
 		quality: getFormDataAsNumber(formData, 'quality'),
 		price: getFormDataAsNumber(formData, 'price'),

@@ -26,7 +26,7 @@
 			"confirm": "Deleting a series removes its counter for good. Are you sure you want to delete this document series?"
 		},
 		"view": {
-			"title": "Document series details - {{entry}}",
+			"title": "Document series - {{entry}}",
 			"label": "View details"
 		},
 		"guide": {
@@ -51,7 +51,7 @@
 		"tab_api": "API docs"
 	},
 	"field": {
-		"search": "ID / Code",
+		"search": "Code",
 		"document_type": "Document type",
 		"id": "ID",
 		"code": "Code",

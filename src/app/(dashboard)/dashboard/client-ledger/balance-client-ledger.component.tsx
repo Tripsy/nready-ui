@@ -45,7 +45,8 @@ export const BalanceClientLedger = (): JSX.Element => {
 		queryKey: ['client-ledger', 'balance', clientId],
 		queryFn: async () => {
 			const response = getResponseData(
-				await requestClientLedgerBalance(Number(clientId)),
+				// biome-ignore lint/style/noNonNullAssertion: gated by `enabled`
+				await requestClientLedgerBalance(clientId!),
 			);
 
 			if (!response) {

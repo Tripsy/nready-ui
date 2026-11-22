@@ -1,3 +1,5 @@
+import type { EntityId } from '@/types/entity-id.type';
+
 /**
  * Mirrors `complaint` in the backend. There is no create and no update here: a complaint is filed
  * by a reader through `/public/complaints`, and the text is their accusation - a moderator decides
@@ -35,17 +37,17 @@ export type ComplaintReason =
  * `user_id` is never null: a complaint accuses somebody, so it is always attached to an account.
  */
 export type ComplaintModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	entity_type: ComplaintEntityType;
-	entity_id: number;
+	entity_id: EntityId;
 	reason: ComplaintReason;
 	description: string | null;
 
 	/** The reporter. `user` is joined by the list and the single read alike. */
-	user_id?: number;
+	user_id?: EntityId;
 	user?: {
-		id: number;
+		id: EntityId;
 		name: string;
 		email?: string;
 	} | null;
@@ -95,8 +97,9 @@ export const displayComplaintTarget = (
 	entityTypeLabel: string,
 ): string => `${entityTypeLabel} #${entry.entity_id}`;
 
+/** The reporter's name, or a dash when the account joins as null (soft-deleted since). */
 export const displayComplaintReporter = (entry: ComplaintModel): string =>
-	entry.user ? `${entry.user.name} (#${entry.user_id})` : `#${entry.user_id}`;
+	entry.user?.name ?? '-';
 
 /**
  * Enough to recognize the row by, for a window title. The id is left out: the window appends

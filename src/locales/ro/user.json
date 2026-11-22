@@ -56,7 +56,7 @@
 			"confirm": "Sigur vrei să marchezi acest utilizator drept inactiv?"
 		},
 		"view": {
-			"title": "Detalii utilizator - {{entry}}",
+			"title": "Utilizator - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"setupPermissions": {
@@ -86,7 +86,7 @@
 		"tab_api": "Documentație API"
 	},
 	"field": {
-		"search": "ID / Email / Nume",
+		"search": "Email / Nume",
 		"status": "Status",
 		"role": "Rol",
 		"name": "Nume",

@@ -97,7 +97,7 @@
 			"confirm": "Mark this product as ready? Nothing leads out of ready - the workflow cannot be walked back afterwards."
 		},
 		"view": {
-			"title": "Product details - {{entry}}",
+			"title": "Product - {{entry}}",
 			"label": "View details"
 		},
 		"managerImages": {
@@ -141,7 +141,7 @@
 		"tab_public": "Public API"
 	},
 	"field": {
-		"search": "ID / Name / Variant SKU",
+		"search": "Name / Variant SKU",
 		"workflow": "Workflow",
 		"type": "Type",
 		"composition": "Composition",
@@ -326,7 +326,10 @@
 		"base_components_hint": "Always included, and covered by the bundle price - either outright or through a choice, which always takes one of its candidates. Two units contained outright, or the bundle is a single product; a candidate does not count, since which one is taken is the customer's.",
 		"base_components_delta_hint": "A candidate carries an adjustment per market: taking it adds its own price plus that adjustment. Since the bundle price already covers the candidate, the adjustment is usually its whole price, negative, so nothing is added.",
 		"optional_components_hint": "The customer may take these or leave them, up to the quantity on each.",
-		"optional_components_delta_hint": "Every unit taken adds the component's own price plus the adjustment on its row. Usually negative - the discount for taking it inside the kit."
+		"optional_components_delta_hint": "Every unit taken adds the component's own price plus the adjustment on its row. Usually negative - the discount for taking it inside the kit.",
+		"no_variant_images": "No variant has images yet.",
+		"images_loading": "Loading images...",
+		"images_load_failed": "Could not load the images."
 	},
 	"section": {
 		"stock": "Stock by variant",
@@ -351,7 +354,8 @@
 		"tab_options": "Options",
 		"tab_availability": "Availability",
 		"tab_price": "Price",
-		"tab_components": "Components"
+		"tab_components": "Components",
+		"variant_images": "Variant images"
 	},
 	"enum": {
 		"workflow": {

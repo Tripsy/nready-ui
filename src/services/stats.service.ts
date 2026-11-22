@@ -1,6 +1,7 @@
 import { ApiRequest } from '@/helpers/api.helper';
 import type { LogHistoryModel } from '@/models/log-history.model';
 import type { ApiResponseFetch } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export async function requestStatsRecentActivity(): Promise<
 	LogHistoryModel[] | null
@@ -87,7 +88,7 @@ export const PENDING_REVIEW_ENTITIES = [
 export type PendingReviewEntity = (typeof PENDING_REVIEW_ENTITIES)[number];
 
 export type PendingReviewEntry = {
-	id: number;
+	id: EntityId;
 	label: string | null;
 	created_at: string;
 };

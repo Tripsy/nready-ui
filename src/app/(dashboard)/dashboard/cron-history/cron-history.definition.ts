@@ -14,6 +14,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export type CronHistoryDataTableFiltersType = {
 	global: { value: string | null; matchMode: 'contains' };
@@ -70,19 +71,13 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
+					field: 'label',
+					header: labels['field.label'],
 					sortable: true,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayButton: displayButtonView(auth),
 						}),
-				},
-				{
-					field: 'label',
-					header: labels['field.label'],
-					sortable: true,
 				},
 				{
 					field: 'start_at',
@@ -121,7 +116,7 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['delete.title'],
 				permission: ['cron-history', 'delete'],
 				entriesSelection: 'multiple',
-				operationFunction: (ids: number[]) =>
+				operationFunction: (ids: EntityId[]) =>
 					requestDeleteMultiple('cron-history', ids),
 				buttonPosition: 'left',
 				button: {

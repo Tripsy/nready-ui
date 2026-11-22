@@ -20,6 +20,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export type LogHistoryDataTableFiltersType = {
 	request_id: { value: string | null; matchMode: 'contains' };
@@ -106,16 +107,6 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					field: 'request_id',
 					header: labels['field.request_id'],
 				},
@@ -164,9 +155,10 @@ export default async function dataSourceConfig(): Promise<
 					field: 'recorded_at',
 					header: labels['field.recorded_at'],
 					sortable: true,
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayDate: true,
+							displayButton: displayButtonView(auth),
 						}),
 				},
 			],
@@ -182,7 +174,7 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['delete.title'],
 				permission: ['log-history', 'delete'],
 				entriesSelection: 'multiple',
-				operationFunction: (ids: number[]) =>
+				operationFunction: (ids: EntityId[]) =>
 					requestDeleteMultiple('log-history', ids),
 				buttonPosition: 'left',
 				button: {

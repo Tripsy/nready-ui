@@ -23,6 +23,7 @@ import {
 	REVIEW_RATING_DIMENSIONS,
 	type ReviewOwnModel,
 } from '@/models/review.model';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Writing a review, or revising the one this reader already wrote - the same form either way, and
@@ -41,9 +42,9 @@ export function ReviewForm({
 	onWithdraw,
 	withdrawing,
 }: {
-	productId: number;
+	productId: EntityId;
 	/** Only when the reader chose it - see `buildReviewState`. */
-	variantId: number | null;
+	variantId: EntityId | null;
 	own: ReviewOwnModel | null;
 	translations: ReviewTranslations;
 	onWritten: () => void;

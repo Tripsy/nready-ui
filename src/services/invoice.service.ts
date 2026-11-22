@@ -5,6 +5,7 @@ import type {
 	InvoicePaymentModel,
 } from '@/models/invoice.model';
 import type { ApiResponseFetch } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The invoice endpoints that hang off a document rather than off the collection, which the
@@ -17,7 +18,7 @@ import type { ApiResponseFetch } from '@/types/api.type';
  * on a shipping document, the movement.
  */
 export async function requestInvoiceDocument(
-	id: number,
+	id: EntityId,
 ): Promise<ApiResponseFetch<InvoiceDocumentModel>> {
 	return await new ApiRequest().doFetch(`/invoices/${id}/document`, {
 		method: 'GET',
@@ -36,7 +37,7 @@ export async function requestInvoiceDocument(
  * an allocation already made against a movement with no order.
  */
 export async function requestInvoiceRaiseForCashFlow(
-	cashFlowId: number,
+	cashFlowId: EntityId,
 ): Promise<ApiResponseFetch<Partial<InvoiceModel>>> {
 	return await new ApiRequest().doFetch(
 		`/invoices/from-cash-flow/${cashFlowId}`,
@@ -49,8 +50,8 @@ export async function requestInvoiceRaiseForCashFlow(
  * `amount` (a net price correction, VAT added at the line's rate) - exactly one of the two.
  */
 export type InvoiceReverseLineParams =
-	| { invoice_line_id: number; quantity: number; amount?: never }
-	| { invoice_line_id: number; amount: number; quantity?: never };
+	| { invoice_line_id: EntityId; quantity: number; amount?: never }
+	| { invoice_line_id: EntityId; amount: number; quantity?: never };
 
 /**
  * Raise an empty custom invoice for a client: a document built by hand, with no order behind it.
@@ -58,7 +59,7 @@ export type InvoiceReverseLineParams =
  * takes; the buyer starts from the client's billing address when there is one.
  */
 export async function requestInvoiceCustomCreate(params: {
-	client_id: number;
+	client_id: EntityId;
 }): Promise<ApiResponseFetch<Partial<InvoiceModel>>> {
 	return await new ApiRequest().doFetch('/invoices/custom', {
 		method: 'POST',
@@ -74,7 +75,7 @@ export async function requestInvoiceCustomCreate(params: {
  * omitted, everything not reversed yet.
  */
 export async function requestInvoiceReverse(
-	id: number,
+	id: EntityId,
 	params: {
 		notes?: string | null;
 		lines?: InvoiceReverseLineParams[];
@@ -98,9 +99,9 @@ export async function requestInvoiceReverse(
  * the document (money in settles an invoice, money out settles a reversal).
  */
 export async function requestInvoicePaymentCreate(
-	id: number,
+	id: EntityId,
 	params: {
-		cash_flow_id: number;
+		cash_flow_id: EntityId;
 		amount: number;
 		notes?: string | null;
 	},
@@ -117,7 +118,7 @@ export async function requestInvoicePaymentCreate(
  * reversal.
  */
 export async function requestInvoicePaymentClear(
-	id: number,
+	id: EntityId,
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(`/invoices/${id}/payments`, {
 		method: 'DELETE',
@@ -125,8 +126,8 @@ export async function requestInvoicePaymentClear(
 }
 
 export async function requestInvoicePaymentDelete(
-	id: number,
-	paymentId: number,
+	id: EntityId,
+	paymentId: EntityId,
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(
 		`/invoices/${id}/payments/${paymentId}`,

@@ -1,3 +1,5 @@
+import type { EntityId } from '@/types/entity-id.type';
+
 /**
  * What a discount attaches to. Mirrors the backend enum - every value except `order` and `shipping`
  * implies targets in the matching link table; `order` takes none and applies to the whole basket.
@@ -61,7 +63,7 @@ export type DiscountConditions = {
 };
 
 export type DiscountModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	label: string;
 	scope: DiscountScope;
@@ -117,7 +119,9 @@ export const isDiscountTargetRequired = (scope: DiscountScope): boolean =>
 	scope !== DiscountScopeEnum.ORDER && scope !== DiscountScopeEnum.SHIPPING;
 
 /** Owner ids per scope, e.g. `{ client: [3, 9], category: [12] }`. */
-export type DiscountTargetMap = Partial<Record<DiscountTargetScope, number[]>>;
+export type DiscountTargetMap = Partial<
+	Record<DiscountTargetScope, EntityId[]>
+>;
 
 export const displayDiscountLabel = (entry: DiscountModel) => {
 	return entry.label;

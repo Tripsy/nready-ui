@@ -1,6 +1,7 @@
 import type { ClientType } from '@/models/client.model';
 import { roundMoney } from '@/models/product.model';
 import type { StatusTransitions } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The document's lifecycle, mirroring `order.entity.ts`.
@@ -71,8 +72,8 @@ export type OrderBillingAddressType = {
  * imports this module and would close a cycle. A `ShippingModel` satisfies it.
  */
 export type OrderShipmentType = {
-	id: number;
-	order_id: number | null;
+	id: EntityId;
+	order_id: EntityId | null;
 	scope: string;
 	status: string;
 	deleted_at?: Date | string | null;
@@ -90,7 +91,7 @@ export type OrderDiscountSnapshot = {
 	type: string;
 	value: number;
 	/** The rule it came from; absent on snapshots written before it was recorded, and on a manual one. */
-	discount_id?: number;
+	discount_id?: EntityId;
 	/**
 	 * An operator typed it rather than a catalog rule granting it. `type` and `value` are then what
 	 * was typed, in the order's currency - scope `variant` for a line's own, `order` for order-wide.
@@ -106,7 +107,7 @@ export type OrderDiscountSnapshot = {
 /** What a chosen option did to the line's unit price, in the order's currency. */
 export type OrderOptionSnapshot = {
 	/** The option it was taken from - absent on snapshots written before it was recorded. */
-	option_id?: number;
+	option_id?: EntityId;
 	label: string;
 	price_delta: number;
 	currency: string;
@@ -121,14 +122,14 @@ export type OrderOptionSnapshot = {
  * at its own VAT rate.
  */
 export type OrderLineModel<D = Date | string> = {
-	id: number;
-	order_id: number;
-	parent_id: number | null;
+	id: EntityId;
+	order_id: EntityId;
+	parent_id: EntityId | null;
 	/** On a bundle component, the `product_bundle_item` it was taken from - null elsewhere. */
-	bundle_item_id?: number | null;
+	bundle_item_id?: EntityId | null;
 
-	variant_id: number;
-	product_id: number;
+	variant_id: EntityId;
+	product_id: EntityId;
 
 	quantity: number;
 	price: number;
@@ -142,7 +143,7 @@ export type OrderLineModel<D = Date | string> = {
 	options: OrderOptionSnapshot[] | null;
 	notes: string | null;
 
-	variant?: { id: number; sku: string } | null;
+	variant?: { id: EntityId; sku: string } | null;
 	/** The product's name in the default content language, attached by the read; null when it has none. */
 	label?: string | null;
 
@@ -184,9 +185,9 @@ export type OrderTotalsModel = {
  * re-reads the row to get them.
  */
 export type OrderModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
-	client_id: number;
+	client_id: EntityId;
 	/**
 	 * Where the order is billed - the order's own copy, which checkout takes from the buyer's
 	 * address book and an operator may correct while it is unbilled. Null when none was agreed.
@@ -225,7 +226,7 @@ export type OrderModel<D = Date | string> = {
 	 * them null. `person_identification_number` is not among them by design.
 	 */
 	client?: {
-		id: number;
+		id: EntityId;
 		client_type: ClientType;
 		status: string;
 		company_name: string | null;
@@ -279,8 +280,8 @@ export const displayOrderMoney = (value: number, currency: string): string =>
  */
 export function groupOrderComponents(
 	lines: readonly OrderLineModel[],
-): Map<number, OrderLineModel[]> {
-	const componentsByParent = new Map<number, OrderLineModel[]>();
+): Map<EntityId, OrderLineModel[]> {
+	const componentsByParent = new Map<EntityId, OrderLineModel[]>();
 
 	for (const line of lines) {
 		if (line.parent_id === null) {

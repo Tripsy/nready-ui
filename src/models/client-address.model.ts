@@ -1,6 +1,7 @@
 import { type AddressModel, displayAddressLabel } from '@/models/address.model';
 import type { ClientModel } from '@/models/client.model';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export const ClientAddressTypeEnum = {
 	BILLING: 'billing',
@@ -18,10 +19,10 @@ export type ClientAddressType =
  * No `deleted_at`: the backend deletes a client address outright, and keeps the address.
  */
 export type ClientAddressModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
-	client_id: number;
-	address_id: number;
+	client_id: EntityId;
+	address_id: EntityId;
 	type: ClientAddressType;
 
 	details: string | null;
@@ -64,8 +65,8 @@ export type OwnClientAddressModel<D = Date | string> = Omit<
 	'address' | 'client'
 > & {
 	address: {
-		id: number;
-		city_id: number | null;
+		id: EntityId;
+		city_id: EntityId | null;
 		/** Street and number. */
 		details: string;
 		postal_code: string | null;

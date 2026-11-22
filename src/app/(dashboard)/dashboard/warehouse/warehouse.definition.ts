@@ -11,7 +11,6 @@ import { translateBatch } from '@/config/translate.setup';
 import { DisplayFlagged } from '@/helpers/display.helper';
 import {
 	getFormDataAsBoolean,
-	getFormDataAsNumber,
 	getFormDataAsString,
 } from '@/helpers/form.helper';
 import {
@@ -36,6 +35,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -74,7 +74,7 @@ async function validateForm(values: WarehouseFormValuesType) {
  */
 function getFormValues(formData: FormData): WarehouseFormValuesType {
 	return {
-		address_id: getFormDataAsNumber(formData, 'address_id'),
+		address_id: getFormDataAsString(formData, 'address_id'),
 		address: getFormDataAsString(formData, 'address_label'),
 		code: getFormDataAsString(formData, 'code'),
 		name: getFormDataAsString(formData, 'name'),
@@ -187,17 +187,6 @@ export default async function dataSourceConfig(): Promise<
 			},
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					field: 'code',
 					header: labels['field.code'],
 					sortable: true,
@@ -209,8 +198,10 @@ export default async function dataSourceConfig(): Promise<
 					field: 'name',
 					header: labels['field.name'],
 					sortable: true,
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
+							markDeleted: true,
+							displayButton: displayButtonView(auth),
 							customValue: DisplayFlagged({
 								value: entry.name,
 								isFlagged: entry.is_default,
@@ -276,7 +267,7 @@ export default async function dataSourceConfig(): Promise<
 				customEntryCheck: (entry: WarehouseModel) => !entry.deleted_at, // Return true if the entry is not deleted
 				operationFunction: (
 					params: WarehouseFormValuesType,
-					id: number,
+					id: EntityId,
 				) =>
 					requestUpdate<WarehouseModel, WarehouseFormValuesType>(
 						'warehouse',

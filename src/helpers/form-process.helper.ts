@@ -9,6 +9,7 @@ import {
 	type ValidationIssueType,
 } from '@/helpers/form.helper';
 import type { ApiResponseFetch } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type {
 	FormErrorsType,
 	FormSituationType,
@@ -29,7 +30,7 @@ type FormOperationFnType<FormValues> =
 	| ((values: FormValues) => Promise<ApiResponseFetch<unknown>>)
 	| ((
 			values: FormValues,
-			entryId: number,
+			entryId: EntityId,
 	  ) => Promise<ApiResponseFetch<unknown>>);
 
 /**
@@ -61,7 +62,7 @@ type ProcessFormOptionsType<
 	validateForm: ValidateFormFnType<FormValues, ValidatedValues>;
 	operationFunction: FormOperationFnType<ValidatedValues>;
 	/** Only set for update operations - passed as the second argument to `operationFunction`. */
-	entryId?: number;
+	entryId?: EntityId;
 	mapApiError?: MapApiErrorFnType<Situation>;
 	/** Translation key for the generic failure message. */
 	fallbackErrorKey?: string;
@@ -200,7 +201,7 @@ export async function processForm<
 				? await (
 						operationFunction as (
 							values: ValidatedValues,
-							entryId: number,
+							entryId: EntityId,
 						) => Promise<ApiResponseFetch<unknown>>
 					)(operationValues, entryId)
 				: await (

@@ -27,6 +27,7 @@ import type {
 } from '@/models/product-category-attribute.model';
 import { requestLatestExchangeRates } from '@/services/exchange-rate.service';
 import { CurrencyEnum } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormErrorsType } from '@/types/form.type';
 
 const TRANSLATION_KEYS = [
@@ -318,7 +319,7 @@ function VariantRow({
 			value.attribute_label_id,
 			(
 				variantErrors?.attributes as
-					| Record<number, string[] | undefined>
+					| Record<EntityId, string[] | undefined>
 					| undefined
 			)?.[position],
 		]),

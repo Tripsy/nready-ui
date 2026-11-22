@@ -6,13 +6,14 @@ import { CommentEntityTypeEnum } from '@/models/comment.model';
 import { requestPublicArticles } from '@/services/article.service';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Where the page carrying a target's discussion lives, as a path this app can link to - or null
  * when the target cannot be reached: it is gone, it is not public, or nothing here renders it yet.
  */
 type CommentTargetResolver = (
-	entityId: number,
+	entityId: EntityId,
 	language: Language,
 ) => Promise<string | null>;
 
@@ -25,7 +26,7 @@ type CommentTargetResolver = (
  * built correctly here rather than left to that redirect.
  */
 async function resolveArticleTarget(
-	entityId: number,
+	entityId: EntityId,
 	language: Language,
 ): Promise<string | null> {
 	const response = await requestPublicArticles({
@@ -67,7 +68,7 @@ const COMMENT_TARGET_RESOLVERS: Partial<
 
 export async function resolveCommentTargetPath(
 	entityType: CommentEntityType,
-	entityId: number,
+	entityId: EntityId,
 	language: Language,
 ): Promise<string | null> {
 	const resolver = COMMENT_TARGET_RESOLVERS[entityType];

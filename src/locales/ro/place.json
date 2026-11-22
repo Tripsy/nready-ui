@@ -36,7 +36,7 @@
 			"confirm": "Sigur vrei să restaurezi această localitate?"
 		},
 		"view": {
-			"title": "Detalii localitate - {{entry}}",
+			"title": "Localitate - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"guide": {
@@ -61,7 +61,7 @@
 		"tab_api": "Documentație API"
 	},
 	"field": {
-		"search": "ID / Nume",
+		"search": "Nume",
 		"place_type": "Tip",
 		"language": "Limbă",
 		"code": "Cod",

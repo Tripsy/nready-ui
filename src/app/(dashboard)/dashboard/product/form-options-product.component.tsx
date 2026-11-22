@@ -32,6 +32,7 @@ import {
 	TermTypeEnum,
 } from '@/models/term.model';
 import { CurrencyEnum } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'product.field.is_default',
@@ -102,7 +103,7 @@ export type ProductOptionFormType = Omit<
 	'label_id' | 'position' | 'label'
 > & {
 	key: string;
-	label_id: number | null;
+	label_id: EntityId | null;
 	label: string;
 	position: number;
 	prices: ProductOptionPriceFormType[];
@@ -114,7 +115,7 @@ export type ProductOptionGroupFormType = Omit<
 	'label_id' | 'position' | 'options' | 'label'
 > & {
 	key: string;
-	label_id: number | null;
+	label_id: EntityId | null;
 	label: string;
 	position: number;
 	options: ProductOptionFormType[];

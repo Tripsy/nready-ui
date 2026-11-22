@@ -7,6 +7,7 @@ import type { BrandModel, BrandType } from '@/models/brand.model';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { ApiResponseFetch } from '@/types/api.type';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The anonymous listing (`GET /public/brands`), which returns only active brands and accepts no
@@ -42,7 +43,7 @@ export async function requestPublicBrands(params: {
 
 export async function orderUpdate(
 	brand_type: BrandType,
-	positions: number[],
+	positions: EntityId[],
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(
 		`/${resolveRequestPath('brand')}/${brand_type}/order`,

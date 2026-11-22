@@ -14,6 +14,7 @@ import {
 } from '@/helpers/window.helper';
 import { useModalStore } from '@/stores/window.store';
 import type { EntriesSelectionType } from '@/types/action.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type {
 	WindowComponent,
 	WindowConfig,
@@ -113,7 +114,7 @@ export function WindowInstance({
 	);
 
 	const entryId =
-		rawEntry && 'id' in rawEntry ? (rawEntry.id as number) : undefined;
+		rawEntry && 'id' in rawEntry ? (rawEntry.id as EntityId) : undefined;
 	const reloadFn = definition.reloadEntry;
 
 	// Entry provided via data-table may not contain all the required fields / data for the window

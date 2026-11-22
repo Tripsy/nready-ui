@@ -16,6 +16,7 @@ import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import type { DiscountTargetScope } from '@/models/discount.model';
 import type { FindFunctionResponseType } from '@/types/action.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'discount.text.label_remove',
@@ -29,8 +30,8 @@ const TRANSLATION_KEYS = [
 type Props = {
 	scope: DiscountTargetScope;
 	/** Selected owner ids. The only thing that reaches the API. */
-	value: readonly number[];
-	onChange: (ids: number[]) => void;
+	value: readonly EntityId[];
+	onChange: (ids: EntityId[]) => void;
 	disabled?: boolean;
 	isLoading?: boolean;
 	/** Validation messages for the selection as a whole, not for any one entry. */
@@ -60,7 +61,7 @@ export function FormTargetsDiscount({
 	const { translations } = useTranslation(TRANSLATION_KEYS);
 
 	const [search, setSearch] = useState('');
-	const [labels, setLabels] = useState<Record<number, string>>({});
+	const [labels, setLabels] = useState<Record<EntityId, string>>({});
 	const elementIds = useElementIds(['target'] as const);
 
 	const source = TARGET_SOURCES[scope];
@@ -118,7 +119,7 @@ export function FormTargetsDiscount({
 		minLength: 3,
 	});
 
-	const addEntry = (id: number, label: string) => {
+	const addEntry = (id: EntityId, label: string) => {
 		setSearch('');
 		setLabels((current) => ({ ...current, [id]: label }));
 
@@ -129,7 +130,7 @@ export function FormTargetsDiscount({
 		onChange([...value, id]);
 	};
 
-	const removeEntry = (id: number) => {
+	const removeEntry = (id: EntityId) => {
 		onChange(value.filter((existing) => existing !== id));
 	};
 
@@ -160,11 +161,11 @@ export function FormTargetsDiscount({
 					isLoading: isFetching,
 					onSelect: (entry) =>
 						addEntry(
-							entry.id as number,
+							entry.id as EntityId,
 							source.getOptionLabel(entry),
 						),
 					getOptionLabel: (entry) => source.getOptionLabel(entry),
-					getOptionKey: (entry) => entry.id as number,
+					getOptionKey: (entry) => entry.id as EntityId,
 				}}
 			/>
 

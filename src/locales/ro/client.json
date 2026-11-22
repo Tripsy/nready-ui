@@ -59,7 +59,7 @@
 			"confirm": "Sigur vrei să restaurezi acest client?"
 		},
 		"view": {
-			"title": "Detalii client - {{entry}}",
+			"title": "Client - {{entry}}",
 			"label": "Vezi detalii"
 		},
 		"viewUser": {
@@ -101,7 +101,7 @@
 		"user_id": "Cont",
 		"status": "Status",
 		"created_at": "Creat la",
-		"search": "ID / Nume / CUI / CNP",
+		"search": "Nume / CUI / CNP",
 		"user": "Cont",
 		"person_identification_number": "Persoană - CNP",
 		"iban": "IBAN",

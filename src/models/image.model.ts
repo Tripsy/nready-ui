@@ -4,6 +4,7 @@ import {
 	type PermissionEntityType,
 } from '@/models/permission.model';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { ImagePropertiesType } from '@/types/image.type';
 
 export const ImageSectionEnum = {
@@ -117,9 +118,9 @@ export type ImageContentType = {
 
 // Full image model with relations
 export type ImageModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 	section: ImageSection;
-	entity_id: number;
+	entity_id: EntityId;
 	image_type: ImageType;
 	storage: ImageStorage;
 	path: string;

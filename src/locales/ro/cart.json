@@ -10,7 +10,7 @@
 			"confirm": "Sigur ștergi coșul selectat? Cumpărătorul pierde ce alesese, iar la următoarea vizită începe unul nou."
 		},
 		"view": {
-			"title": "Detalii coș - {{entry}}",
+			"title": "Coș - {{entry}}",
 			"label": "Vezi"
 		},
 		"viewUser": {

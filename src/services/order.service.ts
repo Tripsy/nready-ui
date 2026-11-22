@@ -18,6 +18,7 @@ import type {
 import type { OrderShipmentModel } from '@/models/shipping.model';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { ApiResponseFetch } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The signed-in account's own orders (`/public/orders`) - every order billed to one of its clients.
@@ -68,7 +69,7 @@ export type OwnOrderDetail = OrderModel &
 
 /** One order with its lines and totals. */
 export async function requestOwnOrder(
-	id: number,
+	id: EntityId,
 ): Promise<ApiResponseFetch<OwnOrderDetail>> {
 	return await new ApiRequest().doFetch(`/public/orders/${id}`, {
 		method: 'GET',
@@ -77,7 +78,7 @@ export async function requestOwnOrder(
 
 /** The deliveries and returns against one of the account's orders, oldest first. */
 export async function requestOwnOrderShipments(
-	id: number,
+	id: EntityId,
 ): Promise<ApiResponseFetch<{ entries: OrderShipmentModel[] }>> {
 	return await new ApiRequest().doFetch(`/public/orders/${id}/shipments`, {
 		method: 'GET',
@@ -90,14 +91,14 @@ export async function requestOwnOrderShipments(
  * sign.
  */
 export type OwnOrderInvoice = {
-	id: number;
+	id: EntityId;
 	ref_code: string | null;
 	ref_number: number | null;
 	status: InvoiceStatus;
 	payment_status: InvoicePaymentStatus;
 	scope: InvoiceScope;
 	is_reversal: boolean;
-	parent_invoice_id: number | null;
+	parent_invoice_id: EntityId | null;
 	currency: string;
 	total_net: number;
 	total_vat: number;
@@ -109,7 +110,7 @@ export type OwnOrderInvoice = {
 
 /** One movement of money filed under an order. A refund is `direction` `out`; `gross_amount` is unsigned. */
 export type OwnOrderPayment = {
-	id: number;
+	id: EntityId;
 	direction: CashFlowDirection;
 	method: CashFlowMethod;
 	status: CashFlowStatus;
@@ -120,7 +121,7 @@ export type OwnOrderPayment = {
 };
 
 /** The invoices and payments of one of the account's orders, oldest first. */
-export async function requestOwnOrderBilling(id: number): Promise<
+export async function requestOwnOrderBilling(id: EntityId): Promise<
 	ApiResponseFetch<{
 		invoices: OwnOrderInvoice[];
 		payments: OwnOrderPayment[];
@@ -136,8 +137,8 @@ export async function requestOwnOrderBilling(id: number): Promise<
  * answers 404, the same as a missing id.
  */
 export async function requestOwnOrderInvoice(
-	orderId: number,
-	invoiceId: number,
+	orderId: EntityId,
+	invoiceId: EntityId,
 ): Promise<ApiResponseFetch<InvoiceDocumentModel>> {
 	return await new ApiRequest().doFetch(
 		`/public/orders/${orderId}/invoices/${invoiceId}`,
@@ -152,7 +153,7 @@ export async function requestOwnOrderInvoice(
  * in one request. An id the account does not own simply has no entries; group by `order_id`.
  */
 export async function requestOwnOrdersShipments(
-	orderIds: readonly number[],
+	orderIds: readonly EntityId[],
 ): Promise<ApiResponseFetch<{ entries: OrderShipmentModel[] }>> {
 	const query = buildQueryString({ order_id: [...orderIds] });
 
@@ -167,7 +168,7 @@ export async function requestOwnOrdersShipments(
  * longer pending, has been invoiced or has a payment under way.
  */
 export async function requestCancelOwnOrder(
-	id: number,
+	id: EntityId,
 ): Promise<ApiResponseFetch<null>> {
 	return await new ApiRequest().doFetch(`/public/orders/${id}/cancel`, {
 		method: 'PATCH',

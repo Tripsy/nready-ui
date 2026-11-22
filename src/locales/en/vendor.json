@@ -48,7 +48,7 @@
 			"confirm": "Are you sure you want to mark this vendor as inactive?"
 		},
 		"view": {
-			"title": "Vendor details - {{entry}}",
+			"title": "Vendor - {{entry}}",
 			"label": "View details"
 		},
 		"guide": {
@@ -73,7 +73,7 @@
 		"tab_api": "API docs"
 	},
 	"field": {
-		"search": "ID / Name",
+		"search": "Name",
 		"type": "Type",
 		"status": "Status",
 		"name": "Name",

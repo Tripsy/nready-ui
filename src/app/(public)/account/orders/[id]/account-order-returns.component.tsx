@@ -34,6 +34,7 @@ import {
 	requestOwnOrderReturnable,
 	requestOwnOrderReturns,
 } from '@/services/order-return.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'order-return.storefront.heading',
@@ -72,10 +73,10 @@ type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
 const DATE_FORMAT = 'D MMM YYYY';
 
 /** The buyer's own requests, under the account-order keys so a cancel of the order drops them too. */
-const returnsQueryKey = (orderId: number) =>
+const returnsQueryKey = (orderId: EntityId) =>
 	[...OWN_ORDERS_QUERY_KEY, 'returns', orderId] as const;
 
-const returnableQueryKey = (orderId: number) =>
+const returnableQueryKey = (orderId: EntityId) =>
 	[...OWN_ORDERS_QUERY_KEY, 'returnable', orderId] as const;
 
 /**
@@ -88,7 +89,7 @@ function ReturnRequestForm({
 	translations,
 	onDone,
 }: {
-	readonly orderId: number;
+	readonly orderId: EntityId;
 	readonly translations: TranslationsType;
 	readonly onDone: () => void;
 }): JSX.Element {
@@ -99,7 +100,7 @@ function ReturnRequestForm({
 
 	const [reason, setReason] = useState<OrderReturnReason | ''>('');
 	const [message, setMessage] = useState('');
-	const [quantities, setQuantities] = useState<Record<number, number>>({});
+	const [quantities, setQuantities] = useState<Record<EntityId, number>>({});
 	const [problem, setProblem] = useState<string | null>(null);
 
 	const returnableQuery = useQuery({
@@ -132,7 +133,7 @@ function ReturnRequestForm({
 				lines: Object.entries(quantities)
 					.filter(([, quantity]) => quantity > 0)
 					.map(([variantId, quantity]) => ({
-						variant_id: Number(variantId),
+						variant_id: variantId,
 						quantity: quantity,
 					})),
 			}),
@@ -350,7 +351,7 @@ function ReturnRow({
 	entry,
 	translations,
 }: {
-	readonly orderId: number;
+	readonly orderId: EntityId;
 	readonly entry: OrderReturnModel;
 	readonly translations: TranslationsType;
 }): JSX.Element {
@@ -497,7 +498,7 @@ export function AccountOrderReturns({
 	orderId,
 	sectionId,
 }: {
-	readonly orderId: number;
+	readonly orderId: EntityId;
 	readonly sectionId: string;
 }): JSX.Element {
 	const { translations } = useTranslation(TRANSLATION_KEYS);

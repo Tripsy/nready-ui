@@ -3,7 +3,6 @@ import { translateBatch } from '@/config/translate.setup';
 import {
 	getFormDataAsBoolean,
 	getFormDataAsEnum,
-	getFormDataAsNumber,
 	getFormDataAsString,
 } from '@/helpers/form.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
@@ -14,6 +13,7 @@ import {
 	type CommentModel,
 	CommentStatusEnum,
 } from '@/models/comment.model';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormErrorsType, FormSituationType } from '@/types/form.type';
 
 /**
@@ -98,8 +98,8 @@ export type CommentTranslations = Record<
  * before the target exists to scroll to. A root needs only its own id.
  */
 export const commentAnchorId = (entry: {
-	id: number;
-	parent_id: number | null;
+	id: EntityId;
+	parent_id: EntityId | null;
 }): string =>
 	entry.parent_id
 		? `comment-${entry.parent_id}-${entry.id}`
@@ -107,8 +107,8 @@ export const commentAnchorId = (entry: {
 
 export type CommentAnchorType = {
 	/** The thread to open first; null when the target is a root comment. */
-	parentId: number | null;
-	id: number;
+	parentId: EntityId | null;
+	id: EntityId;
 };
 
 /**
@@ -116,8 +116,13 @@ export type CommentAnchorType = {
  * Anything else on the page's fragment - another component's anchor, a stale link - resolves to
  * null rather than to a comment id nobody meant.
  */
+/** One id in the anchor - the shape `commentAnchorId` writes, the only one read back. */
+const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
+
 export function parseCommentAnchor(hash: string): CommentAnchorType | null {
-	const match = /^#?comment-(\d+)(?:-(\d+))?$/.exec(hash);
+	const match = new RegExp(`^#?comment-(${UUID})(?:-(${UUID}))?$`, 'i').exec(
+		hash,
+	);
 
 	if (!match) {
 		return null;
@@ -126,8 +131,8 @@ export function parseCommentAnchor(hash: string): CommentAnchorType | null {
 	const [, first, second] = match;
 
 	return second
-		? { parentId: Number(first), id: Number(second) }
-		: { parentId: null, id: Number(first) };
+		? { parentId: first, id: second }
+		: { parentId: null, id: first };
 }
 
 /**
@@ -141,8 +146,8 @@ export function parseCommentAnchor(hash: string): CommentAnchorType | null {
  */
 export type CommentFormValuesType = {
 	entity_type: CommentEntityType | null;
-	entity_id: number | null;
-	parent_id: number | null;
+	entity_id: EntityId | null;
+	parent_id: EntityId | null;
 	requires_guest: boolean;
 	content: string | null;
 	guest_name: string | null;
@@ -161,8 +166,8 @@ export type CommentStateType = {
 
 export function buildCommentState(
 	entityType: CommentEntityType,
-	entityId: number,
-	parentId: number | null,
+	entityId: EntityId,
+	parentId: EntityId | null,
 	requiresGuest: boolean,
 ): CommentStateType {
 	return {
@@ -329,8 +334,8 @@ class CommentValidator extends BaseValidator<typeof validatorMessages> {
 	private structural() {
 		return {
 			entity_type: z.enum(CommentEntityTypeEnum).nullable(),
-			entity_id: z.number().nullable(),
-			parent_id: z.number().nullable(),
+			entity_id: z.string().nullable(),
+			parent_id: z.string().nullable(),
 			requires_guest: z.boolean(),
 		};
 	}
@@ -386,9 +391,9 @@ export function getCommentFormValues(
 			'entity_type',
 			CommentEntityTypeEnum,
 		),
-		entity_id: getFormDataAsNumber(formData, 'entity_id'),
+		entity_id: getFormDataAsString(formData, 'entity_id'),
 		// A root comment submits the field empty, which `getFormDataAsNumber` reads as null.
-		parent_id: getFormDataAsNumber(formData, 'parent_id'),
+		parent_id: getFormDataAsString(formData, 'parent_id'),
 		requires_guest: getFormDataAsBoolean(formData, 'requires_guest'),
 		content: getFormDataAsString(formData, 'content'),
 		guest_name: getFormDataAsString(formData, 'guest_name'),

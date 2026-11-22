@@ -22,6 +22,7 @@ import { useTranslation } from '@/hooks/use-translation.hook';
 import { WindowFormProvider } from '@/providers/window-form.provider';
 import { useModalStore } from '@/stores/window.store';
 import type { FormOperationFunctionType } from '@/types/action.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType, FormValuesType } from '@/types/form.type';
 
 type WindowFormType<Entry> = {
@@ -101,7 +102,7 @@ export function WindowForm<
 		};
 	});
 
-	const entryId = entry && 'id' in entry ? (entry.id as number) : undefined; // Undefined for create
+	const entryId = entry && 'id' in entry ? (entry.id as EntityId) : undefined; // Undefined for create
 
 	const [state, action, pending] = useActionState<
 		FormStateType<FormValues>,

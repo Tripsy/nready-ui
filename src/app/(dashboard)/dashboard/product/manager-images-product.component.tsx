@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { ManagerImages } from '@/components/manager-images.component';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/helpers/css.helper';
+import { compareIds } from '@/helpers/id.helper';
 import { requestFind } from '@/helpers/services.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import { hasPermission } from '@/models/account.model';
@@ -17,6 +18,7 @@ import type { ProductModel } from '@/models/product.model';
 import type { ProductVariantModel } from '@/models/product-variant.model';
 import { useAuth } from '@/providers/auth.provider';
 import { LanguageEnum } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const IMAGE_TYPES = [ImageTypeEnum.GALLERY];
 const LANGUAGES = Object.values(LanguageEnum);
@@ -39,7 +41,7 @@ const TRANSLATION_KEYS = [
 /** Which gallery the rail is pointed at - the product's, or one variant's. */
 type ImageTarget = {
 	section: ImageSection;
-	entity_id: number;
+	entity_id: EntityId;
 	label: string;
 	/** Marked in the rail, so the gallery a single-variant product sells through is obvious. */
 	isDefault?: boolean;
@@ -105,7 +107,8 @@ export function ManagerImagesProduct({ entries }: { entries: ProductModel[] }) {
 		const variantTargets = [...(variants?.entries ?? [])]
 			.sort(
 				(left, right) =>
-					left.position - right.position || left.id - right.id,
+					left.position - right.position ||
+					compareIds(left.id, right.id),
 			)
 			.map((variant) => ({
 				section: ImageSectionEnum.PRODUCT_VARIANT,

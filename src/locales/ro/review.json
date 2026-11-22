@@ -33,7 +33,7 @@
 			"success": "Statusul recenziei a fost actualizat"
 		},
 		"view": {
-			"title": "Detalii recenzie - {{entry}}",
+			"title": "Recenzie - {{entry}}",
 			"label": "Vezi"
 		},
 		"viewUser": {

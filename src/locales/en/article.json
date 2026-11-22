@@ -99,7 +99,7 @@
 			"label": "Images"
 		},
 		"view": {
-			"title": "Article details - {{entry}}",
+			"title": "Article - {{entry}}",
 			"label": "View details"
 		},
 		"order": {
@@ -136,7 +136,7 @@
 		"source_mode": "Source",
 		"categories": "Category",
 		"publish_at": "Publish At",
-		"search": "ID / Title / Brief",
+		"search": "Title / Brief",
 		"visibility": "Visibility",
 		"featured_status": "Featured",
 		"language": "Language",

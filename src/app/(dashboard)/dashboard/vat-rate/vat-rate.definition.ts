@@ -42,6 +42,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 /**
@@ -228,16 +229,6 @@ export default async function dataSourceConfig(): Promise<
 			// `OrderByEnum` accepts.
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					field: 'country_code',
 					header: labels['field.country_code'],
 					defaultWidth: 112,
@@ -274,9 +265,10 @@ export default async function dataSourceConfig(): Promise<
 				{
 					field: 'created_at',
 					header: labels['field.created_at'],
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayDate: true,
+							displayButton: displayButtonView(auth),
 						}),
 				},
 			],
@@ -312,7 +304,7 @@ export default async function dataSourceConfig(): Promise<
 				entriesSelection: 'single',
 				operationFunction: (
 					params: VatRateUpdateParamsType,
-					id: number,
+					id: EntityId,
 				) =>
 					requestUpdate<VatRateModel, VatRateUpdateParamsType>(
 						'vat-rate',

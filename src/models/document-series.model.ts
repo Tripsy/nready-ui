@@ -1,3 +1,5 @@
+import type { EntityId } from '@/types/entity-id.type';
+
 /**
  * The documents that carry a human-facing reference. One series per document type, which is
  * what an allocation resolves on - mirrors `DocumentTypeEnum` on the backend entity.
@@ -30,7 +32,7 @@ export const DOCUMENT_SERIES_CODE_MAX_CHARS = 10;
  * allocation would fail rather than continue the counter.
  */
 export type DocumentSeriesModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	document_type: DocumentType;
 	code: string;

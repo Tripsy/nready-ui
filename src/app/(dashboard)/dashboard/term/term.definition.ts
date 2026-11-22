@@ -7,7 +7,6 @@ import {
 import { UsageGuideTerm } from '@/app/(dashboard)/dashboard/term/usage-guide-term.component';
 import { ViewTerm } from '@/app/(dashboard)/dashboard/term/view-term.component';
 import { Icons } from '@/components/icon.component';
-import { Configuration } from '@/config/settings.config';
 import { getLanguageClient, translateBatch } from '@/config/translate.setup';
 import { getFormDataAsEnum } from '@/helpers/form.helper';
 import {
@@ -29,7 +28,6 @@ import {
 } from '@/helpers/validator.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
-	displayTermLabel,
 	displayTermValue,
 	storedTermValue,
 	type TermContentType,
@@ -42,6 +40,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -191,8 +190,6 @@ export default async function dataSourceConfig(): Promise<
 		),
 	]);
 
-	const defaultLanguage = Configuration.defaultLanguage();
-
 	function displayButtonView(
 		auth: AccountModel | null,
 	): DataTableValueOptionsType<TermModel>['displayButton'] {
@@ -221,17 +218,6 @@ export default async function dataSourceConfig(): Promise<
 			// moved to `term_content`, since ordering on it would mean picking a language first.
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							markDeleted: true,
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					field: 'type',
 					header: labels['field.type'],
 					body: (entry, column) =>
@@ -251,9 +237,10 @@ export default async function dataSourceConfig(): Promise<
 					 */
 					field: 'contents',
 					header: labels['field.contents'],
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
+							displayButton: displayButtonView(auth),
 							customValue: displayTermValue(
 								entry,
 								getLanguageClient(),
@@ -272,8 +259,12 @@ export default async function dataSourceConfig(): Promise<
 			find: (params: FindFunctionParamsType) =>
 				requestFind<TermModel>('term', params),
 		},
+		/*
+		 * The wording in the language the list shows, not every translation: `view` reloads the
+		 * full set, and a title joining all of them reads as noise.
+		 */
 		displayEntryLabel: (entry: TermModel) =>
-			displayTermLabel(entry, defaultLanguage),
+			`[${entry.type}] ${displayTermValue(entry, getLanguageClient())}`,
 		actions: {
 			create: {
 				windowType: 'form',
@@ -301,7 +292,7 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['term', 'update'],
 				entriesSelection: 'single',
 				customEntryCheck: (entry: TermModel) => !entry.deleted_at, // Return true if the entry is not deleted
-				operationFunction: (params: TermFormValuesType, id: number) =>
+				operationFunction: (params: TermFormValuesType, id: EntityId) =>
 					requestUpdate<TermModel, TermFormValuesType>(
 						'term',
 						params,
@@ -309,7 +300,8 @@ export default async function dataSourceConfig(): Promise<
 					),
 				// The list already carries every translation, but the entry must be re-read
 				// after a save so the form reopens on the stored set rather than the stale one
-				reloadEntry: (id: number) => requestView<TermModel>('term', id),
+				reloadEntry: (id: EntityId) =>
+					requestView<TermModel>('term', id),
 				buttonPosition: 'left',
 				button: {
 					variant: 'outline',
@@ -359,7 +351,8 @@ export default async function dataSourceConfig(): Promise<
 				buttonPosition: 'hidden',
 				// The list row carries only the filtered language; the details window shows
 				// every wording, which is what `read` returns when no language is requested
-				reloadEntry: (id: number) => requestView<TermModel>('term', id),
+				reloadEntry: (id: EntityId) =>
+					requestView<TermModel>('term', id),
 			},
 			guide: {
 				windowType: 'other',

@@ -1,5 +1,6 @@
 import type { AddressModel } from '@/models/address.model';
 import type { StatusTransitions } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export const WarehouseStatusEnum = {
 	ACTIVE: 'active',
@@ -27,9 +28,9 @@ export const WAREHOUSE_CODE_MAX_LENGTH = 16;
  * built from it falls back to the street line.
  */
 export type WarehouseModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
-	address_id: number;
+	address_id: EntityId;
 	code: string;
 	name: string;
 	status: WarehouseStatus;

@@ -36,6 +36,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -115,7 +116,7 @@ export type ReviewDataTableFiltersType = {
 	is_pinned: { value: boolean | null; matchMode: 'equals' };
 	is_verified: { value: boolean | null; matchMode: 'equals' };
 	user: { value: string | null; matchMode: 'equals' };
-	user_id: { value: number | null; matchMode: 'equals' };
+	user_id: { value: EntityId | null; matchMode: 'equals' };
 	/** Whether withdrawn reviews join the listing - what `restore` needs to reach a row. */
 	is_deleted: { value: boolean; matchMode: 'equals' };
 };
@@ -231,16 +232,6 @@ export default async function dataSourceConfig(): Promise<
 			// rating_avg.
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
-					sortable: true,
-					body: (entry, column, auth) =>
-						DataTableValue(entry, column, {
-							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
 					field: 'product_id',
 					header: labels['field.product'],
 					defaultWidth: 240,
@@ -319,9 +310,10 @@ export default async function dataSourceConfig(): Promise<
 					field: 'created_at',
 					header: labels['field.created_at'],
 					sortable: true,
-					body: (entry, column) =>
+					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							displayDate: true,
+							displayButton: displayButtonView(auth),
 						}),
 				},
 			],
@@ -339,7 +331,10 @@ export default async function dataSourceConfig(): Promise<
 				permission: ['review', 'update'],
 				entriesSelection: 'single',
 				customEntryCheck: (entry: ReviewModel) => !entry.deleted_at, // Return true if the entry is not deleted
-				operationFunction: (params: ReviewFormValuesType, id: number) =>
+				operationFunction: (
+					params: ReviewFormValuesType,
+					id: EntityId,
+				) =>
 					requestUpdate<ReviewModel, ReviewFormValuesType>(
 						'review',
 						params,
@@ -351,7 +346,7 @@ export default async function dataSourceConfig(): Promise<
 				 * list select is narrower than its read, and the day `content` leaves it a save
 				 * would silently blank the text of every review edited from this window.
 				 */
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<ReviewModel>('review', id),
 				buttonPosition: 'left',
 				button: {
@@ -436,7 +431,7 @@ export default async function dataSourceConfig(): Promise<
 				 * The per-dimension scores and the moderation trail are selected by the backend's
 				 * read and not by its list, so the row the table hands over carries neither.
 				 */
-				reloadEntry: (id: number) =>
+				reloadEntry: (id: EntityId) =>
 					requestView<ReviewModel>('review', id),
 			},
 			guide: {

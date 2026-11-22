@@ -65,7 +65,7 @@
 		"tab_public": "API public"
 	},
 	"field": {
-		"search": "ID / Etichetă / Conținut",
+		"search": "Etichetă / Conținut",
 		"language": "Limbă",
 		"type": "Tip",
 		"label": "Etichetă",

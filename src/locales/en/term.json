@@ -57,7 +57,7 @@
 		"tab_api": "API docs"
 	},
 	"field": {
-		"search": "ID / Value",
+		"search": "Value",
 		"type": "Type",
 		"language": "Language",
 		"value": "Value",

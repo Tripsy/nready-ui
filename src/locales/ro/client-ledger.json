@@ -38,7 +38,6 @@
 		"entry_type": "Tip",
 		"amount": "Sumă",
 		"amount_base": "Sumă în moneda de bază",
-		"cash_flow_id": "Flux de numerar",
 		"occurred_at": "Produs la",
 		"client": "Client",
 		"currency": "Monedă"

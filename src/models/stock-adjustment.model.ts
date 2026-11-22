@@ -1,4 +1,5 @@
 import type { WarehouseMovementModel } from '@/models/warehouse-movement.model';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Stock changed by hand - `../nready-api/src/features/warehouse-movement` (`/stock-adjustments`).
@@ -75,17 +76,17 @@ export const STOCK_ADJUSTMENT_NOTES_MAX = 2000;
  * come on the single read only.
  */
 export type StockAdjustmentModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 	reason: StockAdjustmentReason;
 	qty: number;
 	status: StockAdjustmentStatus;
 	reversed_at: D | null;
 	notes: string | null;
-	warehouse_id: number;
-	variant_id: number;
+	warehouse_id: EntityId;
+	variant_id: EntityId;
 
-	warehouse?: { id: number; code: string; name: string } | null;
-	variant?: { id: number; sku: string; product_id: number } | null;
+	warehouse?: { id: EntityId; code: string; name: string } | null;
+	variant?: { id: EntityId; sku: string; product_id: EntityId } | null;
 	movements?: WarehouseMovementModel<D>[];
 
 	created_at: D;

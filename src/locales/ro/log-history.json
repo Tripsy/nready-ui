@@ -10,7 +10,7 @@
 			"confirm": "Sigur vrei să ștergi jurnalele selectate?"
 		},
 		"view": {
-			"title": "Detalii jurnal - {{entry}}",
+			"title": "Jurnal - {{entry}}",
 			"label": "Vezi"
 		},
 		"viewUser": {

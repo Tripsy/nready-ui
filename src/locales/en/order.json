@@ -56,7 +56,7 @@
 			"success": "Order status updated successfully"
 		},
 		"view": {
-			"title": "Order details - {{entry}}",
+			"title": "Order - {{entry}}",
 			"label": "View details"
 		},
 		"guide": {
@@ -187,7 +187,7 @@
 		"returns": "Returns"
 	},
 	"field": {
-		"search": "ID / Reference",
+		"search": "Reference",
 		"client": "Client",
 		"status": "Status",
 		"created": "Created",

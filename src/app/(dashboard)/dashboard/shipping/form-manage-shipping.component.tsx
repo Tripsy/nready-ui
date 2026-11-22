@@ -48,6 +48,7 @@ import {
 import { useWindowForm } from '@/providers/window-form.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import { CurrencyEnum } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'shipping.field.carrier',
@@ -107,8 +108,8 @@ const BASE_CURRENCY = Configuration.get('app.currency');
 
 /** One line as the form holds it, before it is sent as part of the `lines` payload. */
 export type ShippingLineFormType = {
-	variant_id: number;
-	product_id: number;
+	variant_id: EntityId;
+	product_id: EntityId;
 	quantity: number | null;
 	/** A `return` line's only - what the warehouse found the goods fit for. */
 	condition: ShippingLineCondition | null;
@@ -117,13 +118,13 @@ export type ShippingLineFormType = {
 
 export type ShippingFormValuesType = {
 	scope: string | null;
-	order_id: number | null;
-	document_ref: number | null;
-	pickup_warehouse_id: number | null;
-	pickup_client_address_id: number | null;
-	destination_warehouse_id: number | null;
-	destination_client_address_id: number | null;
-	carrier_id: number | null;
+	order_id: EntityId | null;
+	document_ref: EntityId | null;
+	pickup_warehouse_id: EntityId | null;
+	pickup_client_address_id: EntityId | null;
+	destination_warehouse_id: EntityId | null;
+	destination_client_address_id: EntityId | null;
+	carrier_id: EntityId | null;
 	method: string | null;
 	tracking_number: string | null;
 	tracking_url: string | null;
@@ -188,7 +189,7 @@ function ShippingLinesEditor({
 	onChange,
 }: {
 	translations: TranslationsType;
-	readonly orderId: number | null;
+	readonly orderId: EntityId | null;
 	readonly scope: ShippingScope | null;
 	readonly lines: ShippingLineFormType[];
 	readonly disabled: boolean;
@@ -224,14 +225,14 @@ function ShippingLinesEditor({
 
 	const variantRows = useMemo(() => {
 		const rows = new Map<
-			number,
+			EntityId,
 			{
-				variant_id: number;
-				product_id: number;
+				variant_id: EntityId;
+				product_id: EntityId;
 				label: string | null;
 				quantity: number;
 				parts: {
-					key: number;
+					key: string;
 					quantity: number;
 					description: string;
 					/** No options and no bundle - a line that adds nothing to the row */
@@ -329,13 +330,13 @@ function ShippingLinesEditor({
 
 	const isReturn = scope === ShippingScopeEnum.RETURN;
 
-	const lineFor = (variantId: number): ShippingLineFormType | undefined =>
+	const lineFor = (variantId: EntityId): ShippingLineFormType | undefined =>
 		lines.find((line) => line.variant_id === variantId);
 
-	const quantityFor = (variantId: number): number | null =>
+	const quantityFor = (variantId: EntityId): number | null =>
 		lineFor(variantId)?.quantity ?? null;
 
-	const setCondition = (variantId: number, value: string) => {
+	const setCondition = (variantId: EntityId, value: string) => {
 		onChange(
 			lines.map((line) =>
 				line.variant_id === variantId
@@ -350,8 +351,8 @@ function ShippingLinesEditor({
 	};
 
 	const setQuantity = (
-		variantId: number,
-		productId: number,
+		variantId: EntityId,
+		productId: EntityId,
 		value: string,
 	) => {
 		const quantity = value === '' ? null : Number(value);
@@ -1043,10 +1044,7 @@ export function FormManageShipping() {
 								]
 							}
 							onChange={(e) =>
-								handleChange(
-									'document_ref',
-									Number(e.target.value),
-								)
+								handleChange('document_ref', e.target.value)
 							}
 							error={errors.document_ref}
 						/>

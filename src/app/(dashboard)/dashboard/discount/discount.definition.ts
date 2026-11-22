@@ -51,6 +51,7 @@ import type {
 	DataSourceConfigType,
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType, ValidatorOutput } from '@/types/form.type';
 
 const validatorMessages = [
@@ -202,7 +203,7 @@ class DiscountValidator extends BaseValidator<typeof validatorMessages> {
 			 * list left out of the schema would vanish from the picker on every submit.
 			 * It is not part of the discount payload; `prepareParamsFromFormValues` removes it.
 			 */
-			targets: z.array(z.object({ id: z.number() })).default([]),
+			targets: z.array(z.object({ id: z.string() })).default([]),
 		})
 		.superRefine((data, ctx) => {
 			/*
@@ -320,8 +321,8 @@ function getFormValues(formData: FormData): DiscountFormValuesType {
 		// `FormData` - `processForm` rebuilds its values from there on every submit.
 		targets: formData
 			.getAll('target_id')
-			.map((id) => ({ id: Number(id) }))
-			.filter((target) => Number.isFinite(target.id)),
+			.filter((id): id is string => typeof id === 'string' && id !== '')
+			.map((id) => ({ id: id })),
 	};
 }
 
@@ -450,7 +451,7 @@ function prepareParamsFromFormValues(data: DiscountManageOutput) {
  * all, so it clears nothing and sends nothing.
  */
 async function saveTargets(
-	discountId: number,
+	discountId: EntityId,
 	values: DiscountManageOutput,
 ): Promise<void> {
 	const targetScope = getDiscountTargetScope(values.scope);
@@ -553,23 +554,13 @@ export default async function dataSourceConfig(): Promise<
 			// sortable - they are the columns the backend's `OrderByEnum` accepts.
 			columns: [
 				{
-					field: 'id',
-					header: labels['field.id'],
-					defaultWidth: 88,
+					field: 'label',
+					header: labels['field.label'],
 					sortable: true,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
 							displayButton: displayButtonView(auth),
-						}),
-				},
-				{
-					field: 'label',
-					header: labels['field.label'],
-					sortable: true,
-					body: (entry, column) =>
-						DataTableValue(entry, column, {
-							markDeleted: true,
 						}),
 				},
 				{
@@ -673,7 +664,7 @@ export default async function dataSourceConfig(): Promise<
 				customEntryCheck: (entry: DiscountModel) => !entry.deleted_at, // Return true if the entry is not deleted
 				operationFunction: async (
 					values: DiscountManageOutput,
-					id: number,
+					id: EntityId,
 				) => {
 					const params = prepareParamsFromFormValues(values);
 

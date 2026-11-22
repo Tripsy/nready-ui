@@ -5,12 +5,13 @@ import type {
 import type { ClientModel } from '@/models/client.model';
 import type { OrderModel } from '@/models/order.model';
 import type { VendorModel } from '@/models/vendor.model';
+import type { EntityId } from '@/types/entity-id.type';
 
 export type OperationalRecordModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	operational_record_type: OperationalRecordType;
-	entity_id: number;
+	entity_id: EntityId;
 
 	cash_flow: CashFlowModel;
 	client: ClientModel | null;

@@ -4,11 +4,7 @@ import {
 	FormManageClientAddress,
 } from '@/app/(dashboard)/dashboard/client-address/form-manage-client-address.component';
 import { getLanguageClient, translateBatch } from '@/config/translate.setup';
-import {
-	getFormDataAsEnum,
-	getFormDataAsNumber,
-	getFormDataAsString,
-} from '@/helpers/form.helper';
+import { getFormDataAsEnum, getFormDataAsString } from '@/helpers/form.helper';
 import {
 	requestCreate,
 	requestDelete,
@@ -22,6 +18,7 @@ import {
 	displayClientAddressLabel,
 } from '@/models/client-address.model';
 import type { DataSourceConfigType } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType } from '@/types/form.type';
 
 const validatorMessages = [
@@ -67,8 +64,8 @@ async function validateForm(values: ClientAddressFormValuesType) {
 
 function getFormValues(formData: FormData): ClientAddressFormValuesType {
 	return {
-		client_id: getFormDataAsNumber(formData, 'client_id'),
-		address_id: getFormDataAsNumber(formData, 'address_id'),
+		client_id: getFormDataAsString(formData, 'client_id'),
+		address_id: getFormDataAsString(formData, 'address_id'),
 		address: getFormDataAsString(formData, 'address'),
 		type:
 			getFormDataAsEnum(formData, 'type', ClientAddressTypeEnum) ??
@@ -177,7 +174,7 @@ export default async function dataSourceConfig(): Promise<
 				entriesSelection: 'single',
 				operationFunction: (
 					values: ClientAddressFormValuesType,
-					id: number,
+					id: EntityId,
 				) => {
 					const params = prepareUpdateParams(values);
 

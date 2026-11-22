@@ -56,7 +56,7 @@
 			"confirm": "Are you sure you want to mark this user as inactive?"
 		},
 		"view": {
-			"title": "User details - {{entry}}",
+			"title": "User - {{entry}}",
 			"label": "View details"
 		},
 		"setupPermissions": {
@@ -86,7 +86,7 @@
 		"tab_api": "API docs"
 	},
 	"field": {
-		"search": "ID / Email / Name",
+		"search": "Email / Name",
 		"status": "Status",
 		"role": "Role",
 		"name": "Name",

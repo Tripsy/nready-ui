@@ -29,6 +29,7 @@ import {
 } from '@/models/stock-adjustment.model';
 import { useWindowForm } from '@/providers/window-form.provider';
 import { requestVariantStock } from '@/services/warehouse-movement.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 const TRANSLATION_KEYS = [
 	'stock-adjustment.field.warehouse',
@@ -72,8 +73,8 @@ function BooksFigure({
 	change,
 	translations,
 }: {
-	warehouseId: number;
-	variantId: number;
+	warehouseId: EntityId;
+	variantId: EntityId;
 	change: number | null;
 	translations: Readonly<Record<(typeof TRANSLATION_KEYS)[number], string>>;
 }) {

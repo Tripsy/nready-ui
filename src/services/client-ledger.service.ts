@@ -12,6 +12,7 @@ import type {
 	FindFunctionResponseType,
 } from '@/types/action.type';
 import type { ApiResponseFetch, QueryFiltersType } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The client ledger is read-only and scoped to one client by the path, which the generic
@@ -19,9 +20,9 @@ import type { ApiResponseFetch, QueryFiltersType } from '@/types/api.type';
  */
 
 /** The money moved with the client, one row per currency - received, refunded, net. */
-export async function requestClientLedgerBalance(clientId: number): Promise<
+export async function requestClientLedgerBalance(clientId: EntityId): Promise<
 	ApiResponseFetch<{
-		client_id: number;
+		client_id: EntityId;
 		balances: ClientLedgerBalanceModel[];
 	}>
 > {
@@ -37,7 +38,7 @@ export async function requestClientLedgerBalance(clientId: number): Promise<
  * keeps beside the id.
  */
 export async function requestClientLedgerEntries(
-	clientId: number,
+	clientId: EntityId,
 	params: FindFunctionParamsType,
 ): Promise<FindFunctionResponseType<ClientLedgerEntryModel> | undefined> {
 	const { client_id: _clientId, ...filter } = params.filter ?? {};

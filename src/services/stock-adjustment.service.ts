@@ -1,6 +1,7 @@
 import { ApiRequest } from '@/helpers/api.helper';
 import type { StockAdjustmentModel } from '@/models/stock-adjustment.model';
 import type { ApiResponseFetch } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * Stock adjustments - `../nready-api/src/features/warehouse-movement`
@@ -10,7 +11,7 @@ import type { ApiResponseFetch } from '@/types/api.type';
 
 /** Undoes a posted adjustment; 409 once reversed, or when the stock it added was drawn since. */
 export async function requestReverseStockAdjustment(
-	id: number,
+	id: EntityId,
 ): Promise<ApiResponseFetch<StockAdjustmentModel>> {
 	return await new ApiRequest().doFetch(`/stock-adjustments/${id}/reverse`, {
 		method: 'PATCH',

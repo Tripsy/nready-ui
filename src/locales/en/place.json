@@ -36,7 +36,7 @@
 			"confirm": "Are you sure you want to restore this place?"
 		},
 		"view": {
-			"title": "Place details - {{entry}}",
+			"title": "Place - {{entry}}",
 			"label": "View details"
 		},
 		"guide": {
@@ -61,7 +61,7 @@
 		"tab_api": "API docs"
 	},
 	"field": {
-		"search": "ID / Name",
+		"search": "Name",
 		"place_type": "Type",
 		"language": "Language",
 		"code": "Code",

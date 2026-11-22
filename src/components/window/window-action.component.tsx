@@ -18,6 +18,7 @@ import type {
 } from '@/types/action.type';
 import type { DataSourceKey } from '@/types/data-source.key';
 import { DataSourceSectionEnum } from '@/types/data-source.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { ButtonAppearanceType } from '@/types/html.type';
 import type { WindowEntryType } from '@/types/window.type';
 
@@ -107,7 +108,7 @@ export function WindowAction<WindowEntry extends WindowEntryType>({
 						)(entries[0])
 					: await (
 							operationFunction as ActionOperationMultipleFunctionType
-						)(entries.map((e) => e.id as number));
+						)(entries.map((e) => e.id as EntityId));
 
 			if (fetchResponse?.success) {
 				showToast({
@@ -129,7 +130,7 @@ export function WindowAction<WindowEntry extends WindowEntryType>({
 					windowConfig.dataSource,
 					entries
 						.map((entry) => entry.id)
-						.filter((id): id is number => typeof id === 'number'),
+						.filter((id): id is EntityId => typeof id === 'string'),
 				);
 
 				windowEvents?.success?.();

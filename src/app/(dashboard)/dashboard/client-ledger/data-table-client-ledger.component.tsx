@@ -6,6 +6,7 @@ import DataTableList from '@/app/(dashboard)/_components/data-table-list.compone
 import { DataTableProvider } from '@/app/(dashboard)/_providers/data-table.provider';
 import { BalanceClientLedger } from '@/app/(dashboard)/dashboard/client-ledger/balance-client-ledger.component';
 import { DataTableFiltersClientLedger } from '@/app/(dashboard)/dashboard/client-ledger/data-table-filters-client-ledger.component';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * No selection: an entry is append-only and carries no action of its own - what there is to see
@@ -17,7 +18,7 @@ import { DataTableFiltersClientLedger } from '@/app/(dashboard)/dashboard/client
 export const DataTableClientLedger = ({
 	initialClientId,
 }: {
-	initialClientId: number | null;
+	initialClientId: EntityId | null;
 }): JSX.Element => {
 	return (
 		<DataTableProvider dataSource="client-ledger" selectionMode={null}>

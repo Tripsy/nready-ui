@@ -6,6 +6,7 @@ import type {
 	ShippingScope,
 } from '@/models/shipping.model';
 import type { Currency, StatusTransitions } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export const InvoiceStatusEnum = {
 	DRAFT: 'draft', // Being assembled, holds no number yet, still editable
@@ -131,15 +132,15 @@ export type SellerDetails = PartyDetails & {
 };
 
 export type InvoiceLineModel<D = Date | string> = {
-	id: number;
-	invoice_id: number;
+	id: EntityId;
+	invoice_id: EntityId;
 	kind: InvoiceLineKind;
 
 	// Where the line came from; all null on an adjustment
-	order_line_id: number | null;
-	shipping_id: number | null;
+	order_line_id: EntityId | null;
+	shipping_id: EntityId | null;
 	/** On a reversal, the line of the original this one takes back. */
-	parent_line_id: number | null;
+	parent_line_id: EntityId | null;
 	/**
 	 * On a reversal, whether this line takes back value (a net price correction on goods the
 	 * client keeps) rather than quantity.
@@ -159,8 +160,8 @@ export type InvoiceLineModel<D = Date | string> = {
 	 */
 	max_quantity?: number | null;
 	max_unit_price?: number | null;
-	product_id: number | null;
-	variant_id: number | null;
+	product_id: EntityId | null;
+	variant_id: EntityId | null;
 
 	label: string;
 
@@ -189,9 +190,9 @@ export type InvoiceLineModel<D = Date | string> = {
 
 /** How much of a cash movement settles this document - gross, in the invoice currency. */
 export type InvoicePaymentModel<D = Date | string> = {
-	id: number;
-	invoice_id: number;
-	cash_flow_id: number;
+	id: EntityId;
+	invoice_id: EntityId;
+	cash_flow_id: EntityId;
 	amount: number;
 	notes: string | null;
 
@@ -201,17 +202,17 @@ export type InvoicePaymentModel<D = Date | string> = {
 };
 
 export type InvoiceModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 
 	/** Who is billed - what the client ledger and payment allocation read by. */
-	client_id: number;
+	client_id: EntityId;
 
 	/*
 	 * Null when there is no order behind the document: a revenue cash flow entry may be invoiced
 	 * on its own, and such an invoice carries a single line worth what the movement was worth
 	 * instead of the order's lines and its shipping.
 	 */
-	order_id: number | null;
+	order_id: EntityId | null;
 
 	/*
 	 * Null until the document is issued: a number is spent the moment it is handed out, so it is
@@ -221,9 +222,9 @@ export type InvoiceModel<D = Date | string> = {
 	ref_number: number | null;
 
 	/** The subscription a `subscription` document bills; null on every other type. */
-	subscription_id: number | null;
+	subscription_id: EntityId | null;
 	/** The movement a `shipping` document bills; a reversal carries its original's. */
-	shipping_id: number | null;
+	shipping_id: EntityId | null;
 
 	status: InvoiceStatus;
 	payment_status: InvoicePaymentStatus;
@@ -236,7 +237,7 @@ export type InvoiceModel<D = Date | string> = {
 	is_reversal: boolean;
 
 	/** The document a reversal takes back; null on everything else. */
-	parent_invoice_id: number | null;
+	parent_invoice_id: EntityId | null;
 
 	currency: Currency;
 	exchange_rate: number;
@@ -306,14 +307,14 @@ export type InvoiceModel<D = Date | string> = {
  * sent, nor where each line came from.
  */
 export type InvoiceDocumentModel = {
-	id: number;
+	id: EntityId;
 	ref_code: string | null;
 	ref_number: number | null;
 	status: InvoiceStatus;
 	payment_status: InvoicePaymentStatus;
 	scope: InvoiceScope;
 	is_reversal: boolean;
-	parent_invoice_id: number | null;
+	parent_invoice_id: EntityId | null;
 	currency: string;
 	total_net: number;
 	total_discount_reduction: number;
@@ -326,14 +327,14 @@ export type InvoiceDocumentModel = {
 	seller_details: SellerDetails | null;
 	/** The document a reversal takes back; null on an original. */
 	parent_invoice: {
-		id: number;
+		id: EntityId;
 		ref_code: string | null;
 		ref_number: number | null;
 		issued_at: string | null;
 	} | null;
 	/** The order billed - a shipping document's is its movement's. Null on a custom document. */
 	order: {
-		id: number;
+		id: EntityId;
 		ref_code: string;
 		ref_number: number;
 		created_at: string;
@@ -343,26 +344,26 @@ export type InvoiceDocumentModel = {
 	 * the movement shipped, before that by its warehouse or client address.
 	 */
 	shipping: {
-		id: number;
+		id: EntityId;
 		scope: ShippingScope;
-		order_id: number | null;
+		order_id: EntityId | null;
 		method: ShippingMethod;
-		pickup_client_address_id: number | null;
-		destination_client_address_id: number | null;
+		pickup_client_address_id: EntityId | null;
+		destination_client_address_id: EntityId | null;
 		pickup_client_address_label: string | null;
 		destination_client_address_label: string | null;
 		pickup_data: ShippingAddressSnapshot | null;
 		destination_data: ShippingAddressSnapshot | null;
-		pickup_warehouse: { id: number; name: string } | null;
-		destination_warehouse: { id: number; name: string } | null;
-		carrier: { id: number; name: string } | null;
+		pickup_warehouse: { id: EntityId; name: string } | null;
+		destination_warehouse: { id: EntityId; name: string } | null;
+		carrier: { id: EntityId; name: string } | null;
 		tracking_number: string | null;
 		shipped_at: string | null;
 		delivered_at: string | null;
 		estimated_delivery_at: string | null;
 	} | null;
 	lines: {
-		id: number;
+		id: EntityId;
 		kind: InvoiceLineKind;
 		is_value_reversal: boolean;
 		label: string;

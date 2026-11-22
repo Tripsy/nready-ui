@@ -43,6 +43,7 @@ import {
 	toAttributePayload,
 } from '@/models/product-category-attribute.model';
 import type { ProductVariantModel } from '@/models/product-variant.model';
+import type { EntityId } from '@/types/entity-id.type';
 import type { FormStateType, ValidatorOutput } from '@/types/form.type';
 
 const validatorMessages = [
@@ -102,7 +103,7 @@ const validatorMessages = [
  */
 export type ProductBundleComponentFormType = {
 	key: string;
-	variant_id: number;
+	variant_id: EntityId;
 	// display-only fields, not part of validation
 	sku: string;
 	label: string;
@@ -148,7 +149,7 @@ export type ProductBundleComponentFormType = {
  */
 export type ProductBundleGroupFormType = {
 	key: string;
-	label_id: number | null;
+	label_id: EntityId | null;
 	// display-only, carried so the picker can name the term without a second round trip
 	label: string;
 };
@@ -376,10 +377,10 @@ class ProductBundleValidator extends BaseValidator<typeof validatorMessages> {
 
 	/** One answer, shaped exactly as the product form's - see `product.definition.ts`. */
 	private readonly attributeEntrySchema = z.object({
-		attribute_label_id: z.number(),
+		attribute_label_id: z.string(),
 		value_type: z.string(),
 		is_required: z.boolean(),
-		terms: z.array(z.object({ id: z.number() })),
+		terms: z.array(z.object({ id: z.string() })),
 		text: z.string(),
 		boolean: z.boolean(),
 	});
@@ -414,9 +415,7 @@ class ProductBundleValidator extends BaseValidator<typeof validatorMessages> {
 	private readonly componentSchema = z
 		.object({
 			key: z.string(),
-			variant_id: z
-				.number({ message: this.getMessage('invalid_reference') })
-				.positive({ message: this.getMessage('invalid_reference') }),
+			variant_id: this.validateId(this.getMessage('invalid_reference')),
 			sku: z.string(),
 			label: z.string(),
 			quantity: this.amountSchema(
@@ -475,9 +474,7 @@ class ProductBundleValidator extends BaseValidator<typeof validatorMessages> {
 
 	// Same JSON-field reasoning as `priceSchema`: the ids arrive as numbers already.
 	private readonly refSchema = z.object({
-		id: z
-			.number({ message: this.getMessage('invalid_reference') })
-			.positive({ message: this.getMessage('invalid_reference') }),
+		id: this.validateId(this.getMessage('invalid_reference')),
 		// Carried through validation so the picker's chips survive a re-parse; stripped by
 		// `prepareProductBundleParams`, which sends the ids alone.
 		label: z.string(),
@@ -840,7 +837,10 @@ export function getProductBundleFormState(
 				 * than holding a key nothing answers to - which the panel would then render as a
 				 * blank selection and the validator refuse on save.
 				 */
-				group_key: groupKeyById.get(item.group_id ?? 0) ?? null,
+				group_key:
+					(item.group_id
+						? groupKeyById.get(item.group_id)
+						: undefined) ?? null,
 				is_optional: item.is_optional,
 				is_default: item.is_default,
 				/*

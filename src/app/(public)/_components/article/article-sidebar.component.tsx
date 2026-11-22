@@ -7,6 +7,7 @@ import {
 	getArticleContentProp,
 } from '@/models/article.model';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 export const ARTICLE_SIDEBAR_TRANSLATION_KEYS = [
 	'text.similar_articles',
@@ -108,9 +109,9 @@ export async function ArticleSidebar({
 	translations,
 }: {
 	language: Language;
-	articleId: number;
-	tagIds: number[];
-	categoryId?: number;
+	articleId: EntityId;
+	tagIds: EntityId[];
+	categoryId?: EntityId;
 	translations: ArticleSidebarTranslations;
 }) {
 	const [similar, latest] = await Promise.all([

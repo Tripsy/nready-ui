@@ -1,13 +1,14 @@
 import { ApiRequest, getResponseData } from '@/helpers/api.helper';
 import type { DiscountTargetMap } from '@/models/discount.model';
 import type { ApiResponseFetch } from '@/types/api.type';
+import type { EntityId } from '@/types/entity-id.type';
 
 /**
  * The entities a discount is linked to, grouped by scope. Scopes with no links are omitted by
  * the backend, so an absent key and an empty array mean the same thing on read.
  */
 export async function requestDiscountTargets(
-	discountId: number,
+	discountId: EntityId,
 ): Promise<DiscountTargetMap> {
 	const response: ApiResponseFetch<DiscountTargetMap> =
 		await new ApiRequest().doFetch(`/discounts/${discountId}/targets`);
@@ -22,7 +23,7 @@ export async function requestDiscountTargets(
  * array to clear one - which is what the form does for the scope it is editing.
  */
 export async function requestUpdateDiscountTargets(
-	discountId: number,
+	discountId: EntityId,
 	targets: DiscountTargetMap,
 ): Promise<ApiResponseFetch<DiscountTargetMap>> {
 	return new ApiRequest().doFetch(`/discounts/${discountId}/targets`, {

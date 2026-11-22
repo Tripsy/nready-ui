@@ -1,6 +1,7 @@
 import { Configuration } from '@/config/settings.config';
 import { capitalizeFirstLetter } from '@/helpers/string.helper';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { PageMeta } from '@/types/page-meta.type';
 
 export const CategoryStatusEnum = {
@@ -36,7 +37,7 @@ export type CategoryContentType = {
 };
 
 export type CategoryModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 	type: CategoryType;
 	status: CategoryStatus;
 	sort_order?: number;
@@ -115,7 +116,7 @@ export type CategoryTreeNode = {
 export function buildCategoryTree(
 	entries: CategoryModel[],
 ): CategoryTreeNode[] {
-	const nodes = new Map<number, CategoryTreeNode>(
+	const nodes = new Map<EntityId, CategoryTreeNode>(
 		entries.map((entry) => [
 			entry.id,
 			{ entry, children: [], isDetached: false },

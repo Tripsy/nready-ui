@@ -14,6 +14,7 @@ import {
 } from '@/models/shipping.model';
 import type { OwnClientCreateParams } from '@/services/client.service';
 import type { OwnClientAddressParams } from '@/services/client-address.service';
+import type { EntityId } from '@/types/entity-id.type';
 
 /*
  * Not `'use client'`: the page and the client components read the key tuple, and a value exported
@@ -122,7 +123,7 @@ export const CHECKOUT_NOTES_MAX = 500;
 /** Which billing entry the editor is open for, or `null` while the shopper only picks one. */
 export type BillingEditor =
 	| { mode: 'create' }
-	| { mode: 'edit'; clientId: number };
+	| { mode: 'edit'; clientId: EntityId };
 
 /**
  * The billing editor's fields, as typed. Strings throughout - an empty field is `''` here and
@@ -151,9 +152,9 @@ export type BillingErrors = Partial<
  */
 export type AddressValues = {
 	is_new: boolean;
-	address_id: number | null;
+	address_id: EntityId | null;
 	address: string;
-	city_id: number | null;
+	city_id: EntityId | null;
 	city: string;
 	street: string;
 	postal_code: string;
@@ -167,9 +168,9 @@ export type AddressErrors = Partial<
 
 export type CheckoutValues = {
 	delivery_method: ShippingMethod | null;
-	billing_address_id: number | null;
+	billing_address_id: EntityId | null;
 	/** Sent for a courier only - a pickup is collected from the warehouse. */
-	delivery_address_id: number | null;
+	delivery_address_id: EntityId | null;
 	payment_method: OrderPaymentMethod | null;
 	notes: string;
 };

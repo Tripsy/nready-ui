@@ -1,6 +1,7 @@
 import { Configuration } from '@/config/settings.config';
 import { capitalizeFirstLetter } from '@/helpers/string.helper';
 import type { Language } from '@/types/common.type';
+import type { EntityId } from '@/types/entity-id.type';
 import type { PageMeta } from '@/types/page-meta.type';
 
 export const BrandStatusEnum = {
@@ -27,7 +28,7 @@ export type BrandContentType = {
 
 // Full brand model with relations
 export type BrandModel<D = Date | string> = {
-	id: number;
+	id: EntityId;
 	name: string;
 	slug: string;
 	status: BrandStatus;

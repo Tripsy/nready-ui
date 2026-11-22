@@ -59,7 +59,7 @@
 			"confirm": "Are you sure you want to restore this client?"
 		},
 		"view": {
-			"title": "Client details - {{entry}}",
+			"title": "Client - {{entry}}",
 			"label": "View details"
 		},
 		"viewUser": {
@@ -101,7 +101,7 @@
 		"user_id": "Account",
 		"status": "Status",
 		"created_at": "Created At",
-		"search": "ID / Name / CUI / CNP",
+		"search": "Name / CUI / CNP",
 		"user": "Account",
 		"person_identification_number": "Person - CNP",
 		"iban": "IBAN",
