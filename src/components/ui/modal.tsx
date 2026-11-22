@@ -3,6 +3,9 @@ import { useCallback, useEffect } from 'react';
 import { Icons } from '@/components/icon.component';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/helpers/css.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
+
+const TRANSLATION_KEYS = ['app.window.close', 'app.window.minimize'] as const;
 
 const SizeClasses = {
 	sm: 'max-w-sm',
@@ -45,6 +48,8 @@ export function Modal({
 	closeOnBackdrop = true,
 	closeOnEscape = true,
 }: ModalProps) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const handleEscape = useCallback(
 		(e: KeyboardEvent) => {
 			if (e.key === 'Escape' && closeOnEscape) {
@@ -136,7 +141,7 @@ export function Modal({
 							className="rounded-full p-1"
 							hover="warning"
 							onClick={onMinimize}
-							aria-label="Minimize modal"
+							aria-label={translations['app.window.minimize']}
 						>
 							<Icons.Minimize />
 						</Button>
@@ -147,7 +152,7 @@ export function Modal({
 						className="rounded-full p-1"
 						hover="error"
 						onClick={onClose}
-						aria-label="Close modal"
+						aria-label={translations['app.window.close']}
 					>
 						<Icons.Close />
 					</Button>

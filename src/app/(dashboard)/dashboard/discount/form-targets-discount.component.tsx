@@ -1,16 +1,30 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import { type JSX, useEffect, useState } from 'react';
 import {
 	findTargetLabels,
+	TARGET_LABEL_KEYS,
 	TARGET_SOURCES,
 } from '@/app/(dashboard)/dashboard/discount/target-source';
 import { FormComponentAutoComplete } from '@/components/form/form-element.component';
 import { Icons } from '@/components/icon.component';
 import { requestFind } from '@/helpers/services.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import type { DiscountTargetScope } from '@/models/discount.model';
 import type { FindFunctionResponseType } from '@/types/action.type';
+
+const TRANSLATION_KEYS = [
+	'discount.text.label_remove',
+	'discount.text.label_targeted',
+	'discount.text.loading_current_targets',
+	'app.form.placeholder_search',
+	'discount.text.no_targets',
+	...TARGET_LABEL_KEYS,
+] as const;
 
 type Props = {
 	scope: DiscountTargetScope;
@@ -43,6 +57,8 @@ export function FormTargetsDiscount({
 	isLoading,
 	error,
 }: Props): JSX.Element {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const [search, setSearch] = useState('');
 	const [labels, setLabels] = useState<Record<number, string>>({});
 	const elementIds = useElementIds(['target'] as const);
@@ -123,11 +139,16 @@ export function FormTargetsDiscount({
 				Record<string, never>,
 				Record<string, unknown>
 			>
-				labelText={`Targeted ${source.label}`}
+				labelText={replaceVars(
+					translations['discount.text.label_targeted'],
+					{
+						label: translations[source.labelKey],
+					},
+				)}
 				id={elementIds.target}
 				fieldName="discount-target"
 				fieldValue={search}
-				placeholderText={`Search ${source.label.toLowerCase()}…`}
+				placeholderText={translations['app.form.placeholder_search']}
 				className="w-full pl-8"
 				disabled={disabled || isLoading || false}
 				onInputChange={setSearch}
@@ -156,7 +177,9 @@ export function FormTargetsDiscount({
 			))}
 
 			{isLoading ? (
-				<p className="text-sm text-muted">Loading current targets…</p>
+				<p className="text-sm text-muted">
+					{translations['discount.text.loading_current_targets']}
+				</p>
 			) : value.length === 0 ? (
 				// The validator says the same thing once the form is submitted; until then this
 				// is the quieter version of it.
@@ -169,7 +192,7 @@ export function FormTargetsDiscount({
 				>
 					{error?.length
 						? error.join(' ')
-						: 'No targets yet - this discount will not apply to anything.'}
+						: translations['discount.text.no_targets']}
 				</p>
 			) : (
 				<ul className="flex flex-wrap gap-2">
@@ -184,7 +207,12 @@ export function FormTargetsDiscount({
 								<span>{label}</span>
 								<button
 									type="button"
-									aria-label={`Remove ${label}`}
+									aria-label={replaceVars(
+										translations[
+											'discount.text.label_remove'
+										],
+										{ label },
+									)}
 									disabled={disabled}
 									onClick={() => removeEntry(id)}
 									className="opacity-60 hover:opacity-100"

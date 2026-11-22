@@ -20,6 +20,10 @@ import {
 	requestUpdate,
 } from '@/helpers/services.helper';
 import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import {
 	BaseValidator,
 	resolveValidatorMessages,
 	sharedValidatorMessages,
@@ -31,7 +35,6 @@ import {
 	type DocumentSeriesModel,
 	type DocumentType,
 	DocumentTypeEnum,
-	DocumentTypeLabels,
 	displayDocumentSeriesLabel,
 } from '@/models/document-series.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
@@ -157,16 +160,30 @@ export type DocumentSeriesDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<DocumentSeriesModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'view.title',
-			'delete.title',
-			'guide.title',
-		] as const,
-		'document-series.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'view.title',
+				'delete.title',
+				'guide.title',
+			] as const,
+			'document-series.action',
+		),
+		translateBatch(
+			[
+				'field.code',
+				'field.created_at',
+				'field.document_type',
+				'field.id',
+				'field.next_number',
+				'field.start_number',
+				...enumTranslationKeys('enum.document_type', DocumentTypeEnum),
+			] as const,
+			'document-series',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -197,7 +214,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -207,33 +224,36 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'document_type',
-					header: 'Document Type',
+					header: labels['field.document_type'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue:
-								DocumentTypeLabels[entry.document_type],
+							customValue: translateEnumLabel(
+								labels,
+								'enum.document_type',
+								entry.document_type,
+							),
 						}),
 				},
 				{
 					field: 'code',
-					header: 'Code',
+					header: labels['field.code'],
 					sortable: true,
 				},
 				{
 					field: 'start_number',
-					header: 'Start Number',
+					header: labels['field.start_number'],
 					defaultWidth: 128,
 				},
 				{
 					// The counter only moves through an allocation, so this is the number the
 					// next document issued against this series will carry.
 					field: 'next_number',
-					header: 'Next Number',
+					header: labels['field.next_number'],
 					defaultWidth: 128,
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							displayDate: true,

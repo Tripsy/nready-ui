@@ -9,13 +9,40 @@ import { ManagerLanguageSwitcher } from '@/components/manager-language-switcher.
 import { getLanguageClient } from '@/config/translate.setup';
 import { formatDate } from '@/helpers/date.helper';
 import { DisplayStatus } from '@/helpers/display.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type CategoryModel,
+	CategoryTypeEnum,
 	getCategoryContentProp,
 } from '@/models/category.model';
 
+const TRANSLATION_KEYS = [
+	'category.field.created_at',
+	'category.field.deleted_at',
+	'category.field.description',
+	'category.field.id',
+	'category.field.label',
+	'category.field.meta_description',
+	'category.field.meta_keywords',
+	'category.field.meta_title',
+	'category.field.parent',
+	'category.field.slug',
+	'category.field.sort_order',
+	'category.field.type',
+	'category.field.updated_at',
+	'category.section.info',
+	'category.section.timestamps',
+	'category.text.language_specific',
+	...enumTranslationKeys('category.enum.type', CategoryTypeEnum),
+] as const;
+
 export function ViewCategory({ entry }: { entry: CategoryModel }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const languageContents = Object.values(entry.contents ?? []);
 	const languages = languageContents.map((value) => value.language);
 	const [language, setLanguage] = useState(languages[0]);
@@ -27,7 +54,10 @@ export function ViewCategory({ entry }: { entry: CategoryModel }) {
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center gap-2 border-b border-line pb-4">
-				<span className="font-semibold">ID</span> {entry.id}
+				<span className="font-semibold">
+					{translations['category.field.id']}
+				</span>{' '}
+				{entry.id}
 				<div className="max-w-60 ml-2">
 					<DisplayStatus
 						status={entry.status}
@@ -36,10 +66,17 @@ export function ViewCategory({ entry }: { entry: CategoryModel }) {
 				</div>
 			</div>
 
-			<ViewSection title="Info">
-				<ViewField label="Type" value={formatEnumLabel(entry.type)} />
+			<ViewSection title={translations['category.section.info']}>
 				<ViewField
-					label="Parent"
+					label={translations['category.field.type']}
+					value={translateEnumLabel(
+						translations,
+						'category.enum.type',
+						entry.type,
+					)}
+				/>
+				<ViewField
+					label={translations['category.field.parent']}
 					value={
 						entry.parent
 							? getCategoryContentProp(
@@ -51,23 +88,23 @@ export function ViewCategory({ entry }: { entry: CategoryModel }) {
 					}
 				/>
 				<ViewField
-					label="Sort Order"
+					label={translations['category.field.sort_order']}
 					value={String(entry.sort_order ?? 0)}
 				/>
 			</ViewSection>
 
-			<ViewSection title="Timestamps">
+			<ViewSection title={translations['category.section.timestamps']}>
 				<ViewField
-					label="Created At"
+					label={translations['category.field.created_at']}
 					value={formatDate(entry.created_at, 'date-time')}
 				/>
 				<ViewField
-					label="Updated At"
+					label={translations['category.field.updated_at']}
 					value={formatDate(entry.updated_at, 'date-time')}
 				/>
 				{entry.deleted_at && (
 					<ViewField
-						label="Deleted At"
+						label={translations['category.field.deleted_at']}
 						value={
 							<span className="text-danger">
 								{formatDate(entry.deleted_at, 'date-time')}
@@ -80,29 +117,37 @@ export function ViewCategory({ entry }: { entry: CategoryModel }) {
 			{content && (
 				<div>
 					<ManagerLanguageSwitcher
-						label="Language specific"
+						label={translations['category.text.language_specific']}
 						languages={languages}
 						selected={content.language}
 						onSelect={setLanguage}
 					/>
 
 					<ViewSection>
-						<ViewField label="Label" value={content.label} />
-						<ViewField label="Slug" value={content.slug} />
 						<ViewField
-							label="Description"
+							label={translations['category.field.label']}
+							value={content.label}
+						/>
+						<ViewField
+							label={translations['category.field.slug']}
+							value={content.slug}
+						/>
+						<ViewField
+							label={translations['category.field.description']}
 							value={content.description}
 						/>
 						<ViewField
-							label="Meta - Title"
+							label={translations['category.field.meta_title']}
 							value={content.meta?.title}
 						/>
 						<ViewField
-							label="Meta - Description"
+							label={
+								translations['category.field.meta_description']
+							}
 							value={content.meta?.description}
 						/>
 						<ViewField
-							label="Meta - Keywords"
+							label={translations['category.field.meta_keywords']}
 							value={content.meta?.keywords}
 						/>
 					</ViewSection>

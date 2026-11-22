@@ -63,5 +63,38 @@
 		"tab_info": "Info",
 		"tab_api": "API docs",
 		"tab_public": "Public API"
+	},
+	"field": {
+		"search": "ID / Label / Content",
+		"language": "Language",
+		"type": "Type",
+		"label": "Label",
+		"subject": "Subject",
+		"html": "HTML Content",
+		"title": "Title",
+		"layout": "Layout",
+		"id": "ID",
+		"created_at": "Created At",
+		"updated_at": "Updated At",
+		"deleted_at": "Deleted At"
+	},
+	"text": {
+		"placeholder_label": "eg: password-recover",
+		"placeholder_subject": "eg: Recover password",
+		"placeholder_title": "eg: Terms & Conditions"
+	},
+	"section": {
+		"info": "Info",
+		"timestamps": "Timestamps",
+		"content": "Content"
+	},
+	"enum": {
+		"type": {
+			"page": "Page",
+			"email": "Email"
+		},
+		"layout_email": {
+			"default": "Default"
+		}
 	}
 }

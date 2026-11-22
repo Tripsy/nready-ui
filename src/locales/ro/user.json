@@ -84,5 +84,44 @@
 		"note": "Ștergerea unui utilizator este una logică - rândul își păstrează emailul, așa că un cont nou cu aceeași adresă eșuează până când cel vechi este restaurat sau eliminat definitiv.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"field": {
+		"search": "ID / Email / Nume",
+		"status": "Status",
+		"role": "Rol",
+		"name": "Nume",
+		"email": "Email",
+		"password": "Parolă",
+		"password_confirm": "Confirmă parola",
+		"language": "Limbă",
+		"operator_type": "Tip operator",
+		"id": "ID",
+		"created_at": "Creat la",
+		"deleted_at": "Șters la",
+		"updated_at": "Actualizat la"
+	},
+	"text": {
+		"placeholder_password_confirm": "Confirmarea parolei",
+		"entity_permissions_granted": "Toate permisiunile pentru „{{entity}}” au fost acordate",
+		"entity_permissions_revoked": "Toate permisiunile pentru „{{entity}}” au fost retrase",
+		"permission_granted": "„{{label}}” acordată",
+		"permission_revoked": "„{{label}}” retrasă"
+	},
+	"section": {
+		"profile": "Profil",
+		"account_info": "Informații cont",
+		"timestamps": "Marcaje de timp"
+	},
+	"enum": {
+		"role": {
+			"admin": "Administrator",
+			"member": "Membru",
+			"operator": "Operator"
+		},
+		"operator_type": {
+			"seller": "Furnizor",
+			"product_manager": "Manager de produs",
+			"content_editor": "Editor de conținut"
+		}
 	}
 }

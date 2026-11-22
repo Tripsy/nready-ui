@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
@@ -19,8 +21,10 @@ import {
 	toOptionsFromEnum,
 } from '@/helpers/form.helper';
 import { requestFind, requestView } from '@/helpers/services.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { hasPermission } from '@/models/account.model';
 import { type ClientModel, displayClientLabel } from '@/models/client.model';
 import { type DiscountType, DiscountTypeEnum } from '@/models/discount.model';
@@ -49,6 +53,59 @@ import type { FindFunctionResponseType } from '@/types/action.type';
 import { CurrencyEnum } from '@/types/common.type';
 import { OrderBillingAddress } from './order-billing-address.component';
 import { OrderLineBundle } from './order-line-bundle.component';
+
+const TRANSLATION_KEYS = [
+	'order.field.client',
+	'order.field.currency',
+	'order.field.discount',
+	'order.field.discount_type',
+	'order.field.item',
+	'order.field.label',
+	'order.field.net',
+	'order.field.notes',
+	'order.field.qty',
+	'order.field.quantity',
+	'order.field.unit',
+	'order.field.vat',
+	'order.field.vat_rate',
+	'order.text.add_line',
+	'order.text.loading_options',
+	'order.text.placeholder_price',
+	'order.text.remove',
+	'order.text.client_locked',
+	'order.text.this_order_has_no_lines',
+	'dashboard.text.tab_errors',
+	'order.text.discount_catalog_rules',
+	'order.text.discount_percent',
+	'order.text.discount_amount',
+	'order.text.discount_amount_currency',
+	'order.text.clamp_zero',
+	'order.text.clamp_below_min',
+	'order.text.clamp_capped',
+	'order.text.selection_any',
+	'order.text.selection_at_least',
+	'order.text.selection_exactly',
+	'order.text.selection_up_to',
+	'order.text.selection_range',
+	'order.text.variant_ref',
+	'order.text.label_remove_line',
+	'order.text.label_bundle_price',
+	'order.text.label_unit_price',
+	'order.text.label_bundle_price_currency',
+	'order.text.label_unit_price_currency',
+	'order.text.discount_value_percent',
+	'order.text.discount_value_per_unit',
+	'order.text.discount_value_amount',
+	'order.section.details',
+	'order.section.lines',
+	'order.text.discount_hint_editable',
+	'order.text.discount_hint_readonly',
+	'order.text.lines_locked_invoiced',
+	'order.text.lines_locked_confirmed',
+	'order.text.label_order_discount',
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
 
 /** One line as the form holds it, before it is sent as part of the `lines` payload. */
 export type OrderLineFormType = {
@@ -176,12 +233,28 @@ const currencies = toOptionsFromEnum(CurrencyEnum);
  */
 const DISCOUNT_TYPE_NONE = 'none';
 
-function discountTypeOptions(currency: string | null) {
+function discountTypeOptions(
+	currency: string | null,
+	translations: Readonly<Record<string, string>>,
+) {
 	return [
-		{ label: 'Catalog rules', value: DISCOUNT_TYPE_NONE },
-		{ label: 'Percent (%)', value: DiscountTypeEnum.PERCENT },
 		{
-			label: `Amount${currency ? ` (${currency})` : ''}`,
+			label: translations['order.text.discount_catalog_rules'],
+			value: DISCOUNT_TYPE_NONE,
+		},
+		{
+			label: translations['order.text.discount_percent'],
+			value: DiscountTypeEnum.PERCENT,
+		},
+		{
+			label: currency
+				? replaceVars(
+						translations['order.text.discount_amount_currency'],
+						{
+							currency,
+						},
+					)
+				: translations['order.text.discount_amount'],
 			value: DiscountTypeEnum.AMOUNT,
 		},
 	];
@@ -205,6 +278,7 @@ function describeDiscountClamp(
 	line: OrderLineFormType,
 	minPrice: number | null,
 	currency: string | null,
+	translations: Readonly<Record<string, string>>,
 ): string | null {
 	if (!line.discount_type || !line.discount_value || line.price === null) {
 		return null;
@@ -226,11 +300,16 @@ function describeDiscountClamp(
 
 	if (allowed <= 0) {
 		return minPrice === null
-			? 'The unit price is zero, so this discount takes nothing off.'
-			: `The unit price is at or below this market's minimum of ${money(minPrice)}, so this discount takes nothing off.`;
+			? translations['order.text.clamp_zero']
+			: replaceVars(translations['order.text.clamp_below_min'], {
+					min: money(minPrice),
+				});
 	}
 
-	return `Capped at ${money(allowed)} per unit - this market's minimum price is ${money(minPrice ?? 0)}.`;
+	return replaceVars(translations['order.text.clamp_capped'], {
+		allowed: money(allowed),
+		min: money(minPrice ?? 0),
+	});
 }
 
 /** An emptied number field is no figure at all, not zero. */
@@ -265,14 +344,20 @@ function suggestPrice(
  * a second time here.
  */
 function OrderLinesReadOnly({
+	translations,
 	lines,
 	currency,
 }: {
+	translations: TranslationsType;
 	readonly lines: OrderLineFormType[];
 	readonly currency: string | null;
 }) {
 	if (lines.length === 0) {
-		return <p className="text-sm text-muted">This order has no lines.</p>;
+		return (
+			<p className="text-sm text-muted">
+				{translations['order.text.this_order_has_no_lines']}
+			</p>
+		);
 	}
 
 	return (
@@ -281,21 +366,23 @@ function OrderLinesReadOnly({
 				<thead>
 					<tr className="border-b border-line text-xs uppercase tracking-wide text-muted">
 						<th className="py-2 pr-4 text-left font-medium">
-							Item
+							{translations['order.field.item']}
 						</th>
 						<th className="py-2 pr-4 text-right font-medium">
-							Qty
+							{translations['order.field.qty']}
 						</th>
 						<th className="py-2 pr-4 text-right font-medium">
-							Unit
+							{translations['order.field.unit']}
 						</th>
 						<th className="py-2 pr-4 text-right font-medium">
-							VAT
+							{translations['order.field.vat']}
 						</th>
 						<th className="py-2 pr-4 text-right font-medium">
-							Discount
+							{translations['order.field.discount']}
 						</th>
-						<th className="py-2 text-right font-medium">Net</th>
+						<th className="py-2 text-right font-medium">
+							{translations['order.field.net']}
+						</th>
 					</tr>
 				</thead>
 				<tbody className="divide-y divide-line">
@@ -304,7 +391,14 @@ function OrderLinesReadOnly({
 							<td className="py-2 pr-4 align-top">
 								<div className="font-medium">
 									{line.label ??
-										`Variant #${line.variant_id}`}
+										replaceVars(
+											translations[
+												'order.text.variant_ref'
+											],
+											{
+												id: line.variant_id ?? '',
+											},
+										)}
 								</div>
 								{line.bundle_summary && (
 									<div className="mt-1 text-xs text-muted">
@@ -373,6 +467,7 @@ function OrderLinesReadOnly({
 }
 
 function OrderLineRow({
+	translations,
 	line,
 	index,
 	currency,
@@ -383,6 +478,7 @@ function OrderLineRow({
 	onChange,
 	onRemove,
 }: {
+	translations: TranslationsType;
 	readonly line: OrderLineFormType;
 	readonly index: number;
 	readonly currency: string | null;
@@ -411,7 +507,7 @@ function OrderLineRow({
 	const clampWarning =
 		minPrice === undefined
 			? null
-			: describeDiscountClamp(line, minPrice, currency);
+			: describeDiscountClamp(line, minPrice, currency, translations);
 
 	const [search, setSearch] = useState('');
 
@@ -449,7 +545,7 @@ function OrderLineRow({
 						OrderLineFormType,
 						ProductVariantModel
 					>
-						labelText="Variant"
+						labelText={translations['order.field.label']}
 						id={elementIds[`line-${index}-variant`]}
 						fieldName="label"
 						fieldValue={line.label ?? ''}
@@ -526,7 +622,7 @@ function OrderLineRow({
 						aria-hidden="true"
 						className="invisible text-sm font-semibold"
 					>
-						Remove
+						{translations['order.text.remove']}
 					</span>
 
 					{/* `h-auto` undoes the `h-fit` the variant carries, which would otherwise
@@ -537,7 +633,12 @@ function OrderLineRow({
 						hover="error"
 						disabled={disabled}
 						onClick={onRemove}
-						aria-label={`Remove line ${index + 1}`}
+						aria-label={replaceVars(
+							translations['order.text.label_remove_line'],
+							{
+								number: index + 1,
+							},
+						)}
 						className="h-auto grow"
 					>
 						<Icons.Action.Delete className="h-4 w-4" />
@@ -547,7 +648,7 @@ function OrderLineRow({
 
 			<div className="mt-4 flex flex-wrap items-start gap-3">
 				<FormComponentInput<OrderLineFormType>
-					labelText="Quantity"
+					labelText={translations['order.field.quantity']}
 					id={elementIds[`line-${index}-quantity`]}
 					fieldName="quantity"
 					fieldValue={line.quantity ?? ''}
@@ -561,14 +662,31 @@ function OrderLineRow({
 				/>
 
 				<FormComponentInput<OrderLineFormType>
-					labelText={`${line.is_bundle ? 'Bundle price' : 'Unit price'}${currency ? ` (${currency})` : ''}`}
+					labelText={
+						currency
+							? replaceVars(
+									translations[
+										line.is_bundle
+											? 'order.text.label_bundle_price_currency'
+											: 'order.text.label_unit_price_currency'
+									],
+									{ currency },
+								)
+							: translations[
+									line.is_bundle
+										? 'order.text.label_bundle_price'
+										: 'order.text.label_unit_price'
+								]
+					}
 					id={elementIds[`line-${index}-price`]}
 					fieldName="price"
 					fieldValue={line.price ?? ''}
 					isRequired={true}
 					disabled={disabled}
 					className="w-36"
-					placeholderText="excl. VAT"
+					placeholderText={
+						translations['order.text.placeholder_price']
+					}
 					onChange={(e) =>
 						onChange({ price: Number(e.target.value) })
 					}
@@ -578,7 +696,7 @@ function OrderLineRow({
 				{/* A bundle's components each carry their own rate - the header has none */}
 				{!line.is_bundle && (
 					<FormComponentInput<OrderLineFormType>
-						labelText="VAT %"
+						labelText={translations['order.field.vat_rate']}
 						id={elementIds[`line-${index}-vat`]}
 						fieldName="vat_rate"
 						fieldValue={line.vat_rate ?? ''}
@@ -623,13 +741,13 @@ function OrderLineRow({
 				}
 			>
 				<FormComponentSelect<OrderLineFormType>
-					labelText="Discount"
+					labelText={translations['order.field.discount_type']}
 					id={elementIds[`line-${index}-discount-type`]}
 					fieldName="discount_type"
 					fieldValue={line.discount_type ?? DISCOUNT_TYPE_NONE}
 					disabled={disabled || !canDiscount}
 					className="w-40"
-					options={discountTypeOptions(currency)}
+					options={discountTypeOptions(currency, translations)}
 					onChange={(value) => {
 						const type = toDiscountType(value);
 
@@ -645,8 +763,12 @@ function OrderLineRow({
 					<FormComponentInput<OrderLineFormType>
 						labelText={
 							line.discount_type === DiscountTypeEnum.PERCENT
-								? 'Percent'
-								: 'Per unit'
+								? translations[
+										'order.text.discount_value_percent'
+									]
+								: translations[
+										'order.text.discount_value_per_unit'
+									]
 						}
 						id={elementIds[`line-${index}-discount-value`]}
 						fieldName="discount_value"
@@ -672,6 +794,7 @@ function OrderLineRow({
 
 			{line.product_id && (
 				<OrderLineOptions
+					translations={translations}
 					index={index}
 					productId={line.product_id}
 					currency={currency}
@@ -689,7 +812,7 @@ function OrderLineRow({
 			 */}
 			<div className="mt-4">
 				<FormComponentInput<OrderLineFormType>
-					labelText="Notes"
+					labelText={translations['order.field.notes']}
 					id={elementIds[`line-${index}-notes`]}
 					fieldName="notes"
 					fieldValue={line.notes ?? ''}
@@ -708,20 +831,32 @@ function OrderLineRow({
 function describeSelection(
 	minSelect: number | null,
 	maxSelect: number | null,
+	translations: Readonly<Record<string, string>>,
 ): string {
 	const min = minSelect ?? 0;
 
 	if (maxSelect === null) {
-		return min === 0 ? 'optional, any number' : `at least ${min}`;
+		return min === 0
+			? translations['order.text.selection_any']
+			: replaceVars(translations['order.text.selection_at_least'], {
+					min,
+				});
 	}
 
 	if (min === maxSelect) {
-		return `exactly ${min}`;
+		return replaceVars(translations['order.text.selection_exactly'], {
+			min,
+		});
 	}
 
 	return min === 0
-		? `optional, up to ${maxSelect}`
-		: `${min} to ${maxSelect}`;
+		? replaceVars(translations['order.text.selection_up_to'], {
+				max: maxSelect,
+			})
+		: replaceVars(translations['order.text.selection_range'], {
+				min,
+				max: maxSelect,
+			});
 }
 
 /**
@@ -736,6 +871,7 @@ function describeSelection(
  * operator types that figure with the deltas already included, as a checkout line states it.
  */
 function OrderLineOptions({
+	translations,
 	index,
 	productId,
 	currency,
@@ -744,6 +880,7 @@ function OrderLineOptions({
 	error,
 	onChange,
 }: {
+	translations: TranslationsType;
 	readonly index: number;
 	readonly productId: number;
 	readonly currency: string | null;
@@ -765,7 +902,11 @@ function OrderLineOptions({
 	});
 
 	if (isLoading) {
-		return <p className="my-4 text-sm text-muted">Loading options...</p>;
+		return (
+			<p className="my-4 text-sm text-muted">
+				{translations['order.text.loading_options']}
+			</p>
+		);
 	}
 
 	if (!groups || groups.length === 0) {
@@ -812,6 +953,7 @@ function OrderLineOptions({
 							{describeSelection(
 								group.min_select,
 								group.max_select,
+								translations,
 							)}
 							)
 						</span>
@@ -867,8 +1009,8 @@ function OrderLineOptions({
 }
 
 const FORM_TABS = [
-	{ id: 'details', label: 'Details' },
-	{ id: 'lines', label: 'Lines' },
+	{ id: 'details', labelKey: 'order.section.details' },
+	{ id: 'lines', labelKey: 'order.section.lines' },
 ] as const;
 
 type FormTabId = (typeof FORM_TABS)[number]['id'];
@@ -886,6 +1028,8 @@ const TAB_FIELDS: Record<FormTabId, readonly (keyof OrderFormValuesType)[]> = {
 };
 
 export function FormManageOrder() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<OrderFormValuesType>();
 
@@ -983,15 +1127,15 @@ export function FormManageOrder() {
 			className="w-full"
 		>
 			<TabsList>
-				{FORM_TABS.map(({ id, label }) => (
+				{FORM_TABS.map(({ id, labelKey }) => (
 					<TabsTrigger key={id} id={id}>
-						{label}
+						{translations[labelKey]}
 						{tabErrors[id] > 0 && (
 							<span className="ml-1.5 rounded-full bg-danger px-1.5 text-xs text-white">
 								{tabErrors[id]}
 								<span className="sr-only">
 									{' '}
-									field(s) need attention
+									{translations['dashboard.text.tab_errors']}
 								</span>
 							</span>
 						)}
@@ -1036,7 +1180,7 @@ export function FormManageOrder() {
 						value={formValues.client ?? ''}
 					/>
 					<FormComponentAutoComplete<OrderFormValuesType, ClientModel>
-						labelText="Client"
+						labelText={translations['order.field.client']}
 						id={elementIds.client}
 						fieldName="client"
 						fieldValue={formValues.client ?? ''}
@@ -1100,14 +1244,12 @@ export function FormManageOrder() {
 
 					{formValues.is_client_locked && (
 						<p className="text-sm text-muted">
-							The client is locked: this order already has an
-							invoice or a payment under it, and both belong to
-							that client.
+							{translations['order.text.client_locked']}
 						</p>
 					)}
 
 					<FormComponentTextarea<OrderFormValuesType>
-						labelText="Notes"
+						labelText={translations['order.field.notes']}
 						id={elementIds.notes}
 						fieldName="notes"
 						fieldValue={formValues.notes ?? ''}
@@ -1136,7 +1278,7 @@ export function FormManageOrder() {
 							 * set written under it - which is also why it locks when they do.
 							 */
 							<FormComponentSelect<OrderFormValuesType>
-								labelText="Currency"
+								labelText={translations['order.field.currency']}
 								id={elementIds.currency}
 								fieldName="currency"
 								fieldValue={formValues.currency ?? ''}
@@ -1184,7 +1326,11 @@ export function FormManageOrder() {
 					{isEditable && (
 						<div className="flex flex-wrap items-start gap-3">
 							<FormComponentSelect<OrderFormValuesType>
-								labelText="Order discount"
+								labelText={
+									translations[
+										'order.text.label_order_discount'
+									]
+								}
 								id={elementIds['discount-type']}
 								fieldName="discount_type"
 								fieldValue={
@@ -1195,6 +1341,7 @@ export function FormManageOrder() {
 								className="w-40"
 								options={discountTypeOptions(
 									formValues.currency,
+									translations,
 								)}
 								onChange={(value) => {
 									const type = toDiscountType(value);
@@ -1213,8 +1360,12 @@ export function FormManageOrder() {
 									labelText={
 										formValues.discount_type ===
 										DiscountTypeEnum.PERCENT
-											? 'Percent'
-											: 'Amount'
+											? translations[
+													'order.text.discount_value_percent'
+												]
+											: translations[
+													'order.text.discount_value_amount'
+												]
 									}
 									id={elementIds['discount-value']}
 									fieldName="discount_value"
@@ -1242,8 +1393,12 @@ export function FormManageOrder() {
 						 */
 						<p className="text-sm text-muted">
 							{canDiscount
-								? "Leave a discount on Catalog rules and the catalog's own rules apply when the order is saved. A typed discount replaces them - on a line in place of its rule, order-wide in place of a campaign - and is still clamped against each market's minimum price."
-								: "Discounts come from the catalog's own rules, applied when the order is saved and clamped against each market's minimum price. Typing one needs the order discount permission."}
+								? translations[
+										'order.text.discount_hint_editable'
+									]
+								: translations[
+										'order.text.discount_hint_readonly'
+									]}
 						</p>
 					)}
 
@@ -1261,11 +1416,16 @@ export function FormManageOrder() {
 						<>
 							<p className="text-sm text-muted">
 								{formValues.is_invoiced
-									? 'This order has been invoiced, so its lines are locked - reverse or cancel its invoice to change them.'
-									: 'An order that has been confirmed keeps the lines it was accepted with - only a pending order can have them changed.'}
+									? translations[
+											'order.text.lines_locked_invoiced'
+										]
+									: translations[
+											'order.text.lines_locked_confirmed'
+										]}
 							</p>
 
 							<OrderLinesReadOnly
+								translations={translations}
 								lines={lines}
 								currency={formValues.currency}
 							/>
@@ -1282,6 +1442,7 @@ export function FormManageOrder() {
 						<div className="flex flex-col gap-3">
 							{lines.map((line, index) => (
 								<OrderLineRow
+									translations={translations}
 									key={line.key}
 									line={line}
 									index={index}
@@ -1338,7 +1499,7 @@ export function FormManageOrder() {
 								}
 							>
 								<Icons.Action.Add className="h-4 w-4" />
-								Add line
+								{translations['order.text.add_line']}
 							</Button>
 						</div>
 					)}

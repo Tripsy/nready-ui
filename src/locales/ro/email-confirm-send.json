@@ -27,7 +27,6 @@
 	"message": {
 		"not_active": "Nu a fost găsit niciun cont care să folosească această adresă de email",
 		"not_allowed": "Acest cont nu are voie / nu are nevoie să își confirme adresa de email",
-		"success": "Succes! Emailul de confirmare a fost trimis cu succes.",
 		"failed": "Emailul de confirmare nu a putut fi trimis."
 	}
 }

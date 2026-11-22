@@ -8,7 +8,7 @@ import { StatusTransitionComment } from '@/app/(dashboard)/dashboard/comment/sta
 import { UsageGuideComment } from '@/app/(dashboard)/dashboard/comment/usage-guide-comment.component';
 import { ViewComment } from '@/app/(dashboard)/dashboard/comment/view-comment.component';
 import { Icons } from '@/components/icon.component';
-import { translateBatch } from '@/config/translate.setup';
+import { translate, translateBatch } from '@/config/translate.setup';
 import {
 	getFormDataAsBoolean,
 	getFormDataAsEnum,
@@ -20,13 +20,17 @@ import {
 	requestFind,
 	requestUpdate,
 } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	COMMENT_DEFAULT_TYPE,
 	COMMENT_STATUS_TRANSITIONS,
 	type CommentEntityType,
+	CommentEntityTypeEnum,
 	type CommentModel,
 	type CommentStatus,
 	type CommentType,
@@ -128,17 +132,41 @@ export type CommentDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<CommentModel>
 > {
-	const translations = await translateBatch(
-		[
-			'update.title',
-			'view.title',
-			'delete.title',
-			'statusTransition.title',
-			'viewUser.title',
-			'guide.title',
-		] as const,
-		'comment.action',
-	);
+	const [translations, labels, guest] = await Promise.all([
+		translateBatch(
+			[
+				'update.title',
+				'view.title',
+				'delete.title',
+				'statusTransition.title',
+				'viewUser.title',
+				'guide.title',
+			] as const,
+			'comment.action',
+		),
+		translateBatch(
+			[
+				'field.content',
+				'field.created_at',
+				'field.entity_type',
+				'field.id',
+				'field.parent_id',
+				'field.status',
+				'field.type',
+				'field.user',
+				...enumTranslationKeys('enum.type', CommentTypeEnum),
+				'text.thread_root',
+				'text.thread_reply',
+				'text.guest_named',
+				...enumTranslationKeys(
+					'enum.entity_type',
+					CommentEntityTypeEnum,
+				),
+			] as const,
+			'comment',
+		),
+		translate('dashboard.text.guest'),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -216,7 +244,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -226,15 +254,15 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'entity_type',
-					header: 'Target',
+					header: labels['field.entity_type'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: `${formatEnumLabel(entry.entity_type)} #${entry.entity_id}`,
+							customValue: `${translateEnumLabel(labels, 'enum.entity_type', entry.entity_type)} #${entry.entity_id}`,
 						}),
 				},
 				{
 					field: 'content',
-					header: 'Comment',
+					header: labels['field.content'],
 					minWidth: 260,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -245,33 +273,43 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'parent_id',
-					header: 'Thread',
+					header: labels['field.parent_id'],
 					defaultWidth: 128,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: displayCommentThread(entry),
+							customValue: displayCommentThread(entry, {
+								root: labels['text.thread_root'],
+								reply: labels['text.thread_reply'],
+							}),
 						}),
 				},
 				{
 					field: 'type',
-					header: 'Type',
+					header: labels['field.type'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							capitalize: true,
+							customValue: translateEnumLabel(
+								labels,
+								'enum.type',
+								entry.type,
+							),
 						}),
 				},
 				{
 					field: 'user_id',
-					header: 'Author',
+					header: labels['field.user'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
-							customValue: displayCommentAuthor(entry),
+							customValue: displayCommentAuthor(entry, {
+								guest,
+								guestNamed: labels['text.guest_named'],
+							}),
 							displayButton: displayButtonViewUser(auth, entry),
 						}),
 				},
 				{
 					field: 'status',
-					header: 'Status',
+					header: labels['field.status'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							dataSource: 'comment',
@@ -283,7 +321,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

@@ -13,42 +13,92 @@ import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { ReviewDataTableFiltersType } from '@/app/(dashboard)/dashboard/review/review.definition';
 import { Icons } from '@/components/icon.component';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import type { ReviewStatus } from '@/models/review.model';
 import { ReviewStatusEnum } from '@/models/review.model';
 import { displayUserLabel, type UserModel } from '@/models/user.model';
 
-const statuses = toOptionsFromEnum(ReviewStatusEnum, {
-	formatter: formatEnumLabel,
-});
-
-/**
- * The backend compares `rating_from` against the stored average with `>=`, so each option is a
- * floor rather than an exact score - "3 stars and up" is the shape a reader recognizes, and it is
- * what the query actually does.
- */
-const ratingFloors = [
-	{ label: '5 stars', value: '5' },
-	{ label: '4 stars and up', value: '4' },
-	{ label: '3 stars and up', value: '3' },
-	{ label: '2 stars and up', value: '2' },
-];
-
-/** Both flags are booleans on the backend, so the selects carry the two states as strings. */
-const pinnedStates = [
-	{ label: 'Pinned', value: 'true' },
-	{ label: 'Not pinned', value: 'false' },
-];
-
-const verifiedStates = [
-	{ label: 'Verified buyer', value: 'true' },
-	{ label: 'Not verified', value: 'false' },
-];
+const TRANSLATION_KEYS = [
+	'review.field.is_pinned',
+	'review.field.is_verified',
+	'review.field.product_id',
+	'review.field.rating_from',
+	'review.field.search',
+	'review.field.status',
+	'review.field.user',
+	'review.field.variant_id',
+	'review.text.rating_exact',
+	'review.text.rating_floor',
+	'review.text.pinned',
+	'review.text.not_pinned',
+	'review.text.verified_buyer',
+	'review.text.not_verified',
+	...enumTranslationKeys('review.status', ReviewStatusEnum),
+] as const;
 
 export const DataTableFiltersReview = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const verifiedStates = useMemo(
+		() => [
+			{
+				label: translations['review.text.verified_buyer'],
+				value: 'true',
+			},
+			{ label: translations['review.text.not_verified'], value: 'false' },
+		],
+		[translations],
+	);
+
+	const pinnedStates = useMemo(
+		() =>
+			// Both flags are booleans on the backend, so the selects carry the two states as strings
+			[
+				{ label: translations['review.text.pinned'], value: 'true' },
+				{
+					label: translations['review.text.not_pinned'],
+					value: 'false',
+				},
+			],
+		[translations],
+	);
+
+	const ratingFloors = useMemo(
+		() =>
+			// The backend compares `rating_from` against the stored average with `>=`, so each
+			// option is a floor rather than an exact score - "3 stars and up" is what the query does
+			[
+				{ label: translations['review.text.rating_exact'], value: '5' },
+				...['4', '3', '2'].map((value) => ({
+					label: replaceVars(
+						translations['review.text.rating_floor'],
+						{
+							stars: value,
+						},
+					),
+					value,
+				})),
+			],
+		[translations],
+	);
+
+	const statuses = useMemo(
+		() =>
+			toOptionsFromEnum(ReviewStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'review.status', value),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'review'>();
 
@@ -124,12 +174,12 @@ export const DataTableFiltersReview = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<ReviewDataTableFiltersType>
-				labelText="Review text"
+				labelText={translations['review.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<ReviewDataTableFiltersType>
-				labelText="Status"
+				labelText={translations['review.field.status']}
 				fieldName="status"
 				fieldValue={filters.status.value}
 				options={statuses}
@@ -139,7 +189,7 @@ export const DataTableFiltersReview = (): JSX.Element => {
 			/>
 
 			<FormFiltersSearch<ReviewDataTableFiltersType>
-				labelText="Product ID"
+				labelText={translations['review.field.product_id']}
 				fieldName="product_id"
 				search={searchProductId}
 			/>
@@ -147,13 +197,13 @@ export const DataTableFiltersReview = (): JSX.Element => {
 			{/* Reviews naming no variant drop out of the result, not only the ones naming
 			    another - the filter asks for the reviews that speak about this variant. */}
 			<FormFiltersSearch<ReviewDataTableFiltersType>
-				labelText="Variant ID"
+				labelText={translations['review.field.variant_id']}
 				fieldName="variant_id"
 				search={searchVariantId}
 			/>
 
 			<FormFiltersSelect<ReviewDataTableFiltersType>
-				labelText="Rating"
+				labelText={translations['review.field.rating_from']}
 				fieldName="rating_from"
 				fieldValue={filters.rating_from.value}
 				options={ratingFloors}
@@ -161,7 +211,7 @@ export const DataTableFiltersReview = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<ReviewDataTableFiltersType>
-				labelText="Pinned"
+				labelText={translations['review.field.is_pinned']}
 				fieldName="is_pinned"
 				fieldValue={
 					filters.is_pinned.value === null
@@ -175,7 +225,7 @@ export const DataTableFiltersReview = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<ReviewDataTableFiltersType>
-				labelText="Verified"
+				labelText={translations['review.field.is_verified']}
 				fieldName="is_verified"
 				fieldValue={
 					filters.is_verified.value === null
@@ -189,7 +239,7 @@ export const DataTableFiltersReview = (): JSX.Element => {
 			/>
 
 			<FormFiltersAutoComplete<ReviewDataTableFiltersType, UserModel>
-				labelText="Author"
+				labelText={translations['review.field.user']}
 				fieldName="user"
 				fieldNameId="user_id"
 				fieldValue={searchUser}

@@ -13,10 +13,14 @@ import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { ProductDataTableFiltersType } from '@/app/(dashboard)/dashboard/product/product.definition';
 import { Icons } from '@/components/icon.component';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import type { BrandModel } from '@/models/brand.model';
 import {
 	type ProductComposition,
@@ -29,23 +33,74 @@ import {
 	ProductWorkflowEnum,
 } from '@/models/product.model';
 
-const workflows = toOptionsFromEnum(ProductWorkflowEnum, {
-	formatter: formatEnumLabel,
-});
-
-const types = toOptionsFromEnum(ProductTypeEnum, {
-	formatter: formatEnumLabel,
-});
-
-const compositions = toOptionsFromEnum(ProductCompositionEnum, {
-	formatter: formatEnumLabel,
-});
-
-const saleStatuses = toOptionsFromEnum(ProductSaleStatusEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'product.field.brand',
+	'product.field.composition',
+	'product.field.sale_status',
+	'product.field.search',
+	'product.field.type',
+	'product.field.workflow',
+	...enumTranslationKeys('product.enum.workflow', ProductWorkflowEnum),
+	...enumTranslationKeys('product.enum.type', ProductTypeEnum),
+	...enumTranslationKeys('product.enum.composition', ProductCompositionEnum),
+	...enumTranslationKeys('product.enum.sale_status', ProductSaleStatusEnum),
+] as const;
 
 export const DataTableFiltersProduct = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const saleStatuses = useMemo(
+		() =>
+			toOptionsFromEnum(ProductSaleStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'product.enum.sale_status',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const compositions = useMemo(
+		() =>
+			toOptionsFromEnum(ProductCompositionEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'product.enum.composition',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const types = useMemo(
+		() =>
+			toOptionsFromEnum(ProductTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'product.enum.type',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const workflows = useMemo(
+		() =>
+			toOptionsFromEnum(ProductWorkflowEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'product.enum.workflow',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'product'>();
 
@@ -92,12 +147,12 @@ export const DataTableFiltersProduct = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<ProductDataTableFiltersType>
-				labelText="ID / Name / Variant SKU"
+				labelText={translations['product.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<ProductDataTableFiltersType>
-				labelText="Workflow"
+				labelText={translations['product.field.workflow']}
 				fieldName="workflow"
 				fieldValue={filters.workflow.value}
 				options={workflows}
@@ -107,7 +162,7 @@ export const DataTableFiltersProduct = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<ProductDataTableFiltersType>
-				labelText="Type"
+				labelText={translations['product.field.type']}
 				fieldName="type"
 				fieldValue={filters.type.value}
 				options={types}
@@ -117,7 +172,7 @@ export const DataTableFiltersProduct = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<ProductDataTableFiltersType>
-				labelText="Composition"
+				labelText={translations['product.field.composition']}
 				fieldName="composition"
 				fieldValue={filters.composition.value}
 				options={compositions}
@@ -129,7 +184,7 @@ export const DataTableFiltersProduct = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<ProductDataTableFiltersType>
-				labelText="Sale Status"
+				labelText={translations['product.field.sale_status']}
 				fieldName="sale_status"
 				fieldValue={filters.sale_status.value}
 				options={saleStatuses}
@@ -141,7 +196,7 @@ export const DataTableFiltersProduct = (): JSX.Element => {
 			/>
 
 			<FormFiltersAutoComplete<ProductDataTableFiltersType, BrandModel>
-				labelText="Brand"
+				labelText={translations['product.field.brand']}
 				fieldName="brand"
 				fieldNameId="brand_id"
 				fieldValue={searchBrand}

@@ -49,5 +49,11 @@
 		"note": "Deleting a permission is a soft delete and takes it away from every operator holding it, because the access check skips deleted rows. The grants themselves are left untouched, so restoring the row hands the permission back to all of them at once. An operator already signed in keeps the old access until their cached permission set is rebuilt.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"field": {
+		"search": "ID / Entity / Operation",
+		"entity": "Entity",
+		"operation": "Operation",
+		"id": "ID"
 	}
 }

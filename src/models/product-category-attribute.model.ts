@@ -123,6 +123,17 @@ export const MeasureUnitEnum = {
 export type MeasureUnit =
 	(typeof MeasureUnitEnum)[keyof typeof MeasureUnitEnum];
 
+/** The unit groups' heading keys, for a component's `TRANSLATION_KEYS`. */
+export const MEASURE_DIMENSION_KEYS = [
+	'product-category-attribute.enum.dimension.volume',
+	'product-category-attribute.enum.dimension.mass',
+	'product-category-attribute.enum.dimension.length',
+	'product-category-attribute.enum.dimension.area',
+	'product-category-attribute.enum.dimension.time',
+	'product-category-attribute.enum.dimension.power',
+	'product-category-attribute.enum.dimension.energy',
+] as const;
+
 /**
  * The unit picker, grouped the way the backend groups the units themselves. A dimension is not
  * a field on the definition - it is only how the list is offered, so a volume and a mass do not
@@ -132,11 +143,12 @@ export type MeasureUnit =
  * are deliberately not the same string.
  */
 export const MEASURE_UNIT_GROUPS: {
-	dimension: string;
+	/** The group heading's translation key - what the units measure. */
+	dimensionKey: (typeof MEASURE_DIMENSION_KEYS)[number];
 	units: { value: MeasureUnit; symbol: string }[];
 }[] = [
 	{
-		dimension: 'Volume',
+		dimensionKey: 'product-category-attribute.enum.dimension.volume',
 		units: [
 			{ value: MeasureUnitEnum.MILLILITRE, symbol: 'ml' },
 			{ value: MeasureUnitEnum.CENTILITRE, symbol: 'cl' },
@@ -147,7 +159,7 @@ export const MEASURE_UNIT_GROUPS: {
 		],
 	},
 	{
-		dimension: 'Mass',
+		dimensionKey: 'product-category-attribute.enum.dimension.mass',
 		units: [
 			{ value: MeasureUnitEnum.MILLIGRAM, symbol: 'mg' },
 			{ value: MeasureUnitEnum.GRAM, symbol: 'g' },
@@ -156,7 +168,7 @@ export const MEASURE_UNIT_GROUPS: {
 		],
 	},
 	{
-		dimension: 'Length',
+		dimensionKey: 'product-category-attribute.enum.dimension.length',
 		units: [
 			{ value: MeasureUnitEnum.MILLIMETRE, symbol: 'mm' },
 			{ value: MeasureUnitEnum.CENTIMETRE, symbol: 'cm' },
@@ -165,7 +177,7 @@ export const MEASURE_UNIT_GROUPS: {
 		],
 	},
 	{
-		dimension: 'Area',
+		dimensionKey: 'product-category-attribute.enum.dimension.area',
 		units: [
 			{ value: MeasureUnitEnum.SQUARE_MILLIMETRE, symbol: 'mm²' },
 			{ value: MeasureUnitEnum.SQUARE_CENTIMETRE, symbol: 'cm²' },
@@ -173,7 +185,7 @@ export const MEASURE_UNIT_GROUPS: {
 		],
 	},
 	{
-		dimension: 'Time',
+		dimensionKey: 'product-category-attribute.enum.dimension.time',
 		units: [
 			{ value: MeasureUnitEnum.SECOND, symbol: 's' },
 			{ value: MeasureUnitEnum.MINUTE, symbol: 'min' },
@@ -182,14 +194,14 @@ export const MEASURE_UNIT_GROUPS: {
 		],
 	},
 	{
-		dimension: 'Power',
+		dimensionKey: 'product-category-attribute.enum.dimension.power',
 		units: [
 			{ value: MeasureUnitEnum.WATT, symbol: 'W' },
 			{ value: MeasureUnitEnum.KILOWATT, symbol: 'kW' },
 		],
 	},
 	{
-		dimension: 'Energy',
+		dimensionKey: 'product-category-attribute.enum.dimension.energy',
 		units: [
 			{ value: MeasureUnitEnum.JOULE, symbol: 'J' },
 			{ value: MeasureUnitEnum.WATT_HOUR, symbol: 'Wh' },

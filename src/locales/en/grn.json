@@ -1,0 +1,134 @@
+{
+	"meta": {
+		"title": "GRN - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_warehouse_id": "Choose the warehouse the goods arrived at",
+		"invalid_vendor_id": "Choose the supplier the goods came from",
+		"invalid_supplier_document_number": "Invalid supplier document number",
+		"invalid_received_at": "Choose the day the goods arrived",
+		"invalid_currency": "Choose a currency",
+		"invalid_exchange_rate": "Invalid exchange rate",
+		"invalid_items": "Too many lines on one receipt",
+		"duplicate_variant": "A variant can appear only once per receipt - enter a second lot of it as a separate receipt",
+		"invalid_variant_id": "Choose a variant",
+		"invalid_qty": "Invalid quantity",
+		"invalid_unit_cost": "Invalid unit cost",
+		"invalid_vat_rate": "Invalid VAT rate",
+		"invalid_lot_code": "Invalid lot code"
+	},
+	"error": {
+		"cannot_update_status": "This receipt has reached a state it cannot move on from"
+	},
+	"status": {
+		"draft": "Draft",
+		"confirmed": "Confirmed",
+		"canceled": "Canceled",
+		"deleted": "Deleted"
+	},
+	"action": {
+		"create": {
+			"title": "Add new goods receipt",
+			"label": "Add",
+			"success": "Goods receipt added successfully"
+		},
+		"update": {
+			"title": "Update goods receipt - {{entry}}",
+			"label": "Update",
+			"success": "Goods receipt updated successfully"
+		},
+		"delete": {
+			"title": "Delete goods receipt - {{entry}}",
+			"label": "Delete",
+			"success": "Goods receipt deleted successfully",
+			"confirm": "Are you sure you want to delete this goods receipt?"
+		},
+		"restore": {
+			"title": "Restore goods receipt - {{entry}}",
+			"label": "Restore",
+			"success": "Goods receipt restored successfully",
+			"confirm": "Are you sure you want to restore this goods receipt?"
+		},
+		"view": {
+			"title": "GRN details - {{entry}}",
+			"label": "View details"
+		},
+		"statusTransition": {
+			"title": "Confirm or cancel - {{entry}}",
+			"label": "Change status",
+			"success": "Goods receipt status updated successfully"
+		},
+		"guide": {
+			"title": "How goods receipts work",
+			"label": "Usage guide"
+		}
+	},
+	"help": {
+		"intro": "A goods received note (GRN) is the only way stock enters a warehouse - including the stock you already hold on day one. Each line becomes a lot: these units, at this cost, received on this day. Nothing moves until the receipt is confirmed.",
+		"step_1_title": "Enter it as a draft",
+		"step_1_body": "Pick the warehouse, the supplier, the day the goods arrived and the currency of the supplier's invoice. The GRN number is allocated when you save and kept even if the receipt is later canceled. A draft can be saved without lines and changed freely, lines included - it has not touched stock yet.",
+		"step_2_title": "Add one line per variant",
+		"step_2_body": "Only variants that track stock can be received. A variant appears once per receipt; a second lot of it - another production run, another expiry date - is entered as its own receipt. A unit cost of zero is accepted for free samples. Lot code and expiry date are optional.",
+		"step_3_title": "Know how foreign currency is converted",
+		"step_3_body": "In the base currency no rate is needed. In any other, leave the rate empty to use the published rate of the receiving day, or type the rate the invoice was converted at. Each line's cost is converted once and frozen; changing the currency or the receiving day of a draft re-converts every line, but a rate you typed stays as typed - clear it to have it looked up again.",
+		"step_4_title": "Confirm it",
+		"step_4_body": "Confirming opens each line's lot, records a receipt movement per line, and re-averages each variant's cost price against the stock it already has across every warehouse. A receipt with no lines cannot be confirmed. Once confirmed, only the supplier document number and the notes can still change.",
+		"step_5_title": "Cancel it if it was wrong",
+		"step_5_body": "Canceling a draft changes nothing else. Canceling a confirmed receipt posts a reversing movement per line and takes the lots back out of the cost average - but only while no unit has left any of its lots. Once stock has been drawn from it, the correction is a return or an adjustment, not a cancel.",
+		"note": "A confirmed receipt cannot be deleted - its lots are part of the stock on hand - so cancel it instead. Drafts and canceled receipts can be deleted and restored. Search takes the GRN number, the full reference (series and number), or the supplier's document number.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
+	},
+	"field": {
+		"search": "GRN / Supplier document",
+		"id": "ID",
+		"reference": "GRN",
+		"supplier_document_number": "Supplier document",
+		"warehouse": "Warehouse",
+		"vendor": "Supplier",
+		"received_at": "Received on",
+		"confirmed_at": "Confirmed at",
+		"currency": "Currency",
+		"exchange_rate": "Exchange rate",
+		"notes": "Notes",
+		"variant": "Variant",
+		"qty": "Quantity",
+		"qty_remaining": "In stock",
+		"unit_cost": "Unit cost",
+		"unit_cost_base": "Base cost",
+		"vat_rate": "VAT %",
+		"lot_code": "Lot code",
+		"expires_at": "Expires on",
+		"status": "Status",
+		"created_at": "Created At",
+		"updated_at": "Updated At",
+		"deleted_at": "Deleted At"
+	},
+	"section": {
+		"details": "Details",
+		"items": "Lines",
+		"info": "Info",
+		"notes": "Notes",
+		"timestamps": "Timestamps"
+	},
+	"text": {
+		"add_line": "Add line",
+		"create_product": "Create product \"{{value}}\"",
+		"label_remove_line": "Remove line {{number}}",
+		"label_unit_cost_currency": "Unit cost ({{currency}})",
+		"placeholder_exchange_rate": "Published rate of the day",
+		"placeholder_supplier_document_number": "e.g.: AVZ 004512",
+		"items_hint": "One line per variant. Only variants that track stock are offered.",
+		"locked_confirmed": "This receipt is confirmed and has moved stock - only the supplier document number and the notes can still change.",
+		"no_items": "No lines yet",
+		"remove": "Remove",
+		"change_status_to": "Move this receipt to:",
+		"confirm_effect": "Opens the lots, records the stock movements and re-averages each variant's cost price.",
+		"cancel_draft_effect": "Withdraws the draft. Nothing has moved, so nothing is reversed.",
+		"cancel_confirmed_effect": "Reverses the stock movements and takes the lots out of the cost average. Refused once any unit has left the lots.",
+		"details": "Details",
+		"items": "Lines",
+		"not_confirmed": "Not confirmed",
+		"variant_ref": "Variant #{{id}}"
+	}
+}

@@ -1,0 +1,202 @@
+{
+	"meta": {
+		"title": "Retururi - Dashboard | {{app_name}}"
+	},
+	"validation": {
+		"invalid_order_id": "Alege comanda din care provin produsele",
+		"invalid_reason": "Alege motivul returului",
+		"invalid_text": "Textul este prea lung",
+		"invalid_lines": "Indică cel puțin un produs de returnat",
+		"invalid_quantity": "Cantitate invalidă",
+		"invalid_price": "Preț invalid",
+		"invalid_vat_rate": "Cotă TVA invalidă",
+		"invalid_method": "Alege modul de transport",
+		"price_vat_pair": "Indică prețul și cota TVA împreună, sau niciuna pentru un retur gratuit"
+	},
+	"error": {
+		"cannot_update_status": "Acest retur nu mai poate trece în altă stare de aici"
+	},
+	"status": {
+		"requested": "Solicitat",
+		"approved": "Aprobat",
+		"rejected": "Respins",
+		"received": "Recepționat",
+		"closed": "Închis",
+		"canceled": "Anulat",
+		"deleted": "Șters"
+	},
+	"action": {
+		"create": {
+			"title": "Adaugă retur",
+			"label": "Adaugă",
+			"success": "Retur adăugat cu succes"
+		},
+		"update": {
+			"title": "Actualizează retur - {{entry}}",
+			"label": "Actualizează",
+			"success": "Retur actualizat cu succes"
+		},
+		"approve": {
+			"title": "Aprobă retur - {{entry}}",
+			"label": "Aprobă",
+			"success": "Retur aprobat - expedierea de retur a fost creată"
+		},
+		"refund": {
+			"title": "Pregătește rambursarea - {{entry}}",
+			"label": "Pregătește rambursarea",
+			"success": "Rambursare pregătită - emite stornarea pentru a plăti banii înapoi",
+			"confirm": "Pregătești stornarea facturii pentru produsele aduse de acest retur? Nu se plătește nimic până la emiterea stornării."
+		},
+		"delete": {
+			"title": "Șterge retur - {{entry}}",
+			"label": "Șterge",
+			"success": "Retur șters cu succes",
+			"confirm": "Sigur vrei să ștergi acest retur?"
+		},
+		"restore": {
+			"title": "Restaurează retur - {{entry}}",
+			"label": "Restaurează",
+			"success": "Retur restaurat cu succes",
+			"confirm": "Sigur vrei să restaurezi acest retur?"
+		},
+		"view": {
+			"title": "Detalii retur - {{entry}}",
+			"label": "Vezi detalii"
+		},
+		"statusTransition": {
+			"title": "Respinge, anulează sau închide - {{entry}}",
+			"label": "Schimbă starea",
+			"success": "Starea returului a fost actualizată"
+		},
+		"guide": {
+			"title": "Cum funcționează retururile",
+			"label": "Ghid de utilizare"
+		}
+	},
+	"help": {
+		"intro": "Un retur este cererea unui cumpărător de a trimite înapoi produse livrate, și decizia asupra ei. Produsele circulă pe o expediere de retur, iar banii printr-o stornare a facturii - returul le leagă pe cele două.",
+		"step_1_title": "Sosește o cerere",
+		"step_1_body": "Cumpărătorii cer returul din pagina comenzii, în termenul de retur de la ultima livrare, indicând produsele și motivul. Poți adăuga și aici un retur pentru un client - termenul nu se aplică în dashboard. Fiecare produs este limitat la ce a fost livrat și nu este deja în retur.",
+		"step_2_title": "Aprobă sau respinge",
+		"step_2_body": "Aprobarea creează expedierea de retur: implicit produsele sunt ridicate de la adresa la care au fost livrate și se întorc în depozitul din care au plecat, gratuit pentru cumpărător. Indică un preț pentru a-l taxa, sau o adresă de ridicare când comanda a fost ridicată personal. Respingerea închide cererea - scrie motivul în răspuns, cumpărătorul îl vede.",
+		"step_3_title": "Recepționează produsele",
+		"step_3_body": "Deschide expedierea de retur și setează starea fiecărei linii după verificare - revandabil sau deteriorat - și corectează cantitatea la ce a sosit efectiv. Trecerea expedierii în livrat pune produsele revandabile înapoi în stoc și le casează pe cele deteriorate; este refuzată cât timp o linie nu are stare.",
+		"step_4_title": "Emite rambursarea",
+		"step_4_body": "La sosirea expedierii returul trece în recepționat și se creează o stornare ciornă a facturii comenzii pentru produsele întoarse. Verific-o în Facturi și emite-o - emiterea este cea care rambursează ce a plătit cumpărătorul. Pregătește rambursarea o recreează dacă nu s-a putut storna nimic la momentul respectiv. Când trebuie rambursată și taxa de livrare (produs greșit trimis, retragere integrală), bifeaz-o la aprobare sau la editare - se creează alături o stornare a facturii de livrare, pe valoare, astfel încât livrarea nu mai este facturată din nou.",
+		"step_5_title": "Închide-l",
+		"step_5_body": "Închide returul după ce rambursarea este decontată. Un retur poate fi anulat până când produsele pornesc înapoi; anularea unuia aprobat retrage și expedierea.",
+		"note": "Un retur aprobat a mișcat produse și bani, deci nu poate fi șters. Căutarea acceptă numărul returului sau referința completă, de ex. RMA-7.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API",
+		"tab_public": "API public"
+	},
+	"field": {
+		"search": "Număr retur",
+		"id": "ID",
+		"reference": "Retur",
+		"order": "Comandă",
+		"reason": "Motiv",
+		"customer_notes": "Mesajul cumpărătorului",
+		"response": "Răspuns pentru cumpărător",
+		"notes": "Note interne",
+		"quantity": "Cantitate",
+		"variant": "Produs",
+		"destination_warehouse": "Depozit de retur",
+		"pickup_address": "Adresă de ridicare",
+		"carrier": "Curier",
+		"method": "Mod",
+		"price": "Preț (fără TVA)",
+		"vat_rate": "TVA %",
+		"shipping": "Expediere de retur",
+		"shipping_status": "Expediere",
+		"tracking_number": "AWB",
+		"refund_shipping": "Rambursează și taxa de livrare plătită de cumpărător",
+		"refund_shipping_view": "Taxă de livrare rambursată",
+		"refunds": "Stornări ciornă",
+		"status": "Stare",
+		"decided_at": "Decis la",
+		"received_at": "Recepționat la",
+		"closed_at": "Închis la",
+		"created_at": "Creat la",
+		"updated_at": "Actualizat la",
+		"deleted_at": "Șters la"
+	},
+	"section": {
+		"info": "Info",
+		"lines": "Produse",
+		"messages": "Mesaje",
+		"shipment": "Expediere de retur",
+		"timestamps": "Date"
+	},
+	"enum": {
+		"reason": {
+			"damaged": "Deteriorat",
+			"defective": "Defect",
+			"wrong_item": "Produs greșit",
+			"not_as_described": "Nu corespunde descrierii",
+			"no_longer_needed": "Nu mai este necesar",
+			"other": "Altul"
+		},
+		"method": {
+			"courier": "Curier",
+			"self_pickup": "Adus personal"
+		}
+	},
+	"text": {
+		"pick_order_first": "Alege mai întâi comanda - produsele ei livrate apar aici.",
+		"loading_returnable": "Se încarcă ce poate fi returnat...",
+		"nothing_returnable": "Nimic din această comandă nu poate fi returnat - nicio livrare nu a sosit, sau toate produsele sunt deja în retur.",
+		"returnable_quantity": "Se poate returna: {{quantity}}",
+		"lines_hint": "Introdu câte bucăți din fiecare produs se întorc. Produsele lăsate la zero nu fac parte din retur.",
+		"lines_requested_hint": "Ce a cerut cumpărătorul să returneze. Ce a sosit efectiv, și în ce stare, se vede pe expedierea de retur.",
+		"decided_locked": "Acest retur a fost decis - doar mesajele și notele interne mai pot fi modificate.",
+		"placeholder_customer_notes": "Ce a spus cumpărătorul",
+		"placeholder_response": "Afișat cumpărătorului",
+		"placeholder_notes": "Nu este afișat cumpărătorului",
+		"placeholder_destination": "Depozitul din care au plecat",
+		"placeholder_pickup": "Adresa de livrare",
+		"placeholder_free": "Gratuit",
+		"approve_hint": "Aprobarea creează expedierea de retur. Lasă un câmp gol pentru valoarea implicită: depozitul din care au plecat produsele, adresa de livrare și fără cost pentru cumpărător.",
+		"change_status_to": "Mută acest retur în:",
+		"reject_effect": "Refuză cererea. Nu se mișcă nimic; răspunsul îi spune cumpărătorului de ce.",
+		"cancel_effect": "Retrage cererea. Nu s-a mișcat nimic, deci nu se anulează nimic.",
+		"cancel_approved_effect": "Retrage returul și expedierea lui. Refuzat odată ce produsele sunt pe drum înapoi.",
+		"close_effect": "Marchează returul ca decontat - emite mai întâi stornarea ciornă.",
+		"details": "Detalii",
+		"lines": "Produse",
+		"no_lines": "Niciun produs",
+		"no_shipment": "Încă nu există expediere de retur - se creează la aprobarea returului.",
+		"no_refunds": "Încă niciuna",
+		"variant_ref": "Produs #{{id}}"
+	},
+	"storefront": {
+		"heading": "Retururi",
+		"empty": "Nu există retururi pentru această comandă.",
+		"loading": "Se încarcă...",
+		"error": "Retururile nu au putut fi încărcate - încearcă din nou.",
+		"request": "Solicită un retur",
+		"request_title": "Solicită un retur",
+		"request_hint": "Alege produsele pe care le trimiți înapoi și spune-ne de ce. Verificăm fiecare cerere și îți spunem cum să trimiți produsele.",
+		"deadline": "Poți solicita un retur până pe {{date}}.",
+		"window_closed": "Perioada de retur pentru această comandă s-a încheiat.",
+		"nothing_returnable": "Nimic din această comandă nu mai poate fi returnat - toate produsele livrate sunt deja în retur.",
+		"reason": "Motiv",
+		"message": "Mesaj (opțional)",
+		"message_placeholder": "Ceva ce ar trebui să știm?",
+		"quantity_of": "Până la {{quantity}}",
+		"submit": "Trimite cererea",
+		"discard": "Renunță",
+		"pick_items": "Alege cel puțin un produs de returnat.",
+		"pick_reason": "Alege un motiv.",
+		"request_success": "Retur solicitat - te anunțăm după ce îl verificăm",
+		"request_failed": "Returul nu a putut fi solicitat",
+		"response": "Răspunsul nostru:",
+		"tracking": "AWB:",
+		"requested_on": "Solicitat pe {{date}}",
+		"cancel": "Retrage",
+		"cancel_title": "Retragi această cerere de retur?",
+		"cancel_confirm": "Cererea este retrasă și produsele rămân la tine. Poți cere din nou cât timp durează perioada de retur.",
+		"cancel_success": "Cererea de retur a fost retrasă",
+		"cancel_failed": "Cererea nu a putut fi retrasă"
+	}
+}

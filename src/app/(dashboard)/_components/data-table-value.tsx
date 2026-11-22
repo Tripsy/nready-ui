@@ -10,7 +10,8 @@ import {
 } from '@/helpers/display.helper';
 import { getErrorMessage } from '@/helpers/error.helper';
 import { requestView } from '@/helpers/services.helper';
-import { capitalizeFirstLetter } from '@/helpers/string.helper';
+import { capitalizeFirstLetter, replaceVars } from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { useToast } from '@/providers/toast.provider';
 import type { DataSourceKey } from '@/types/data-source.key';
 import type {
@@ -18,6 +19,8 @@ import type {
 	DataTableValueOptionsType,
 } from '@/types/data-source.type';
 import type { ButtonAppearanceType } from '@/types/html.type';
+
+const TRANSLATION_KEYS = ['dashboard.text.action_entry_failed'] as const;
 
 export const DisplayButton = <Entry,>({
 	buttonAppearance,
@@ -31,6 +34,7 @@ export const DisplayButton = <Entry,>({
 	entryOrId: Entry | number;
 }) => {
 	const { showToast } = useToast();
+	const { translations } = useTranslation(TRANSLATION_KEYS);
 
 	return (
 		<button
@@ -66,7 +70,12 @@ export const DisplayButton = <Entry,>({
 				} catch (error) {
 					showToast({
 						severity: 'error',
-						summary: `Failed to resolve entry for action "${action}"`,
+						summary: replaceVars(
+							translations['dashboard.text.action_entry_failed'],
+							{
+								action,
+							},
+						),
 						detail: getErrorMessage(error),
 					});
 				}

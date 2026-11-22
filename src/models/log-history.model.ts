@@ -27,7 +27,9 @@ export const LogHistoryEntities = [
 	'grn',
 	'image',
 	'invoice',
+	'operational_record',
 	'order',
+	'order_return',
 	'shipping',
 	'shipping_line',
 	'permission',
@@ -38,6 +40,7 @@ export const LogHistoryEntities = [
 	'template',
 	'term',
 	'user',
+	'vat_rate',
 	'vendor',
 	'warehouse',
 ];
@@ -68,14 +71,3 @@ export type LogHistoryModel<D = Date | string> = {
 
 	details?: Record<string, unknown>;
 };
-
-export function logHistoryActionMeaning(action: string) {
-	switch (action) {
-		case 'status':
-			return 'status updated';
-		case 'password_change':
-			return 'password changed';
-		default:
-			return action;
-	}
-}

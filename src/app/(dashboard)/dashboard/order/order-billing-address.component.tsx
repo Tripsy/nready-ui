@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
@@ -7,6 +9,7 @@ import {
 import { getLanguageClient } from '@/config/translate.setup';
 import { requestFind, requestView } from '@/helpers/services.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type ClientAddressModel,
 	ClientAddressTypeEnum,
@@ -18,6 +21,19 @@ import {
 	type PlaceModel,
 	PlaceTypeEnum,
 } from '@/models/place.model';
+
+const TRANSLATION_KEYS = [
+	'order.field.address_city',
+	'order.field.address_region',
+	'order.field.billing_copy',
+	'order.field.country_code',
+	'order.field.details',
+	'order.field.billing_notes',
+	'order.field.postal_code',
+	'order.section.billing_address',
+	'order.text.not_set',
+	'order.text.choose_address',
+] as const;
 
 /** The picker entries that are not an address or a country. */
 const COPY_NONE = 'none';
@@ -60,6 +76,8 @@ export function OrderBillingAddress({
 	readonly error: string[] | undefined;
 	readonly onChange: (next: OrderBillingAddressType | null) => void;
 }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const ids = useElementIds([
 		'copy',
 		'country',
@@ -140,7 +158,7 @@ export function OrderBillingAddress({
 	};
 
 	const countryOptions = [
-		{ label: 'Not set', value: COUNTRY_NONE },
+		{ label: translations['order.text.not_set'], value: COUNTRY_NONE },
 		...(countries ?? [])
 			.filter((country) => country.alpha2_code)
 			.map((country) => ({
@@ -153,16 +171,21 @@ export function OrderBillingAddress({
 
 	return (
 		<div className="space-y-4">
-			<h4 className="text-sm font-semibold">Billing address</h4>
+			<h4 className="text-sm font-semibold">
+				{translations['order.section.billing_address']}
+			</h4>
 
 			<FormComponentSelect<{ billing_copy: string }>
-				labelText="Copy from a client address"
+				labelText={translations['order.field.billing_copy']}
 				id={ids.copy}
 				fieldName="billing_copy"
 				fieldValue={COPY_NONE}
 				disabled={isLocked || !clientId || !addresses?.length}
 				options={[
-					{ label: 'Choose an address...', value: COPY_NONE },
+					{
+						label: translations['order.text.choose_address'],
+						value: COPY_NONE,
+					},
 					...(addresses ?? []).map((address) => ({
 						label: displayClientAddressLabel(address, language),
 						value: String(address.id),
@@ -172,7 +195,7 @@ export function OrderBillingAddress({
 			/>
 
 			<FormComponentInput<OrderBillingAddressType>
-				labelText="Street and number"
+				labelText={translations['order.field.details']}
 				id={ids.details}
 				fieldName="details"
 				fieldValue={current.details ?? ''}
@@ -183,7 +206,7 @@ export function OrderBillingAddress({
 
 			<div className="flex flex-wrap items-start gap-3">
 				<FormComponentInput<OrderBillingAddressType>
-					labelText="Postal code"
+					labelText={translations['order.field.postal_code']}
 					id={ids['postal-code']}
 					fieldName="postal_code"
 					fieldValue={current.postal_code ?? ''}
@@ -194,7 +217,7 @@ export function OrderBillingAddress({
 					}
 				/>
 				<FormComponentInput<OrderBillingAddressType>
-					labelText="City"
+					labelText={translations['order.field.address_city']}
 					id={ids.city}
 					fieldName="address_city"
 					fieldValue={current.address_city ?? ''}
@@ -205,7 +228,7 @@ export function OrderBillingAddress({
 					}
 				/>
 				<FormComponentInput<OrderBillingAddressType>
-					labelText="Region"
+					labelText={translations['order.field.address_region']}
 					id={ids.region}
 					fieldName="address_region"
 					fieldValue={current.address_region ?? ''}
@@ -216,7 +239,7 @@ export function OrderBillingAddress({
 					}
 				/>
 				<FormComponentSelect<OrderBillingAddressType>
-					labelText="Country"
+					labelText={translations['order.field.country_code']}
 					id={ids.country}
 					fieldName="country_code"
 					fieldValue={current.country_code ?? COUNTRY_NONE}
@@ -232,7 +255,7 @@ export function OrderBillingAddress({
 			</div>
 
 			<FormComponentInput<OrderBillingAddressType>
-				labelText="Address notes"
+				labelText={translations['order.field.billing_notes']}
 				id={ids.notes}
 				fieldName="notes"
 				fieldValue={current.notes ?? ''}

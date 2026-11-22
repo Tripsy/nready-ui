@@ -41,5 +41,27 @@
 		"note": "Nothing prunes this table on a schedule, and it holds a full copy of every mail body, so it is the fastest-growing table here on a busy deployment. Deleting is final: there is no deleted state, and the row is the only record that the mail was ever sent.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"field": {
+		"status": "Status",
+		"template": "Template",
+		"content": "Content",
+		"to": "To",
+		"id": "ID",
+		"sent_at": "Sent At",
+		"error": "Error",
+		"language": "Language",
+		"layout": "Layout",
+		"subject": "Subject",
+		"vars": "Vars",
+		"created_at": "Created At",
+		"updated_at": "Updated At",
+		"email_to": "Email To",
+		"email_from": "Email From"
+	},
+	"section": {
+		"state": "State",
+		"email_data": "Email Data",
+		"timestamps": "Timestamps"
 	}
 }

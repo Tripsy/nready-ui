@@ -1,0 +1,96 @@
+{
+	"meta": {
+		"title": "Ajustări stoc - Dashboard | {{app_name}}"
+	},
+	"action": {
+		"create": {
+			"title": "Ajustare stoc",
+			"label": "Ajustează stocul",
+			"success": "Stoc ajustat"
+		},
+		"reverse": {
+			"title": "Anulare - {{entry}}",
+			"label": "Anulează",
+			"confirm": "Anulezi această ajustare? Unitățile revin de unde au plecat, iar registrul consemnează anularea.",
+			"success": "Ajustare anulată - unitățile au revenit de unde au plecat"
+		},
+		"view": {
+			"title": "Ajustare stoc - {{entry}}",
+			"label": "Vezi detalii"
+		},
+		"guide": {
+			"title": "Cum funcționează ajustările de stoc",
+			"label": "Ghid de utilizare"
+		}
+	},
+	"field": {
+		"id": "ID",
+		"reason": "Motiv",
+		"warehouse": "Depozit",
+		"variant": "Variantă",
+		"qty": "Cantitate",
+		"status": "Stare",
+		"notes": "Note",
+		"created_at": "Creat la",
+		"reversed_at": "Anulat la",
+		"movement_type": "Mișcare",
+		"lot": "Lot",
+		"unit_cost_base": "Cost unitar (bază)",
+		"direction": "Sens"
+	},
+	"section": {
+		"info": "Ajustare",
+		"movements": "Rânduri în registru ({{length}})"
+	},
+	"status": {
+		"created": "Creată",
+		"reversed": "Anulată"
+	},
+	"enum": {
+		"direction": {
+			"add": "Adăugat",
+			"remove": "Scos"
+		},
+		"reason": {
+			"audit": "Inventar",
+			"damaged": "Deteriorat",
+			"expired": "Expirat",
+			"lost": "Pierdut",
+			"theft": "Furt",
+			"sample": "Mostră / cadou",
+			"found": "Găsit",
+			"sample_returned": "Mostră returnată",
+			"return": "Marfă returnată"
+		}
+	},
+	"text": {
+		"books_loading": "Se citește stocul curent...",
+		"placeholder_notes": "Ce s-a întâmplat, cine a numărat, unde...",
+		"no_movements": "Niciun rând în registru.",
+		"lot_ref": "Lot #{{id}}",
+		"form_hint": "Adaugă sau scoate unități dintr-un depozit. Unitățile scoase pleacă din cele mai vechi loturi; cele adăugate revin în loturi recente din care s-a vândut.",
+		"books_result": "Evidența arată {{on_hand}} în acest depozit - după ajustare, {{result}}.",
+		"placeholder_reason": "Alege un motiv"
+	},
+	"validation": {
+		"invalid_warehouse_id": "Alege un depozit",
+		"invalid_variant_id": "Alege o variantă",
+		"invalid_qty": "Cantitatea trebuie să fie mai mare decât 0, cu cel mult 2 zecimale",
+		"invalid_reason": "Alege un motiv",
+		"invalid_notes": "Notele sunt prea lungi",
+		"invalid_direction": "Alege dacă unitățile se adaugă sau se scot",
+		"reason_direction": "Acest motiv nu se potrivește cu sensul ales"
+	},
+	"help": {
+		"intro": "O ajustare de stoc adaugă sau scoate unități manual, acolo unde niciun document nu a mutat marfa: ceva s-a stricat sau a dispărut, o mostră a revenit, ori inventarul nu se potrivește cu evidența.",
+		"step_1_title": "Scoatere",
+		"step_1_body": "Alege depozitul, varianta, câte bucăți și motivul - deteriorat, expirat, pierdut, furt, mostră dată sau un inventar care a găsit mai puțin. Unitățile pleacă din cele mai vechi loturi, în aceeași ordine ca la o expediere, iar registrul consemnează fiecare lot la costul lui.",
+		"step_2_title": "Adăugare",
+		"step_2_body": "Unitățile revin - găsite, o mostră returnată, marfă returnată sau un inventar care a găsit mai mult. Intră în loturi recente din care s-a vândut; un lot nu poate depăși cantitatea cu care a intrat, deci marfa fără loc trebuie intrată printr-un NIR.",
+		"step_3_title": "Anulare",
+		"step_3_body": "O înregistrare greșită se anulează, nu se editează: unitățile revin de unde au plecat, iar registrul consemnează anularea. Unitățile adăugate nu mai pot fi retrase după ce s-au vândut - fă o ajustare nouă.",
+		"note": "Rezervările nu sunt verificate: o scoatere consemnează ce s-a întâmplat, deci poate lăsa o variantă promisă peste ce are. Fereastra de stoc a variantei arată asta ca disponibil negativ.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API"
+	}
+}

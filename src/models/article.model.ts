@@ -196,7 +196,8 @@ export function getArticleContentProp(
 	entry: ArticleModel,
 	language: Language,
 	prop: keyof Pick<ArticleContentType, 'title' | 'slug' | 'brief'> = 'title',
-	fallback: string = '[no content]',
+	// A dash, not wording: the model carries no copy, and '-' is what an empty cell reads as
+	fallback: string = '-',
 ): string {
 	if (!entry.contents?.length) {
 		return fallback;

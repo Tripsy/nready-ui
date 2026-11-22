@@ -42,11 +42,9 @@
 		"invalid_password": "Creează o parolă",
 		"password_confirm_required": "Confirmă parola",
 		"invalid_language": "Selectează o limbă validă",
-		"terms_required": "Trebuie să accepți termenii și condițiile pentru a continua",
-		"email_already_used": "Această adresă de email este deja înregistrată"
+		"terms_required": "Trebuie să accepți termenii și condițiile pentru a continua"
 	},
 	"message": {
-		"success": "Îți mulțumim pentru înregistrare! Verifică-ți emailul pentru a-ți confirma contul",
 		"pending_account": "Există deja un alt cont înregistrat cu această adresă de email."
 	}
 }

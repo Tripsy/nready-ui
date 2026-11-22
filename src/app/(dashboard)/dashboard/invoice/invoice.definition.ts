@@ -29,7 +29,11 @@ import {
 import { getStatusTransitions } from '@/helpers/model.helper';
 import { arrayHasValue } from '@/helpers/objects.helper';
 import { requestFind, requestView } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import {
 	BaseValidator,
 	resolveValidatorMessages,
@@ -42,6 +46,7 @@ import {
 	type InvoicePaymentStatus,
 	InvoicePaymentStatusEnum,
 	type InvoiceScope,
+	InvoiceScopeEnum,
 	type InvoiceStatus,
 	InvoiceStatusEnum,
 	MUTABLE_STATUSES,
@@ -157,20 +162,39 @@ export type InvoiceDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<InvoiceModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'manage.title',
-			'view.title',
-			'viewOrder.title',
-			'statusTransition.title',
-			'reverse.title',
-			'allocatePayment.title',
-			'clearPayments.title',
-			'guide.title',
-		] as const,
-		'invoice.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'manage.title',
+				'view.title',
+				'viewOrder.title',
+				'statusTransition.title',
+				'reverse.title',
+				'allocatePayment.title',
+				'clearPayments.title',
+				'guide.title',
+			] as const,
+			'invoice.action',
+		),
+		translateBatch(
+			[
+				'field.amount_outstanding',
+				'field.due_at',
+				'field.id',
+				'field.issued_at',
+				'field.order_id',
+				'field.payment_status',
+				'field.ref_number',
+				'field.scope',
+				'field.status',
+				'field.total_gross',
+				'text.scope_storno',
+				...enumTranslationKeys('enum.scope', InvoiceScopeEnum),
+			] as const,
+			'invoice',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -250,7 +274,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -262,7 +286,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'ref_number',
-					header: 'Reference',
+					header: labels['field.ref_number'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -274,18 +298,28 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'scope',
-					header: 'Scope',
+					header: labels['field.scope'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							// A reversal reads as the scope it reverses, marked as a storno
 							customValue: entry.is_reversal
-								? `${formatEnumLabel(entry.scope)} (storno)`
-								: formatEnumLabel(entry.scope),
+								? replaceVars(labels['text.scope_storno'], {
+										scope: translateEnumLabel(
+											labels,
+											'enum.scope',
+											entry.scope,
+										),
+									})
+								: translateEnumLabel(
+										labels,
+										'enum.scope',
+										entry.scope,
+									),
 						}),
 				},
 				{
 					field: 'order_id',
-					header: 'Order',
+					header: labels['field.order_id'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							// The joined order, falling back to the id when the listing was
@@ -300,7 +334,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'total_gross',
-					header: 'Total',
+					header: labels['field.total_gross'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -312,7 +346,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'amount_outstanding',
-					header: 'Outstanding',
+					header: labels['field.amount_outstanding'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							customValue:
@@ -326,7 +360,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'payment_status',
-					header: 'Payment',
+					header: labels['field.payment_status'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							dataSource: 'invoice',
@@ -337,7 +371,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'status',
-					header: 'Status',
+					header: labels['field.status'],
 					sortable: true,
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
@@ -351,7 +385,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'issued_at',
-					header: 'Issued At',
+					header: labels['field.issued_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -360,7 +394,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'due_at',
-					header: 'Due At',
+					header: labels['field.due_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

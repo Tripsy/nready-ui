@@ -1,5 +1,7 @@
+'use client';
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
 	FormComponentAutoComplete,
 	FormComponentInput,
@@ -10,18 +12,25 @@ import {
 import { Icons } from '@/components/icon.component';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
 import { requestCreate, requestFind } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	formatEnumLabel,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { resolveWindowEntries } from '@/helpers/window.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { hasPermission } from '@/models/account.model';
 import {
 	type CashFlowCategory,
 	CashFlowCategoryEnum,
+	CashFlowCategoryTypeEnum,
 	type CashFlowMethod,
 	CashFlowMethodEnum,
-	filterGroupedCategories,
 	getOperationalRecordOptions,
+	groupedCategoryOptions,
 	type OperationalRecordType,
 	OperationalRecordTypeEnum,
 } from '@/models/cash-flow.model';
@@ -49,6 +58,27 @@ import type { ApiResponseFetch } from '@/types/api.type';
 import { type Currency, CurrencyEnum } from '@/types/common.type';
 import type { FormErrorsType } from '@/types/form.type';
 
+const TRANSLATION_KEYS = [
+	'cash-flow.field.net_amount',
+	'cash-flow.field.category',
+	'cash-flow.field.client',
+	'cash-flow.field.currency',
+	'cash-flow.field.external_reference',
+	'cash-flow.field.method',
+	'cash-flow.field.notes',
+	'cash-flow.field.order',
+	'cash-flow.field.vat_rate',
+	'cash-flow.field.vendor',
+	'cash-flow.text.operational_records',
+	'cash-flow.text.create_vendor',
+	...enumTranslationKeys('cash-flow.enum.method', CashFlowMethodEnum),
+	...enumTranslationKeys(
+		'cash-flow.enum.category_type',
+		CashFlowCategoryTypeEnum,
+	),
+	...enumTranslationKeys('cash-flow.enum.category', CashFlowCategoryEnum),
+] as const;
+
 export type CashFlowFormValuesType = {
 	category: CashFlowCategory;
 	method: CashFlowMethod;
@@ -72,19 +102,48 @@ export type CashFlowFormValuesType = {
 	order: string | null;
 };
 
-const groupedCategories = filterGroupedCategories([
-	CashFlowCategoryEnum.REFUND,
-]);
-
-const methods = toOptionsFromEnum(CashFlowMethodEnum, {
-	formatter: formatEnumLabel,
-});
-
 const currencies = toOptionsFromEnum(CurrencyEnum, {
 	formatter: formatEnumLabel,
 });
 
 export function FormManageCashFlow({ action }: { action: string }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const groupedCategories = useMemo(
+		() =>
+			groupedCategoryOptions(
+				{
+					type: (value) =>
+						translateEnumLabel(
+							translations,
+							'cash-flow.enum.category_type',
+							value,
+						),
+					category: (value) =>
+						translateEnumLabel(
+							translations,
+							'cash-flow.enum.category',
+							value,
+						),
+				},
+				[CashFlowCategoryEnum.REFUND],
+			),
+		[translations],
+	);
+
+	const methods = useMemo(
+		() =>
+			toOptionsFromEnum(CashFlowMethodEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'cash-flow.enum.method',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const queryClient = useQueryClient();
 
 	const { getCurrentWindow } = useModalStore();
@@ -314,7 +373,7 @@ export function FormManageCashFlow({ action }: { action: string }) {
 
 			{action !== 'refund' && (
 				<FormComponentSelect<CashFlowFormValuesType>
-					labelText="Category"
+					labelText={translations['cash-flow.field.category']}
 					id={elementIds.category}
 					fieldName="category"
 					fieldValue={formValues.category}
@@ -329,7 +388,7 @@ export function FormManageCashFlow({ action }: { action: string }) {
 			)}
 
 			<FormComponentSelect<CashFlowFormValuesType>
-				labelText="Method"
+				labelText={translations['cash-flow.field.method']}
 				id={elementIds.method}
 				fieldName="method"
 				fieldValue={formValues.method}
@@ -344,7 +403,7 @@ export function FormManageCashFlow({ action }: { action: string }) {
 
 			<div className="flex flex-wrap gap-2">
 				<FormComponentInput<CashFlowFormValuesType>
-					labelText="Net Amount"
+					labelText={translations['cash-flow.field.net_amount']}
 					id={elementIds.amount}
 					fieldName="amount"
 					fieldType="number"
@@ -363,7 +422,7 @@ export function FormManageCashFlow({ action }: { action: string }) {
 				/>
 
 				<FormComponentInput<CashFlowFormValuesType>
-					labelText="Vat Rate"
+					labelText={translations['cash-flow.field.vat_rate']}
 					id={elementIds.vatRate}
 					fieldName="vat_rate"
 					fieldType="number"
@@ -383,7 +442,7 @@ export function FormManageCashFlow({ action }: { action: string }) {
 			</div>
 
 			<FormComponentRadio<CashFlowFormValuesType>
-				labelText="Currency"
+				labelText={translations['cash-flow.field.currency']}
 				id={elementIds.currency}
 				fieldName="currency"
 				fieldValue={formValues.currency}
@@ -396,7 +455,7 @@ export function FormManageCashFlow({ action }: { action: string }) {
 			/>
 
 			<FormComponentInput<CashFlowFormValuesType>
-				labelText="External Reference"
+				labelText={translations['cash-flow.field.external_reference']}
 				id={elementIds.externalReference}
 				fieldName="external_reference"
 				fieldValue={formValues.external_reference ?? ''}
@@ -409,7 +468,7 @@ export function FormManageCashFlow({ action }: { action: string }) {
 			/>
 
 			<FormComponentTextarea<CashFlowFormValuesType>
-				labelText="Notes"
+				labelText={translations['cash-flow.field.notes']}
 				id={elementIds.notes}
 				fieldName="notes"
 				fieldValue={formValues.notes ?? ''}
@@ -421,7 +480,7 @@ export function FormManageCashFlow({ action }: { action: string }) {
 			/>
 
 			<div className="font-semibold pb-2 border-b">
-				Operational records
+				{translations['cash-flow.text.operational_records']}
 			</div>
 
 			{operationalRecordOptions.client && (
@@ -436,7 +495,7 @@ export function FormManageCashFlow({ action }: { action: string }) {
 						CashFlowFormValuesType,
 						ClientModel
 					>
-						labelText="Client"
+						labelText={translations['cash-flow.field.client']}
 						id={elementIds.client}
 						fieldName="client"
 						fieldValue={formValues.client ?? ''}
@@ -488,7 +547,7 @@ export function FormManageCashFlow({ action }: { action: string }) {
 						CashFlowFormValuesType,
 						VendorModel
 					>
-						labelText="Vendor"
+						labelText={translations['cash-flow.field.vendor']}
 						id={elementIds.vendor}
 						fieldName="vendor"
 						fieldValue={formValues.vendor ?? ''}
@@ -545,7 +604,13 @@ export function FormManageCashFlow({ action }: { action: string }) {
 								await invalidateVendorSuggestions();
 							},
 
-							createLabel: (value) => `Create vendor "${value}"`,
+							createLabel: (value) =>
+								replaceVars(
+									translations[
+										'cash-flow.text.create_vendor'
+									],
+									{ value: value },
+								),
 						}}
 						icons={{
 							left: (
@@ -568,7 +633,7 @@ export function FormManageCashFlow({ action }: { action: string }) {
 						CashFlowFormValuesType,
 						OrderModel
 					>
-						labelText="Order"
+						labelText={translations['cash-flow.field.order']}
 						id={elementIds.order}
 						fieldName="order"
 						fieldValue={formValues.order ?? ''}

@@ -21,14 +21,6 @@
 			"label": "Ghid de utilizare"
 		}
 	},
-	"issue": {
-		"variant_gone": "Produs scos din catalog",
-		"not_sellable": "În afara perioadei de disponibilitate",
-		"no_price": "Fără preț în această monedă",
-		"option_gone": "O opțiune aleasă nu mai există",
-		"option_selection": "Opțiunile alese nu mai corespund cu ce cere acest produs",
-		"bundle_changed": "Acest pachet s-a modificat de când a fost adăugat"
-	},
 	"help": {
 		"intro": "Coșurile sunt completate de cumpărători în magazin - nimic de aici nu creează și nu modifică unul. Ecranul acesta este pentru consultare: ce au oamenii în coș chiar acum și cât i-ar costa.",
 		"step_1_title": "Prețurile de aici nu sunt stocate",
@@ -62,13 +54,9 @@
 		"remove_failed": "Linia nu a putut fi eliminată",
 		"update_failed": "Cantitatea nu a putut fi modificată",
 		"open": "Deschide coșul",
-		"items_one": "1 produs",
-		"items_other": "{{count}} produse",
-		"subtotal": "Subtotal",
 		"products_cost": "Cost produse",
 		"discount": "Reducere",
 		"delivery_cost": "Cost livrare",
-		"vat": "TVA",
 		"vat_included": "TVA inclus:",
 		"total": "Total",
 		"go_to_cart": "Vezi coșul",
@@ -76,9 +64,57 @@
 		"continue_shopping": "Continuă cumpărăturile",
 		"has_issues": "Unele linii nu mai pot fi cumpărate. Elimină-le ca să continui.",
 		"bundle_changed": "Acest pachet s-a schimbat de când l-ai adăugat - elimină-l și adaugă-l din nou.",
+		"insufficient_stock": "Doar {{available}} în stoc - micșorează cantitatea pentru a continua.",
+		"out_of_stock": "Stoc epuizat - elimină produsul pentru a continua.",
+		"insufficient_stock_bundle": "O parte din acest pachet nu mai este în stoc - elimină-l pentru a continua.",
+		"stock_low": "Doar {{available}} rămase",
 		"loading": "Se încarcă…",
 		"checkout_sign_in_hint": "Vei fi rugat să te autentifici sau să îți creezi un cont - coșul tău rămâne cu tine.",
 		"meta_title": "Coșul tău | {{app_name}}",
 		"delivery_at_checkout": "Calculat la finalizarea comenzii"
+	},
+	"field": {
+		"id": "ID",
+		"user_id": "ID utilizator",
+		"currency": "Monedă",
+		"expires_at": "Expiră la",
+		"updated_at": "Ultima activitate",
+		"created_at": "Creat la",
+		"shopper": "Cumpărător",
+		"item": "Articol",
+		"qty": "Cant.",
+		"unit": "Unitate",
+		"vat": "TVA",
+		"discount": "Reducere",
+		"total": "Total",
+		"subtotal_excl_vat": "Subtotal (fără TVA)",
+		"exchange_rate": "Curs valutar",
+		"checkout": "Finalizare comandă"
+	},
+	"text": {
+		"bundle": "Pachet",
+		"this_cart_is_empty": "Coșul este gol.",
+		"prices_are_resolved_from_the_catalog": "Prețurile sunt calculate din catalog când se deschide această fereastră și nu sunt salvate în coș - reprezintă cât ar costa aceste linii acum.",
+		"variant_ref": "Varianta #{{id}}",
+		"product_variant_ref": "Produs #{{product}} · Varianta #{{variant}}",
+		"base_price": "bază {{price}}",
+		"checkout_blocked": "Blocată - unele linii nu mai pot fi cumpărate",
+		"user_ref": "Utilizator #{{id}}"
+	},
+	"section": {
+		"cart": "Coș",
+		"lines": "Linii",
+		"pricing": "Prețuri"
+	},
+	"enum": {
+		"issue": {
+			"variant_gone": "Variantă indisponibilă",
+			"not_sellable": "Nu se poate vinde",
+			"no_price": "Fără preț",
+			"option_gone": "Opțiune indisponibilă",
+			"option_selection": "Selecție de opțiuni invalidă",
+			"bundle_changed": "Pachet modificat",
+			"insufficient_stock": "Stoc insuficient"
+		}
 	}
 }

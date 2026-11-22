@@ -1,4 +1,6 @@
-import { useState } from 'react';
+'use client';
+
+import { useMemo, useState } from 'react';
 import type { ProductCategoryAttributeFormValuesType } from '@/app/(dashboard)/dashboard/product-category-attribute/product-category-attribute.definition';
 import {
 	FormComponentAutoComplete,
@@ -14,12 +16,16 @@ import { toOptionsFromEnum } from '@/helpers/form.helper';
 import { requestFind } from '@/helpers/services.helper';
 import {
 	capitalizeFirstLetter,
-	formatEnumLabel,
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
 } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { hasPermission } from '@/models/account.model';
 import {
+	MEASURE_DIMENSION_KEYS,
 	MEASURE_UNIT_GROUPS,
 	type MeasureUnit,
 	type ProductCategoryAttributeScope,
@@ -42,22 +48,42 @@ import type { FindFunctionResponseType } from '@/types/action.type';
 import type { Language } from '@/types/common.type';
 import { DataSourceSectionEnum } from '@/types/data-source.type';
 
-const scopes = toOptionsFromEnum(ProductCategoryAttributeScopeEnum, {
-	formatter: formatEnumLabel,
-});
-
-const captureTypes = toOptionsFromEnum(ProductCategoryAttributeTypeEnum, {
-	formatter: formatEnumLabel,
-});
-
-/** The units, grouped by what they measure - a flat list of twenty-five reads as noise. */
-const unitOptions: GroupedOptionsType = MEASURE_UNIT_GROUPS.map((group) => ({
-	label: group.dimension,
-	options: group.units.map((unit) => ({
-		label: unit.symbol,
-		value: unit.value,
-	})),
-}));
+const TRANSLATION_KEYS = [
+	'product-category-attribute.field.attribute_label',
+	'product-category-attribute.field.category_id',
+	'product-category-attribute.field.inherit',
+	'product-category-attribute.field.is_filterable',
+	'product-category-attribute.field.is_required',
+	'product-category-attribute.field.max_value',
+	'product-category-attribute.field.min_value',
+	'product-category-attribute.field.options',
+	'product-category-attribute.field.prefix',
+	'product-category-attribute.field.scope',
+	'product-category-attribute.field.suffix',
+	'product-category-attribute.field.type',
+	'product-category-attribute.field.unit',
+	'product-category-attribute.field.value_type',
+	'product-category-attribute.text.a_list_has_to_offer_something',
+	'product-category-attribute.text.placeholder_max_value',
+	'product-category-attribute.text.placeholder_min_value',
+	'product-category-attribute.text.placeholder_prefix',
+	'product-category-attribute.text.placeholder_suffix',
+	'product-category-attribute.text.create_attribute_label',
+	'product-category-attribute.text.create_value',
+	...enumTranslationKeys(
+		'product-category-attribute.enum.scope',
+		ProductCategoryAttributeScopeEnum,
+	),
+	...enumTranslationKeys(
+		'product-category-attribute.enum.type',
+		ProductCategoryAttributeTypeEnum,
+	),
+	...enumTranslationKeys(
+		'product-category-attribute.enum.value_type',
+		ProductCategoryAttributeValueTypeEnum,
+	),
+	...MEASURE_DIMENSION_KEYS,
+] as const;
 
 /**
  * A label term as the form shows it. The wording is stored lower-cased on purpose - see
@@ -68,6 +94,47 @@ function displayAttributeTerm(entry: TermModel, language: Language): string {
 }
 
 export function FormManageProductCategoryAttribute() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	/** The units, grouped by what they measure - a flat list of twenty-five reads as noise. */
+	const unitOptions: GroupedOptionsType = useMemo(
+		() =>
+			MEASURE_UNIT_GROUPS.map((group) => ({
+				label: translations[group.dimensionKey],
+				options: group.units.map((unit) => ({
+					label: unit.symbol,
+					value: unit.value,
+				})),
+			})),
+		[translations],
+	);
+
+	const captureTypes = useMemo(
+		() =>
+			toOptionsFromEnum(ProductCategoryAttributeTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'product-category-attribute.enum.type',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const scopes = useMemo(
+		() =>
+			toOptionsFromEnum(ProductCategoryAttributeScopeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'product-category-attribute.enum.scope',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { formOperation, formValues, errors, handleChange, pending } =
 		useWindowForm<ProductCategoryAttributeFormValuesType>();
 
@@ -138,7 +205,11 @@ export function FormManageProductCategoryAttribute() {
 	/** Only the storages this capture admits - the rest fail the table's own check. */
 	const valueTypeOptions = VALUE_TYPES_BY_TYPE[formValues.type].map(
 		(valueType) => ({
-			label: formatEnumLabel(valueType),
+			label: translateEnumLabel(
+				translations,
+				'product-category-attribute.enum.value_type',
+				valueType,
+			),
 			value: valueType,
 		}),
 	);
@@ -237,7 +308,11 @@ export function FormManageProductCategoryAttribute() {
 			 */}
 			{isCreate && formValues.category_options.length > 0 && (
 				<FormComponentSelect<ProductCategoryAttributeFormValuesType>
-					labelText="Declared by"
+					labelText={
+						translations[
+							'product-category-attribute.field.category_id'
+						]
+					}
 					id={elementIds.category_id}
 					fieldName="category_id"
 					fieldValue={
@@ -271,7 +346,11 @@ export function FormManageProductCategoryAttribute() {
 					ProductCategoryAttributeFormValuesType,
 					TermModel
 				>
-					labelText="Attribute label"
+					labelText={
+						translations[
+							'product-category-attribute.field.attribute_label'
+						]
+					}
 					id={elementIds.attribute_label}
 					fieldName="attribute_label"
 					fieldValue={formValues.attribute_label ?? ''}
@@ -303,7 +382,12 @@ export function FormManageProductCategoryAttribute() {
 						allowCreate: isCreate && canCreateTerm,
 						onCreate: createLabelTerm,
 						createLabel: (value) =>
-							`Create attribute label "${value}"`,
+							replaceVars(
+								translations[
+									'product-category-attribute.text.create_attribute_label'
+								],
+								{ value: value },
+							),
 					}}
 					icons={{
 						left: <Icons.Tag className="opacity-40 h-4.5 w-4.5" />,
@@ -311,7 +395,9 @@ export function FormManageProductCategoryAttribute() {
 				/>
 
 				<FormComponentSelect<ProductCategoryAttributeFormValuesType>
-					labelText="Scope"
+					labelText={
+						translations['product-category-attribute.field.scope']
+					}
 					id={elementIds.scope}
 					fieldName="scope"
 					fieldValue={formValues.scope}
@@ -329,7 +415,9 @@ export function FormManageProductCategoryAttribute() {
 
 			<div className="form-section">
 				<FormComponentSelect<ProductCategoryAttributeFormValuesType>
-					labelText="Capture"
+					labelText={
+						translations['product-category-attribute.field.type']
+					}
 					id={elementIds.type}
 					fieldName="type"
 					fieldValue={formValues.type}
@@ -354,7 +442,11 @@ export function FormManageProductCategoryAttribute() {
 				/>
 
 				<FormComponentSelect<ProductCategoryAttributeFormValuesType>
-					labelText="Stored as"
+					labelText={
+						translations[
+							'product-category-attribute.field.value_type'
+						]
+					}
 					id={elementIds.value_type}
 					fieldName="value_type"
 					fieldValue={formValues.value_type}
@@ -372,7 +464,11 @@ export function FormManageProductCategoryAttribute() {
 			{isNumber && (
 				<div className="form-section">
 					<FormComponentSelect<ProductCategoryAttributeFormValuesType>
-						labelText="Unit"
+						labelText={
+							translations[
+								'product-category-attribute.field.unit'
+							]
+						}
 						id={elementIds.unit}
 						fieldName="unit"
 						fieldValue={formValues.unit ?? ''}
@@ -393,11 +489,19 @@ export function FormManageProductCategoryAttribute() {
 					 * the backend converts both through the same factor before comparing.
 					 */}
 					<FormComponentInput<ProductCategoryAttributeFormValuesType>
-						labelText="Minimum"
+						labelText={
+							translations[
+								'product-category-attribute.field.min_value'
+							]
+						}
 						id={elementIds.min_value}
 						fieldName="min_value"
 						fieldValue={formValues.min_value ?? ''}
-						placeholderText="e.g.: 100"
+						placeholderText={
+							translations[
+								'product-category-attribute.text.placeholder_min_value'
+							]
+						}
 						disabled={pending}
 						onChange={(event) =>
 							handleChange('min_value', event.target.value)
@@ -406,11 +510,19 @@ export function FormManageProductCategoryAttribute() {
 					/>
 
 					<FormComponentInput<ProductCategoryAttributeFormValuesType>
-						labelText="Maximum"
+						labelText={
+							translations[
+								'product-category-attribute.field.max_value'
+							]
+						}
 						id={elementIds.max_value}
 						fieldName="max_value"
 						fieldValue={formValues.max_value ?? ''}
-						placeholderText="e.g.: 5000"
+						placeholderText={
+							translations[
+								'product-category-attribute.text.placeholder_max_value'
+							]
+						}
 						disabled={pending}
 						onChange={(event) =>
 							handleChange('max_value', event.target.value)
@@ -422,11 +534,17 @@ export function FormManageProductCategoryAttribute() {
 
 			<div className="form-section">
 				<FormComponentInput<ProductCategoryAttributeFormValuesType>
-					labelText="Prefix"
+					labelText={
+						translations['product-category-attribute.field.prefix']
+					}
 					id={elementIds.prefix}
 					fieldName="prefix"
 					fieldValue={formValues.prefix ?? ''}
-					placeholderText="e.g.: class"
+					placeholderText={
+						translations[
+							'product-category-attribute.text.placeholder_prefix'
+						]
+					}
 					disabled={pending}
 					onChange={(event) =>
 						handleChange('prefix', event.target.value)
@@ -440,11 +558,17 @@ export function FormManageProductCategoryAttribute() {
 				 * two answers to what follows the number.
 				 */}
 				<FormComponentInput<ProductCategoryAttributeFormValuesType>
-					labelText="Suffix"
+					labelText={
+						translations['product-category-attribute.field.suffix']
+					}
 					id={elementIds.suffix}
 					fieldName="suffix"
 					fieldValue={formValues.suffix ?? ''}
-					placeholderText="e.g.: pcs"
+					placeholderText={
+						translations[
+							'product-category-attribute.text.placeholder_suffix'
+						]
+					}
 					disabled={pending || !!formValues.unit}
 					onChange={(event) =>
 						handleChange('suffix', event.target.value)
@@ -455,7 +579,9 @@ export function FormManageProductCategoryAttribute() {
 
 			{isTerm && (
 				<FormPickerRefs<TermModel>
-					labelText="Admissible values"
+					labelText={
+						translations['product-category-attribute.field.options']
+					}
 					fieldName="options"
 					dataSource="term"
 					filter={{ type: TermTypeEnum.ATTRIBUTE_VALUE, language }}
@@ -491,7 +617,11 @@ export function FormManageProductCategoryAttribute() {
 						/>
 					}
 					queryKeyPrefix="s-attribute-value"
-					emptyText="A list has to offer something - add at least one value."
+					emptyText={
+						translations[
+							'product-category-attribute.text.a_list_has_to_offer_something'
+						]
+					}
 					// The set-wide rules report here; a single entry has no field of its own.
 					error={errors.options_rule}
 					isRequired={true}
@@ -506,7 +636,12 @@ export function FormManageProductCategoryAttribute() {
 										],
 									}),
 									createLabel: (typedValue) =>
-										`Create value "${typedValue}"`,
+										replaceVars(
+											translations[
+												'product-category-attribute.text.create_value'
+											],
+											{ value: typedValue },
+										),
 								}
 							: undefined
 					}
@@ -523,7 +658,11 @@ export function FormManageProductCategoryAttribute() {
 						handleChange('is_required', value)
 					}
 				>
-					Product attribute value is required
+					{
+						translations[
+							'product-category-attribute.field.is_required'
+						]
+					}
 				</FormComponentCheckbox>
 
 				{/*
@@ -539,7 +678,11 @@ export function FormManageProductCategoryAttribute() {
 						handleChange('is_filterable', value)
 					}
 				>
-					Is a catalog filter
+					{
+						translations[
+							'product-category-attribute.field.is_filterable'
+						]
+					}
 				</FormComponentCheckbox>
 
 				{/*
@@ -554,7 +697,7 @@ export function FormManageProductCategoryAttribute() {
 					disabled={pending}
 					onCheckedChange={(value) => handleChange('inherit', value)}
 				>
-					Sub-categories inherit it
+					{translations['product-category-attribute.field.inherit']}
 				</FormComponentCheckbox>
 			</div>
 		</>

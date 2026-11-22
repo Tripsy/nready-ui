@@ -25,10 +25,22 @@ export type CronHistoryDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<CronHistoryModel>
 > {
-	const translations = await translateBatch(
-		['view.title', 'delete.title', 'guide.title'] as const,
-		'cron-history.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			['view.title', 'delete.title', 'guide.title'] as const,
+			'cron-history.action',
+		),
+		translateBatch(
+			[
+				'field.id',
+				'field.label',
+				'field.start_at',
+				'field.status',
+				'field.run_time',
+			] as const,
+			'cron-history',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -59,7 +71,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -69,12 +81,12 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'label',
-					header: 'Label',
+					header: labels['field.label'],
 					sortable: true,
 				},
 				{
 					field: 'start_at',
-					header: 'Start At',
+					header: labels['field.start_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -83,7 +95,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'status',
-					header: 'Status',
+					header: labels['field.status'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							isStatus: true,
@@ -94,7 +106,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'run_time',
-					header: 'Run time',
+					header: labels['field.run_time'],
 				},
 			],
 			find: (params: FindFunctionParamsType) =>

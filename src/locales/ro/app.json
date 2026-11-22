@@ -1,6 +1,5 @@
 {
 	"name": "{{app_name}}",
-	"description": "{{app_name}}",
 	"page": {
 		"not_found": "{{app_name}} - Pagină negăsită"
 	},
@@ -27,7 +26,8 @@
 	},
 	"info": {
 		"generic": "Nimic de raportat aici.",
-		"account_delete": "Hei ..nu îți mai știu numele! Îți mulțumim că ai fost alături de noi. Contul tău a fost marcat pentru ștergere. Toate datele asociate contului vor fi eliminate din baza noastră de date în 5–30 de zile. Ești oricând binevenit să îți creezi un cont nou."
+		"account_delete": "Hei ..nu îți mai știu numele! Îți mulțumim că ai fost alături de noi. Contul tău a fost marcat pentru ștergere. Toate datele asociate contului vor fi eliminate din baza noastră de date în 5–30 de zile. Ești oricând binevenit să îți creezi un cont nou.",
+		"title": "Info"
 	},
 	"status": {
 		"active": "Activ",
@@ -61,5 +61,26 @@
 			"title": "Trimite",
 			"label": "Trimite"
 		}
+	},
+	"form": {
+		"hours_short": "Ora",
+		"minutes_short": "Min",
+		"searching": "Se caută...",
+		"no_results": "Niciun rezultat",
+		"create_value": "Creează „{{value}}”",
+		"placeholder_name": "ex.: Ion Popescu",
+		"placeholder_email": "ex.: exemplu@domeniu.ro",
+		"placeholder_password": "Parolă",
+		"placeholder_search": "Caută…"
+	},
+	"window": {
+		"close_all_confirm": "Închizi toate ferestrele deschise?",
+		"show_less": "Arată mai puțin",
+		"close_all": "Închide toate ferestrele",
+		"close": "Închide fereastra",
+		"minimize": "Minimizează fereastra"
+	},
+	"text": {
+		"label_breadcrumb": "Navigare"
 	}
 }

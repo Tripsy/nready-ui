@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { FormFiltersSelect } from '@/app/(dashboard)/_components/form-filters.component';
 import {
 	PanelBody,
@@ -9,10 +9,15 @@ import {
 	type PanelView,
 } from '@/app/(dashboard)/_components/stats/panel.component';
 import { Badge, type BadgeVariant } from '@/components/ui/badge';
+import { getLanguageClient } from '@/config/translate.setup';
 import { timeAgo } from '@/helpers/date.helper';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
 import { requestFind } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type LogCategory,
 	LogCategoryEnum,
@@ -20,6 +25,17 @@ import {
 	type LogLevel,
 	LogLevelEnum,
 } from '@/models/log-data.model';
+
+const TRANSLATION_KEYS = [
+	'dashboard.field.category',
+	'dashboard.field.level',
+	'dashboard.text.failed_to_load_log_data',
+	'dashboard.text.no_log_entries_found',
+	'dashboard.text.all_categories',
+	'dashboard.text.all_levels',
+	...enumTranslationKeys('log-data.enum.category', LogCategoryEnum),
+	...enumTranslationKeys('log-data.enum.level', LogLevelEnum),
+] as const;
 
 const ENTRY_LIMIT = 10;
 
@@ -29,16 +45,6 @@ const FILTER_ALL = 'all';
 type CategoryFilter = LogCategory | typeof FILTER_ALL;
 type LevelFilter = LogLevel | typeof FILTER_ALL;
 
-const categoryOptions = [
-	{ label: 'All categories', value: FILTER_ALL },
-	...toOptionsFromEnum(LogCategoryEnum, { formatter: formatEnumLabel }),
-];
-
-const levelOptions = [
-	{ label: 'All levels', value: FILTER_ALL },
-	...toOptionsFromEnum(LogLevelEnum, { formatter: formatEnumLabel }),
-];
-
 /** Severity coloring for the level badge. Anything below `warn` stays neutral. */
 const LEVEL_VARIANT: Partial<Record<LogLevel, BadgeVariant>> = {
 	[LogLevelEnum.WARN]: 'warning',
@@ -47,6 +53,44 @@ const LEVEL_VARIANT: Partial<Record<LogLevel, BadgeVariant>> = {
 };
 
 export function useLogDataPanel(): PanelView {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const categoryOptions = useMemo(
+		() => [
+			{
+				label: translations['dashboard.text.all_categories'],
+				value: FILTER_ALL,
+			},
+			...toOptionsFromEnum(LogCategoryEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'log-data.enum.category',
+						value,
+					),
+			}),
+		],
+		[translations],
+	);
+
+	const levelOptions = useMemo(
+		() => [
+			{
+				label: translations['dashboard.text.all_levels'],
+				value: FILTER_ALL,
+			},
+			...toOptionsFromEnum(LogLevelEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'log-data.enum.level',
+						value,
+					),
+			}),
+		],
+		[translations],
+	);
+
 	// Severity is `level`, not `category`: the logger only ever writes the `system`, `history`
 	// and `cron` categories (see the API's `logger.provider.ts`). Opening on `level = error` is
 	// what makes this panel answer "is anything broken" at a glance.
@@ -85,7 +129,7 @@ export function useLogDataPanel(): PanelView {
 		filters: (
 			<>
 				<FormFiltersSelect<{ level: LevelFilter }>
-					labelText="Level"
+					labelText={translations['dashboard.field.level']}
 					fieldName="level"
 					fieldValue={level}
 					options={levelOptions}
@@ -93,7 +137,7 @@ export function useLogDataPanel(): PanelView {
 				/>
 
 				<FormFiltersSelect<{ category: CategoryFilter }>
-					labelText="Category"
+					labelText={translations['dashboard.field.category']}
 					fieldName="category"
 					fieldValue={category}
 					options={categoryOptions}
@@ -106,11 +150,16 @@ export function useLogDataPanel(): PanelView {
 				isLoading={isLoading}
 				isError={isError}
 				isEmpty={!data || data.entries.length === 0}
-				errorText="Failed to load log data"
-				emptyText="No log entries found"
+				errorText={
+					translations['dashboard.text.failed_to_load_log_data']
+				}
+				emptyText={translations['dashboard.text.no_log_entries_found']}
 			>
 				{data?.entries.map((entry) => (
-					<PanelRow key={entry.id} aside={timeAgo(entry.created_at)}>
+					<PanelRow
+						key={entry.id}
+						aside={timeAgo(entry.created_at, getLanguageClient())}
+					>
 						{/* Messages are free-form and can be long - clamp rather than let
 							    one entry stretch the panel past its neighbor. */}
 						<p className="font-medium truncate">{entry.message}</p>
@@ -119,10 +168,18 @@ export function useLogDataPanel(): PanelView {
 								size="xs"
 								variant={LEVEL_VARIANT[entry.level]}
 							>
-								{formatEnumLabel(entry.level)}
+								{translateEnumLabel(
+									translations,
+									'log-data.enum.level',
+									entry.level,
+								)}
 							</Badge>
 							<span className="text-sm text-muted">
-								{formatEnumLabel(entry.category)}
+								{translateEnumLabel(
+									translations,
+									'log-data.enum.category',
+									entry.category,
+								)}
 							</span>
 						</div>
 					</PanelRow>

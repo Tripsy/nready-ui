@@ -1,13 +1,27 @@
+'use client';
+
+import { useMemo } from 'react';
 import {
 	FormComponentCheckbox,
 	FormComponentRadio,
 	FormComponentTextarea,
 } from '@/components/form/form-element.component';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { type CommentType, CommentTypeEnum } from '@/models/comment.model';
 import { useWindowForm } from '@/providers/window-form.provider';
+
+const TRANSLATION_KEYS = [
+	'comment.field.content',
+	'comment.text.pin_to_top',
+	'comment.field.type',
+	...enumTranslationKeys('comment.enum.type', CommentTypeEnum),
+] as const;
 
 /**
  * The moderator's edit. Only the three fields the backend's `update` accepts are here - the
@@ -19,11 +33,22 @@ export type CommentFormValuesType = {
 	is_pinned: boolean;
 };
 
-const commentTypes = toOptionsFromEnum(CommentTypeEnum, {
-	formatter: formatEnumLabel,
-});
-
 export function FormManageComment() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const commentTypes = useMemo(
+		() =>
+			toOptionsFromEnum(CommentTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'comment.enum.type',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<CommentFormValuesType>();
 
@@ -32,7 +57,7 @@ export function FormManageComment() {
 	return (
 		<>
 			<FormComponentTextarea<CommentFormValuesType>
-				labelText="Content"
+				labelText={translations['comment.field.content']}
 				id={elementIds.content}
 				fieldName="content"
 				fieldValue={formValues.content ?? ''}
@@ -44,7 +69,7 @@ export function FormManageComment() {
 			/>
 
 			<FormComponentRadio<CommentFormValuesType>
-				labelText="Type"
+				labelText={translations['comment.field.type']}
 				id={elementIds.type}
 				fieldName="type"
 				fieldValue={formValues.type}
@@ -62,7 +87,7 @@ export function FormManageComment() {
 				disabled={pending}
 				onCheckedChange={(value) => handleChange('is_pinned', value)}
 			>
-				Pin to the top of the thread
+				{translations['comment.text.pin_to_top']}
 			</FormComponentCheckbox>
 		</>
 	);

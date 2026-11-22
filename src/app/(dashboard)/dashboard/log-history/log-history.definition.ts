@@ -4,11 +4,16 @@ import { ViewLogHistory } from '@/app/(dashboard)/dashboard/log-history/view-log
 import { Icons } from '@/components/icon.component';
 import { translateBatch } from '@/config/translate.setup';
 import { requestDeleteMultiple, requestFind } from '@/helpers/services.helper';
-import { toTitleCase } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
-import type {
-	LogHistoryModel,
-	LogHistorySource,
+import {
+	LogHistoryActions,
+	LogHistoryEntities,
+	type LogHistoryModel,
+	type LogHistorySource,
 } from '@/models/log-history.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
 import type {
@@ -29,15 +34,31 @@ export type LogHistoryDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<LogHistoryModel>
 > {
-	const translations = await translateBatch(
-		[
-			'delete.title',
-			'view.title',
-			'viewUser.title',
-			'guide.title',
-		] as const,
-		'log-history.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'delete.title',
+				'view.title',
+				'viewUser.title',
+				'guide.title',
+			] as const,
+			'log-history.action',
+		),
+		translateBatch(
+			[
+				'field.action',
+				'field.entity',
+				'field.entity_id',
+				'field.id',
+				'field.performed_by',
+				'field.recorded_at',
+				'field.request_id',
+				...enumTranslationKeys('enum.entity', LogHistoryEntities),
+				...enumTranslationKeys('enum.action', LogHistoryActions),
+			] as const,
+			'log-history',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -86,7 +107,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -96,29 +117,41 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'request_id',
-					header: 'Request ID',
+					header: labels['field.request_id'],
 				},
 				{
 					field: 'entity',
-					header: 'Entity',
+					header: labels['field.entity'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: toTitleCase(entry.entity),
+							customValue: translateEnumLabel(
+								labels,
+								'enum.entity',
+								entry.entity,
+							),
 						}),
 				},
 				{
 					field: 'entity_id',
-					header: 'Entity ID',
+					header: labels['field.entity_id'],
 				},
 				{
 					field: 'action',
-					header: 'Action',
+					header: labels['field.action'],
 					sortable: true,
+					body: (entry, column) =>
+						DataTableValue(entry, column, {
+							customValue: translateEnumLabel(
+								labels,
+								'enum.action',
+								entry.action,
+							),
+						}),
 				},
 				{
 					field: 'performed_by',
-					header: 'Performed By',
+					header: labels['field.performed_by'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							customValue: entry.auth_id
@@ -129,7 +162,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'recorded_at',
-					header: 'Recorded At',
+					header: labels['field.recorded_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

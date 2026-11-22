@@ -8,11 +8,17 @@ import {
 	requestFind,
 	requestRestore,
 } from '@/helpers/services.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	type ComplaintEntityType,
+	ComplaintEntityTypeEnum,
 	type ComplaintModel,
 	type ComplaintReason,
+	ComplaintReasonEnum,
 	displayComplaintLabel,
 	displayComplaintReporter,
 	displayComplaintTarget,
@@ -49,18 +55,37 @@ export type ComplaintDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<ComplaintModel>
 > {
-	const translations = await translateBatch(
-		[
-			'view.title',
-			'resolve.title',
-			'reopen.title',
-			'delete.title',
-			'restore.title',
-			'viewUser.title',
-			'guide.title',
-		] as const,
-		'complaint.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'view.title',
+				'resolve.title',
+				'reopen.title',
+				'delete.title',
+				'restore.title',
+				'viewUser.title',
+				'guide.title',
+			] as const,
+			'complaint.action',
+		),
+		translateBatch(
+			[
+				'field.created_at',
+				'field.description',
+				'field.entity_type',
+				'field.id',
+				'field.is_resolved',
+				'field.reason',
+				'field.user',
+				...enumTranslationKeys('reason', ComplaintReasonEnum),
+				...enumTranslationKeys(
+					'enum.entity_type',
+					ComplaintEntityTypeEnum,
+				),
+			] as const,
+			'complaint',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -167,7 +192,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -178,23 +203,34 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'entity_type',
-					header: 'Target',
+					header: labels['field.entity_type'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: displayComplaintTarget(entry),
+							customValue: displayComplaintTarget(
+								entry,
+								translateEnumLabel(
+									labels,
+									'enum.entity_type',
+									entry.entity_type,
+								),
+							),
 						}),
 				},
 				{
 					field: 'reason',
-					header: 'Reason',
+					header: labels['field.reason'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							capitalize: true,
+							customValue: translateEnumLabel(
+								labels,
+								'reason',
+								entry.reason,
+							),
 						}),
 				},
 				{
 					field: 'description',
-					header: 'Description',
+					header: labels['field.description'],
 					minWidth: 240,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -207,7 +243,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'user_id',
-					header: 'Reporter',
+					header: labels['field.user'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							customValue: displayComplaintReporter(entry),
@@ -221,7 +257,7 @@ export default async function dataSourceConfig(): Promise<
 				 */
 				{
 					field: 'is_resolved',
-					header: 'Resolution',
+					header: labels['field.is_resolved'],
 					minWidth: 148,
 					maxWidth: 148,
 					body: (entry, column, auth) =>
@@ -239,7 +275,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -251,7 +287,14 @@ export default async function dataSourceConfig(): Promise<
 				requestFind<ComplaintModel>('complaint', params),
 		},
 		displayEntryLabel: (entry: ComplaintModel) =>
-			displayComplaintLabel(entry),
+			displayComplaintLabel(entry, {
+				reason: translateEnumLabel(labels, 'reason', entry.reason),
+				entityType: translateEnumLabel(
+					labels,
+					'enum.entity_type',
+					entry.entity_type,
+				),
+			}),
 		actions: {
 			// No `create` and no `update`: a complaint is filed by a reader through
 			// `/public/complaints`, and its text is their accusation - a moderator decides on it

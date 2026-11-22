@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import {
 	FormComponentAutoComplete,
@@ -10,6 +12,7 @@ import { requestFind } from '@/helpers/services.helper';
 import { resolveWindowEntries } from '@/helpers/window.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	CashFlowDirectionEnum,
 	type CashFlowModel,
@@ -19,6 +22,13 @@ import type { InvoiceModel } from '@/models/invoice.model';
 import { useWindowForm } from '@/providers/window-form.provider';
 import { useModalStore } from '@/stores/window.store';
 import type { FindFunctionResponseType } from '@/types/action.type';
+
+const TRANSLATION_KEYS = [
+	'invoice.field.amount',
+	'invoice.field.cash_flow',
+	'invoice.field.notes',
+	'invoice.text.placeholder_amount',
+] as const;
 
 export type InvoiceAllocatePaymentFormValuesType = {
 	cash_flow_id: number | null;
@@ -40,6 +50,8 @@ export type InvoiceAllocatePaymentFormValuesType = {
  * is stored scaled and excludes VAT.
  */
 export function FormAllocatePaymentInvoice() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<InvoiceAllocatePaymentFormValuesType>();
 
@@ -124,7 +136,7 @@ export function FormAllocatePaymentInvoice() {
 				InvoiceAllocatePaymentFormValuesType,
 				CashFlowModel
 			>
-				labelText="Cash Flow"
+				labelText={translations['invoice.field.cash_flow']}
 				id={elementIds.cashFlow}
 				fieldName="cash_flow"
 				fieldValue={formValues.cash_flow ?? ''}
@@ -153,13 +165,15 @@ export function FormAllocatePaymentInvoice() {
 			/>
 
 			<FormComponentInput<InvoiceAllocatePaymentFormValuesType>
-				labelText="Amount"
+				labelText={translations['invoice.field.amount']}
 				id={elementIds.amount}
 				fieldName="amount"
 				fieldType="number"
 				fieldValue={formValues.amount ?? null}
 				isRequired={true}
-				placeholderText="gross, in the invoice currency"
+				placeholderText={
+					translations['invoice.text.placeholder_amount']
+				}
 				disabled={pending}
 				onChange={(e) =>
 					handleChange(
@@ -171,7 +185,7 @@ export function FormAllocatePaymentInvoice() {
 			/>
 
 			<FormComponentTextarea<InvoiceAllocatePaymentFormValuesType>
-				labelText="Notes"
+				labelText={translations['invoice.field.notes']}
 				id={elementIds.notes}
 				fieldName="notes"
 				fieldValue={formValues.notes ?? ''}

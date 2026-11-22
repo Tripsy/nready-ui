@@ -9,14 +9,30 @@ import {
 import { DisplayStatus } from '@/helpers/display.helper';
 import { getStatusTransitions } from '@/helpers/model.helper';
 import { requestUpdateStatus } from '@/helpers/services.helper';
+import {
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	COMMENT_STATUS_TRANSITIONS,
 	type CommentModel,
 	type CommentStatus,
+	CommentStatusEnum,
 } from '@/models/comment.model';
 import { useToast } from '@/providers/toast.provider';
 import { useModalStore } from '@/stores/window.store';
+
+const TRANSLATION_KEYS = [
+	'comment.text.change_comment_status_to',
+	'dashboard.text.label_set_status_to',
+	'app.error.title',
+	'app.success.title',
+	'comment.error.cannot_update_status',
+	'comment.action.statusTransition.success',
+	...enumTranslationKeys('comment.status', CommentStatusEnum),
+] as const;
 
 /**
  * The moderation decision, as the set of moves allowed from where the comment currently sits.
@@ -35,15 +51,8 @@ export function StatusTransitionComment({
 
 	const { showToast } = useToast();
 
-	const translationsKeys = [
-		'app.error.title',
-		'app.success.title',
-		'comment.error.cannot_update_status',
-		'comment.action.statusTransition.success',
-	] as const;
-
 	const { isTranslationLoading, translations } =
-		useTranslation(translationsKeys);
+		useTranslation(TRANSLATION_KEYS);
 
 	const entry = entries[0];
 
@@ -100,7 +109,9 @@ export function StatusTransitionComment({
 
 	return (
 		<div>
-			<p className="pb-4 font-semibold">Change comment status to:</p>
+			<p className="pb-4 font-semibold">
+				{translations['comment.text.change_comment_status_to']}
+			</p>
 			<div className="flex flex-wrap gap-4 items-center">
 				{statusTransitions.map((status) => {
 					return (
@@ -108,7 +119,18 @@ export function StatusTransitionComment({
 							key={status}
 							type="button"
 							className="cursor-pointer"
-							aria-label={`Set status to ${status}`}
+							aria-label={replaceVars(
+								translations[
+									'dashboard.text.label_set_status_to'
+								],
+								{
+									status: translateEnumLabel(
+										translations,
+										'comment.status',
+										status,
+									),
+								},
+							)}
 							onClick={() => handleStatusUpdate(entry, status)}
 						>
 							<DisplayStatus

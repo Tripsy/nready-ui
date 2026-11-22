@@ -5,10 +5,19 @@ import { TrendingDown, TrendingUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Configuration } from '@/config/settings.config';
 import { cn } from '@/helpers/css.helper';
-import { numberWithSign } from '@/helpers/string.helper';
+import { numberWithSign, replaceVars } from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { requestStatsSumRevenues } from '@/services/stats.service';
 
+const TRANSLATION_KEYS = [
+	'dashboard.text.could_not_retrieve_revenues',
+	'dashboard.text.failed_to_retrieve_revenues',
+	'dashboard.text.change_from_last_month',
+] as const;
+
 export function SumRevenues() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const { data, isLoading, isError } = useQuery({
 		queryKey: ['stats', 'sum-revenues'],
 		queryFn: () => requestStatsSumRevenues(),
@@ -25,11 +34,19 @@ export function SumRevenues() {
 	}
 
 	if (isError) {
-		return <div className="text-danger">Failed to retrieve revenues</div>;
+		return (
+			<div className="text-danger">
+				{translations['dashboard.text.failed_to_retrieve_revenues']}
+			</div>
+		);
 	}
 
 	if (!data) {
-		return <div className="text-muted">Could not retrieve revenues</div>;
+		return (
+			<div className="text-muted">
+				{translations['dashboard.text.could_not_retrieve_revenues']}
+			</div>
+		);
 	}
 
 	return (
@@ -49,7 +66,12 @@ export function SumRevenues() {
 				) : (
 					<TrendingDown className="h-3 w-3 mr-1" />
 				)}
-				{numberWithSign(data.change)}% from last month
+				{replaceVars(
+					translations['dashboard.text.change_from_last_month'],
+					{
+						change: numberWithSign(data.change),
+					},
+				)}
 			</div>
 		</>
 	);

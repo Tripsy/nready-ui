@@ -1,3 +1,6 @@
+'use client';
+
+import { useMemo } from 'react';
 import {
 	FormComponentInput,
 	FormComponentSelect,
@@ -5,8 +8,13 @@ import {
 } from '@/components/form/form-element.component';
 import { Icons } from '@/components/icon.component';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	languageOwnName,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type TemplateLayoutEmail,
 	TemplateLayoutEmailEnum,
@@ -16,6 +24,24 @@ import {
 } from '@/models/template.model';
 import { useWindowForm } from '@/providers/window-form.provider';
 import { type Language, LanguageEnum } from '@/types/common.type';
+
+const TRANSLATION_KEYS = [
+	'template.field.html',
+	'template.field.label',
+	'template.field.language',
+	'template.field.layout',
+	'template.field.subject',
+	'template.field.title',
+	'template.field.type',
+	'template.text.placeholder_label',
+	'template.text.placeholder_subject',
+	'template.text.placeholder_title',
+	...enumTranslationKeys('template.enum.type', TemplateTypeEnum),
+	...enumTranslationKeys(
+		'template.enum.layout_email',
+		TemplateLayoutEmailEnum,
+	),
+] as const;
 
 export type TemplateFormValuesType = {
 	language: Language;
@@ -31,18 +57,38 @@ export type TemplateFormValuesType = {
 };
 
 const languages = toOptionsFromEnum(LanguageEnum, {
-	formatter: formatEnumLabel,
-});
-
-const types = toOptionsFromEnum(TemplateTypeEnum, {
-	formatter: formatEnumLabel,
-});
-
-const emailLayouts = toOptionsFromEnum(TemplateLayoutEmailEnum, {
-	formatter: formatEnumLabel,
+	formatter: languageOwnName,
 });
 
 export function FormManageTemplate() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const emailLayouts = useMemo(
+		() =>
+			toOptionsFromEnum(TemplateLayoutEmailEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'template.enum.layout_email',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const types = useMemo(
+		() =>
+			toOptionsFromEnum(TemplateTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'template.enum.type',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<TemplateFormValuesType>();
 
@@ -57,12 +103,14 @@ export function FormManageTemplate() {
 		<>
 			<FormComponentInput<TemplateFormValuesType>
 				id={elementIds.label}
-				labelText="Label"
+				labelText={translations['template.field.label']}
 				fieldName="label"
 				fieldValue={formValues.label}
 				isRequired={true}
 				className="pl-8"
-				placeholderText="eg: password-recover"
+				placeholderText={
+					translations['template.text.placeholder_label']
+				}
 				disabled={pending}
 				onChange={(e) => handleChange('label', e.target.value)}
 				error={errors.label}
@@ -73,7 +121,7 @@ export function FormManageTemplate() {
 
 			<div className="flex flex-wrap gap-4">
 				<FormComponentSelect<TemplateFormValuesType>
-					labelText="Language"
+					labelText={translations['template.field.language']}
 					id={elementIds.language}
 					fieldName="language"
 					fieldValue={formValues.language}
@@ -86,7 +134,7 @@ export function FormManageTemplate() {
 					error={errors.language}
 				/>
 				<FormComponentSelect<TemplateFormValuesType>
-					labelText="Type"
+					labelText={translations['template.field.type']}
 					id={elementIds.type}
 					fieldName="type"
 					fieldValue={formValues.type}
@@ -104,11 +152,13 @@ export function FormManageTemplate() {
 				<>
 					<FormComponentInput<typeof formValues.content>
 						id={`${elementIds.content}-subject`}
-						labelText="Subject"
+						labelText={translations['template.field.subject']}
 						fieldName="subject"
 						fieldValue={formValues.content.subject ?? ''}
 						isRequired={true}
-						placeholderText="eg: Recover password"
+						placeholderText={
+							translations['template.text.placeholder_subject']
+						}
 						disabled={pending}
 						onChange={(e) =>
 							handleChange('content', {
@@ -120,7 +170,7 @@ export function FormManageTemplate() {
 					/>
 
 					<FormComponentSelect<typeof formValues.content>
-						labelText="layout"
+						labelText={translations['template.field.layout']}
 						id={`${elementIds.content}-layout`}
 						fieldName="layout"
 						fieldValue={formValues.content.layout}
@@ -138,7 +188,7 @@ export function FormManageTemplate() {
 
 					<FormComponentTextarea<typeof formValues.content>
 						id={`${elementIds.content}-html`}
-						labelText="HTML Content"
+						labelText={translations['template.field.html']}
 						fieldName="html"
 						fieldValue={formValues.content.html}
 						isRequired={true}
@@ -159,11 +209,13 @@ export function FormManageTemplate() {
 				<>
 					<FormComponentInput<typeof formValues.content>
 						id={`${elementIds.content}-title`}
-						labelText="Title"
+						labelText={translations['template.field.title']}
 						fieldName="title"
 						fieldValue={formValues.content.title ?? ''}
 						isRequired={true}
-						placeholderText="eg: Terms & Conditions"
+						placeholderText={
+							translations['template.text.placeholder_title']
+						}
 						disabled={pending}
 						onChange={(e) =>
 							handleChange('content', {
@@ -175,7 +227,7 @@ export function FormManageTemplate() {
 					/>
 
 					<FormComponentSelect<typeof formValues.content>
-						labelText="Layout"
+						labelText={translations['template.field.layout']}
 						id={`${elementIds.content}-layout`}
 						fieldName="layout"
 						fieldValue={formValues.content.layout}
@@ -193,7 +245,7 @@ export function FormManageTemplate() {
 
 					<FormComponentTextarea<typeof formValues.content>
 						id={`${elementIds.content}-html`}
-						labelText="HTML Content"
+						labelText={translations['template.field.html']}
 						fieldName="html"
 						fieldValue={formValues.content.html}
 						isRequired={true}

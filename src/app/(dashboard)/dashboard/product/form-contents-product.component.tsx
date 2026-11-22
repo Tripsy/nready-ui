@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import {
 	FormComponentInput,
@@ -5,9 +7,25 @@ import {
 } from '@/components/form/form-element.component';
 import { cn } from '@/helpers/css.helper';
 import { renderMarkdown } from '@/helpers/markdown.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import type { ProductContentType } from '@/models/product.model';
 import { type Language, LanguageEnum } from '@/types/common.type';
 import type { PageMeta } from '@/types/page-meta.type';
+
+const TRANSLATION_KEYS = [
+	'product.field.label',
+	'product.field.meta_description',
+	'product.field.meta_keywords',
+	'product.field.meta_title',
+	'product.field.slug',
+	'product.section.content_language',
+	'product.text.description',
+	'product.text.language',
+	'product.text.placeholder_description',
+	'product.text.placeholder_slug',
+	'product.text.edit',
+	'product.text.preview',
+] as const;
 
 const languages = Object.values(LanguageEnum);
 
@@ -50,6 +68,8 @@ export function FormContentsProduct({
 	contentErrors: (language: Language) => ProductContentErrorsType | undefined;
 	onChange: (contents: ProductContentType[]) => void;
 }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const [language, setLanguage] = useState<Language>(languages[0]);
 	const [previewed, setPreviewed] = useState<
 		Partial<Record<Language, boolean>>
@@ -98,9 +118,11 @@ export function FormContentsProduct({
 	return (
 		<div className="form-section pt-4">
 			<fieldset className="flex items-center gap-2">
-				<legend className="sr-only">Content language</legend>
+				<legend className="sr-only">
+					{translations['product.section.content_language']}
+				</legend>
 				<span className="text-sm font-medium" aria-hidden="true">
-					Language
+					{translations['product.text.language']}
 				</span>
 				{languages.map((value) => (
 					<button
@@ -127,7 +149,7 @@ export function FormContentsProduct({
 
 			<FormComponentInput<ProductContentType>
 				id={`${elementIdPrefix}-${language}-label`}
-				labelText="Label"
+				labelText={translations['product.field.label']}
 				fieldName="label"
 				fieldValue={contentsMap[language]?.label ?? ''}
 				isRequired={true}
@@ -138,11 +160,11 @@ export function FormContentsProduct({
 
 			<FormComponentInput<ProductContentType>
 				id={`${elementIdPrefix}-${language}-slug`}
-				labelText="Slug"
+				labelText={translations['product.field.slug']}
 				fieldName="slug"
 				fieldValue={contentsMap[language]?.slug ?? ''}
 				isRequired={true}
-				placeholderText="eg: pizza-margherita"
+				placeholderText={translations['product.text.placeholder_slug']}
 				disabled={pending}
 				onChange={(e) => writeContent({ slug: e.target.value })}
 				error={errors?.slug}
@@ -154,7 +176,9 @@ export function FormContentsProduct({
 					 * The label is hand-rolled so the preview toggle can sit beside it, which is
 					 * also why the field below carries no label of its own.
 					 */}
-					<span className="text-sm font-medium">Description</span>
+					<span className="text-sm font-medium">
+						{translations['product.text.description']}
+					</span>
 					<button
 						type="button"
 						className="text-sm underline opacity-70 hover:opacity-100"
@@ -165,7 +189,9 @@ export function FormContentsProduct({
 							}))
 						}
 					>
-						{isPreviewed ? 'Edit' : 'Preview'}
+						{isPreviewed
+							? translations['product.text.edit']
+							: translations['product.text.preview']}
 					</button>
 				</div>
 
@@ -190,7 +216,9 @@ export function FormContentsProduct({
 						fieldName="description"
 						fieldValue={contentsMap[language]?.description ?? ''}
 						rows={10}
-						placeholderText="Describe the product in markdown…"
+						placeholderText={
+							translations['product.text.placeholder_description']
+						}
 						disabled={pending}
 						onChange={(e) =>
 							writeContent({ description: e.target.value })
@@ -202,7 +230,7 @@ export function FormContentsProduct({
 
 			<FormComponentInput<PageMeta>
 				id={`${elementIdPrefix}-${language}-meta-title`}
-				labelText="Meta Title"
+				labelText={translations['product.field.meta_title']}
 				fieldName="title"
 				fieldValue={contentsMap[language]?.meta?.title ?? ''}
 				disabled={pending}
@@ -212,7 +240,7 @@ export function FormContentsProduct({
 
 			<FormComponentInput<PageMeta>
 				id={`${elementIdPrefix}-${language}-meta-description`}
-				labelText="Meta Description"
+				labelText={translations['product.field.meta_description']}
 				fieldName="description"
 				fieldValue={contentsMap[language]?.meta?.description ?? ''}
 				disabled={pending}
@@ -224,7 +252,7 @@ export function FormContentsProduct({
 
 			<FormComponentInput<PageMeta>
 				id={`${elementIdPrefix}-${language}-meta-keywords`}
-				labelText="Meta Keywords"
+				labelText={translations['product.field.meta_keywords']}
 				fieldName="keywords"
 				fieldValue={contentsMap[language]?.meta?.keywords ?? ''}
 				disabled={pending}

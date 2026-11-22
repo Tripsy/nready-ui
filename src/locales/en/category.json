@@ -95,5 +95,56 @@
 		"tab_info": "Info",
 		"tab_api": "API docs",
 		"tab_public": "Public API"
+	},
+	"field": {
+		"id": "ID",
+		"type": "Type",
+		"label": "Label",
+		"parent": "Parent",
+		"status": "Status",
+		"created_at": "Created At",
+		"search": "ID / Label",
+		"language": "Language",
+		"slug": "Slug",
+		"description": "Description",
+		"meta_title": "Meta Title",
+		"meta_description": "Meta Description",
+		"meta_keywords": "Meta Keywords",
+		"parent_id": "Parent",
+		"sort_order": "Sort Order",
+		"updated_at": "Updated At",
+		"deleted_at": "Deleted At"
+	},
+	"section": {
+		"language_specific": "Language specific",
+		"info": "Info",
+		"timestamps": "Timestamps"
+	},
+	"text": {
+		"placeholder_label": "eg: Travel guides",
+		"placeholder_slug": "Derived from the label when left empty",
+		"not_inherited": "not inherited",
+		"edit": "Edit",
+		"delete": "Delete",
+		"attributes": "Attributes",
+		"add_attribute": "Add attribute",
+		"update": "Update",
+		"placeholder_parent_id": "Top level",
+		"view_details": "View details",
+		"label_update": "Update {{label}}",
+		"label_delete": "Delete {{label}}",
+		"language_specific": "Language specific",
+		"attribute_order_failed": "The attribute order could not be saved.",
+		"attributes_intro": "What a product in {{label}} is asked to say about itself. A sub-category inherits these unless it defines the same label itself, and the values are filled in on the product.",
+		"badge_required": "required",
+		"badge_filterable": "filterable",
+		"attributes_load_failed": "The attributes of this category could not be loaded.",
+		"no_attributes": "No attributes declared - a product here is asked nothing beyond its own fields."
+	},
+	"enum": {
+		"type": {
+			"article": "Article",
+			"product": "Product"
+		}
 	}
 }

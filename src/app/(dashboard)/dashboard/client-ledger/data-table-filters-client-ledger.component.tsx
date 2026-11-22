@@ -14,9 +14,13 @@ import type { ClientLedgerDataTableFiltersType } from '@/app/(dashboard)/dashboa
 import { Icons } from '@/components/icon.component';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
 import { requestView } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { type ClientModel, displayClientLabel } from '@/models/client.model';
 import {
 	type ClientLedgerEntryType,
@@ -24,19 +28,40 @@ import {
 } from '@/models/client-ledger.model';
 import { type Currency, CurrencyEnum } from '@/types/common.type';
 
-const entryTypes = toOptionsFromEnum(ClientLedgerEntryTypeEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'client-ledger.field.client',
+	'client-ledger.field.currency',
+	'client-ledger.field.entry_type',
+	'client-ledger.field.occurred_at',
+	...enumTranslationKeys(
+		'client-ledger.enum.entry_type',
+		ClientLedgerEntryTypeEnum,
+	),
+] as const;
 
-const currencies = toOptionsFromEnum(CurrencyEnum, {
-	formatter: formatEnumLabel,
-});
+// Currency codes, shown as they are
+const currencies = toOptionsFromEnum(CurrencyEnum);
 
 export const DataTableFiltersClientLedger = ({
 	initialClientId,
 }: {
 	initialClientId: number | null;
 }): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const entryTypes = useMemo(
+		() =>
+			toOptionsFromEnum(ClientLedgerEntryTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'client-ledger.enum.entry_type',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'client-ledger'>();
 
@@ -142,7 +167,7 @@ export const DataTableFiltersClientLedger = ({
 				ClientLedgerDataTableFiltersType,
 				ClientModel
 			>
-				labelText="Client"
+				labelText={translations['client-ledger.field.client']}
 				fieldName="client"
 				fieldNameId="client_id"
 				fieldValue={searchClient}
@@ -158,7 +183,7 @@ export const DataTableFiltersClientLedger = ({
 			/>
 
 			<FormFiltersSelect<ClientLedgerDataTableFiltersType>
-				labelText="Type"
+				labelText={translations['client-ledger.field.entry_type']}
 				fieldName="entry_type"
 				fieldValue={filters.entry_type.value}
 				options={entryTypes}
@@ -170,7 +195,7 @@ export const DataTableFiltersClientLedger = ({
 			/>
 
 			<FormFiltersSelect<ClientLedgerDataTableFiltersType>
-				labelText="Currency"
+				labelText={translations['client-ledger.field.currency']}
 				fieldName="currency"
 				fieldValue={filters.currency.value}
 				options={currencies}
@@ -182,7 +207,7 @@ export const DataTableFiltersClientLedger = ({
 			/>
 
 			<FormFiltersDateRange<ClientLedgerDataTableFiltersType>
-				labelText="Occurred"
+				labelText={translations['client-ledger.field.occurred_at']}
 				start={{
 					fieldName: 'occurred_at_start',
 					fieldValue: filters.occurred_at_start.value,

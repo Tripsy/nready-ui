@@ -1,0 +1,92 @@
+{
+	"meta": {
+		"title": "Registru stoc - Dashboard | {{app_name}}"
+	},
+	"action": {
+		"view": {
+			"title": "Mișcare - {{entry}}",
+			"label": "Vezi detalii"
+		},
+		"stock": {
+			"title": "Stoc - {{entry}}",
+			"label": "Stocul variantei"
+		},
+		"guide": {
+			"title": "Cum funcționează registrul de stoc",
+			"label": "Ghid de utilizare"
+		}
+	},
+	"field": {
+		"id": "ID",
+		"occurred_at": "Data mișcării",
+		"movement_type": "Mișcare",
+		"variant": "Variantă",
+		"warehouse": "Depozit",
+		"qty": "Cantitate",
+		"unit_cost_base": "Cost unitar (bază)",
+		"source": "Sursă",
+		"source_type": "Tip sursă",
+		"lot": "Lot",
+		"reversal_of": "Stornează",
+		"notes": "Note",
+		"created_at": "Înregistrată la",
+		"sku": "SKU",
+		"on_hand": "În stoc",
+		"reserved": "Rezervat",
+		"available": "Disponibil",
+		"low_stock_threshold": "Prag stoc redus",
+		"status": "Stare"
+	},
+	"section": {
+		"info": "Mișcare",
+		"source": "De unde provine",
+		"stock": "Stoc",
+		"warehouses": "Pe depozite"
+	},
+	"enum": {
+		"movement_type": {
+			"receipt": "Recepție",
+			"sale": "Vânzare",
+			"sale_return": "Retur vânzare",
+			"supplier_return": "Retur la furnizor",
+			"adjustment": "Ajustare",
+			"write_off": "Casare",
+			"transfer_in": "Transfer intrare",
+			"transfer_out": "Transfer ieșire"
+		},
+		"source_type": {
+			"grn_item": "Linie de recepție",
+			"shipping_line": "Linie de expediere",
+			"adjustment": "Ajustare stoc"
+		},
+		"warehouse_status": {
+			"active": "Activ",
+			"inactive": "Inactiv"
+		}
+	},
+	"text": {
+		"stock_hint": "În stoc numără loturile deschise din depozitele active. Rezervat este ce au promis comenzile active și nu s-a expediat încă. Disponibil este ce a rămas de vândut - negativ când varianta este supra-angajată.",
+		"no_stock": "Nu există nimic din această variantă în niciun depozit.",
+		"inactive_site": "Inactiv - nu se numără",
+		"over_committed": "Supra-angajat: comenzile active au promis mai mult decât este în stoc.",
+		"loading": "Se încarcă stocul...",
+		"load_failed": "Stocul nu a putut fi încărcat.",
+		"lot_ref": "Lot #{{id}}",
+		"movement_ref": "Mișcarea #{{id}}",
+		"source_ref": "{{type}} #{{id}}"
+	},
+	"help": {
+		"intro": "Registrul de stoc este istoricul fiecărei unități care a intrat sau a ieșit dintr-un depozit. Fiecare rând este înregistrat de ce a mutat marfa - un document sau o ajustare de stoc introdusă manual - iar o greșeală se corectează printr-un rând de stornare, niciodată prin editare.",
+		"step_1_title": "Recepții",
+		"step_1_body": "Confirmarea unei recepții înregistrează câte o recepție pe linie - se deschide un lot la costul său în moneda de bază. Anularea unei recepții confirmate înregistrează o ajustare care o stornează.",
+		"step_2_title": "Vânzări",
+		"step_2_body": "O livrare care pleacă din depozit înregistrează câte o vânzare pentru fiecare lot din care se ia, cel mai vechi primul, așa că o linie poate apărea ca mai multe rânduri la costuri diferite. Un colet întors nelivrat înregistrează un retur de vânzare pentru fiecare.",
+		"step_3_title": "Retururi de la clienți",
+		"step_3_body": "Marfa trimisă înapoi de un cumpărător intră în loturile din care au provenit vânzările comenzii. Marfa deteriorată intră și este casată pe același lot, ca să nu ajungă din nou la raft.",
+		"step_4_title": "Stocul variantei",
+		"step_4_body": "Stocul variantei arată cantitatea în stoc pe fiecare depozit, ce au rezervat comenzile active și ce a rămas de vândut. Stoc redus listează variantele aflate la sau sub propriul prag.",
+		"note": "Cantitățile au semn: pozitiv aduce stoc, negativ scoate stoc. Stocul nu se calculează din registru - este ce mai conțin loturile deschise, iar verificarea de noapte raportează orice lot pe care registrul nu îl mai explică.",
+		"tab_info": "Info",
+		"tab_api": "Documentație API"
+	}
+}

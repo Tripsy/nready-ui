@@ -88,7 +88,25 @@
 		"currency": "Currency",
 		"external_reference": "External Reference",
 		"vendor": "Vendor",
-		"notes": "Notes"
+		"notes": "Notes",
+		"id": "ID",
+		"category_type": "Type",
+		"category": "Category",
+		"status": "Status",
+		"created_at": "Created At",
+		"search": "ID / Reference / Notes",
+		"direction": "Direction",
+		"client": "Client",
+		"order": "Order",
+		"refund_id": "Refund ID",
+		"net_amount": "Net Amount",
+		"reference": "Reference",
+		"date": "Date",
+		"type": "Type",
+		"gross_amount": "Gross Amount",
+		"exchange_rate": "Exchange Rate",
+		"updated_at": "Updated At",
+		"deleted_at": "Deleted At"
 	},
 	"help": {
 		"intro": "A cash flow entry is one movement of money, in or out, recorded with the VAT rate and currency it happened in. Most of what describes it - its direction and its type - follows from the category rather than being chosen separately.",
@@ -107,5 +125,48 @@
 		"note": "Refund applies to a completed entry only, creates a child entry in the parent's currency, and cannot take more than the parent has left unrefunded. Deleting is a soft delete and this entity has no restore, so a deleted entry stays visible under Show deleted and nothing more; an entry that already has refunds is refused until those are gone.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"text": {
+		"operational_records": "Operational records",
+		"create_vendor": "Create vendor \"{{value}}\""
+	},
+	"section": {
+		"info": "Info",
+		"timestamps": "Timestamps",
+		"refunds": "Refunds",
+		"operational_records": "Operational Records"
+	},
+	"enum": {
+		"direction": {
+			"in": "In",
+			"out": "Out"
+		},
+		"method": {
+			"credit_card": "Credit Card",
+			"debit_card": "Debit Card",
+			"paypal": "Paypal",
+			"cash": "Cash",
+			"bank_transfer": "Bank Transfer",
+			"check": "Check",
+			"crypto": "Crypto",
+			"gift_card": "Gift Card"
+		},
+		"category_type": {
+			"revenue": "Revenue",
+			"expense": "Expense",
+			"correction": "Correction"
+		},
+		"category": {
+			"sale": "Sale",
+			"vendor": "Vendor",
+			"insurance": "Insurance",
+			"taxes": "Taxes",
+			"refund": "Refund"
+		},
+		"operational_record_type": {
+			"client": "Client",
+			"vendor": "Vendor",
+			"order": "Order"
+		}
 	}
 }

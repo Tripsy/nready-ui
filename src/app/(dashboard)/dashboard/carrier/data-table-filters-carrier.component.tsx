@@ -12,8 +12,13 @@ import type { CarrierDataTableFiltersType } from '@/app/(dashboard)/dashboard/ca
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
+
+const TRANSLATION_KEYS = ['carrier.field.search'] as const;
 
 export const DataTableFiltersCarrier = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'carrier'>();
 
@@ -55,7 +60,7 @@ export const DataTableFiltersCarrier = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<CarrierDataTableFiltersType>
-				labelText="ID / Name / Website"
+				labelText={translations['carrier.field.search']}
 				search={searchGlobal}
 			/>
 

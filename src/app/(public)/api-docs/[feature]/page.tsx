@@ -9,7 +9,7 @@ import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
 import { translate, translateBatch } from '@/config/translate.setup';
 import { ApiError } from '@/exceptions/api.error';
-import { requestPublicFeatureDocs } from '@/services/docs.service';
+import { requestAdminFeatureDocs } from '@/services/docs-admin.service';
 import {
 	type ApiDocs,
 	apiDocsActionAnchor,
@@ -45,7 +45,7 @@ type Props = {
  */
 async function loadFeatureDocs(feature: string): Promise<ApiDocs | null> {
 	try {
-		return (await requestPublicFeatureDocs(feature)) ?? null;
+		return (await requestAdminFeatureDocs(feature)) ?? null;
 	} catch (error) {
 		if (
 			error instanceof ApiError &&

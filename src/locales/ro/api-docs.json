@@ -25,6 +25,18 @@
 		"back_to_list": "Toate modulele",
 		"unavailable": "Referința API este temporar indisponibilă. Încearcă din nou mai târziu.",
 		"not_found_heading": "Modul inexistent",
-		"not_found_message": "Nu există niciun modul API documentat cu acest nume."
+		"not_found_message": "Nu există niciun modul API documentat cu acest nume.",
+		"request_sample": "Exemplu de cerere",
+		"responses": "Răspunsuri",
+		"response_sample": "Exemplu de răspuns",
+		"nothing_to_show": "Nimic de afișat",
+		"required": "obligatoriu",
+		"optional": "opțional",
+		"no_documentation": "Această funcționalitate nu are documentație API."
+	},
+	"section": {
+		"path_params": "Parametri de cale",
+		"query": "Query",
+		"body": "Body"
 	}
 }

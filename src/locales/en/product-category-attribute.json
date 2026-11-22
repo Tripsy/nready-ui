@@ -35,5 +35,57 @@
 			"success": "Attribute deleted successfully",
 			"confirm": "Are you sure you want to delete this attribute? Products keep the values already recorded under its label."
 		}
+	},
+	"field": {
+		"category_id": "Declared by",
+		"attribute_label": "Attribute label",
+		"scope": "Scope",
+		"type": "Capture",
+		"value_type": "Stored as",
+		"unit": "Unit",
+		"min_value": "Minimum",
+		"max_value": "Maximum",
+		"prefix": "Prefix",
+		"suffix": "Suffix",
+		"options": "Admissible values",
+		"is_required": "Product attribute value is required",
+		"is_filterable": "Is a catalog filter",
+		"inherit": "Sub-categories inherit it"
+	},
+	"text": {
+		"placeholder_min_value": "e.g.: 100",
+		"placeholder_max_value": "e.g.: 5000",
+		"placeholder_prefix": "e.g.: class",
+		"placeholder_suffix": "e.g.: pcs",
+		"a_list_has_to_offer_something": "A list has to offer something - add at least one value.",
+		"create_attribute_label": "Create attribute label \"{{value}}\"",
+		"create_value": "Create value \"{{value}}\""
+	},
+	"enum": {
+		"scope": {
+			"product": "Product",
+			"variant": "Variant"
+		},
+		"type": {
+			"input": "Input",
+			"select": "Select",
+			"radio": "Radio",
+			"checkbox": "Checkbox"
+		},
+		"value_type": {
+			"term": "Term",
+			"number": "Number",
+			"string": "String",
+			"boolean": "Boolean"
+		},
+		"dimension": {
+			"volume": "Volume",
+			"mass": "Mass",
+			"length": "Length",
+			"area": "Area",
+			"time": "Time",
+			"power": "Power",
+			"energy": "Energy"
+		}
 	}
 }

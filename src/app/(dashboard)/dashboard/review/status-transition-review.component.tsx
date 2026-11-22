@@ -9,14 +9,30 @@ import {
 import { DisplayStatus } from '@/helpers/display.helper';
 import { getStatusTransitions } from '@/helpers/model.helper';
 import { requestUpdateStatus } from '@/helpers/services.helper';
+import {
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	REVIEW_STATUS_TRANSITIONS,
 	type ReviewModel,
 	type ReviewStatus,
+	ReviewStatusEnum,
 } from '@/models/review.model';
 import { useToast } from '@/providers/toast.provider';
 import { useModalStore } from '@/stores/window.store';
+
+const TRANSLATION_KEYS = [
+	'review.text.change_review_status_to',
+	'dashboard.text.label_set_status_to',
+	'app.error.title',
+	'app.success.title',
+	'review.error.cannot_update_status',
+	'review.action.statusTransition.success',
+	...enumTranslationKeys('review.status', ReviewStatusEnum),
+] as const;
 
 /**
  * The moderation decision, as the set of moves allowed from where the review currently sits.
@@ -38,15 +54,8 @@ export function StatusTransitionReview({
 
 	const { showToast } = useToast();
 
-	const translationsKeys = [
-		'app.error.title',
-		'app.success.title',
-		'review.error.cannot_update_status',
-		'review.action.statusTransition.success',
-	] as const;
-
 	const { isTranslationLoading, translations } =
-		useTranslation(translationsKeys);
+		useTranslation(TRANSLATION_KEYS);
 
 	const entry = entries[0];
 
@@ -103,7 +112,9 @@ export function StatusTransitionReview({
 
 	return (
 		<div>
-			<p className="pb-4 font-semibold">Change review status to:</p>
+			<p className="pb-4 font-semibold">
+				{translations['review.text.change_review_status_to']}
+			</p>
 			<div className="flex flex-wrap gap-4 items-center">
 				{statusTransitions.map((status) => {
 					return (
@@ -111,7 +122,18 @@ export function StatusTransitionReview({
 							key={status}
 							type="button"
 							className="cursor-pointer"
-							aria-label={`Set status to ${status}`}
+							aria-label={replaceVars(
+								translations[
+									'dashboard.text.label_set_status_to'
+								],
+								{
+									status: translateEnumLabel(
+										translations,
+										'review.status',
+										status,
+									),
+								},
+							)}
 							onClick={() => handleStatusUpdate(entry, status)}
 						>
 							<DisplayStatus

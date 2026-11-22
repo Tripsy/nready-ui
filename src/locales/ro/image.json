@@ -3,17 +3,7 @@
 		"title": "Imagini - Dashboard | {{app_name}}"
 	},
 	"validation": {
-		"invalid_section": "Secțiune invalidă",
-		"invalid_entity_id": "ID entitate invalid",
-		"invalid_image_type": "Tip de imagine invalid",
 		"invalid_language": "Limbă invalidă",
-		"invalid_storage": "Stocare invalidă",
-		"invalid_path": "Calea furnizată este invalidă",
-		"invalid_width": "Lățime invalidă",
-		"invalid_height": "Înălțime invalidă",
-		"invalid_size": "Dimensiune invalidă",
-		"invalid_mime": "Tip MIME invalid",
-		"invalid_alt": "Text alternativ invalid",
 		"invalid_attribute": "Atribut invalid: {{attribute}}",
 		"invalid_description": "Descriere invalidă"
 	},
@@ -80,5 +70,62 @@
 		"note": "Ștergerea din acest ecran șterge rândul și, odată cu el, fișierul stocat. Curățarea proprie a backend-ului nu face asta: când un articol sau un produs este șters, rândurile lui de imagini dispar, iar fișierele rămân, pentru că recuperarea spațiului este o operațiune pe care nimic nu o rulează în prezent.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"text": {
+		"type": "Tip",
+		"size": "Dimensiune",
+		"remove_image": "Elimină imaginea",
+		"active_image": "Imagine activă",
+		"inactive_image": "Imagine inactivă",
+		"change_order": "Schimbă ordinea",
+		"label_drag_to_reorder": "Trage pentru reordonare",
+		"label_upload": "Încarcă {{label}}",
+		"manage_images": "Gestionează imaginile",
+		"upload_logo": "Încarcă logo",
+		"logo_not_uploaded": "Logo neîncărcat",
+		"no_images_uploaded": "Nicio imagine încărcată",
+		"gallery_is_full_remove_an_image": "Galeria este plină. Elimină o imagine pentru a adăuga alta.",
+		"save_changes": "Salvează modificările",
+		"logo_hint": "O singură imagine · {{formats}}",
+		"drop_hint": "Trage și plasează sau dă clic pentru a alege",
+		"gallery_hint": "Până la {{max}} imagini · {{formats}}",
+		"upload_images": "Încarcă imagini",
+		"add_more_images": "Adaugă mai multe imagini",
+		"gallery_drop_hint": "Trage și plasează sau dă clic · până la {{max}} imagini",
+		"slots_remaining": "Locuri rămase: {{count}}",
+		"width_short": "L",
+		"height_short": "Î",
+		"language_specific": "Specifică limbii"
+	},
+	"section": {
+		"logo": "Logo",
+		"gallery": "Galerie",
+		"info": "Info",
+		"timestamps": "Marcaje de timp"
+	},
+	"field": {
+		"title": "Titlu",
+		"description": "Descriere",
+		"section": "Secțiune",
+		"entity_id": "ID entitate",
+		"image_type": "Tip",
+		"id": "ID",
+		"status": "Status",
+		"created_at": "Creat la",
+		"updated_at": "Actualizat la",
+		"image": "Imagine"
+	},
+	"enum": {
+		"section": {
+			"product": "Produs",
+			"category": "Categorie",
+			"brand": "Marcă",
+			"article": "Articol",
+			"product_variant": "Variantă de produs"
+		},
+		"type": {
+			"logo": "Logo",
+			"gallery": "Galerie"
+		}
 	}
 }

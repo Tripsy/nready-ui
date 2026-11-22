@@ -49,5 +49,33 @@
 		"note": "Deleting a series is permanent and unguarded: there is no deleted state, so nothing can be restored, and nothing stops the removal of a series that has issued numbers. Recreating it starts the counter again from its start number, and the next document collides with references that already exist under that code.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"field": {
+		"search": "ID / Code",
+		"document_type": "Document type",
+		"id": "ID",
+		"code": "Code",
+		"start_number": "Start Number",
+		"next_number": "Next Number",
+		"created_at": "Created At",
+		"notes": "Notes",
+		"updated_at": "Updated At"
+	},
+	"text": {
+		"placeholder_code": "e.g.: INV",
+		"label_code_max": "Code (max {{max}} characters)"
+	},
+	"section": {
+		"series": "Series",
+		"other": "Other",
+		"timestamps": "Timestamps"
+	},
+	"enum": {
+		"document_type": {
+			"invoice": "Invoice",
+			"order": "Order",
+			"grn": "GRN",
+			"subscription": "Subscription"
+		}
 	}
 }

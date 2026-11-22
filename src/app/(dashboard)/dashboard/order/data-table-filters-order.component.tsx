@@ -14,18 +14,37 @@ import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { OrderDataTableFiltersType } from '@/app/(dashboard)/dashboard/order/order.definition';
 import { Icons } from '@/components/icon.component';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { type ClientModel, displayClientLabel } from '@/models/client.model';
 import { type OrderStatus, OrderStatusEnum } from '@/models/order.model';
 
-const statuses = toOptionsFromEnum(OrderStatusEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'order.field.client',
+	'order.field.created',
+	'order.field.search',
+	'order.field.status',
+	...enumTranslationKeys('order.status', OrderStatusEnum),
+] as const;
 
 export const DataTableFiltersOrder = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const statuses = useMemo(
+		() =>
+			toOptionsFromEnum(OrderStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'order.status', value),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'order'>();
 
@@ -79,12 +98,12 @@ export const DataTableFiltersOrder = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<OrderDataTableFiltersType>
-				labelText="ID / Reference"
+				labelText={translations['order.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersAutoComplete<OrderDataTableFiltersType, ClientModel>
-				labelText="Client"
+				labelText={translations['order.field.client']}
 				fieldName="client"
 				fieldNameId="client_id"
 				fieldValue={searchClient}
@@ -100,7 +119,7 @@ export const DataTableFiltersOrder = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<OrderDataTableFiltersType>
-				labelText="Status"
+				labelText={translations['order.field.status']}
 				fieldName="status"
 				fieldValue={filters.status.value}
 				options={statuses}
@@ -110,7 +129,7 @@ export const DataTableFiltersOrder = (): JSX.Element => {
 			/>
 
 			<FormFiltersDateRange<OrderDataTableFiltersType>
-				labelText="Created"
+				labelText={translations['order.field.created']}
 				start={{
 					fieldName: 'create_at_start',
 					fieldValue: filters.create_at_start.value,

@@ -31,8 +31,12 @@ import { type ReviewModel, resolveReviewProduct } from '@/models/review.model';
 export function reviewTargetValue(
 	entry: ReviewModel,
 	auth: AccountModel | null,
+	wording: { openPage: string; viewProduct: string; productRef: string },
 ): JSX.Element {
-	const { label, slug, sku } = resolveReviewProduct(entry);
+	const { label, slug, sku } = resolveReviewProduct(
+		entry,
+		wording.productRef,
+	);
 
 	const text = sku ? `${label} (${sku})` : label;
 
@@ -43,7 +47,7 @@ export function reviewTargetValue(
 					href={Routes.get('product-view', { slug })}
 					target="_blank"
 					rel="noopener noreferrer"
-					title="Open the product page in a new tab"
+					title={wording.openPage}
 					className="shrink-0 opacity-60 hover:opacity-100"
 					/*
 					 * The row selects on `pointerdown`, and a selection that renders the action
@@ -63,7 +67,7 @@ export function reviewTargetValue(
 				<DisplayButton<ProductModel>
 					buttonAppearance={{
 						label: text,
-						title: 'View product details',
+						title: wording.viewProduct,
 					}}
 					action="view"
 					dataSource="product"

@@ -35,5 +35,57 @@
 			"success": "Atributul a fost șters cu succes",
 			"confirm": "Sigur vrei să ștergi acest atribut? Produsele păstrează valorile deja înregistrate pe eticheta lui."
 		}
+	},
+	"field": {
+		"category_id": "Declarat de",
+		"attribute_label": "Etichetă atribut",
+		"scope": "Domeniu",
+		"type": "Captare",
+		"value_type": "Stocat ca",
+		"unit": "Unitate",
+		"min_value": "Minim",
+		"max_value": "Maxim",
+		"prefix": "Prefix",
+		"suffix": "Sufix",
+		"options": "Valori admise",
+		"is_required": "Valoarea atributului este obligatorie pentru produs",
+		"is_filterable": "Este filtru în catalog",
+		"inherit": "Subcategoriile îl moștenesc"
+	},
+	"text": {
+		"placeholder_min_value": "ex.: 100",
+		"placeholder_max_value": "ex.: 5000",
+		"placeholder_prefix": "ex.: clasa",
+		"placeholder_suffix": "ex.: buc",
+		"a_list_has_to_offer_something": "O listă trebuie să ofere ceva - adaugă cel puțin o valoare.",
+		"create_attribute_label": "Creează eticheta de atribut „{{value}}”",
+		"create_value": "Creează valoarea „{{value}}”"
+	},
+	"enum": {
+		"scope": {
+			"product": "Produs",
+			"variant": "Variantă"
+		},
+		"type": {
+			"input": "Câmp text",
+			"select": "Listă derulantă",
+			"radio": "Butoane radio",
+			"checkbox": "Casetă de bifare"
+		},
+		"value_type": {
+			"term": "Termen",
+			"number": "Număr",
+			"string": "Text",
+			"boolean": "Da / Nu"
+		},
+		"dimension": {
+			"volume": "Volum",
+			"mass": "Masă",
+			"length": "Lungime",
+			"area": "Suprafață",
+			"time": "Timp",
+			"power": "Putere",
+			"energy": "Energie"
+		}
 	}
 }

@@ -12,6 +12,64 @@ export function formatEnumLabel(value: string): string {
 }
 
 /**
+ * A language's name in that language itself ("English", "Română"), for a language picker - the
+ * one label that must not follow the UI language, since a reader looks for their own. Falls
+ * back to the upper-cased code where the runtime has no name for it.
+ */
+export function languageOwnName(language: string): string {
+	try {
+		const name = new Intl.DisplayNames([language], { type: 'language' }).of(
+			language,
+		);
+
+		return name && name !== language
+			? capitalizeFirstLetter(name)
+			: language.toUpperCase();
+	} catch {
+		return language.toUpperCase();
+	}
+}
+
+type EnumValue<E> = E extends readonly (infer V extends string)[]
+	? V
+	: E[keyof E] & string;
+
+/**
+ * One translation key per enum value - `<prefix>.<value>` - typed as a union of the literal
+ * keys, so a component can spread it into its `TRANSLATION_KEYS` and index the result.
+ * Takes a const enum object or a plain list of values (`Object.values` reads both).
+ */
+export function enumTranslationKeys<
+	const P extends string,
+	const E extends Readonly<Record<string, string>> | readonly string[],
+>(prefix: P, enumObj: E): `${P}.${EnumValue<E>}`[] {
+	return Object.values(enumObj).map(
+		(value) => `${prefix}.${value}` as `${P}.${EnumValue<E>}`,
+	);
+}
+
+/**
+ * The translated label of an enum value, read from a `useTranslation` / `translateBatch`
+ * result that requested `enumTranslationKeys(prefix, ...)`.
+ *
+ * Falls back to `formatEnumLabel` while the translations are still loading (the map is empty)
+ * and when the key is missing - `translateBatch` returns the key itself on a miss, which is
+ * worse to show than the English value.
+ */
+export function translateEnumLabel(
+	translations: Readonly<Record<string, string>>,
+	prefix: string,
+	value: string,
+): string {
+	const key = `${prefix}.${value}`;
+	const translated = translations[key];
+
+	return translated && translated !== key
+		? translated
+		: formatEnumLabel(value);
+}
+
+/**
  * Latin letters that carry no combining mark to strip, so `NFD` leaves them intact and the
  * alphanumeric filter would drop them entirely. Spelled out rather than reached for a
  * transliteration library: this is the set that realistically turns up in European company
@@ -205,14 +263,21 @@ export function toCamelCase(
  * Replace variables in a string
  * Ex variables: {{key}}, {{Key}}, {{sub_key}}, {{key1}}
  *
- * @param {string} content - The string to replace template variables in
+ * `content` may be undefined: a `useTranslation` map is empty until the locale resource has
+ * loaded, and that first frame should render nothing rather than throw.
+ *
+ * @param {string | undefined} content - The string to replace template variables in
  * @param {Record<string, string | number>} vars - The template variables to replace
- * @returns {string} - The string with template variables replaced
+ * @returns {string} - The string with template variables replaced, or '' for no content
  */
 export function replaceVars(
-	content: string,
+	content: string | undefined,
 	vars: Record<string, string | number> = {},
 ): string {
+	if (content === undefined) {
+		return '';
+	}
+
 	// Numbers are accepted because most interpolated values are numeric config
 	// (character minimums, counts) - stringifying at every call site was noise.
 	return content.replace(/{{\s*(\w+)\s*}}/g, (_, key) =>

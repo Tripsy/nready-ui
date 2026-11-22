@@ -70,7 +70,8 @@ export function getCategoryContentProp(
 		CategoryContentType,
 		'label' | 'slug' | 'description'
 	> = 'label',
-	fallback: string = '[no content]',
+	// A dash, not wording: the model carries no copy, and '-' is what an empty cell reads as
+	fallback: string = '-',
 ): string {
 	if (!category.contents?.length) {
 		return fallback;

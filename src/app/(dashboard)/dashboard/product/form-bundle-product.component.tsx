@@ -15,6 +15,7 @@ import {
 	FormComponentSelect,
 } from '@/components/form/form-element.component';
 import { Icons } from '@/components/icon.component';
+import { SlotText } from '@/components/slot-text.component';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getLanguageClient } from '@/config/translate.setup';
@@ -24,8 +25,13 @@ import {
 	rowErrorsAt,
 	toOptionsFromEnum,
 } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { hasPermission } from '@/models/account.model';
 import {
 	type CategoryModel,
@@ -49,6 +55,45 @@ import { requestResolvedAttributes } from '@/services/product.service';
 import { useModalStore } from '@/stores/window.store';
 import { CurrencyEnum } from '@/types/common.type';
 import { DataSourceSectionEnum } from '@/types/data-source.type';
+
+const TRANSLATION_KEYS = [
+	'product.field.available_from',
+	'product.field.available_until',
+	'product.field.category_id',
+	'product.field.discontinued_at',
+	'product.field.sku',
+	'product.field.tag_id',
+	'product.field.type',
+	'product.section.attributes',
+	'product.section.ordering_interval',
+	'product.text.add_currency',
+	'product.text.currency',
+	'product.text.attribute_declare_bundle',
+	'product.text.minimum_price',
+	'product.text.availability_intervals_hint_bundle',
+	'product.text.placeholder_sku',
+	'product.text.attributes_need_category_bundle',
+	'product.text.reference_price',
+	'product.text.sale_price',
+	'product.text.selected_categories_declare_no_product_attributes',
+	'product.text.availability_dates_hint_bundle',
+	'product.text.the_reference_price_is_below_the',
+	'product.text.the_wording_one_set_per_language',
+	'dashboard.text.tab_errors',
+	'product.text.add_attribute',
+	'product.section.tab_details',
+	'product.section.tab_content',
+	'product.section.tab_price',
+	'product.section.tab_components',
+	'product.section.tab_availability',
+	'product.text.hint_sale_price',
+	'product.text.hint_reference_price',
+	'product.text.hint_minimum_price',
+	'product.text.minimum_price_label',
+	'product.text.label_remove_market',
+	'product.text.remove_this_market',
+	...enumTranslationKeys('product.enum.type', ProductTypeEnum),
+] as const;
 
 /**
  * The markets a bundle may be priced in. A closed list rather than free text: the column is
@@ -82,11 +127,11 @@ const emptyPrice = (): ProductBundleFormValuesType['prices'][number] => ({
  * are chosen here - so the tab that has nothing to offer until the other is filled in comes second.
  */
 const FORM_TABS = [
-	{ id: 'details', label: 'Details' },
-	{ id: 'content', label: 'Content' },
-	{ id: 'price', label: 'Price' },
-	{ id: 'components', label: 'Components' },
-	{ id: 'availability', label: 'Availability' },
+	{ id: 'details', labelKey: 'product.section.tab_details' },
+	{ id: 'content', labelKey: 'product.section.tab_content' },
+	{ id: 'price', labelKey: 'product.section.tab_price' },
+	{ id: 'components', labelKey: 'product.section.tab_components' },
+	{ id: 'availability', labelKey: 'product.section.tab_availability' },
 ] as const;
 
 type FormTabId = (typeof FORM_TABS)[number]['id'];
@@ -118,10 +163,6 @@ const TAB_CONTENT_FIELDS: Record<FormTabId, readonly string[]> = {
 	availability: [],
 };
 
-const productTypes = toOptionsFromEnum(ProductTypeEnum, {
-	formatter: formatEnumLabel,
-});
-
 /**
  * The bundle editor, hosted in a window like every other entity form.
  *
@@ -137,6 +178,21 @@ const productTypes = toOptionsFromEnum(ProductTypeEnum, {
  * allocation.
  */
 export function FormBundleProduct() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const productTypes = useMemo(
+		() =>
+			toOptionsFromEnum(ProductTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'product.enum.type',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<ProductBundleFormValuesType>();
 
@@ -392,15 +448,19 @@ export function FormBundleProduct() {
 				className="w-full"
 			>
 				<TabsList>
-					{FORM_TABS.map(({ id, label }) => (
+					{FORM_TABS.map(({ id, labelKey }) => (
 						<TabsTrigger key={id} id={id}>
-							{label}
+							{translations[labelKey]}
 							{tabErrors[id] > 0 && (
 								<span className="ml-1.5 rounded-full bg-danger px-1.5 text-xs text-white">
 									{tabErrors[id]}
 									<span className="sr-only">
 										{' '}
-										field(s) need attention
+										{
+											translations[
+												'dashboard.text.tab_errors'
+											]
+										}
 									</span>
 								</span>
 							)}
@@ -412,7 +472,7 @@ export function FormBundleProduct() {
 					<div className="space-y-6">
 						<div className="flex flex-wrap gap-2">
 							<FormComponentSelect<ProductBundleFormValuesType>
-								labelText="Type"
+								labelText={translations['product.field.type']}
 								id={elementIds.type}
 								fieldName="type"
 								fieldValue={formValues.type}
@@ -441,7 +501,9 @@ export function FormBundleProduct() {
 						</div>
 
 						<FormPickerProduct
-							labelText="Categories"
+							labelText={
+								translations['product.field.category_id']
+							}
 							fieldName="category_id"
 							dataSource="category"
 							getOptionLabel={(entry: CategoryModel) =>
@@ -461,7 +523,7 @@ export function FormBundleProduct() {
 						/>
 
 						<FormPickerProduct
-							labelText="Tags"
+							labelText={translations['product.field.tag_id']}
 							fieldName="tag_id"
 							dataSource="term"
 							getOptionLabel={(entry: TermModel) =>
@@ -487,7 +549,9 @@ export function FormBundleProduct() {
 
 						<div className="space-y-2">
 							<div className="flex items-center justify-between gap-3 border-b border-line pb-2">
-								<h3 className="font-bold">Attributes</h3>
+								<h3 className="font-bold">
+									{translations['product.section.attributes']}
+								</h3>
 								{categoryIds.length > 0 && (
 									<Button
 										type="button"
@@ -498,10 +562,18 @@ export function FormBundleProduct() {
 										}
 										onClick={addAttribute}
 										className="p-2 opacity-80 hover:opacity-100"
-										title="Declare a new attribute for one of this bundle's categories"
+										title={
+											translations[
+												'product.text.attribute_declare_bundle'
+											]
+										}
 									>
 										<Icons.Action.Add className="h-4 w-4" />{' '}
-										Add attribute
+										{
+											translations[
+												'product.text.add_attribute'
+											]
+										}
 									</Button>
 								)}
 							</div>
@@ -510,8 +582,11 @@ export function FormBundleProduct() {
 								// Categories selected - check if they have definitions
 								productDefinitions.length === 0 ? (
 									<p className="text-sm text-muted">
-										Selected categories declare no product
-										attributes.
+										{
+											translations[
+												'product.text.selected_categories_declare_no_product_attributes'
+											]
+										}
 									</p>
 								) : (
 									<FormAttributesProduct
@@ -529,8 +604,11 @@ export function FormBundleProduct() {
 							) : (
 								// No categories selected - show error message
 								<p className="text-sm text-muted">
-									Please select at least one category to add
-									bundle attributes.
+									{
+										translations[
+											'product.text.attributes_need_category_bundle'
+										]
+									}
 								</p>
 							)}
 						</div>
@@ -540,10 +618,11 @@ export function FormBundleProduct() {
 				<TabsContent id="content">
 					<p className="flex items-start gap-1 text-xs text-muted">
 						<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-						The wording, one set per language - name, slug,
-						description and the SEO meta. The slug is the whole
-						public address (eg: /products/my-slug), so changing it
-						moves the page.
+						{
+							translations[
+								'product.text.the_wording_one_set_per_language'
+							]
+						}
 					</p>
 
 					<FormContentsProduct
@@ -572,10 +651,22 @@ export function FormBundleProduct() {
 							<Icons.Info className="h-3.5 w-3.5 shrink-0" />
 
 							<span>
-								<strong className="font-semibold">
-									Sale price
-								</strong>{' '}
-								is what the customer is charged, excluding VAT.
+								<SlotText
+									template={
+										translations[
+											'product.text.hint_sale_price'
+										]
+									}
+									slot="term"
+								>
+									<strong className="font-semibold">
+										{
+											translations[
+												'product.text.sale_price'
+											]
+										}
+									</strong>
+								</SlotText>
 							</span>
 						</p>
 
@@ -583,11 +674,22 @@ export function FormBundleProduct() {
 							<Icons.Info className="h-3.5 w-3.5 shrink-0" />
 
 							<span>
-								<strong className="font-semibold">
-									Reference price
-								</strong>{' '}
-								is the usual price the sale is measured against
-								- shown to signal a saving.
+								<SlotText
+									template={
+										translations[
+											'product.text.hint_reference_price'
+										]
+									}
+									slot="term"
+								>
+									<strong className="font-semibold">
+										{
+											translations[
+												'product.text.reference_price'
+											]
+										}
+									</strong>
+								</SlotText>
 							</span>
 						</p>
 
@@ -595,22 +697,36 @@ export function FormBundleProduct() {
 							<Icons.Info className="h-3.5 w-3.5 shrink-0" />
 
 							<span>
-								The discounted price cannot drop below the set{' '}
-								<strong className="font-semibold">
-									minimum price
-								</strong>
+								<SlotText
+									template={
+										translations[
+											'product.text.hint_minimum_price'
+										]
+									}
+									slot="term"
+								>
+									<strong className="font-semibold">
+										{
+											translations[
+												'product.text.minimum_price'
+											]
+										}
+									</strong>
+								</SlotText>
 							</span>
 						</p>
 					</div>
 
 					<div className="space-y-4 pt-4">
 						<FormComponentInput<ProductBundleFormValuesType>
-							labelText="Bundle SKU"
+							labelText={translations['product.field.sku']}
 							id={elementIds.sku}
 							fieldName="sku"
 							fieldValue={formValues.sku}
 							isRequired={true}
-							placeholderText="eg: MENU-BURGER"
+							placeholderText={
+								translations['product.text.placeholder_sku']
+							}
 							disabled={pending}
 							onChange={(event) =>
 								handleChange('sku', event.target.value)
@@ -625,18 +741,22 @@ export function FormBundleProduct() {
 						 */}
 						<div className="flex flex-nowrap gap-2 text-sm font-semibold">
 							<span className={PRICE_COLUMN.currency}>
-								Currency
+								{translations['product.text.currency']}
 								<span className="ml-1 text-danger">*</span>
 							</span>
 							<span className={PRICE_COLUMN.amount}>
-								Sale price
+								{translations['product.text.sale_price']}
 								<span className="ml-1 text-danger">*</span>
 							</span>
 							<span className={PRICE_COLUMN.amount}>
-								Reference price
+								{translations['product.text.reference_price']}
 							</span>
 							<span className={PRICE_COLUMN.amount}>
-								Minimum price
+								{
+									translations[
+										'product.text.minimum_price_label'
+									]
+								}
 							</span>
 						</div>
 
@@ -686,7 +806,11 @@ export function FormBundleProduct() {
 												fieldName="currency"
 												fieldValue={row.currency}
 												isRequired={true}
-												ariaLabel="Currency"
+												ariaLabel={
+													translations[
+														'product.text.currency'
+													]
+												}
 												className="w-full"
 												options={CURRENCY_OPTIONS}
 												disabled={pending}
@@ -709,7 +833,11 @@ export function FormBundleProduct() {
 												fieldName="sale_price"
 												fieldValue={row.sale_price}
 												isRequired={true}
-												ariaLabel="Sale price"
+												ariaLabel={
+													translations[
+														'product.text.sale_price'
+													]
+												}
 												className="w-full"
 												disabled={pending}
 												onChange={(event) =>
@@ -731,7 +859,11 @@ export function FormBundleProduct() {
 												id={`${elementIds.sku}-reference-price-${index}`}
 												fieldName="reference_price"
 												fieldValue={row.reference_price}
-												ariaLabel="Reference price"
+												ariaLabel={
+													translations[
+														'product.text.reference_price'
+													]
+												}
 												className="w-full"
 												disabled={pending}
 												onChange={(event) =>
@@ -753,7 +885,11 @@ export function FormBundleProduct() {
 												id={`${elementIds.sku}-min-price-${index}`}
 												fieldName="min_price"
 												fieldValue={row.min_price}
-												ariaLabel="Minimum price"
+												ariaLabel={
+													translations[
+														'product.text.minimum_price_label'
+													]
+												}
 												className="w-full"
 												disabled={pending}
 												onChange={(event) =>
@@ -779,7 +915,21 @@ export function FormBundleProduct() {
 													removePrice(index)
 												}
 												className="mt-1 p-2 opacity-60 hover:opacity-100"
-												title={`Remove ${row.currency || 'this market'}`}
+												title={
+													row.currency
+														? replaceVars(
+																translations[
+																	'product.text.label_remove_market'
+																],
+																{
+																	currency:
+																		row.currency,
+																},
+															)
+														: translations[
+																'product.text.remove_this_market'
+															]
+												}
 											>
 												<Icons.Close className="h-4 w-4" />
 											</Button>
@@ -790,9 +940,11 @@ export function FormBundleProduct() {
 										<p className="mt-1 flex items-start gap-1 text-xs text-warning">
 											<Icons.Status.Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" />
 											<span>
-												The reference price is below the
-												sale price, so it advertises an
-												increase rather than a saving.
+												{
+													translations[
+														'product.text.the_reference_price_is_below_the'
+													]
+												}
 											</span>
 										</p>
 									) : null}
@@ -808,10 +960,12 @@ export function FormBundleProduct() {
 								disabled={pending}
 								onClick={addPrice}
 								className="p-2 opacity-80 hover:opacity-100"
-								title="Add currency"
+								title={
+									translations['product.text.add_currency']
+								}
 							>
-								<Icons.Action.Add className="h-4 w-4" /> Add
-								currency
+								<Icons.Action.Add className="h-4 w-4" />{' '}
+								{translations['product.text.add_currency']}
 							</Button>
 						</div>
 
@@ -862,16 +1016,21 @@ export function FormBundleProduct() {
 					<div className="space-y-6">
 						<p className="flex items-start gap-1 text-xs text-muted">
 							<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-							The dates below decide whether the bundle is listed
-							at all; the intervals under them decide when a
-							listed bundle can be ordered (eg: a lunch menu,
-							weekdays 12:00–15:00).
+							{
+								translations[
+									'product.text.availability_dates_hint_bundle'
+								]
+							}
 						</p>
 
 						<div className="space-y-2">
 							<div className="flex flex-wrap gap-2">
 								<FormComponentCalendar<ProductBundleFormValuesType>
-									labelText="Available From"
+									labelText={
+										translations[
+											'product.field.available_from'
+										]
+									}
 									id={elementIds.availableFrom}
 									fieldName="available_from"
 									fieldValue={formValues.available_from}
@@ -883,7 +1042,11 @@ export function FormBundleProduct() {
 								/>
 
 								<FormComponentCalendar<ProductBundleFormValuesType>
-									labelText="Available Until"
+									labelText={
+										translations[
+											'product.field.available_until'
+										]
+									}
 									id={elementIds.availableUntil}
 									fieldName="available_until"
 									fieldValue={formValues.available_until}
@@ -895,7 +1058,11 @@ export function FormBundleProduct() {
 								/>
 
 								<FormComponentCalendar<ProductBundleFormValuesType>
-									labelText="Discontinued At"
+									labelText={
+										translations[
+											'product.field.discontinued_at'
+										]
+									}
 									id={elementIds.discontinuedAt}
 									fieldName="discontinued_at"
 									fieldValue={formValues.discontinued_at}
@@ -910,12 +1077,18 @@ export function FormBundleProduct() {
 
 						<div className="space-y-2">
 							<h3 className="text-sm font-semibold">
-								Ordering interval
+								{
+									translations[
+										'product.section.ordering_interval'
+									]
+								}
 							</h3>
 							<p className="text-xs text-muted">
-								One interval per day, recurring within that
-								life. A bundle outside its hours is still
-								listed, just not orderable right now.
+								{
+									translations[
+										'product.text.availability_intervals_hint_bundle'
+									]
+								}
 							</p>
 
 							<FormAvailabilityProduct

@@ -59,5 +59,34 @@
 		"note": "Deleting a place is a soft delete and is refused while it still has a live child, so a branch comes down from the leaves up. A child that is already deleted does not block its parent, though - delete both and the child can be restored on its own, leaving it under a parent that is still deleted.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"field": {
+		"search": "ID / Name",
+		"place_type": "Type",
+		"language": "Language",
+		"code": "Code",
+		"parent": "Parent",
+		"name": "Name",
+		"type_label": "Type Label",
+		"id": "ID",
+		"created_at": "Created At",
+		"updated_at": "Updated At",
+		"deleted_at": "Deleted At"
+	},
+	"text": {
+		"placeholder_code": "eg: RO",
+		"language_specific": "Language specific"
+	},
+	"section": {
+		"language_specific": "Language specific",
+		"info": "Info",
+		"timestamps": "Timestamps"
+	},
+	"enum": {
+		"type": {
+			"country": "Country",
+			"region": "Region",
+			"city": "City"
+		}
 	}
 }

@@ -24,7 +24,10 @@ import {
 	requestUpdate,
 	requestView,
 } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { BaseValidator } from '@/helpers/validator.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
 import { displayOrderReference } from '@/models/order.model';
@@ -34,6 +37,7 @@ import {
 	displayShippingEnd,
 	displayShippingLabel,
 	SHIPPING_STATUS_TRANSITIONS,
+	ShippingLineConditionEnum,
 	type ShippingMethod,
 	ShippingMethodEnum,
 	type ShippingModel,
@@ -71,6 +75,7 @@ const validatorMessages = [
 	'invalid_contact_email',
 	'invalid_variant_id',
 	'invalid_quantity',
+	'invalid_condition',
 ] as const;
 
 /** Mirrors the backend's `shipping.validator.ts` - see `../nready-api/src/features/shipping`. */
@@ -89,6 +94,13 @@ class ShippingValidator extends BaseValidator<typeof validatorMessages> {
 				onlyPositive: true,
 				allowDecimals: 2,
 			}),
+			// Optional here like on the backend: required only to receive a return, which the
+			// status move enforces with a 409
+			condition: z
+				.enum(Object.values(ShippingLineConditionEnum), {
+					message: this.getMessage('invalid_condition'),
+				})
+				.nullable(),
 			notes: z.string().nullable(),
 		});
 
@@ -329,6 +341,7 @@ function getFormState(
 					variant_id: line.variant_id,
 					product_id: line.product_id,
 					quantity: Number(line.quantity),
+					condition: line.condition ?? null,
 					notes: line.notes,
 				})) ?? [],
 			order: data?.order ? displayOrderReference(data.order) : null,
@@ -408,18 +421,37 @@ export type ShippingDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<ShippingModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'view.title',
-			'delete.title',
-			'restore.title',
-			'statusTransition.title',
-			'guide.title',
-		] as const,
-		'shipping.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'view.title',
+				'delete.title',
+				'restore.title',
+				'statusTransition.title',
+				'guide.title',
+			] as const,
+			'shipping.action',
+		),
+		translateBatch(
+			[
+				'field.created_at',
+				'field.id',
+				'field.method',
+				'field.order_id',
+				'field.pickup_warehouse_id',
+				'field.scope',
+				'field.status',
+				'field.tracking_number',
+				...enumTranslationKeys('enum.scope', ShippingScopeEnum),
+				...enumTranslationKeys('enum.method', ShippingMethodEnum),
+				'text.doc_ref',
+				'text.self_pickup_destination',
+			] as const,
+			'shipping',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -476,7 +508,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -487,25 +519,32 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'scope',
-					header: 'Type',
+					header: labels['field.scope'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: formatEnumLabel(entry.scope),
+							customValue: translateEnumLabel(
+								labels,
+								'enum.scope',
+								entry.scope,
+							),
 						}),
 				},
 				{
 					field: 'order_id',
-					header: 'Document',
+					header: labels['field.order_id'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: displayShippingDocument(entry),
+							customValue: displayShippingDocument(
+								entry,
+								labels['text.doc_ref'],
+							),
 						}),
 				},
 				{
 					// One column for both ends, since which table each names depends on the scope
 					// and a reader wants the route rather than two half-empty columns
 					field: 'pickup_warehouse_id',
-					header: 'Route',
+					header: labels['field.pickup_warehouse_id'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							customValue: `${displayShippingEnd(
@@ -513,24 +552,28 @@ export default async function dataSourceConfig(): Promise<
 								entry.pickup_warehouse,
 								entry.pickup_client_address_id,
 								entry.pickup_client_address_label,
-							)} →${displayShippingDestination(entry)}`,
+							)} →${displayShippingDestination(entry, labels['text.self_pickup_destination'])}`,
 						}),
 				},
 				{
 					field: 'method',
-					header: 'Method',
+					header: labels['field.method'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: formatEnumLabel(entry.method),
+							customValue: translateEnumLabel(
+								labels,
+								'enum.method',
+								entry.method,
+							),
 						}),
 				},
 				{
 					field: 'tracking_number',
-					header: 'Tracking',
+					header: labels['field.tracking_number'],
 				},
 				{
 					field: 'status',
-					header: 'Status',
+					header: labels['field.status'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							dataSource: 'shipping',
@@ -543,7 +586,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

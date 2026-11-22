@@ -9,6 +9,8 @@ export const RouteAuthEnum = {
 	UNAUTHENTICATED: 'unauthenticated',
 	AUTHENTICATED: 'authenticated',
 	PROTECTED: 'protected', // `admin` OR `operator` OR `member`
+	// An admin and nobody else - no grant reaches it, so it takes no permission entity.
+	ADMIN: 'admin',
 } as const;
 
 export type RouteAuth = (typeof RouteAuthEnum)[keyof typeof RouteAuthEnum];
@@ -158,8 +160,11 @@ class RoutesCollection {
 const Routes = new RoutesCollection();
 
 Routes.add('home', '/');
-Routes.add('api-docs', '/api-docs');
-Routes.add('api-docs-feature', '/api-docs/:feature');
+// Admin only, as the backend's `ApiDocsPolicy` is: every other caller would get a 401/403 there.
+Routes.add('api-docs', '/api-docs', { auth: RouteAuthEnum.ADMIN });
+Routes.add('api-docs-feature', '/api-docs/:feature', {
+	auth: RouteAuthEnum.ADMIN,
+});
 Routes.add('page', '/page/:label');
 Routes.add('products', '/products');
 Routes.add('products-categories', '/products/categories');
@@ -301,6 +306,9 @@ Routes.group('dashboard')
 	.add('exchange-rate', '/dashboard/exchange-rate', {
 		permissionEntity: 'exchange-rate',
 	})
+	.add('vat-rate', '/dashboard/vat-rate', {
+		permissionEntity: 'vat-rate',
+	})
 	.add('image', '/dashboard/image', {
 		permissionEntity: 'image',
 	})
@@ -326,11 +334,33 @@ Routes.group('dashboard')
 	.add('warehouse', '/dashboard/warehouse', {
 		permissionEntity: 'warehouse',
 	})
+	.add('grn', '/dashboard/grn', {
+		permissionEntity: 'grn',
+	})
+	.add('warehouse-movement', '/dashboard/warehouse-movement', {
+		permissionEntity: 'warehouse-movement',
+	})
+	// A report over the ledger, so gated the way the backend gates it: a `find` of the ledger
+	.add('low-stock', '/dashboard/low-stock', {
+		permissionEntity: 'warehouse-movement',
+		permissionOperation: 'find',
+	})
+	// A report over receipts and prices, gated the way the backend gates it: a `find` of `grn`
+	.add('cost-over-floor', '/dashboard/cost-over-floor', {
+		permissionEntity: 'grn',
+		permissionOperation: 'find',
+	})
+	.add('stock-adjustment', '/dashboard/stock-adjustment', {
+		permissionEntity: 'stock-adjustment',
+	})
 	.add('order', '/dashboard/order', {
 		permissionEntity: 'order',
 	})
 	.add('shipping', '/dashboard/shipping', {
 		permissionEntity: 'shipping',
+	})
+	.add('order-return', '/dashboard/order-return', {
+		permissionEntity: 'order-return',
 	})
 	.add('term', '/dashboard/term', {
 		permissionEntity: 'term',
@@ -398,9 +428,11 @@ export function isExcludedRoute(pathname: string) {
  */
 export function isProtectedRoute(
 	auth: RouteAuth,
-): auth is 'authenticated' | 'protected' {
+): auth is 'authenticated' | 'protected' | 'admin' {
 	return (
-		auth === RouteAuthEnum.AUTHENTICATED || auth === RouteAuthEnum.PROTECTED
+		auth === RouteAuthEnum.AUTHENTICATED ||
+		auth === RouteAuthEnum.PROTECTED ||
+		auth === RouteAuthEnum.ADMIN
 	);
 }
 

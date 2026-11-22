@@ -11,8 +11,7 @@
 		"unlink_error": "Nu am putut deconecta acest furnizor"
 	},
 	"action": {
-		"continue_with": "Continuă cu {{provider}}",
-		"label": "sau continuă cu"
+		"continue_with": "Continuă cu {{provider}}"
 	},
 	"form": {
 		"title_signing_in": "Te autentificăm cu {{provider}}",

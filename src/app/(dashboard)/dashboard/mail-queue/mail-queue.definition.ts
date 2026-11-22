@@ -28,15 +28,27 @@ export type MailQueueDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<MailQueueModel>
 > {
-	const translations = await translateBatch(
-		[
-			'delete.title',
-			'view.title',
-			'viewTemplate.label',
-			'guide.title',
-		] as const,
-		'mail-queue.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'delete.title',
+				'view.title',
+				'viewTemplate.label',
+				'guide.title',
+			] as const,
+			'mail-queue.action',
+		),
+		translateBatch(
+			[
+				'field.id',
+				'field.sent_at',
+				'field.status',
+				'field.template',
+				'field.to',
+			] as const,
+			'mail-queue',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -84,7 +96,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -95,7 +107,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'template',
-					header: 'Template',
+					header: labels['field.template'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							customValue: entry.template?.label || 'n/a',
@@ -107,7 +119,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'to',
-					header: 'To',
+					header: labels['field.to'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							customValue: entry.to.address,
@@ -115,7 +127,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'status',
-					header: 'Status',
+					header: labels['field.status'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							isStatus: true,
@@ -126,7 +138,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'sent_at',
-					header: 'Sent At',
+					header: labels['field.sent_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

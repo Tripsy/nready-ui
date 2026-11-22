@@ -1,5 +1,4 @@
 import { arrayHasValue } from '@/helpers/objects.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
 import type { ClientModel } from '@/models/client.model';
 import type { VendorModel } from '@/models/vendor.model';
 import type { Currency, StatusTransitions } from '@/types/common.type';
@@ -139,32 +138,49 @@ export const getExpectedCategoryType = (
 	throw new Error(`Unknown category: ${category}`);
 };
 
-export const GroupedCategories = [
+/** Which categories each category type groups, in the order a select lists them. */
+export const CASH_FLOW_CATEGORY_GROUPS: readonly {
+	type: CashFlowCategoryType;
+	categories: readonly CashFlowCategory[];
+}[] = [
 	{
-		label: formatEnumLabel(CashFlowCategoryTypeEnum.REVENUE),
-		options: [{ label: 'Sale', value: CashFlowCategoryEnum.SALE }],
+		type: CashFlowCategoryTypeEnum.REVENUE,
+		categories: [CashFlowCategoryEnum.SALE],
 	},
 	{
-		label: formatEnumLabel(CashFlowCategoryTypeEnum.EXPENSE),
-		options: [
-			{ label: 'Vendor', value: CashFlowCategoryEnum.VENDOR },
-			{ label: 'Insurance', value: CashFlowCategoryEnum.INSURANCE },
-			{ label: 'Taxes', value: CashFlowCategoryEnum.TAXES },
+		type: CashFlowCategoryTypeEnum.EXPENSE,
+		categories: [
+			CashFlowCategoryEnum.VENDOR,
+			CashFlowCategoryEnum.INSURANCE,
+			CashFlowCategoryEnum.TAXES,
 		],
 	},
 	{
-		label: formatEnumLabel(CashFlowCategoryTypeEnum.CORRECTION),
-		options: [{ label: 'Refund', value: CashFlowCategoryEnum.REFUND }],
+		type: CashFlowCategoryTypeEnum.CORRECTION,
+		categories: [CashFlowCategoryEnum.REFUND],
 	},
 ];
 
-// A group left with no options is dropped, so its header does not render as an empty section
-export const filterGroupedCategories = (excludeValues: CashFlowCategory[]) => {
-	return GroupedCategories.map((group) => ({
-		...group,
-		options: group.options.filter(
-			(option) => !excludeValues.includes(option.value),
-		),
+/**
+ * The category select's grouped options. The wording comes from the caller (`label`), so the
+ * model holds none. A group left with no options is dropped, so its header does not render as an
+ * empty section.
+ */
+export const groupedCategoryOptions = (
+	label: {
+		type: (type: CashFlowCategoryType) => string;
+		category: (category: CashFlowCategory) => string;
+	},
+	excludeValues: readonly CashFlowCategory[] = [],
+) => {
+	return CASH_FLOW_CATEGORY_GROUPS.map((group) => ({
+		label: label.type(group.type),
+		options: group.categories
+			.filter((category) => !excludeValues.includes(category))
+			.map((category) => ({
+				label: label.category(category),
+				value: category,
+			})),
 	})).filter((group) => group.options.length > 0);
 };
 

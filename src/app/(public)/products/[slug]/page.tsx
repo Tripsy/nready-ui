@@ -15,6 +15,7 @@ import {
 	ProductRelated,
 	toRelatedCategories,
 } from '@/app/(public)/_components/product/product-related.component';
+import { ProductStockStatusLine } from '@/app/(public)/_components/product/product-stock-status.component';
 import { ProductTags } from '@/app/(public)/_components/product/product-tags.component';
 import {
 	PRODUCT_VARIANT_CHOOSER_TRANSLATION_KEYS,
@@ -75,6 +76,10 @@ const TRANSLATION_KEYS = [
 	'text.heading',
 	'text.back_to_list',
 	'text.unavailable',
+	'text.stock_in_stock',
+	'text.stock_low_stock',
+	'text.stock_backorder',
+	'text.stock_out_of_stock',
 	'text.no_description',
 	'text.price_from',
 	'text.variants',
@@ -257,6 +262,13 @@ export default async function Page(props: Props) {
 
 	const { entry } = result;
 	const content = getContent(entry);
+
+	const stockLabels = {
+		in_stock: translations['text.stock_in_stock'],
+		low_stock: translations['text.stock_low_stock'],
+		backorder: translations['text.stock_backorder'],
+		out_of_stock: translations['text.stock_out_of_stock'],
+	};
 
 	if (!content) {
 		// Sellable with no translation the visitor can be served - nothing to render.
@@ -551,6 +563,13 @@ export default async function Page(props: Props) {
 						 */}
 						{selected && isBundle && (
 							<div className="rounded-2xl border border-border bg-surface p-6">
+								<ProductStockStatusLine
+									productId={entry.id}
+									variantId={selected.id}
+									labels={stockLabels}
+									className="mb-4"
+								/>
+
 								<ProductBundleBuilder
 									productId={entry.id}
 									variantId={selected.id}
@@ -628,7 +647,18 @@ export default async function Page(props: Props) {
 								)}
 
 								{/*
-								 * The one client island on the page, under the price it is about
+								 * Under the price and above the button, where a shopper reads it
+								 * as part of the offer. Read live - see the component.
+								 */}
+								<ProductStockStatusLine
+									productId={entry.id}
+									variantId={selected.id}
+									labels={stockLabels}
+									className="mt-2 mb-4"
+								/>
+
+								{/*
+								 * The client island that takes the order, under the price it is about
 								 * to charge. The variant is already decided by the chooser in the
 								 * left column (or by the product's default), so this only carries
 								 * the quantity - and the answers, when the product asks questions

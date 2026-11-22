@@ -11,6 +11,9 @@ import type { CartDataTableFiltersType } from '@/app/(dashboard)/dashboard/cart/
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
+
+const TRANSLATION_KEYS = ['cart.field.currency', 'cart.field.user_id'] as const;
 
 /**
  * The filter bar.
@@ -23,6 +26,8 @@ import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
  * state to filter by and nothing removed to bring back into the listing.
  */
 export const DataTableFiltersCart = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'cart'>();
 
@@ -73,13 +78,13 @@ export const DataTableFiltersCart = (): JSX.Element => {
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			{/* Guest carts name no user, so filtering by one returns members' carts only. */}
 			<FormFiltersSearch<CartDataTableFiltersType>
-				labelText="User ID"
+				labelText={translations['cart.field.user_id']}
 				fieldName="user_id"
 				search={searchUserId}
 			/>
 
 			<FormFiltersSearch<CartDataTableFiltersType>
-				labelText="Currency"
+				labelText={translations['cart.field.currency']}
 				fieldName="currency"
 				search={searchCurrency}
 			/>

@@ -1,9 +1,12 @@
+'use client';
+
 import { useState } from 'react';
 import { FormComponentAutoComplete } from '@/components/form/form-element.component';
 import { Icons } from '@/components/icon.component';
 import { requestFind } from '@/helpers/services.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type ClientModel,
 	ClientStatusEnum,
@@ -11,6 +14,8 @@ import {
 } from '@/models/client.model';
 import { useWindowForm } from '@/providers/window-form.provider';
 import type { FindFunctionResponseType } from '@/types/action.type';
+
+const TRANSLATION_KEYS = ['invoice.field.client'] as const;
 
 export type InvoiceCreateFormValuesType = {
 	client_id: number | null;
@@ -28,6 +33,8 @@ export type InvoiceCreateFormValuesType = {
  * form for both, rather than a second one to keep in step with it.
  */
 export function FormCreateInvoice() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<InvoiceCreateFormValuesType>();
 
@@ -63,7 +70,7 @@ export function FormCreateInvoice() {
 			/>
 
 			<FormComponentAutoComplete<InvoiceCreateFormValuesType, ClientModel>
-				labelText="Client"
+				labelText={translations['invoice.field.client']}
 				id={elementIds.client}
 				fieldName="client"
 				fieldValue={formValues.client ?? ''}

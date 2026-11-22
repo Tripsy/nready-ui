@@ -10,6 +10,11 @@ import { Button } from '@/components/ui/button';
 import { DisplayStatus } from '@/helpers/display.helper';
 import { getStatusTransitions } from '@/helpers/model.helper';
 import { requestUpdateStatus } from '@/helpers/services.helper';
+import {
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type InvoiceModel,
@@ -19,6 +24,22 @@ import {
 } from '@/models/invoice.model';
 import { useToast } from '@/providers/toast.provider';
 import { useModalStore } from '@/stores/window.store';
+
+const TRANSLATION_KEYS = [
+	'invoice.text.back',
+	'invoice.text.change_invoice_status_to',
+	'invoice.text.change_status_to',
+	'invoice.text.confirm',
+	'dashboard.text.label_set_status_to',
+	'invoice.text.this_invoice_cannot_change_status_any',
+	'app.error.title',
+	'app.success.title',
+	'invoice.action.statusTransition.confirm_issued',
+	'invoice.action.statusTransition.confirm_canceled',
+	'invoice.action.statusTransition.success_issued',
+	'invoice.action.statusTransition.success_canceled',
+	...enumTranslationKeys('invoice.status', InvoiceStatusEnum),
+] as const;
 
 /**
  * Where the document may go from where it currently sits - a draft is issued or canceled, an
@@ -38,17 +59,8 @@ export function StatusTransitionInvoice({
 
 	const { showToast } = useToast();
 
-	const translationsKeys = [
-		'app.error.title',
-		'app.success.title',
-		'invoice.action.statusTransition.confirm_issued',
-		'invoice.action.statusTransition.confirm_canceled',
-		'invoice.action.statusTransition.success_issued',
-		'invoice.action.statusTransition.success_canceled',
-	] as const;
-
 	const { isTranslationLoading, translations } =
-		useTranslation(translationsKeys);
+		useTranslation(TRANSLATION_KEYS);
 
 	const [pending, setPending] = useState<InvoiceStatus | null>(null);
 	const [isSaving, setIsSaving] = useState(false);
@@ -71,7 +83,13 @@ export function StatusTransitionInvoice({
 
 	if (!statusTransitions.length) {
 		return (
-			<ErrorComponent description="This invoice cannot change status any more." />
+			<ErrorComponent
+				description={
+					translations[
+						'invoice.text.this_invoice_cannot_change_status_any'
+					]
+				}
+			/>
 		);
 	}
 
@@ -112,7 +130,9 @@ export function StatusTransitionInvoice({
 		return (
 			<div>
 				<div className="flex items-center gap-2 pb-4">
-					<span className="font-semibold">Change status to:</span>
+					<span className="font-semibold">
+						{translations['invoice.text.change_status_to']}
+					</span>
 					<DisplayStatus status={pending} dataSource="invoice" />
 				</div>
 
@@ -125,7 +145,7 @@ export function StatusTransitionInvoice({
 						disabled={isSaving}
 						onClick={() => setPending(null)}
 					>
-						Back
+						{translations['invoice.text.back']}
 					</Button>
 
 					<Button
@@ -133,7 +153,7 @@ export function StatusTransitionInvoice({
 						disabled={isSaving}
 						onClick={() => handleConfirm(pending)}
 					>
-						Confirm
+						{translations['invoice.text.confirm']}
 					</Button>
 				</div>
 			</div>
@@ -142,14 +162,25 @@ export function StatusTransitionInvoice({
 
 	return (
 		<div>
-			<p className="pb-4 font-semibold">Change invoice status to:</p>
+			<p className="pb-4 font-semibold">
+				{translations['invoice.text.change_invoice_status_to']}
+			</p>
 			<div className="flex flex-wrap gap-4 items-center">
 				{statusTransitions.map((status) => (
 					<button
 						key={status}
 						type="button"
 						className="cursor-pointer"
-						aria-label={`Set status to ${status}`}
+						aria-label={replaceVars(
+							translations['dashboard.text.label_set_status_to'],
+							{
+								status: translateEnumLabel(
+									translations,
+									'invoice.status',
+									status,
+								),
+							},
+						)}
 						onClick={() => setPending(status)}
 					>
 						<DisplayStatus status={status} dataSource="invoice" />

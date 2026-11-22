@@ -1,5 +1,3 @@
-import { formatEnumLabel } from '@/helpers/string.helper';
-
 /**
  * Mirrors `complaint` in the backend. There is no create and no update here: a complaint is filed
  * by a reader through `/public/complaints`, and the text is their accusation - a moderator decides
@@ -91,8 +89,11 @@ export type ComplaintPublicReadType = {
  * picks the table at read time - and a comment is hard-deleted, so the id may name a row that is
  * no longer there. The complaint outlives it on purpose.
  */
-export const displayComplaintTarget = (entry: ComplaintModel): string =>
-	`${formatEnumLabel(entry.entity_type)} #${entry.entity_id}`;
+/** `entityTypeLabel` is the caller's (translated) name for `entry.entity_type`. */
+export const displayComplaintTarget = (
+	entry: ComplaintModel,
+	entityTypeLabel: string,
+): string => `${entityTypeLabel} #${entry.entity_id}`;
 
 export const displayComplaintReporter = (entry: ComplaintModel): string =>
 	entry.user ? `${entry.user.name} (#${entry.user_id})` : `#${entry.user_id}`;
@@ -101,9 +102,8 @@ export const displayComplaintReporter = (entry: ComplaintModel): string =>
  * Enough to recognize the row by, for a window title. The id is left out: the window appends
  * `(#id)` itself, and carrying it here would print it twice.
  */
-export const displayComplaintLabel = (entry: ComplaintModel): string =>
-	`${formatEnumLabel(entry.reason)} - ${displayComplaintTarget(entry)}`;
-
-/** The resolution as a word, for a cell that would otherwise print a bare boolean. */
-export const displayComplaintResolution = (entry: ComplaintModel): string =>
-	entry.is_resolved ? 'Resolved' : 'Open';
+export const displayComplaintLabel = (
+	entry: ComplaintModel,
+	wording: { reason: string; entityType: string },
+): string =>
+	`${wording.reason} - ${displayComplaintTarget(entry, wording.entityType)}`;

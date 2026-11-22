@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { FormFiltersSelect } from '@/app/(dashboard)/_components/form-filters.component';
 import {
 	PanelBody,
@@ -9,15 +9,30 @@ import {
 	type PanelView,
 } from '@/app/(dashboard)/_components/stats/panel.component';
 import { Badge, type BadgeVariant } from '@/components/ui/badge';
+import { getLanguageClient } from '@/config/translate.setup';
 import { timeAgo } from '@/helpers/date.helper';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
 import { requestFind } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type CronHistoryModel,
 	type CronHistoryStatus,
 	CronHistoryStatusEnum,
 } from '@/models/cron-history.model';
+
+const TRANSLATION_KEYS = [
+	'dashboard.field.status',
+	'dashboard.text.failed_to_load_cron_history',
+	'dashboard.text.no_cron_runs_found',
+	'dashboard.text.all_statuses',
+	'cron-history.text.run_time_seconds',
+	...enumTranslationKeys('cron-history.status', CronHistoryStatusEnum),
+] as const;
 
 const ENTRY_LIMIT = 10;
 
@@ -25,11 +40,6 @@ const ENTRY_LIMIT = 10;
 const FILTER_ALL = 'all';
 
 type StatusFilter = CronHistoryStatus | typeof FILTER_ALL;
-
-const statusOptions = [
-	{ label: 'All statuses', value: FILTER_ALL },
-	...toOptionsFromEnum(CronHistoryStatusEnum, { formatter: formatEnumLabel }),
-];
 
 const STATUS_VARIANT: Record<CronHistoryStatus, BadgeVariant> = {
 	[CronHistoryStatusEnum.ERROR]: 'error',
@@ -40,6 +50,26 @@ const STATUS_VARIANT: Record<CronHistoryStatus, BadgeVariant> = {
 };
 
 export function useCronHistoryPanel(): PanelView {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const statusOptions = useMemo(
+		() => [
+			{
+				label: translations['dashboard.text.all_statuses'],
+				value: FILTER_ALL,
+			},
+			...toOptionsFromEnum(CronHistoryStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'cron-history.status',
+						value,
+					),
+			}),
+		],
+		[translations],
+	);
+
 	// Opens on failures, for the same reason as the mail queue: successful runs are the norm.
 	const [status, setStatus] = useState<StatusFilter>(
 		CronHistoryStatusEnum.ERROR,
@@ -74,7 +104,7 @@ export function useCronHistoryPanel(): PanelView {
 		isAlert: status === CronHistoryStatusEnum.ERROR,
 		filters: (
 			<FormFiltersSelect<{ status: StatusFilter }>
-				labelText="Status"
+				labelText={translations['dashboard.field.status']}
 				fieldName="status"
 				fieldValue={status}
 				options={statusOptions}
@@ -86,21 +116,35 @@ export function useCronHistoryPanel(): PanelView {
 				isLoading={isLoading}
 				isError={isError}
 				isEmpty={!data || data.entries.length === 0}
-				errorText="Failed to load cron history"
-				emptyText="No cron runs found"
+				errorText={
+					translations['dashboard.text.failed_to_load_cron_history']
+				}
+				emptyText={translations['dashboard.text.no_cron_runs_found']}
 			>
 				{data?.entries.map((entry) => (
-					<PanelRow key={entry.id} aside={timeAgo(entry.start_at)}>
+					<PanelRow
+						key={entry.id}
+						aside={timeAgo(entry.start_at, getLanguageClient())}
+					>
 						<p className="font-medium truncate">{entry.label}</p>
 						<div className="flex items-center gap-2 mt-1">
 							<Badge
 								size="xs"
 								variant={STATUS_VARIANT[entry.status]}
 							>
-								{formatEnumLabel(entry.status)}
+								{translateEnumLabel(
+									translations,
+									'cron-history.status',
+									entry.status,
+								)}
 							</Badge>
 							<span className="text-sm text-muted">
-								{entry.run_time}s
+								{replaceVars(
+									translations[
+										'cron-history.text.run_time_seconds'
+									],
+									{ seconds: entry.run_time },
+								)}
 							</span>
 						</div>
 					</PanelRow>

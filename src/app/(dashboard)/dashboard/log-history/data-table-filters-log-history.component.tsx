@@ -12,13 +12,13 @@ import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { LogHistoryDataTableFiltersType } from '@/app/(dashboard)/dashboard/log-history/log-history.definition';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
 import {
-	capitalizeFirstLetter,
-	formatEnumLabel,
-	toTitleCase,
+	enumTranslationKeys,
+	translateEnumLabel,
 } from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	LogHistoryActions,
 	LogHistoryEntities,
@@ -26,21 +26,60 @@ import {
 	LogHistorySourceEnum,
 } from '@/models/log-history.model';
 
-const entities = LogHistoryEntities.map((v) => ({
-	label: toTitleCase(v),
-	value: v,
-}));
-
-const actions = LogHistoryActions.map((v) => ({
-	label: capitalizeFirstLetter(v),
-	value: v,
-}));
-
-const sources = toOptionsFromEnum(LogHistorySourceEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'log-history.field.action',
+	'log-history.field.entity',
+	'log-history.field.recorded_at',
+	'log-history.field.request_id',
+	'log-history.field.entity_id',
+	'log-history.field.source',
+	...enumTranslationKeys('log-history.enum.source', LogHistorySourceEnum),
+	...enumTranslationKeys('log-history.enum.entity', LogHistoryEntities),
+	...enumTranslationKeys('log-history.enum.action', LogHistoryActions),
+] as const;
 
 export const DataTableFiltersLogHistory = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const actions = useMemo(
+		() =>
+			LogHistoryActions.map((v) => ({
+				label: translateEnumLabel(
+					translations,
+					'log-history.enum.action',
+					v,
+				),
+				value: v,
+			})),
+		[translations],
+	);
+
+	const entities = useMemo(
+		() =>
+			LogHistoryEntities.map((v) => ({
+				label: translateEnumLabel(
+					translations,
+					'log-history.enum.entity',
+					v,
+				),
+				value: v,
+			})),
+		[translations],
+	);
+
+	const sources = useMemo(
+		() =>
+			toOptionsFromEnum(LogHistorySourceEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'log-history.enum.source',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'log-history'>();
 
@@ -89,13 +128,13 @@ export const DataTableFiltersLogHistory = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<LogHistoryDataTableFiltersType>
-				labelText="Request ID"
+				labelText={translations['log-history.field.request_id']}
 				fieldName="request_id"
 				search={searchRequestId}
 			/>
 
 			<FormFiltersSelect<LogHistoryDataTableFiltersType>
-				labelText="Entity"
+				labelText={translations['log-history.field.entity']}
 				fieldName="entity"
 				fieldValue={filters.entity.value}
 				options={entities}
@@ -103,13 +142,13 @@ export const DataTableFiltersLogHistory = (): JSX.Element => {
 			/>
 
 			<FormFiltersSearch<LogHistoryDataTableFiltersType>
-				labelText="Entity ID"
+				labelText={translations['log-history.field.entity_id']}
 				fieldName="entity_id"
 				search={searchEntityId}
 			/>
 
 			<FormFiltersSelect<LogHistoryDataTableFiltersType>
-				labelText="Action"
+				labelText={translations['log-history.field.action']}
 				fieldName="action"
 				fieldValue={filters.action.value}
 				options={actions}
@@ -117,7 +156,7 @@ export const DataTableFiltersLogHistory = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<LogHistoryDataTableFiltersType>
-				labelText="Source"
+				labelText={translations['log-history.field.source']}
 				fieldName="source"
 				fieldValue={filters.source.value}
 				options={sources}
@@ -127,7 +166,7 @@ export const DataTableFiltersLogHistory = (): JSX.Element => {
 			/>
 
 			<FormFiltersDateRange<LogHistoryDataTableFiltersType>
-				labelText="Recorded At"
+				labelText={translations['log-history.field.recorded_at']}
 				start={{
 					fieldName: 'recorded_at_start',
 					fieldValue: filters.recorded_at_start.value,

@@ -1,3 +1,4 @@
+import { APP_VERSION } from '@/config/app-version';
 import { logger } from '@/helpers/logger.helper';
 import { getObjectValue, type ObjectValue } from '@/helpers/objects.helper';
 import {
@@ -13,6 +14,7 @@ function loadSettings() {
 			environment: process.env.NEXT_PUBLIC_NODE_ENV || 'production',
 			url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost',
 			name: process.env.NEXT_PUBLIC_APP_NAME || 'NReady',
+			version: APP_VERSION,
 			timezone: process.env.NEXT_PUBLIC_TIMEZONE || 'UTC',
 			currency: (process.env.NEXT_PUBLIC_APP_CURRENCY ||
 				'RON') as Currency,

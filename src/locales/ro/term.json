@@ -55,5 +55,34 @@
 		"note": "Ștergerea unui termen este una logică și nimic nu verifică ce face referire la el, deci înregistrările care îl folosesc deja continuă să funcționeze. Regula de duplicat ignoră rândurile șterse, ceea ce eliberează imediat formularea - și înseamnă că restaurarea eșuează dacă între timp alt termen de același tip a preluat-o.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"field": {
+		"search": "ID / Valoare",
+		"type": "Tip",
+		"language": "Limbă",
+		"value": "Valoare",
+		"id": "ID",
+		"contents": "Valoare",
+		"created_at": "Creat la",
+		"updated_at": "Actualizat la",
+		"deleted_at": "Șters la"
+	},
+	"section": {
+		"language_specific": "Specifică limbii",
+		"wording": "Formulare",
+		"timestamps": "Marcaje de timp"
+	},
+	"text": {
+		"placeholder_value": "ex.: Impermeabil",
+		"not_translated": "netradus"
+	},
+	"enum": {
+		"type": {
+			"tag": "Etichetă",
+			"attribute_label": "Nume atribut",
+			"attribute_value": "Valoare atribut",
+			"text": "Text",
+			"bundle_choice": "Opțiune pachet"
+		}
 	}
 }

@@ -11,15 +11,21 @@ import {
 	requestUpdateStatus,
 	requestView,
 } from '@/helpers/services.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { type AccountModel, hasPermission } from '@/models/account.model';
 import {
 	displayImageLabel,
 	getImageContent,
 	type ImageModel,
 	type ImageSection,
+	ImageSectionEnum,
 	type ImageStatus,
 	ImageStatusEnum,
 	type ImageType,
+	ImageTypeEnum,
 	showImage,
 } from '@/models/image.model';
 import type { PermissionEntityType } from '@/models/permission.model';
@@ -42,16 +48,32 @@ export type ImageDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<ImageModel>
 > {
-	const translations = await translateBatch(
-		[
-			'view.title',
-			'delete.title',
-			'enable.title',
-			'disable.title',
-			'guide.title',
-		] as const,
-		'image.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'view.title',
+				'delete.title',
+				'enable.title',
+				'disable.title',
+				'guide.title',
+			] as const,
+			'image.action',
+		),
+		translateBatch(
+			[
+				'field.created_at',
+				'field.image',
+				'field.entity_id',
+				'field.id',
+				'field.image_type',
+				'field.section',
+				'field.status',
+				...enumTranslationKeys('enum.type', ImageTypeEnum),
+				...enumTranslationKeys('enum.section', ImageSectionEnum),
+			] as const,
+			'image',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -116,7 +138,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -127,7 +149,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'display-image',
-					header: 'Image',
+					header: labels['field.image'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							customValue: displayImage({
@@ -142,23 +164,31 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'image_type',
-					header: 'Type',
+					header: labels['field.image_type'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							capitalize: true,
+							customValue: translateEnumLabel(
+								labels,
+								'enum.type',
+								entry.image_type,
+							),
 						}),
 				},
 				{
 					field: 'section',
-					header: 'Section',
+					header: labels['field.section'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							capitalize: true,
+							customValue: translateEnumLabel(
+								labels,
+								'enum.section',
+								entry.section,
+							),
 						}),
 				},
 				{
 					field: 'entity_id',
-					header: 'Entity ID',
+					header: labels['field.entity_id'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							customValue: entry.entity_id.toString(),
@@ -170,7 +200,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'status',
-					header: 'Status',
+					header: labels['field.status'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							dataSource: 'image',
@@ -183,7 +213,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							displayDate: true,

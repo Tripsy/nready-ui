@@ -19,6 +19,10 @@ import {
 	requestUpdate,
 } from '@/helpers/services.helper';
 import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import {
 	BaseValidator,
 	resolveValidatorMessages,
 	sharedValidatorMessages,
@@ -30,7 +34,7 @@ import {
 	EXCHANGE_RATE_MAX_DECIMALS,
 	type ExchangeRateModel,
 	type ExchangeRateSource,
-	ExchangeRateSourceLabels,
+	ExchangeRateSourceEnum,
 	isWithinUpdateWindow,
 } from '@/models/exchange-rate.model';
 import type { FindFunctionParamsType } from '@/types/action.type';
@@ -170,16 +174,31 @@ export type ExchangeRateDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<ExchangeRateModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'view.title',
-			'delete.title',
-			'guide.title',
-		] as const,
-		'exchange-rate.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'view.title',
+				'delete.title',
+				'guide.title',
+			] as const,
+			'exchange-rate.action',
+		),
+		translateBatch(
+			[
+				'field.created_at',
+				'field.currency',
+				'field.id',
+				'field.provider',
+				'field.rate',
+				'field.rate_date',
+				'field.source',
+				...enumTranslationKeys('enum.source', ExchangeRateSourceEnum),
+			] as const,
+			'exchange-rate',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -213,7 +232,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -223,13 +242,13 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'rate_date',
-					header: 'Rate Date',
+					header: labels['field.rate_date'],
 					defaultWidth: 128,
 					sortable: true,
 				},
 				{
 					field: 'currency',
-					header: 'Currency',
+					header: labels['field.currency'],
 					defaultWidth: 112,
 					sortable: true,
 				},
@@ -237,7 +256,7 @@ export default async function dataSourceConfig(): Promise<
 					// One unit of `currency` in `base_currency`, which is why the two are shown
 					// together rather than as a bare number
 					field: 'rate',
-					header: 'Rate',
+					header: labels['field.rate'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							customValue: `${entry.rate} ${entry.base_currency}`,
@@ -245,21 +264,25 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'source',
-					header: 'Source',
+					header: labels['field.source'],
 					defaultWidth: 112,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: ExchangeRateSourceLabels[entry.source],
+							customValue: translateEnumLabel(
+								labels,
+								'enum.source',
+								entry.source,
+							),
 						}),
 				},
 				{
 					field: 'provider',
-					header: 'Provider',
+					header: labels['field.provider'],
 					defaultWidth: 128,
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							displayDate: true,

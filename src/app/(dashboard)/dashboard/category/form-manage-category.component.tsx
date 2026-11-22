@@ -1,4 +1,6 @@
-import { useState } from 'react';
+'use client';
+
+import { useMemo, useState } from 'react';
 import {
 	FormComponentAutoComplete,
 	FormComponentInput,
@@ -10,9 +12,13 @@ import { Configuration } from '@/config/settings.config';
 import { getLanguageClient } from '@/config/translate.setup';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
 import { requestFind } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	CATEGORY_DEFAULT_TYPE,
 	type CategoryContentType,
@@ -27,6 +33,21 @@ import type { FindFunctionResponseType } from '@/types/action.type';
 import { type Language, LanguageEnum } from '@/types/common.type';
 import type { PageMeta } from '@/types/page-meta.type';
 
+const TRANSLATION_KEYS = [
+	'category.field.description',
+	'category.field.label',
+	'category.field.meta_description',
+	'category.field.meta_keywords',
+	'category.field.meta_title',
+	'category.field.parent',
+	'category.field.slug',
+	'category.field.type',
+	'category.section.language_specific',
+	'category.text.placeholder_label',
+	'category.text.placeholder_slug',
+	...enumTranslationKeys('category.enum.type', CategoryTypeEnum),
+] as const;
+
 export type CategoryFormValuesType = {
 	type: CategoryType;
 	parent_id: number | null;
@@ -37,11 +58,22 @@ export type CategoryFormValuesType = {
 
 const languages = Object.values(LanguageEnum);
 
-const categoryTypes = toOptionsFromEnum(CategoryTypeEnum, {
-	formatter: formatEnumLabel,
-});
-
 export function FormManageCategory() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const categoryTypes = useMemo(
+		() =>
+			toOptionsFromEnum(CategoryTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'category.enum.type',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { formOperation, formValues, errors, handleChange, pending } =
 		useWindowForm<CategoryFormValuesType>();
 
@@ -151,7 +183,7 @@ export function FormManageCategory() {
 	return (
 		<>
 			<FormComponentRadio<CategoryFormValuesType>
-				labelText="Type"
+				labelText={translations['category.field.type']}
 				id={elementIds.type}
 				fieldName="type"
 				fieldValue={formValues.type ?? CATEGORY_DEFAULT_TYPE}
@@ -173,7 +205,7 @@ export function FormManageCategory() {
 				value={formValues.parent_id ?? ''}
 			/>
 			<FormComponentAutoComplete<CategoryFormValuesType, CategoryModel>
-				labelText="Parent"
+				labelText={translations['category.field.parent']}
 				id={elementIds.parent}
 				fieldName="parent"
 				fieldValue={formValues.parent ?? ''}
@@ -225,7 +257,7 @@ export function FormManageCategory() {
 			>
 				<div className="flex items-center border-b border-line pb-2 gap-2">
 					<h3 className="font-bold whitespace-nowrap">
-						Language specific
+						{translations['category.section.language_specific']}
 					</h3>
 					<TabsList>
 						{languages.map((language) => (
@@ -251,13 +283,19 @@ export function FormManageCategory() {
 							<div className="form-section">
 								<FormComponentInput<CategoryContentType>
 									id={`${elementIds.contents}-${language}-label`}
-									labelText="Label"
+									labelText={
+										translations['category.field.label']
+									}
 									fieldName="label"
 									fieldValue={
 										contentsMap[language]?.label ?? ''
 									}
 									isRequired={true}
-									placeholderText="eg: Travel guides"
+									placeholderText={
+										translations[
+											'category.text.placeholder_label'
+										]
+									}
 									disabled={pending}
 									onChange={(e) =>
 										handleContentChange(
@@ -276,12 +314,18 @@ export function FormManageCategory() {
 
 								<FormComponentInput<CategoryContentType>
 									id={`${elementIds.contents}-${language}-slug`}
-									labelText="Slug"
+									labelText={
+										translations['category.field.slug']
+									}
 									fieldName="slug"
 									fieldValue={
 										contentsMap[language]?.slug ?? ''
 									}
-									placeholderText="Derived from the label when left empty"
+									placeholderText={
+										translations[
+											'category.text.placeholder_slug'
+										]
+									}
 									disabled={pending}
 									onChange={(e) =>
 										handleContentChange(
@@ -300,7 +344,11 @@ export function FormManageCategory() {
 
 								<FormComponentInput<CategoryContentType>
 									id={`${elementIds.contents}-${language}-description`}
-									labelText="Description"
+									labelText={
+										translations[
+											'category.field.description'
+										]
+									}
 									fieldName="description"
 									fieldValue={
 										contentsMap[language]?.description ?? ''
@@ -324,7 +372,11 @@ export function FormManageCategory() {
 
 								<FormComponentInput<PageMeta>
 									id={`${elementIds.contents}-${language}-meta-title`}
-									labelText="Meta Title"
+									labelText={
+										translations[
+											'category.field.meta_title'
+										]
+									}
 									fieldName="title"
 									fieldValue={
 										contentsMap[language]?.meta?.title ?? ''
@@ -347,7 +399,11 @@ export function FormManageCategory() {
 
 								<FormComponentInput<PageMeta>
 									id={`${elementIds.contents}-${language}-meta-description`}
-									labelText="Meta Description"
+									labelText={
+										translations[
+											'category.field.meta_description'
+										]
+									}
 									fieldName="description"
 									fieldValue={
 										contentsMap[language]?.meta
@@ -371,7 +427,11 @@ export function FormManageCategory() {
 
 								<FormComponentInput<PageMeta>
 									id={`${elementIds.contents}-${language}-meta-keywords`}
-									labelText="Meta Keywords"
+									labelText={
+										translations[
+											'category.field.meta_keywords'
+										]
+									}
 									fieldName="keywords"
 									fieldValue={
 										contentsMap[language]?.meta?.keywords ??

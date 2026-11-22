@@ -11,9 +11,14 @@ import type { ArticleDataTableFiltersType } from '@/app/(dashboard)/dashboard/ar
 import { Icons } from '@/components/icon.component';
 import { getLanguageClient } from '@/config/translate.setup';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	languageOwnName,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type ArticleFeaturedStatus,
 	ArticleFeaturedStatusEnum,
@@ -24,12 +29,18 @@ import {
 } from '@/models/category.model';
 import { type Language, LanguageEnum } from '@/types/common.type';
 
-const featuredStatuses = toOptionsFromEnum(ArticleFeaturedStatusEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'article.field.category',
+	'article.field.featured_status',
+	'article.field.language',
+	...enumTranslationKeys(
+		'article.enum.featured_status',
+		ArticleFeaturedStatusEnum,
+	),
+] as const;
 
 const languages = toOptionsFromEnum(LanguageEnum, {
-	formatter: formatEnumLabel,
+	formatter: languageOwnName,
 });
 
 /**
@@ -37,6 +48,21 @@ const languages = toOptionsFromEnum(LanguageEnum, {
  * `category` one - a section slot has no subtree to scope to, and the API rejects the pair.
  */
 export const DataTableFiltersArticleOrder = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const featuredStatuses = useMemo(
+		() =>
+			toOptionsFromEnum(ArticleFeaturedStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'article.enum.featured_status',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'article'>();
 
@@ -79,7 +105,7 @@ export const DataTableFiltersArticleOrder = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSelect<ArticleDataTableFiltersType>
-				labelText="Featured slot"
+				labelText={translations['article.field.featured_status']}
 				fieldName="featured_status"
 				fieldValue={featuredStatus}
 				options={featuredStatuses}
@@ -101,7 +127,7 @@ export const DataTableFiltersArticleOrder = (): JSX.Element => {
 					ArticleDataTableFiltersType,
 					CategoryModel
 				>
-					labelText="Category"
+					labelText={translations['article.field.category']}
 					fieldName="category"
 					fieldNameId="category_id"
 					fieldValue={searchCategory}
@@ -123,7 +149,7 @@ export const DataTableFiltersArticleOrder = (): JSX.Element => {
 			)}
 
 			<FormFiltersSelect<ArticleDataTableFiltersType>
-				labelText="Language"
+				labelText={translations['article.field.language']}
 				fieldName="language"
 				fieldValue={filters.language.value ?? getLanguageClient()}
 				options={languages}

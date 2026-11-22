@@ -112,19 +112,32 @@ export type WarehouseDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<WarehouseModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'view.title',
-			'delete.title',
-			'restore.title',
-			'enable.title',
-			'disable.title',
-			'guide.title',
-		] as const,
-		'warehouse.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'view.title',
+				'delete.title',
+				'restore.title',
+				'enable.title',
+				'disable.title',
+				'guide.title',
+			] as const,
+			'warehouse.action',
+		),
+		translateBatch(
+			[
+				'field.code',
+				'field.created_at',
+				'field.id',
+				'field.name',
+				'field.status',
+				'text.default_warehouse',
+			] as const,
+			'warehouse',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -175,7 +188,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -186,7 +199,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'code',
-					header: 'Code',
+					header: labels['field.code'],
 					sortable: true,
 				},
 				{
@@ -194,7 +207,7 @@ export default async function dataSourceConfig(): Promise<
 					// own: at most one row in the table can carry it, so a dedicated column
 					// would be blank on every line but one
 					field: 'name',
-					header: 'Name',
+					header: labels['field.name'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -202,13 +215,13 @@ export default async function dataSourceConfig(): Promise<
 								value: entry.name,
 								isFlagged: entry.is_default,
 								icon: Icons.Star,
-								title: 'Default warehouse',
+								title: labels['text.default_warehouse'],
 							}),
 						}),
 				},
 				{
 					field: 'status',
-					header: 'Status',
+					header: labels['field.status'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							dataSource: 'warehouse',
@@ -221,7 +234,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

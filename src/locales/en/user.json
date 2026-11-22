@@ -84,5 +84,44 @@
 		"note": "Deleting a user is a soft delete - the row keeps its email, so creating a new account with that address fails until the old one is restored or purged.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"field": {
+		"search": "ID / Email / Name",
+		"status": "Status",
+		"role": "Role",
+		"name": "Name",
+		"email": "Email",
+		"password": "Password",
+		"password_confirm": "Confirm Password",
+		"language": "Language",
+		"operator_type": "Operator Type",
+		"id": "ID",
+		"created_at": "Created At",
+		"deleted_at": "Deleted At",
+		"updated_at": "Updated At"
+	},
+	"text": {
+		"placeholder_password_confirm": "Password confirmation",
+		"entity_permissions_granted": "All '{{entity}}' permissions granted",
+		"entity_permissions_revoked": "All '{{entity}}' permissions revoked",
+		"permission_granted": "'{{label}}' granted",
+		"permission_revoked": "'{{label}}' revoked"
+	},
+	"section": {
+		"profile": "Profile",
+		"account_info": "Account Info",
+		"timestamps": "Timestamps"
+	},
+	"enum": {
+		"role": {
+			"admin": "Admin",
+			"member": "Member",
+			"operator": "Operator"
+		},
+		"operator_type": {
+			"seller": "Seller",
+			"product_manager": "Product Manager",
+			"content_editor": "Content Editor"
+		}
 	}
 }

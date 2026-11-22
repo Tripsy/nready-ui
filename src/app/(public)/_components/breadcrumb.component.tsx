@@ -1,8 +1,13 @@
+'use client';
+
 import {
 	type BreadcrumbItem,
 	Breadcrumb as BreadcrumbLayout,
 } from '@/components/layout/breadcrumb.component';
 import Routes from '@/config/routes.setup';
+import { useTranslation } from '@/hooks/use-translation.hook';
+
+const TRANSLATION_KEYS = ['app.text.label_breadcrumb'] as const;
 
 export type { BreadcrumbItem };
 
@@ -13,5 +18,13 @@ export type { BreadcrumbItem };
  * agrees on - where "home" is - is stated once.
  */
 export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
-	return <BreadcrumbLayout items={items} homeHref={Routes.get('home')} />;
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	return (
+		<BreadcrumbLayout
+			items={items}
+			homeHref={Routes.get('home')}
+			ariaLabel={translations['app.text.label_breadcrumb']}
+		/>
+	);
 }

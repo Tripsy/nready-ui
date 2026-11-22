@@ -21,14 +21,6 @@
 			"label": "Usage guide"
 		}
 	},
-	"issue": {
-		"variant_gone": "Product removed from the catalog",
-		"not_sellable": "Outside its availability window",
-		"no_price": "No price in this currency",
-		"option_gone": "A chosen option no longer exists",
-		"option_selection": "The chosen options no longer match what this product asks for",
-		"bundle_changed": "This bundle has changed since it was added"
-	},
 	"help": {
 		"intro": "Carts are filled by shoppers on the storefront - nothing here creates or edits one. This screen is for looking: what people are carrying right now, and what it would cost them.",
 		"step_1_title": "The prices here are not stored",
@@ -62,13 +54,9 @@
 		"remove_failed": "That line could not be removed",
 		"update_failed": "The quantity could not be changed",
 		"open": "Open cart",
-		"items_one": "1 item",
-		"items_other": "{{count}} items",
-		"subtotal": "Subtotal",
 		"products_cost": "Products cost",
 		"discount": "Discount",
 		"delivery_cost": "Delivery cost",
-		"vat": "VAT",
 		"vat_included": "VAT included:",
 		"total": "Total",
 		"go_to_cart": "View cart",
@@ -76,9 +64,57 @@
 		"continue_shopping": "Continue shopping",
 		"has_issues": "Some lines can no longer be bought. Remove them to continue.",
 		"bundle_changed": "This bundle has changed since you added it - remove it and add it again.",
+		"insufficient_stock": "Only {{available}} left in stock - lower the quantity to continue.",
+		"out_of_stock": "Out of stock - remove it to continue.",
+		"insufficient_stock_bundle": "Part of this bundle is out of stock - remove it to continue.",
+		"stock_low": "Only {{available}} left",
 		"loading": "Loading…",
 		"checkout_sign_in_hint": "You will be asked to sign in or create an account first - your cart comes with you.",
 		"meta_title": "Your cart | {{app_name}}",
 		"delivery_at_checkout": "Calculated at checkout"
+	},
+	"field": {
+		"id": "ID",
+		"user_id": "User ID",
+		"currency": "Currency",
+		"expires_at": "Expires At",
+		"updated_at": "Last Activity",
+		"created_at": "Created At",
+		"shopper": "Shopper",
+		"item": "Item",
+		"qty": "Qty",
+		"unit": "Unit",
+		"vat": "VAT",
+		"discount": "Discount",
+		"total": "Total",
+		"subtotal_excl_vat": "Subtotal (excl. VAT)",
+		"exchange_rate": "Exchange Rate",
+		"checkout": "Checkout"
+	},
+	"text": {
+		"bundle": "Bundle",
+		"this_cart_is_empty": "This cart is empty.",
+		"prices_are_resolved_from_the_catalog": "Prices are resolved from the catalog when this window is opened and are not stored on the cart - they are what these lines would cost right now.",
+		"variant_ref": "Variant #{{id}}",
+		"product_variant_ref": "Product #{{product}} · Variant #{{variant}}",
+		"base_price": "base {{price}}",
+		"checkout_blocked": "Blocked - some lines can no longer be bought",
+		"user_ref": "User #{{id}}"
+	},
+	"section": {
+		"cart": "Cart",
+		"lines": "Lines",
+		"pricing": "Pricing"
+	},
+	"enum": {
+		"issue": {
+			"variant_gone": "Variant Gone",
+			"not_sellable": "Not Sellable",
+			"no_price": "No Price",
+			"option_gone": "Option Gone",
+			"option_selection": "Option Selection",
+			"bundle_changed": "Bundle Changed",
+			"insufficient_stock": "Insufficient Stock"
+		}
 	}
 }

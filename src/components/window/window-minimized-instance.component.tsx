@@ -6,9 +6,12 @@ import {
 	displayWindowTitle,
 	resolveWindowEntries,
 } from '@/helpers/window.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { useModalStore } from '@/stores/window.store';
 import type { EntriesSelectionType } from '@/types/action.type';
 import type { WindowConfig, WindowType } from '@/types/window.type';
+
+const TRANSLATION_KEYS = ['app.window.close'] as const;
 
 export function WindowMinimizedInstance({
 	current,
@@ -16,6 +19,8 @@ export function WindowMinimizedInstance({
 	current: WindowConfig;
 }) {
 	const { close, focus } = useModalStore();
+
+	const { translations } = useTranslation(TRANSLATION_KEYS);
 
 	const handleClose = () => close(current.uid);
 	const handleRestore = () => focus(current.uid);
@@ -58,7 +63,7 @@ export function WindowMinimizedInstance({
 					hover="error"
 					size="xs"
 					onClick={handleClose}
-					aria-label="Close modal"
+					aria-label={translations['app.window.close']}
 				>
 					<Icons.Close size={12} />
 				</Button>

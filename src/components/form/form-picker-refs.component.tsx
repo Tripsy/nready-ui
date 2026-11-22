@@ -11,10 +11,13 @@ import { Icons } from '@/components/icon.component';
 import { requestFind } from '@/helpers/services.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { useModalStore } from '@/stores/window.store';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { DataSourceKey } from '@/types/data-source.key';
 import { DataSourceSectionEnum } from '@/types/data-source.type';
+
+const TRANSLATION_KEYS = ['app.form.placeholder_search'] as const;
 
 /** One chip: whatever the caller resolved the selection to. */
 export type PickerRefType = {
@@ -109,6 +112,8 @@ export function FormPickerRefs<Model extends { id: number }>({
 	const { open, focus, getCurrentWindow } = useModalStore();
 	const queryClient = useQueryClient();
 
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const [search, setSearch] = useState('');
 	const elementIds = useElementIds([elementKey]);
 
@@ -186,7 +191,7 @@ export function FormPickerRefs<Model extends { id: number }>({
 				fieldName={`${fieldName}_search`}
 				fieldValue={search}
 				isRequired={isRequired}
-				placeholderText={`Search ${labelText.toLowerCase()}…`}
+				placeholderText={translations['app.form.placeholder_search']}
 				className="w-full pl-8"
 				disabled={disabled}
 				onInputChange={setSearch}

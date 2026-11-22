@@ -1,4 +1,5 @@
 import Routes from '@/config/routes.setup';
+import { replaceVars } from '@/helpers/string.helper';
 import type { OrderPaymentMethod } from '@/models/order.model';
 import { roundMoney } from '@/models/product.model';
 import type { ShippingMethod } from '@/models/shipping.model';
@@ -29,6 +30,11 @@ export const CartLineIssueEnum = {
 	OPTION_SELECTION: 'option_selection',
 	/** The bundle's composition moved under the line - it has to be removed and added again. */
 	BUNDLE_CHANGED: 'bundle_changed',
+	/**
+	 * The basket asks for more of a stock-tracked variant than is left to sell. A short component
+	 * flags its whole bundle. Lowering the quantity to `stock_available` clears it.
+	 */
+	INSUFFICIENT_STOCK: 'insufficient_stock',
 } as const;
 
 export type CartLineIssue =
@@ -125,6 +131,13 @@ export type CartLineModel = {
 	/** `subtotal - discount_reduction`, excluding VAT. */
 	total: number;
 	vat_amount: number;
+
+	/**
+	 * What is left to sell of the variant, floored at 0 - sent only when the line is short or at or
+	 * under the variant's low-stock threshold, so a storefront can say "only N left". Null on a
+	 * well-stocked or untracked variant, and always on a bundle header.
+	 */
+	stock_available: number | null;
 
 	issue: CartLineIssue | null;
 };
@@ -226,8 +239,17 @@ export function displayCartLabel(entry: CartModel): string {
  * Who is carrying it. A guest cart names nobody, which is the ordinary case rather than missing
  * data - the whole point of the feature is that a basket exists before anyone signs in.
  */
-export function displayCartOwner(entry: CartModel): string {
-	return entry.user_id ? `User #${entry.user_id}` : 'Guest';
+/**
+ * Who a cart belongs to. The wording comes from the caller: `user` carries an `{{id}}` slot for
+ * the account id, `guest` names a cart without one.
+ */
+export function displayCartOwner(
+	entry: CartModel,
+	wording: { user: string; guest: string },
+): string {
+	return entry.user_id
+		? replaceVars(wording.user, { id: entry.user_id })
+		: wording.guest;
 }
 
 /** Line count and total, for a listing cell. Both are absent until the cart has been priced. */

@@ -5,6 +5,7 @@ import type { JSX } from 'react';
 import { Icons } from '@/components/icon.component';
 import { Button } from '@/components/ui/button';
 import Routes from '@/config/routes.setup';
+import { replaceVars } from '@/helpers/string.helper';
 import { useCart } from '@/hooks/use-cart.hook';
 import { useTranslation } from '@/hooks/use-translation.hook';
 import {
@@ -42,6 +43,10 @@ const TRANSLATION_KEYS = [
 	'cart.storefront.has_issues',
 	'cart.storefront.unavailable',
 	'cart.storefront.bundle_changed',
+	'cart.storefront.insufficient_stock',
+	'cart.storefront.out_of_stock',
+	'cart.storefront.insufficient_stock_bundle',
+	'cart.storefront.stock_low',
 	'cart.storefront.checkout_sign_in_hint',
 ] as const;
 
@@ -67,6 +72,38 @@ function LineName({ line }: { readonly line: CartLineModel }) {
 }
 
 type Translations = Record<(typeof TRANSLATION_KEYS)[number], string>;
+
+/**
+ * Why a line cannot be bought, in the shopper's words. A stock shortage says how many are left,
+ * since lowering the quantity is the fix; on a bundle the shortage sits on a component, which has
+ * no control of its own, so the whole bundle has to go.
+ */
+function issueMessage(
+	line: CartLineModel,
+	components: CartLineModel[],
+	issue: NonNullable<CartLineModel['issue']>,
+	translations: Translations,
+): string {
+	if (issue === CartLineIssueEnum.BUNDLE_CHANGED) {
+		return translations['cart.storefront.bundle_changed'];
+	}
+
+	if (issue !== CartLineIssueEnum.INSUFFICIENT_STOCK) {
+		return translations['cart.storefront.unavailable'];
+	}
+
+	if (components.length > 0 || line.is_bundle) {
+		return translations['cart.storefront.insufficient_stock_bundle'];
+	}
+
+	const available = line.stock_available ?? 0;
+
+	return available > 0
+		? replaceVars(translations['cart.storefront.insufficient_stock'], {
+				available: available,
+			})
+		: translations['cart.storefront.out_of_stock'];
+}
 
 function BasketLine({
 	line,
@@ -149,9 +186,19 @@ function BasketLine({
 				    visible next to the control that removes it. */}
 				{issue && (
 					<p className="mt-1 text-sm font-medium text-danger">
-						{issue === CartLineIssueEnum.BUNDLE_CHANGED
-							? translations['cart.storefront.bundle_changed']
-							: translations['cart.storefront.unavailable']}
+						{issueMessage(line, components, issue, translations)}
+					</p>
+				)}
+
+				{/* The merchant's low-stock threshold reached: said while it can still be bought */}
+				{!issue && line.stock_available !== null && (
+					<p className="mt-1 text-sm text-warning">
+						{replaceVars(
+							translations['cart.storefront.stock_low'],
+							{
+								available: line.stock_available,
+							},
+						)}
 					</p>
 				)}
 			</div>

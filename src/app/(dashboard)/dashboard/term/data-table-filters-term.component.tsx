@@ -12,22 +12,41 @@ import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { TermDataTableFiltersType } from '@/app/(dashboard)/dashboard/term/term.definition';
 import { getLanguageClient } from '@/config/translate.setup';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	languageOwnName,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { type TermType, TermTypeEnum } from '@/models/term.model';
 import { LanguageEnum } from '@/types/common.type';
 
-const types = toOptionsFromEnum(TermTypeEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'term.field.language',
+	'term.field.search',
+	'term.field.type',
+	...enumTranslationKeys('term.enum.type', TermTypeEnum),
+] as const;
 
 const languages = toOptionsFromEnum(LanguageEnum, {
-	formatter: formatEnumLabel,
+	formatter: languageOwnName,
 });
 
 export const DataTableFiltersTerm = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const types = useMemo(
+		() =>
+			toOptionsFromEnum(TermTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'term.enum.type', value),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'term'>();
 
@@ -69,12 +88,12 @@ export const DataTableFiltersTerm = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<TermDataTableFiltersType>
-				labelText="ID / Value"
+				labelText={translations['term.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<TermDataTableFiltersType>
-				labelText="Type"
+				labelText={translations['term.field.type']}
 				fieldName="type"
 				fieldValue={filters.type.value}
 				options={types}
@@ -82,7 +101,7 @@ export const DataTableFiltersTerm = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<TermDataTableFiltersType>
-				labelText="Language"
+				labelText={translations['term.field.language']}
 				fieldName="language"
 				fieldValue={filters.language.value ?? getLanguageClient()}
 				options={languages}

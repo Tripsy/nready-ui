@@ -70,16 +70,22 @@ export type PermissionDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<PermissionModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'delete.title',
-			'restore.title',
-			'guide.title',
-		] as const,
-		'permission.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'delete.title',
+				'restore.title',
+				'guide.title',
+			] as const,
+			'permission.action',
+		),
+		translateBatch(
+			['field.entity', 'field.id', 'field.operation'] as const,
+			'permission',
+		),
+	]);
 
 	return {
 		dataTable: {
@@ -96,7 +102,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column) =>
@@ -106,12 +112,12 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'entity',
-					header: 'Entity',
+					header: labels['field.entity'],
 					sortable: true,
 				},
 				{
 					field: 'operation',
-					header: 'Operation',
+					header: labels['field.operation'],
 					sortable: true,
 				},
 			],

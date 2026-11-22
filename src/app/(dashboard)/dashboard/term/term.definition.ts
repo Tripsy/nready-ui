@@ -18,7 +18,10 @@ import {
 	requestUpdate,
 	requestView,
 } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import {
 	BaseValidator,
 	resolveValidatorMessages,
@@ -164,17 +167,29 @@ export type TermDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<TermModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'view.title',
-			'delete.title',
-			'restore.title',
-			'guide.title',
-		] as const,
-		'term.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'view.title',
+				'delete.title',
+				'restore.title',
+				'guide.title',
+			] as const,
+			'term.action',
+		),
+		translateBatch(
+			[
+				'field.contents',
+				'field.created_at',
+				'field.id',
+				'field.type',
+				...enumTranslationKeys('enum.type', TermTypeEnum),
+			] as const,
+			'term',
+		),
+	]);
 
 	const defaultLanguage = Configuration.defaultLanguage();
 
@@ -207,7 +222,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -218,13 +233,14 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'type',
-					header: 'Type',
-					// `formatEnumLabel`, not `capitalize` - the values are snake_case, so
-					// capitalizing alone leaves "Attribute_value" against the filter
-					// dropdown's "Attribute Value".
+					header: labels['field.type'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: formatEnumLabel(entry.type),
+							customValue: translateEnumLabel(
+								labels,
+								'enum.type',
+								entry.type,
+							),
 						}),
 				},
 				{
@@ -234,7 +250,7 @@ export default async function dataSourceConfig(): Promise<
 					 * translation there - the state this table exists to surface.
 					 */
 					field: 'contents',
-					header: 'Value',
+					header: labels['field.contents'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							markDeleted: true,
@@ -246,7 +262,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							displayDate: true,

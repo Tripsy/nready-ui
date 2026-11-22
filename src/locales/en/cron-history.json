@@ -21,7 +21,24 @@
 	"status": {
 		"error": "Error",
 		"ok": "Ok",
-		"warning": "Warning"
+		"warning": "Warning",
+		"running": "Running"
+	},
+	"field": {
+		"id": "ID",
+		"label": "Label",
+		"start_at": "Start at",
+		"end_at": "End at",
+		"status": "Status",
+		"run_time": "Run time",
+		"search": "ID / Label / Content"
+	},
+	"section": {
+		"info": "Info",
+		"content": "Content"
+	},
+	"text": {
+		"run_time_seconds": "{{seconds}} s"
 	},
 	"help": {
 		"intro": "Every scheduled job writes one row here when it finishes - this screen is the log of what the backend did on its own. Nothing on it creates or edits a run; the only write available is removing old rows.",

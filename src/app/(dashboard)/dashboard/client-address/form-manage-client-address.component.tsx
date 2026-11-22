@@ -1,5 +1,7 @@
+'use client';
+
 import { useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
 	FormComponentAutoComplete,
 	FormComponentInput,
@@ -9,9 +11,14 @@ import {
 import { Icons } from '@/components/icon.component';
 import { getLanguageClient } from '@/config/translate.setup';
 import { requestFind } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { hasPermission } from '@/models/account.model';
 import { type AddressModel, displayAddressLabel } from '@/models/address.model';
 import {
@@ -23,6 +30,17 @@ import { useWindowForm } from '@/providers/window-form.provider';
 import { useModalStore } from '@/stores/window.store';
 import type { FindFunctionResponseType } from '@/types/action.type';
 import { DataSourceSectionEnum } from '@/types/data-source.type';
+
+const TRANSLATION_KEYS = [
+	'client-address.field.address',
+	'client-address.field.details',
+	'client-address.field.notes',
+	'client-address.field.type',
+	'client-address.text.placeholder_details',
+	'client-address.text.placeholder_notes',
+	'client-address.text.create_address',
+	...enumTranslationKeys('client-address.enum.type', ClientAddressTypeEnum),
+] as const;
 
 export type ClientAddressFormValuesType = {
 	client_id: number | null;
@@ -40,12 +58,22 @@ export type ClientAddressFormValuesType = {
 
 const ADDRESS_SUGGESTIONS_KEY = 's-client-address-address';
 
-const clientAddressTypes = Object.values(ClientAddressTypeEnum).map((v) => ({
-	label: formatEnumLabel(v),
-	value: v,
-}));
-
 export function FormManageClientAddress() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const clientAddressTypes = useMemo(
+		() =>
+			Object.values(ClientAddressTypeEnum).map((v) => ({
+				label: translateEnumLabel(
+					translations,
+					'client-address.enum.type',
+					v,
+				),
+				value: v,
+			})),
+		[translations],
+	);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<ClientAddressFormValuesType>();
 
@@ -137,7 +165,7 @@ export function FormManageClientAddress() {
 			/>
 
 			<FormComponentRadio<ClientAddressFormValuesType>
-				labelText="Type"
+				labelText={translations['client-address.field.type']}
 				id={elementIds.type}
 				fieldName="type"
 				fieldValue={formValues.type}
@@ -162,7 +190,7 @@ export function FormManageClientAddress() {
 				ClientAddressFormValuesType,
 				AddressModel
 			>
-				labelText="Address"
+				labelText={translations['client-address.field.address']}
 				id={elementIds.address}
 				fieldName="address"
 				fieldValue={formValues.address ?? ''}
@@ -193,7 +221,11 @@ export function FormManageClientAddress() {
 
 					allowCreate: canCreateAddress,
 					onCreate: createAddress,
-					createLabel: (value) => `Create address "${value}"`,
+					createLabel: (value) =>
+						replaceVars(
+							translations['client-address.text.create_address'],
+							{ value: value },
+						),
 				}}
 				icons={{
 					left: <Icons.Address className="opacity-40 h-4.5 w-4.5" />,
@@ -201,24 +233,28 @@ export function FormManageClientAddress() {
 			/>
 
 			<FormComponentInput<ClientAddressFormValuesType>
-				labelText="Details"
+				labelText={translations['client-address.field.details']}
 				id={elementIds.details}
 				fieldName="details"
 				fieldValue={formValues.details ?? ''}
 				isRequired={false}
-				placeholderText="e.g.: Ap. 12, floor 3"
+				placeholderText={
+					translations['client-address.text.placeholder_details']
+				}
 				disabled={pending}
 				onChange={(e) => handleChange('details', e.target.value)}
 				error={errors.details}
 			/>
 
 			<FormComponentTextarea<ClientAddressFormValuesType>
-				labelText="Notes"
+				labelText={translations['client-address.field.notes']}
 				id={elementIds.notes}
 				fieldName="notes"
 				fieldValue={formValues.notes ?? ''}
 				isRequired={false}
-				placeholderText="e.g.: Ring twice, entrance from the back"
+				placeholderText={
+					translations['client-address.text.placeholder_notes']
+				}
 				disabled={pending}
 				onChange={(e) => handleChange('notes', e.target.value)}
 				error={errors.notes}

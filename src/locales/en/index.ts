@@ -23,6 +23,7 @@ import client_address from '@/locales/en/client-address.json';
 import client_ledger from '@/locales/en/client-ledger.json';
 import comment from '@/locales/en/comment.json';
 import complaint from '@/locales/en/complaint.json';
+import cost_over_floor from '@/locales/en/cost-over-floor.json';
 import cron_history from '@/locales/en/cron-history.json';
 import dashboard from '@/locales/en/dashboard.json';
 import discount from '@/locales/en/discount.json';
@@ -30,6 +31,7 @@ import document_series from '@/locales/en/document-series.json';
 import email_confirm from '@/locales/en/email-confirm.json';
 import email_confirm_send from '@/locales/en/email-confirm-send.json';
 import exchange_rate from '@/locales/en/exchange-rate.json';
+import grn from '@/locales/en/grn.json';
 import home from '@/locales/en/home.json';
 import image from '@/locales/en/image.json';
 import invoice from '@/locales/en/invoice.json';
@@ -38,9 +40,11 @@ import log_data from '@/locales/en/log-data.json';
 import log_history from '@/locales/en/log-history.json';
 import login from '@/locales/en/login.json';
 import logout from '@/locales/en/logout.json';
+import low_stock from '@/locales/en/low-stock.json';
 import mail_queue from '@/locales/en/mail-queue.json';
 import oauth from '@/locales/en/oauth.json';
 import order from '@/locales/en/order.json';
+import order_return from '@/locales/en/order-return.json';
 import password_recover from '@/locales/en/password-recover.json';
 import password_recover_change from '@/locales/en/password-recover-change.json';
 import permission from '@/locales/en/permission.json';
@@ -55,11 +59,14 @@ import review from '@/locales/en/review.json';
 import shared from '@/locales/en/shared.json';
 import shipping from '@/locales/en/shipping.json';
 import status from '@/locales/en/status.json';
+import stock_adjustment from '@/locales/en/stock-adjustment.json';
 import template from '@/locales/en/template.json';
 import term from '@/locales/en/term.json';
 import user from '@/locales/en/user.json';
+import vat_rate from '@/locales/en/vat-rate.json';
 import vendor from '@/locales/en/vendor.json';
 import warehouse from '@/locales/en/warehouse.json';
+import warehouse_movement from '@/locales/en/warehouse-movement.json';
 
 const en = {
 	// BE
@@ -88,6 +95,7 @@ const en = {
 	'client-ledger': client_ledger,
 	comment,
 	complaint,
+	'cost-over-floor': cost_over_floor,
 	'cron-history': cron_history,
 	dashboard,
 	discount,
@@ -96,10 +104,13 @@ const en = {
 	'email-confirm-send': email_confirm_send,
 	'exchange-rate': exchange_rate,
 	home,
+	grn,
 	image,
 	invoice,
 	'log-data': log_data,
 	'log-history': log_history,
+	'low-stock': low_stock,
+	'stock-adjustment': stock_adjustment,
 	login,
 	logout,
 	'mail-queue': mail_queue,
@@ -107,6 +118,7 @@ const en = {
 	'password-recover': password_recover,
 	'password-recover-change': password_recover_change,
 	order,
+	'order-return': order_return,
 	shipping: shipping,
 	permission,
 	place,
@@ -122,8 +134,10 @@ const en = {
 	term,
 	user,
 	status,
+	'vat-rate': vat_rate,
 	vendor,
 	warehouse,
+	'warehouse-movement': warehouse_movement,
 
 	// FE
 	layout,

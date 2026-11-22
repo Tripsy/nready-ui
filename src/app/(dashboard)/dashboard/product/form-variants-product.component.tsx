@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import { type JSX, useMemo } from 'react';
 import { FormAttributesProduct } from '@/app/(dashboard)/dashboard/product/form-attributes-product.component';
@@ -7,11 +9,14 @@ import {
 	FormComponentSelect,
 } from '@/components/form/form-element.component';
 import { Icons } from '@/components/icon.component';
+import { SlotText } from '@/components/slot-text.component';
 import { Button } from '@/components/ui/button';
 import { Configuration } from '@/config/settings.config';
 import { formatAmount } from '@/helpers/display.helper';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import type {
 	ProductPriceType,
 	ProductVariantType,
@@ -23,6 +28,47 @@ import type {
 import { requestLatestExchangeRates } from '@/services/exchange-rate.service';
 import { CurrencyEnum } from '@/types/common.type';
 import type { FormErrorsType } from '@/types/form.type';
+
+const TRANSLATION_KEYS = [
+	'product.field.allow_backorder',
+	'product.field.barcode',
+	'product.field.cost_price',
+	'product.field.variant_is_default',
+	'product.field.low_stock_threshold',
+	'product.field.variant_sku',
+	'product.field.track_stock',
+	'product.section.attributes',
+	'product.section.pricing',
+	'product.section.stock_management',
+	'product.text.a_product_is_priced_and_stocked',
+	'product.text.add_currency',
+	'product.text.add_variant',
+	'product.text.currency',
+	'product.text.each_product_variant_has_its_own',
+	'product.text.minimum_price',
+	'product.text.move_variant_down',
+	'product.text.move_variant_up',
+	'product.text.off_for_anything_not_counted_a',
+	'product.text.placeholder_variant_sku',
+	'product.text.reference_price',
+	'product.text.remove_price',
+	'product.text.remove_variant',
+	'product.text.sale_price',
+	'product.text.the_reference_price_is_below_the',
+	'product.text.hint_sale_price',
+	'product.text.hint_reference_price',
+	'product.text.hint_minimum_price',
+	'product.text.minimum_price_label',
+	'product.text.label_remove_price',
+	'product.text.hint_cost_price',
+	'product.text.note_below_cost',
+	'product.text.note_unknown_rate',
+	'product.text.label_move_variant_up',
+	'product.text.label_move_variant_down',
+	'product.text.label_remove_variant',
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
 
 /**
  * A variant as the form holds it. `key` is client-only - the list needs a stable React key per
@@ -218,6 +264,7 @@ function resolvePriceRowNotes(
 }
 
 type RowProps = {
+	translations: TranslationsType;
 	variant: ProductVariantFormType;
 	index: number;
 	disabled: boolean;
@@ -242,6 +289,7 @@ type RowProps = {
 };
 
 function VariantRow({
+	translations,
 	variant,
 	index,
 	disabled,
@@ -287,7 +335,7 @@ function VariantRow({
 						disabled={disabled || variant.is_default}
 						onCheckedChange={() => onMarkDefault(index)}
 					>
-						Default variant
+						{translations['product.field.variant_is_default']}
 					</FormComponentCheckbox>
 
 					<div className="flex items-center">
@@ -298,8 +346,15 @@ function VariantRow({
 							disabled={disabled || index === 0}
 							onClick={() => onMove(index, -1)}
 							className="p-2 disabled:opacity-30"
-							aria-label={`Move variant ${index + 1} up`}
-							title={`Move variant up`}
+							aria-label={replaceVars(
+								translations[
+									'product.text.label_move_variant_up'
+								],
+								{
+									number: index + 1,
+								},
+							)}
+							title={translations['product.text.move_variant_up']}
 						>
 							<Icons.Direction.ArrowUp className="h-4 w-4" />
 						</Button>
@@ -311,8 +366,17 @@ function VariantRow({
 							disabled={disabled || isLast}
 							onClick={() => onMove(index, 1)}
 							className="p-2 disabled:opacity-30"
-							aria-label={`Move variant ${index + 1} down`}
-							title={`Move variant down`}
+							aria-label={replaceVars(
+								translations[
+									'product.text.label_move_variant_down'
+								],
+								{
+									number: index + 1,
+								},
+							)}
+							title={
+								translations['product.text.move_variant_down']
+							}
 						>
 							<Icons.Direction.ArrowDown className="h-4 w-4" />
 						</Button>
@@ -324,8 +388,15 @@ function VariantRow({
 							disabled={disabled}
 							onClick={() => onRemove(index)}
 							className="p-2 disabled:opacity-30"
-							aria-label={`Remove variant ${index + 1}`}
-							title={`Remove variant`}
+							aria-label={replaceVars(
+								translations[
+									'product.text.label_remove_variant'
+								],
+								{
+									number: index + 1,
+								},
+							)}
+							title={translations['product.text.remove_variant']}
 						>
 							<Icons.Action.Delete className="h-4 w-4" />
 						</Button>
@@ -336,11 +407,17 @@ function VariantRow({
 					<div className="flex flex-wrap gap-2">
 						<FormComponentInput<ProductVariantType>
 							id={`${idPrefix}-${index}-sku`}
-							labelText="Variant SKU"
+							labelText={
+								translations['product.field.variant_sku']
+							}
 							fieldName="sku"
 							fieldValue={variant.sku}
 							isRequired={true}
-							placeholderText="eg: PIZZA-MARG-30"
+							placeholderText={
+								translations[
+									'product.text.placeholder_variant_sku'
+								]
+							}
 							disabled={disabled}
 							onChange={(e) =>
 								onUpdate(index, { sku: e.target.value })
@@ -350,7 +427,7 @@ function VariantRow({
 
 						<FormComponentInput<ProductVariantType>
 							id={`${idPrefix}-${index}-barcode`}
-							labelText="Barcode"
+							labelText={translations['product.field.barcode']}
 							fieldName="barcode"
 							fieldValue={variant.barcode ?? ''}
 							disabled={disabled}
@@ -366,7 +443,7 @@ function VariantRow({
 					<div>
 						<FormComponentInput<ProductVariantType>
 							id={`${idPrefix}-${index}-cost-price`}
-							labelText="Cost Price"
+							labelText={translations['product.field.cost_price']}
 							fieldType="number"
 							fieldName="cost_price"
 							fieldValue={variant.cost_price ?? ''}
@@ -387,8 +464,14 @@ function VariantRow({
 							<Icons.Info className="h-3.5 w-3.5 shrink-0" />
 
 							<span>
-								What the goods cost you, in {BASE_CURRENCY} -
-								never charged, never shown to customers.
+								{replaceVars(
+									translations[
+										'product.text.hint_cost_price'
+									],
+									{
+										currency: BASE_CURRENCY,
+									},
+								)}
 							</span>
 						</p>
 					</div>
@@ -396,14 +479,16 @@ function VariantRow({
 
 				<div className="space-y-4">
 					<h3 className="text-sm font-semibold border-b border-line pb-2">
-						Stock management
+						{translations['product.section.stock_management']}
 					</h3>
 
 					<p className="flex items-start gap-1 text-xs text-muted">
 						<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-						Off for anything not counted - a dish, a download. The
-						two settings beside it apply only while it is on, and
-						are cleared when it is turned off.
+						{
+							translations[
+								'product.text.off_for_anything_not_counted_a'
+							]
+						}
 					</p>
 
 					<div className="flex flex-wrap items-center gap-4">
@@ -432,14 +517,18 @@ function VariantRow({
 							}
 							error={variantErrors?.track_stock}
 						>
-							Track stock
+							{translations['product.field.track_stock']}
 						</FormComponentCheckbox>
 					</div>
 
 					<div className="flex flex-wrap gap-4">
 						<FormComponentInput<ProductVariantType>
 							id={`${idPrefix}-${index}-low-stock`}
-							labelText="Low stock threshold"
+							labelText={
+								translations[
+									'product.field.low_stock_threshold'
+								]
+							}
 							fieldType="number"
 							fieldName="low_stock_threshold"
 							fieldValue={variant.low_stock_threshold ?? ''}
@@ -464,14 +553,16 @@ function VariantRow({
 							}
 							error={variantErrors?.allow_backorder}
 						>
-							Allow backorder
+							{translations['product.field.allow_backorder']}
 						</FormComponentCheckbox>
 					</div>
 				</div>
 
 				<div className="space-y-4">
 					<div className="border-b border-line pb-2">
-						<h3 className="text-sm font-semibold">Pricing</h3>
+						<h3 className="text-sm font-semibold">
+							{translations['product.section.pricing']}
+						</h3>
 					</div>
 
 					<div>
@@ -479,17 +570,33 @@ function VariantRow({
 							<Icons.Info className="h-3.5 w-3.5 shrink-0" />
 
 							<span>
-								Each product variant has its own prices.
+								{
+									translations[
+										'product.text.each_product_variant_has_its_own'
+									]
+								}
 							</span>
 						</p>
 						<p className="mt-1 flex items-center gap-1 text-xs text-muted">
 							<Icons.Info className="h-3.5 w-3.5 shrink-0" />
 
 							<span>
-								<strong className="font-semibold">
-									Sale price
-								</strong>{' '}
-								is what the customer is charged, excluding VAT.
+								<SlotText
+									template={
+										translations[
+											'product.text.hint_sale_price'
+										]
+									}
+									slot="term"
+								>
+									<strong className="font-semibold">
+										{
+											translations[
+												'product.text.sale_price'
+											]
+										}
+									</strong>
+								</SlotText>
 							</span>
 						</p>
 
@@ -497,11 +604,22 @@ function VariantRow({
 							<Icons.Info className="h-3.5 w-3.5 shrink-0" />
 
 							<span>
-								<strong className="font-semibold">
-									Reference price
-								</strong>{' '}
-								is the usual price the sale is measured against
-								- shown to signal a saving.
+								<SlotText
+									template={
+										translations[
+											'product.text.hint_reference_price'
+										]
+									}
+									slot="term"
+								>
+									<strong className="font-semibold">
+										{
+											translations[
+												'product.text.reference_price'
+											]
+										}
+									</strong>
+								</SlotText>
 							</span>
 						</p>
 
@@ -509,28 +627,40 @@ function VariantRow({
 							<Icons.Info className="h-3.5 w-3.5 shrink-0" />
 
 							<span>
-								The discounted price cannot drop below the set{' '}
-								<strong className="font-semibold">
-									minimum price
-								</strong>
+								<SlotText
+									template={
+										translations[
+											'product.text.hint_minimum_price'
+										]
+									}
+									slot="term"
+								>
+									<strong className="font-semibold">
+										{
+											translations[
+												'product.text.minimum_price'
+											]
+										}
+									</strong>
+								</SlotText>
 							</span>
 						</p>
 					</div>
 
 					<div className="flex flex-nowrap gap-2 text-sm font-semibold">
 						<span className={PRICE_COLUMN.currency}>
-							Currency
+							{translations['product.text.currency']}
 							<span className="ml-1 text-danger">*</span>
 						</span>
 						<span className={PRICE_COLUMN.amount}>
-							Sale price
+							{translations['product.text.sale_price']}
 							<span className="ml-1 text-danger">*</span>
 						</span>
 						<span className={PRICE_COLUMN.amount}>
-							Reference price
+							{translations['product.text.reference_price']}
 						</span>
 						<span className={PRICE_COLUMN.amount}>
-							Minimum price
+							{translations['product.text.minimum_price_label']}
 						</span>
 					</div>
 
@@ -554,7 +684,11 @@ function VariantRow({
 											fieldValue={price.currency}
 											isRequired={true}
 											className="w-full"
-											ariaLabel="Currency"
+											ariaLabel={
+												translations[
+													'product.text.currency'
+												]
+											}
 											options={CURRENCY_OPTIONS}
 											disabled={disabled}
 											onChange={(value) =>
@@ -576,7 +710,11 @@ function VariantRow({
 											fieldValue={price.sale_price ?? ''}
 											isRequired={true}
 											className="w-full"
-											ariaLabel="Sale price"
+											ariaLabel={
+												translations[
+													'product.text.sale_price'
+												]
+											}
 											disabled={disabled}
 											onChange={(e) =>
 												onUpdatePrice(
@@ -607,7 +745,11 @@ function VariantRow({
 												price.reference_price ?? ''
 											}
 											className="w-full"
-											ariaLabel="Reference price"
+											ariaLabel={
+												translations[
+													'product.text.reference_price'
+												]
+											}
 											disabled={disabled}
 											onChange={(e) =>
 												onUpdatePrice(
@@ -636,7 +778,11 @@ function VariantRow({
 											fieldName="min_price"
 											fieldValue={price.min_price ?? ''}
 											className="w-full"
-											ariaLabel="Minimum price"
+											ariaLabel={
+												translations[
+													'product.text.minimum_price_label'
+												]
+											}
 											disabled={disabled}
 											onChange={(e) =>
 												onUpdatePrice(
@@ -673,8 +819,19 @@ function VariantRow({
 												})
 											}
 											className="mt-1 p-2 opacity-60 hover:opacity-100"
-											aria-label={`Remove price ${priceIndex + 1}`}
-											title={`Remove price`}
+											aria-label={replaceVars(
+												translations[
+													'product.text.label_remove_price'
+												],
+												{
+													number: priceIndex + 1,
+												},
+											)}
+											title={
+												translations[
+													'product.text.remove_price'
+												]
+											}
 										>
 											<Icons.Close className="h-4 w-4" />
 										</Button>
@@ -690,33 +847,46 @@ function VariantRow({
 
 										{note.kind === 'below-cost' && (
 											<span>
-												A discount may resolve to{' '}
-												{displayBaseAmount(
-													note.floorInBase,
+												{replaceVars(
+													translations[
+														'product.text.note_below_cost'
+													],
+													{
+														floor: displayBaseAmount(
+															note.floorInBase,
+														),
+														cost: displayBaseAmount(
+															variant.cost_price ??
+																0,
+														),
+													},
 												)}
-												, below the{' '}
-												{displayBaseAmount(
-													variant.cost_price ?? 0,
-												)}{' '}
-												this variant cost.
 											</span>
 										)}
 
 										{note.kind === 'unknown-rate' && (
 											<span>
-												No {BASE_CURRENCY} rate for{' '}
-												{price.currency.toUpperCase()} -
-												this floor cannot be checked
-												against the cost price.
+												{replaceVars(
+													translations[
+														'product.text.note_unknown_rate'
+													],
+													{
+														base: BASE_CURRENCY,
+														currency:
+															price.currency.toUpperCase(),
+													},
+												)}
 											</span>
 										)}
 
 										{note.kind ===
 											'reference-below-sale' && (
 											<span>
-												The reference price is below the
-												sale price, so it advertises an
-												increase rather than a saving.
+												{
+													translations[
+														'product.text.the_reference_price_is_below_the'
+													]
+												}
 											</span>
 										)}
 									</p>
@@ -737,10 +907,10 @@ function VariantRow({
 								})
 							}
 							className="p-2 opacity-80 hover:opacity-100"
-							title="Add currency"
+							title={translations['product.text.add_currency']}
 						>
-							<Icons.Action.Add className="h-4 w-4" /> Add
-							currency
+							<Icons.Action.Add className="h-4 w-4" />{' '}
+							{translations['product.text.add_currency']}
 						</Button>
 					</div>
 				</div>
@@ -752,7 +922,9 @@ function VariantRow({
 				 */}
 				{attributeDefinitions.length > 0 && (
 					<div className="space-y-2">
-						<h4 className="font-bold">Attributes</h4>
+						<h4 className="font-bold">
+							{translations['product.section.attributes']}
+						</h4>
 
 						<FormAttributesProduct
 							definitions={attributeDefinitions}
@@ -800,6 +972,8 @@ export function FormVariantsProduct({
 	attributeDefinitions,
 	onDefinitionsChanged,
 }: Props): JSX.Element {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const elementIds = useElementIds(['variant'] as const);
 
 	/*
@@ -929,14 +1103,17 @@ export function FormVariantsProduct({
 
 			{value.length === 0 ? (
 				<p className="text-sm text-muted">
-					A product is priced and stocked through its variants, so at
-					least one is required - add a single variant if there is
-					nothing to vary.
+					{
+						translations[
+							'product.text.a_product_is_priced_and_stocked'
+						]
+					}
 				</p>
 			) : (
 				<ul className="space-y-3">
 					{value.map((variant, index) => (
 						<VariantRow
+							translations={translations}
 							key={variant.key}
 							variant={variant}
 							index={index}
@@ -966,7 +1143,8 @@ export function FormVariantsProduct({
 					onClick={addVariant}
 					className="p-2 opacity-80 hover:opacity-100"
 				>
-					<Icons.Action.Add className="h-4 w-4" /> Add variant
+					<Icons.Action.Add className="h-4 w-4" />{' '}
+					{translations['product.text.add_variant']}
 				</Button>
 			</div>
 

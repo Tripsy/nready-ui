@@ -713,7 +713,11 @@ export abstract class BaseValidator<
 
 		const message = this.buildMessage(defaultMessages, messageData);
 
-		let baseSchema = z.string({ message: message.invalid }).trim();
+		// The object form of `messageData` names no `invalid` key, so an empty field (no string
+		// at all) answers with `invalid_date` rather than Zod's own English default
+		let baseSchema = z
+			.string({ message: message.invalid ?? message.invalid_date })
+			.trim();
 
 		baseSchema = baseSchema.refine((val) => options.dateFormat.test(val), {
 			message: message.invalid_date_format,

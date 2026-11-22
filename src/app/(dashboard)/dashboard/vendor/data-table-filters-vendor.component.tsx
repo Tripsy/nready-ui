@@ -11,10 +11,14 @@ import {
 import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { VendorDataTableFiltersType } from '@/app/(dashboard)/dashboard/vendor/vendor.definition';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type VendorStatus,
 	VendorStatusEnum,
@@ -22,15 +26,35 @@ import {
 	VendorTypeEnum,
 } from '@/models/vendor.model';
 
-const statuses = toOptionsFromEnum(VendorStatusEnum, {
-	formatter: formatEnumLabel,
-});
-
-const types = toOptionsFromEnum(VendorTypeEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'vendor.field.search',
+	'vendor.field.status',
+	'vendor.field.type',
+	...enumTranslationKeys('vendor.status', VendorStatusEnum),
+	...enumTranslationKeys('vendor.enum.type', VendorTypeEnum),
+] as const;
 
 export const DataTableFiltersVendor = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const types = useMemo(
+		() =>
+			toOptionsFromEnum(VendorTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'vendor.enum.type', value),
+			}),
+		[translations],
+	);
+
+	const statuses = useMemo(
+		() =>
+			toOptionsFromEnum(VendorStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'vendor.status', value),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'vendor'>();
 
@@ -71,12 +95,12 @@ export const DataTableFiltersVendor = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<VendorDataTableFiltersType>
-				labelText="ID / Name"
+				labelText={translations['vendor.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<VendorDataTableFiltersType>
-				labelText="Type"
+				labelText={translations['vendor.field.type']}
 				fieldName="type"
 				fieldValue={filters.type.value}
 				options={types}
@@ -86,7 +110,7 @@ export const DataTableFiltersVendor = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<VendorDataTableFiltersType>
-				labelText="Status"
+				labelText={translations['vendor.field.status']}
 				fieldName="status"
 				fieldValue={filters.status.value}
 				options={statuses}

@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import isEqual from 'fast-deep-equal';
 import { useEffect, useMemo, useState } from 'react';
@@ -29,9 +31,15 @@ import {
 	toOptionsFromEnum,
 } from '@/helpers/form.helper';
 import { requestFind } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	formatEnumLabel,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
 import { useRemoteAutocomplete } from '@/hooks/use-remote-autocomplete';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { hasPermission } from '@/models/account.model';
 import { type BrandModel, displayBrandLabel } from '@/models/brand.model';
 import {
@@ -66,6 +74,44 @@ import { useWindowForm } from '@/providers/window-form.provider';
 import { requestResolvedAttributes } from '@/services/product.service';
 import { useModalStore } from '@/stores/window.store';
 import { DataSourceSectionEnum } from '@/types/data-source.type';
+
+const TRANSLATION_KEYS = [
+	'product.field.available_from',
+	'product.field.available_until',
+	'product.field.brand_label',
+	'product.field.category_id',
+	'product.field.discontinued_at',
+	'product.field.tag_id',
+	'product.field.type',
+	'product.field.unit',
+	'product.field.vat_category',
+	'product.section.attributes',
+	'product.section.ordering_interval',
+	'product.text.a_question_asked_at_order_time',
+	'product.text.applies_to_the_whole_product_every',
+	'product.text.common_details_for_all_the_product',
+	'product.text.attribute_declare_product',
+	'product.text.availability_intervals_hint_product',
+	'product.text.placeholder_available_from',
+	'product.text.placeholder_available_until',
+	'product.text.placeholder_discontinued_at',
+	'product.text.attributes_need_category_product',
+	'product.text.pricing_and_inventory_are_managed_at',
+	'product.text.selected_categories_declare_no_product_attributes',
+	'product.text.availability_dates_hint_product',
+	'product.text.the_wording_one_set_per_language',
+	'product.text.this_product_is_a_bundle_its',
+	'dashboard.text.tab_errors',
+	'product.text.add_attribute',
+	'product.section.tab_details',
+	'product.section.tab_content',
+	'product.section.tab_variants',
+	'product.section.tab_options',
+	'product.section.tab_availability',
+	'product.text.create_brand',
+	...enumTranslationKeys('product.enum.type', ProductTypeEnum),
+	...enumTranslationKeys('product.enum.vat_category', ProductVatCategoryEnum),
+] as const;
 
 export type ProductFormValuesType = {
 	type: ProductType;
@@ -116,13 +162,13 @@ export type ProductFormValuesType = {
 };
 
 const FORM_TABS = [
-	{ id: 'details', label: 'Details' },
-	{ id: 'content', label: 'Content' },
-	{ id: 'variants', label: 'Variants' },
+	{ id: 'details', labelKey: 'product.section.tab_details' },
+	{ id: 'content', labelKey: 'product.section.tab_content' },
+	{ id: 'variants', labelKey: 'product.section.tab_variants' },
 	// After Variants because a delta is measured against a variant's price - the thing being
 	// modified has to be priced before modifying it means anything.
-	{ id: 'options', label: 'Options' },
-	{ id: 'availability', label: 'Availability' },
+	{ id: 'options', labelKey: 'product.section.tab_options' },
+	{ id: 'availability', labelKey: 'product.section.tab_availability' },
 ] as const;
 
 type FormTabId = (typeof FORM_TABS)[number]['id'];
@@ -159,10 +205,6 @@ const TAB_CONTENT_FIELDS: Record<FormTabId, readonly string[]> = {
 	content: ['label', 'slug', 'description', 'meta'],
 };
 
-const productTypes = toOptionsFromEnum(ProductTypeEnum, {
-	formatter: formatEnumLabel,
-});
-
 /*
  * One option list per type rather than one for the enum: `toOptionsFromEnum` cannot subset, so
  * the narrowing happens here. Built once at module scope - the map is static.
@@ -178,10 +220,6 @@ const productUnitsByType = Object.fromEntries(
 	]),
 ) as Record<ProductType, ReturnType<typeof toOptionsFromEnum>>;
 
-const productVatCategories = toOptionsFromEnum(ProductVatCategoryEnum, {
-	formatter: formatEnumLabel,
-});
-
 /**
  * Namespaces the brand suggestion cache. Declared once because the query and the invalidation
  * that follows a create have to name the same key - a mismatch leaves the editor looking at the
@@ -190,6 +228,34 @@ const productVatCategories = toOptionsFromEnum(ProductVatCategoryEnum, {
 const BRAND_SUGGESTIONS_KEY = 's-product-brand';
 
 export function FormManageProduct() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const productVatCategories = useMemo(
+		() =>
+			toOptionsFromEnum(ProductVatCategoryEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'product.enum.vat_category',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const productTypes = useMemo(
+		() =>
+			toOptionsFromEnum(ProductTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'product.enum.type',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<ProductFormValuesType>();
 
@@ -511,15 +577,19 @@ export function FormManageProduct() {
 				className="w-full"
 			>
 				<TabsList>
-					{FORM_TABS.map(({ id, label }) => (
+					{FORM_TABS.map(({ id, labelKey }) => (
 						<TabsTrigger key={id} id={id}>
-							{label}
+							{translations[labelKey]}
 							{tabErrors[id] > 0 && (
 								<span className="ml-1.5 rounded-full bg-danger px-1.5 text-xs text-white">
 									{tabErrors[id]}
 									<span className="sr-only">
 										{' '}
-										field(s) need attention
+										{
+											translations[
+												'dashboard.text.tab_errors'
+											]
+										}
 									</span>
 								</span>
 							)}
@@ -531,13 +601,16 @@ export function FormManageProduct() {
 					<div className="space-y-4">
 						<p className="flex items-start gap-1 text-xs text-muted">
 							<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-							Common details for all the product variants.
-							Specific attributes are set on the Variants tab.
+							{
+								translations[
+									'product.text.common_details_for_all_the_product'
+								]
+							}
 						</p>
 
 						<div className="flex flex-wrap gap-2">
 							<FormComponentSelect<ProductFormValuesType>
-								labelText="Type"
+								labelText={translations['product.field.type']}
 								id={elementIds.type}
 								fieldName="type"
 								fieldValue={formValues.type}
@@ -562,7 +635,7 @@ export function FormManageProduct() {
 							/>
 
 							<FormComponentSelect<ProductFormValuesType>
-								labelText="Unit"
+								labelText={translations['product.field.unit']}
 								id={elementIds.unit}
 								fieldName="unit"
 								fieldValue={formValues.unit}
@@ -591,10 +664,11 @@ export function FormManageProduct() {
 						{formValues.composition ===
 							ProductCompositionEnum.BUNDLE && (
 							<p className="rounded-md border border-line p-3 text-sm text-muted">
-								This product is a bundle. Its name, content,
-								categories, availability and price are edited
-								here; its components are not - they are managed
-								on the bundle page.
+								{
+									translations[
+										'product.text.this_product_is_a_bundle_its'
+									]
+								}
 							</p>
 						)}
 
@@ -606,7 +680,9 @@ export function FormManageProduct() {
 						 */}
 						<div>
 							<FormComponentSelect<ProductFormValuesType>
-								labelText="VAT Category"
+								labelText={
+									translations['product.field.vat_category']
+								}
 								id={elementIds.vatCategory}
 								fieldName="vat_category"
 								fieldValue={formValues.vat_category}
@@ -624,8 +700,11 @@ export function FormManageProduct() {
 
 							<p className="mt-1 flex items-start gap-1 text-xs text-muted">
 								<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-								Applies to the whole product - every variant is
-								taxed at this rate.
+								{
+									translations[
+										'product.text.applies_to_the_whole_product_every'
+									]
+								}
 							</p>
 						</div>
 
@@ -640,7 +719,9 @@ export function FormManageProduct() {
 								ProductFormValuesType,
 								BrandModel
 							>
-								labelText="Brand"
+								labelText={
+									translations['product.field.brand_label']
+								}
 								id={elementIds.brand}
 								fieldName="brand_label"
 								fieldValue={formValues.brand_label ?? ''}
@@ -675,14 +756,23 @@ export function FormManageProduct() {
 									allowCreate: canCreateBrand,
 									onCreate: createBrand,
 									createLabel: (value) =>
-										`Create brand "${value}"`,
+										replaceVars(
+											translations[
+												'product.text.create_brand'
+											],
+											{
+												value,
+											},
+										),
 								}}
 								error={errors.brand_id}
 							/>
 						</div>
 
 						<FormPickerProduct
-							labelText="Categories"
+							labelText={
+								translations['product.field.category_id']
+							}
 							fieldName="category_id"
 							dataSource="category"
 							getOptionLabel={(entry: CategoryModel) =>
@@ -703,7 +793,7 @@ export function FormManageProduct() {
 						/>
 
 						<FormPickerProduct
-							labelText="Tags"
+							labelText={translations['product.field.tag_id']}
 							fieldName="tag_id"
 							dataSource="term"
 							getOptionLabel={(entry: TermModel) =>
@@ -737,7 +827,9 @@ export function FormManageProduct() {
 
 						<div className="space-y-2">
 							<div className="flex items-center justify-between gap-3 border-b border-line pb-2">
-								<h3 className="font-bold">Attributes</h3>
+								<h3 className="font-bold">
+									{translations['product.section.attributes']}
+								</h3>
 								{categoryIds.length > 0 && (
 									<Button
 										type="button"
@@ -748,10 +840,18 @@ export function FormManageProduct() {
 										}
 										onClick={addAttribute}
 										className="p-2 opacity-80 hover:opacity-100"
-										title="Declare a new attribute for one of this product's categories"
+										title={
+											translations[
+												'product.text.attribute_declare_product'
+											]
+										}
 									>
 										<Icons.Action.Add className="h-4 w-4" />{' '}
-										Add attribute
+										{
+											translations[
+												'product.text.add_attribute'
+											]
+										}
 									</Button>
 								)}
 							</div>
@@ -760,8 +860,11 @@ export function FormManageProduct() {
 								// Categories selected - check if they have definitions
 								productDefinitions.length === 0 ? (
 									<p className="text-sm text-muted">
-										Selected categories declare no product
-										attributes.
+										{
+											translations[
+												'product.text.selected_categories_declare_no_product_attributes'
+											]
+										}
 									</p>
 								) : (
 									<FormAttributesProduct
@@ -779,8 +882,11 @@ export function FormManageProduct() {
 							) : (
 								// No categories selected - show error message
 								<p className="text-sm text-muted">
-									Please select at least one category to view
-									product attributes.
+									{
+										translations[
+											'product.text.attributes_need_category_product'
+										]
+									}
 								</p>
 							)}
 						</div>
@@ -790,10 +896,11 @@ export function FormManageProduct() {
 				<TabsContent id="content">
 					<p className="flex items-start gap-1 text-xs text-muted">
 						<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-						The wording, one set per language - name, slug,
-						description and the SEO meta. The slug is the whole
-						public address (eg: /products/my-slug), so changing it
-						moves the page.
+						{
+							translations[
+								'product.text.the_wording_one_set_per_language'
+							]
+						}
 					</p>
 
 					<FormContentsProduct
@@ -820,12 +927,11 @@ export function FormManageProduct() {
 					<div className="space-y-4">
 						<p className="flex items-start gap-1 text-xs text-muted">
 							<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-							Pricing and inventory are managed at the variant
-							level, not the product level. Define a separate
-							variant for each distinct configuration (e.g.,
-							different size, color, etc). Products that have no
-							variations must still have exactly one default
-							variant.
+							{
+								translations[
+									'product.text.pricing_and_inventory_are_managed_at'
+								]
+							}
 						</p>
 
 						<FormVariantsProduct
@@ -854,9 +960,11 @@ export function FormManageProduct() {
 					<div className="space-y-4">
 						<p className="flex items-start gap-1 text-xs text-muted">
 							<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-							A question asked at order time, and what each answer
-							does to the price (eg: Extra bacon, a choice of
-							crust, etc).
+							{
+								translations[
+									'product.text.a_question_asked_at_order_time'
+								]
+							}
 						</p>
 
 						<FormOptionsProduct
@@ -876,20 +984,29 @@ export function FormManageProduct() {
 					<div className="space-y-6">
 						<p className="flex items-start gap-1 text-xs text-muted">
 							<Icons.Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-							The dates below decide whether the product is listed
-							at all; the intervals under them decide when a
-							listed product can be ordered (eg: a lunch menu,
-							weekdays 12:00–15:00).
+							{
+								translations[
+									'product.text.availability_dates_hint_product'
+								]
+							}
 						</p>
 
 						<div className="space-y-2">
 							<div className="flex flex-wrap gap-2">
 								<FormComponentCalendar<ProductFormValuesType>
-									labelText="Available From"
+									labelText={
+										translations[
+											'product.field.available_from'
+										]
+									}
 									id={elementIds.availableFrom}
 									fieldName="available_from"
 									fieldValue={formValues.available_from ?? ''}
-									placeholderText="-select-"
+									placeholderText={
+										translations[
+											'product.text.placeholder_available_from'
+										]
+									}
 									disabled={pending}
 									onSelect={(value) =>
 										handleChange(
@@ -901,13 +1018,21 @@ export function FormManageProduct() {
 								/>
 
 								<FormComponentCalendar<ProductFormValuesType>
-									labelText="Available Until"
+									labelText={
+										translations[
+											'product.field.available_until'
+										]
+									}
 									id={elementIds.availableUntil}
 									fieldName="available_until"
 									fieldValue={
 										formValues.available_until ?? ''
 									}
-									placeholderText="-select-"
+									placeholderText={
+										translations[
+											'product.text.placeholder_available_until'
+										]
+									}
 									disabled={pending}
 									onSelect={(value) =>
 										handleChange(
@@ -919,13 +1044,21 @@ export function FormManageProduct() {
 								/>
 
 								<FormComponentCalendar<ProductFormValuesType>
-									labelText="Discontinued At"
+									labelText={
+										translations[
+											'product.field.discontinued_at'
+										]
+									}
 									id={elementIds.discontinuedAt}
 									fieldName="discontinued_at"
 									fieldValue={
 										formValues.discontinued_at ?? ''
 									}
-									placeholderText="-select-"
+									placeholderText={
+										translations[
+											'product.text.placeholder_discontinued_at'
+										]
+									}
 									disabled={pending}
 									onSelect={(value) =>
 										handleChange(
@@ -940,12 +1073,18 @@ export function FormManageProduct() {
 
 						<div className="space-y-2">
 							<h3 className="text-sm font-semibold">
-								Ordering interval
+								{
+									translations[
+										'product.section.ordering_interval'
+									]
+								}
 							</h3>
 							<p className="text-xs text-muted">
-								One interval per day, recurring within that
-								life. A product outside its hours is still
-								listed, just not orderable right now.
+								{
+									translations[
+										'product.text.availability_intervals_hint_product'
+									]
+								}
 							</p>
 
 							<FormAvailabilityProduct

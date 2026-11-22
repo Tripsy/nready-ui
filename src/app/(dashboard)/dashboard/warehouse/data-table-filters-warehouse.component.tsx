@@ -11,29 +11,58 @@ import {
 import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { WarehouseDataTableFiltersType } from '@/app/(dashboard)/dashboard/warehouse/warehouse.definition';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type WarehouseStatus,
 	WarehouseStatusEnum,
 } from '@/models/warehouse.model';
 
-const statuses = toOptionsFromEnum(WarehouseStatusEnum, {
-	formatter: formatEnumLabel,
-});
-
-/**
- * `is_default` is a boolean on the wire, so it cannot ride `toOptionsFromEnum`. The empty value
- * the select clears to means "either", which is the filter being absent rather than false.
- */
-const defaultOptions = [
-	{ label: 'Default only', value: 'true' },
-	{ label: 'Not default', value: 'false' },
-];
+const TRANSLATION_KEYS = [
+	'warehouse.field.is_default',
+	'warehouse.field.search',
+	'warehouse.field.status',
+	'warehouse.text.default_only',
+	'warehouse.text.not_default',
+	...enumTranslationKeys('warehouse.status', WarehouseStatusEnum),
+] as const;
 
 export const DataTableFiltersWarehouse = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const statuses = useMemo(
+		() =>
+			toOptionsFromEnum(WarehouseStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'warehouse.status', value),
+			}),
+		[translations],
+	);
+
+	/**
+	 * `is_default` is a boolean on the wire, so it cannot ride `toOptionsFromEnum`. The empty value
+	 * the select clears to means "either", which is the filter being absent rather than false.
+	 */
+	const defaultOptions = useMemo(
+		() => [
+			{
+				label: translations['warehouse.text.default_only'],
+				value: 'true',
+			},
+			{
+				label: translations['warehouse.text.not_default'],
+				value: 'false',
+			},
+		],
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'warehouse'>();
 
@@ -75,12 +104,12 @@ export const DataTableFiltersWarehouse = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<WarehouseDataTableFiltersType>
-				labelText="ID / Code / Name"
+				labelText={translations['warehouse.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<WarehouseDataTableFiltersType>
-				labelText="Status"
+				labelText={translations['warehouse.field.status']}
 				fieldName="status"
 				fieldValue={filters.status.value}
 				options={statuses}
@@ -90,7 +119,7 @@ export const DataTableFiltersWarehouse = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<WarehouseDataTableFiltersType>
-				labelText="Default"
+				labelText={translations['warehouse.field.is_default']}
 				fieldName="is_default"
 				fieldValue={
 					filters.is_default.value === null

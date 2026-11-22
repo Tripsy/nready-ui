@@ -11,8 +11,13 @@ import {
 import type { ActionIconKey } from '@/components/icon.component';
 import { getDataSourceConfig } from '@/config/data-source.config';
 import { getErrorMessage } from '@/helpers/error.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useTranslation } from '@/hooks/use-translation.hook';
-import { hasPermission } from '@/models/account.model';
+import {
+	type AccountModel,
+	hasPermission,
+	isAdmin,
+} from '@/models/account.model';
 import { useAuth } from '@/providers/auth.provider';
 import { useToast } from '@/providers/toast.provider';
 import { useModalStore } from '@/stores/window.store';
@@ -25,6 +30,12 @@ import {
 } from '@/types/data-source.type';
 import type { ButtonAppearanceType } from '@/types/html.type';
 
+const TRANSLATION_KEYS = [
+	'app.error.operation_not_allowed',
+	'app.error.title',
+	'dashboard.text.selected_count',
+] as const;
+
 type HandleActionType<K extends DataSourceKey> = (
 	action: string,
 	dataSource: DataSourceKey,
@@ -36,7 +47,10 @@ type AllowActionType<K extends DataSourceKey> = (
 	entries: DatasourceModels[K][],
 	permission: ActionConfigPermission | undefined,
 	entriesSelection: EntriesSelectionType,
-	customEntryCheck?: (entry: DatasourceModels[K]) => boolean,
+	customEntryCheck?: (
+		entry: DatasourceModels[K],
+		auth: AccountModel | null,
+	) => boolean,
 ) => boolean;
 
 function DataTableActionButton({
@@ -180,26 +194,24 @@ export function DataTableActions<K extends DataSourceKey>() {
 		).then(setActions);
 	}, [dataSource]);
 
-	const translationsKeys = [
-		'app.error.operation_not_allowed',
-		'app.error.title',
-	] as const;
-
-	const { translations } = useTranslation(translationsKeys);
+	const { translations } = useTranslation(TRANSLATION_KEYS);
 
 	const allowAction: AllowActionType<K> = useCallback(
 		(
 			entries: Entry[],
 			permission: ActionConfigPermission | undefined,
 			entriesSelection: EntriesSelectionType,
-			customEntryCheck?: (entry: Entry) => boolean,
+			customEntryCheck?: (
+				entry: Entry,
+				auth: AccountModel | null,
+			) => boolean,
 		) => {
 			if (entriesSelection === 'single') {
 				if (entries.length !== 1) {
 					return false;
 				}
 
-				if (customEntryCheck && !customEntryCheck(entries[0])) {
+				if (customEntryCheck && !customEntryCheck(entries[0], auth)) {
 					return false;
 				}
 			}
@@ -211,6 +223,10 @@ export function DataTableActions<K extends DataSourceKey>() {
 			// No declared permission → the action isn't permission-gated.
 			if (!permission) {
 				return true;
+			}
+
+			if (permission === 'admin') {
+				return isAdmin(auth);
 			}
 
 			const [permissionEntity, permissionOperation] = permission;
@@ -346,7 +362,12 @@ export function DataTableActions<K extends DataSourceKey>() {
 		<div className="flex flex-wrap gap-4 justify-between md:min-h-18.5 py-4">
 			<div className="flex flex-wrap gap-4 items-center">
 				{selectionMode === 'multiple' && (
-					<div>{selectedEntries.length} selected</div>
+					<div>
+						{replaceVars(
+							translations['dashboard.text.selected_count'],
+							{ count: selectedEntries.length },
+						)}
+					</div>
 				)}
 				{leftActions}
 			</div>

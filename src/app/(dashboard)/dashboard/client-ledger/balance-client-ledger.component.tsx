@@ -20,6 +20,7 @@ const TRANSLATION_KEYS = [
 	'client-ledger.balance.refunded',
 	'client-ledger.balance.net',
 	'client-ledger.balance.net_base',
+	'client-ledger.text.could_not_retrieve_the_client_balance',
 ] as const;
 
 /**
@@ -77,7 +78,11 @@ export const BalanceClientLedger = (): JSX.Element => {
 	if (isError || !data) {
 		return (
 			<div className="text-danger text-sm py-4">
-				Could not retrieve the client balance
+				{
+					translations[
+						'client-ledger.text.could_not_retrieve_the_client_balance'
+					]
+				}
 			</div>
 		);
 	}

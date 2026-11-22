@@ -1,15 +1,29 @@
+'use client';
+
 import {
 	FormComponentCalendar,
 	FormComponentInput,
 	FormComponentTextarea,
 } from '@/components/form/form-element.component';
 import { createCurrentDate } from '@/helpers/date.helper';
+import { replaceVars } from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	CURRENCY_CODE_CHARS,
 	EXCHANGE_RATE_MAX_DECIMALS,
 } from '@/models/exchange-rate.model';
 import { useWindowForm } from '@/providers/window-form.provider';
+
+const TRANSLATION_KEYS = [
+	'exchange-rate.text.label_currency',
+	'exchange-rate.field.notes',
+	'exchange-rate.text.label_rate',
+	'exchange-rate.field.rate_date',
+	'exchange-rate.text.placeholder_currency',
+	'exchange-rate.text.placeholder_rate',
+	'exchange-rate.text.placeholder_rate_date',
+] as const;
 
 export type ExchangeRateFormValuesType = {
 	currency: string | null;
@@ -19,6 +33,8 @@ export type ExchangeRateFormValuesType = {
 };
 
 export function FormManageExchangeRate() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const { formOperation, formValues, errors, handleChange, pending } =
 		useWindowForm<ExchangeRateFormValuesType>();
 
@@ -43,12 +59,17 @@ export function FormManageExchangeRate() {
 	return (
 		<>
 			<FormComponentInput<ExchangeRateFormValuesType>
-				labelText={`Currency (${CURRENCY_CODE_CHARS}-letter ISO 4217 code)`}
+				labelText={replaceVars(
+					translations['exchange-rate.text.label_currency'],
+					{ chars: CURRENCY_CODE_CHARS },
+				)}
 				id={elementIds.currency}
 				fieldName="currency"
 				fieldValue={formValues.currency ?? ''}
 				isRequired={true}
-				placeholderText="e.g.: EUR"
+				placeholderText={
+					translations['exchange-rate.text.placeholder_currency']
+				}
 				disabled={pending || !isIdentityEditable}
 				// Uppercased on the way in so the field shows what will be stored: the column is
 				// `char(3)` and Postgres does not fold case, so `eur` would sit unmatched beside
@@ -60,12 +81,14 @@ export function FormManageExchangeRate() {
 			/>
 
 			<FormComponentCalendar<ExchangeRateFormValuesType>
-				labelText="Rate date"
+				labelText={translations['exchange-rate.field.rate_date']}
 				id={elementIds.rateDate}
 				fieldName="rate_date"
 				fieldValue={formValues.rate_date ?? ''}
 				isRequired={true}
-				placeholderText="-select-"
+				placeholderText={
+					translations['exchange-rate.text.placeholder_rate_date']
+				}
 				maxDate={today}
 				disabled={pending || !isIdentityEditable}
 				onSelect={(value) =>
@@ -75,13 +98,18 @@ export function FormManageExchangeRate() {
 			/>
 
 			<FormComponentInput<ExchangeRateFormValuesType>
-				labelText={`Rate (up to ${EXCHANGE_RATE_MAX_DECIMALS} decimals)`}
+				labelText={replaceVars(
+					translations['exchange-rate.text.label_rate'],
+					{ max: EXCHANGE_RATE_MAX_DECIMALS },
+				)}
 				id={elementIds.rate}
 				fieldName="rate"
 				fieldType="number"
 				fieldValue={formValues.rate ?? null}
 				isRequired={true}
-				placeholderText="e.g.: 5.2575"
+				placeholderText={
+					translations['exchange-rate.text.placeholder_rate']
+				}
 				disabled={pending}
 				onChange={(e) =>
 					handleChange(
@@ -93,7 +121,7 @@ export function FormManageExchangeRate() {
 			/>
 
 			<FormComponentTextarea<ExchangeRateFormValuesType>
-				labelText="Notes"
+				labelText={translations['exchange-rate.field.notes']}
 				id={elementIds.notes}
 				fieldName="notes"
 				fieldValue={formValues.notes ?? ''}

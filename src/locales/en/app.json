@@ -1,6 +1,5 @@
 {
 	"name": "{{app_name}}",
-	"description": "{{app_name}}",
 	"page": {
 		"not_found": "{{app_name}} - Page not found"
 	},
@@ -27,7 +26,8 @@
 	},
 	"info": {
 		"generic": "Nothing to report here.",
-		"account_delete": "Hey ..I don't know your name anymore! Thank you for being with us for a while. Your account has been marked for deletion. All data associated with your account will be removed from our database within 5–30 days. You’re always welcome to create a new account anytime."
+		"account_delete": "Hey ..I don't know your name anymore! Thank you for being with us for a while. Your account has been marked for deletion. All data associated with your account will be removed from our database within 5–30 days. You’re always welcome to create a new account anytime.",
+		"title": "Info"
 	},
 	"status": {
 		"active": "Active",
@@ -61,5 +61,26 @@
 			"title": "Submit",
 			"label": "Submit"
 		}
+	},
+	"form": {
+		"hours_short": "HH",
+		"minutes_short": "MM",
+		"searching": "Searching...",
+		"no_results": "No results",
+		"create_value": "Create \"{{value}}\"",
+		"placeholder_name": "eg: John Doe",
+		"placeholder_email": "eg: example@domain.com",
+		"placeholder_password": "Password",
+		"placeholder_search": "Search…"
+	},
+	"window": {
+		"close_all_confirm": "Close all open windows?",
+		"show_less": "Show Less",
+		"close_all": "Close all windows",
+		"close": "Close modal",
+		"minimize": "Minimize modal"
+	},
+	"text": {
+		"label_breadcrumb": "Breadcrumb"
 	}
 }

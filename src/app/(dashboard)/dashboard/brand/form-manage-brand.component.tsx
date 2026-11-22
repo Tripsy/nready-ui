@@ -1,4 +1,6 @@
-import { useState } from 'react';
+'use client';
+
+import { useMemo, useState } from 'react';
 import {
 	FormComponentInput,
 	FormComponentRadio,
@@ -7,8 +9,12 @@ import { Icons } from '@/components/icon.component';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Configuration } from '@/config/settings.config';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type BrandContentType,
 	type BrandType,
@@ -17,6 +23,18 @@ import {
 import { useWindowForm } from '@/providers/window-form.provider';
 import { type Language, LanguageEnum } from '@/types/common.type';
 import type { PageMeta } from '@/types/page-meta.type';
+
+const TRANSLATION_KEYS = [
+	'brand.field.brand_type',
+	'brand.field.description',
+	'brand.field.name',
+	'brand.section.language_specific',
+	'brand.text.placeholder_name',
+	'brand.field.meta_title',
+	'brand.field.meta_description',
+	'brand.field.meta_keywords',
+	...enumTranslationKeys('brand.enum.type', BrandTypeEnum),
+] as const;
 
 export type BrandFormValuesType = {
 	name: string | null;
@@ -28,11 +46,18 @@ export type BrandFormValuesType = {
 
 const languages = Object.values(LanguageEnum);
 
-const brandTypes = toOptionsFromEnum(BrandTypeEnum, {
-	formatter: formatEnumLabel,
-});
-
 export function FormManageBrand() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const brandTypes = useMemo(
+		() =>
+			toOptionsFromEnum(BrandTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'brand.enum.type', value),
+			}),
+		[translations],
+	);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<BrandFormValuesType>();
 
@@ -104,7 +129,7 @@ export function FormManageBrand() {
 	return (
 		<>
 			<FormComponentRadio<BrandFormValuesType>
-				labelText="Type"
+				labelText={translations['brand.field.brand_type']}
 				id={elementIds.brandType}
 				fieldName="brand_type"
 				fieldValue={formValues.brand_type}
@@ -118,12 +143,12 @@ export function FormManageBrand() {
 
 			<FormComponentInput<BrandFormValuesType>
 				id={elementIds.name}
-				labelText="Name"
+				labelText={translations['brand.field.name']}
 				fieldName="name"
 				fieldValue={formValues.name ?? ''}
 				className="pl-8"
 				isRequired={true}
-				placeholderText="eg: RO"
+				placeholderText={translations['brand.text.placeholder_name']}
 				icons={{
 					left: <Icons.Brand className="opacity-40 h-4.5 w-4.5" />,
 				}}
@@ -147,7 +172,7 @@ export function FormManageBrand() {
 			>
 				<div className="flex items-center border-b border-line pb-2 gap-2">
 					<h3 className="font-bold whitespace-nowrap">
-						Language specific
+						{translations['brand.section.language_specific']}
 					</h3>
 					<TabsList>
 						{languages.map((language) => (
@@ -173,7 +198,9 @@ export function FormManageBrand() {
 							<div className="form-section">
 								<FormComponentInput<BrandContentType>
 									id={`${elementIds.contents}-${language}-description`}
-									labelText="Description"
+									labelText={
+										translations['brand.field.description']
+									}
 									fieldName="description"
 									fieldValue={
 										contentsMap[language]?.description ?? ''
@@ -196,7 +223,9 @@ export function FormManageBrand() {
 
 								<FormComponentInput<PageMeta>
 									id={`${elementIds.contents}-${language}-meta-title`}
-									labelText="Meta Title"
+									labelText={
+										translations['brand.field.meta_title']
+									}
 									fieldName="title"
 									fieldValue={
 										contentsMap[language]?.meta?.title ?? ''
@@ -219,7 +248,11 @@ export function FormManageBrand() {
 
 								<FormComponentInput<PageMeta>
 									id={`${elementIds.contents}-${language}-meta-description`}
-									labelText="Meta Description"
+									labelText={
+										translations[
+											'brand.field.meta_description'
+										]
+									}
 									fieldName="description"
 									fieldValue={
 										contentsMap[language]?.meta
@@ -243,7 +276,11 @@ export function FormManageBrand() {
 
 								<FormComponentInput<PageMeta>
 									id={`${elementIds.contents}-${language}-meta-keywords`}
-									labelText="Meta Keywords"
+									labelText={
+										translations[
+											'brand.field.meta_keywords'
+										]
+									}
 									fieldName="keywords"
 									fieldValue={
 										contentsMap[language]?.meta?.keywords ??

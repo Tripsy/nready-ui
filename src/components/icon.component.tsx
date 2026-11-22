@@ -18,6 +18,7 @@ import {
 	CalendarClock,
 	Camera,
 	Car,
+	ChartNoAxesColumn,
 	Check,
 	ChevronLeft,
 	CircleAlert,
@@ -26,7 +27,9 @@ import {
 	CircleSlash,
 	CircleUser,
 	CircleX,
+	ClipboardCheck,
 	ClipboardClock,
+	ClipboardList,
 	Clock,
 	ClockFading,
 	ClockPlus,
@@ -81,8 +84,10 @@ import {
 	Newspaper,
 	Package,
 	PackageCheck,
+	PackageMinus,
 	PackagePlus,
 	PenLine,
+	Percent,
 	PiggyBank,
 	Pin,
 	PinOff,
@@ -94,6 +99,7 @@ import {
 	Route,
 	Rss,
 	Save,
+	ScrollText,
 	Search,
 	Send,
 	Settings,
@@ -117,6 +123,7 @@ import {
 	TicketCheck,
 	TicketPercent,
 	Trash2,
+	TrendingDown,
 	TrendingUp,
 	TriangleAlert,
 	Truck,
@@ -216,6 +223,7 @@ export const Icons = {
 	Invoice: createIcon(FileDigit),
 	Discount: createIcon(TicketPercent),
 	ExchangeRate: createIcon(ArrowRightLeft),
+	VatRate: createIcon(Percent),
 	OperationalRecord: createIcon(BanknoteArrowUp),
 	Financial: createIcon(BookText),
 	Client: createIcon(IdCard),
@@ -235,8 +243,20 @@ export const Icons = {
 	// A parcel of an order, as against `Carrier`, which is who carries it
 	Shipping: createIcon(PackageCheck),
 	Warehouse: createIcon(Warehouse),
+	// A goods receipt - the document stock is checked in against
+	Grn: createIcon(ClipboardList),
+	// The stock ledger - every movement in and out of a warehouse
+	StockLedger: createIcon(ScrollText),
+	// Tracked variants at or under their low-stock threshold
+	LowStock: createIcon(PackageMinus),
+	// Prices whose floor is under what the goods cost
+	CostOverFloor: createIcon(TrendingDown),
+	StockAdjustment: createIcon(ClipboardCheck),
+	// A return authorization - goods a buyer sends back
+	OrderReturn: createIcon(Undo2),
 	Carrier: createIcon(Truck),
 	Logistics: createIcon(Package),
+	Reports: createIcon(ChartNoAxesColumn),
 	Clock: createIcon(Clock),
 	Payment: createIcon(Coins),
 	MapPin: createIcon(MapPin),
@@ -382,6 +402,8 @@ export const Icons = {
 		// Keys an action is registered under whose icon is named for something else - every
 		// action key resolves to an entry here, which is what `ActionIconKey` checks
 		Guide: createIcon(Info),
+		// A variant's stock - on hand per warehouse, reserved and available
+		Stock: createIcon(Boxes),
 		ManagerImages: createIcon(Camera),
 		LinkAccount: createIcon(Link),
 		UnlinkAccount: createIcon(Unlink),

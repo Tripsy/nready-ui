@@ -71,5 +71,33 @@
 		"note": "Deleting a warehouse is a soft delete, and it releases both the code and the default flag - another warehouse can claim either while this one is gone. That is also why a restore can be refused: if the code was taken in the meantime, the row cannot come back until the conflict is resolved.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"field": {
+		"search": "ID / Code / Name",
+		"status": "Status",
+		"is_default": "Default",
+		"address": "Address",
+		"code": "Code",
+		"name": "Name",
+		"notes": "Notes",
+		"id": "ID",
+		"details": "Details",
+		"postal_code": "Postal Code",
+		"created_at": "Created At",
+		"updated_at": "Updated At",
+		"deleted_at": "Deleted At"
+	},
+	"text": {
+		"placeholder_code": "e.g.: BUC-01 (max {{max}} characters)",
+		"placeholder_name": "e.g.: Bucharest Central",
+		"default_warehouse": "Default warehouse",
+		"default_only": "Default only",
+		"not_default": "Not default"
+	},
+	"section": {
+		"info": "Info",
+		"address": "Address",
+		"notes": "Notes",
+		"timestamps": "Timestamps"
 	}
 }

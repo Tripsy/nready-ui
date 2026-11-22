@@ -24,7 +24,9 @@ export const PermissionEntitiesSuggestions = [
 	'log-history',
 	'mail-queue',
 	'order',
+	'order-return',
 	'shipping',
+	'stock-adjustment',
 	'permission',
 	'place',
 	'product',
@@ -34,8 +36,10 @@ export const PermissionEntitiesSuggestions = [
 	'template',
 	'term',
 	'user',
+	'vat-rate',
 	'vendor',
 	'warehouse',
+	'warehouse-movement',
 ] as const;
 
 export type PermissionEntityType =

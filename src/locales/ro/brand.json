@@ -85,5 +85,35 @@
 		"note": "Ștergerea unui brand este una logică, iar regula de unicitate ignoră rândurile șterse - deci slug-ul devine imediat liber și poate fi luat de un brand nou. Restaurarea celui vechi eșuează atunci cât timp numele este ocupat.",
 		"tab_info": "Info",
 		"tab_api": "Documentație API"
+	},
+	"field": {
+		"id": "ID",
+		"brand_type": "Tip",
+		"name": "Nume",
+		"status": "Status",
+		"search": "ID / Nume",
+		"language": "Limbă",
+		"description": "Descriere",
+		"created_at": "Creat la",
+		"updated_at": "Actualizat la",
+		"deleted_at": "Șters la",
+		"meta_title": "Meta titlu",
+		"meta_description": "Meta descriere",
+		"meta_keywords": "Meta cuvinte cheie"
+	},
+	"text": {
+		"placeholder_name": "ex.: RO",
+		"update": "Actualizează",
+		"language_specific": "Specifică limbii"
+	},
+	"section": {
+		"language_specific": "Specifică limbii",
+		"info": "Info",
+		"timestamps": "Marcaje de timp"
+	},
+	"enum": {
+		"type": {
+			"product": "Produs"
+		}
 	}
 }

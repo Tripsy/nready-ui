@@ -33,5 +33,44 @@
 		"note": "A weekly job already drops everything older than 30 days, so purging by hand is for noise you want gone sooner rather than for keeping the table small. Anything older than that lives in CloudWatch under its own retention.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"enum": {
+		"level": {
+			"trace": "Trace",
+			"debug": "Debug",
+			"info": "Info",
+			"warn": "Warn",
+			"error": "Error",
+			"fatal": "Fatal"
+		},
+		"category": {
+			"system": "System",
+			"history": "History",
+			"cron": "Cron"
+		}
+	},
+	"field": {
+		"search": "ID / PID / Message / Context",
+		"category": "Category",
+		"level": "Level",
+		"created_at": "Created At",
+		"id": "ID",
+		"message": "Message",
+		"pid": "PID",
+		"request_id": "Request ID",
+		"method": "Method",
+		"url": "URL",
+		"body": "Body",
+		"params": "Params",
+		"query": "Query",
+		"file": "File",
+		"line": "Line",
+		"function": "Function",
+		"trace": "Trace"
+	},
+	"section": {
+		"info": "Info",
+		"request_context": "Request Context",
+		"debug_stack": "Debug Stack"
 	}
 }

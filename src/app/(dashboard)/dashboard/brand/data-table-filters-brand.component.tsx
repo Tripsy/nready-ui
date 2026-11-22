@@ -13,22 +13,41 @@ import type { BrandDataTableFiltersType } from '@/app/(dashboard)/dashboard/bran
 import type { TemplateDataTableFiltersType } from '@/app/(dashboard)/dashboard/template/template.definition';
 import { getLanguageClient } from '@/config/translate.setup';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	languageOwnName,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { type BrandType, BrandTypeEnum } from '@/models/brand.model';
 import { type Language, LanguageEnum } from '@/types/common.type';
 
-const brandTypes = toOptionsFromEnum(BrandTypeEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'brand.field.brand_type',
+	'brand.field.language',
+	'brand.field.search',
+	...enumTranslationKeys('brand.enum.type', BrandTypeEnum),
+] as const;
 
 const languages = toOptionsFromEnum(LanguageEnum, {
-	formatter: formatEnumLabel,
+	formatter: languageOwnName,
 });
 
 export const DataTableFiltersBrand = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const brandTypes = useMemo(
+		() =>
+			toOptionsFromEnum(BrandTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'brand.enum.type', value),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'brand'>();
 
@@ -69,12 +88,12 @@ export const DataTableFiltersBrand = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<BrandDataTableFiltersType>
-				labelText="ID / Name"
+				labelText={translations['brand.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<BrandDataTableFiltersType>
-				labelText="Type"
+				labelText={translations['brand.field.brand_type']}
 				fieldName="brand_type"
 				fieldValue={filters.brand_type.value}
 				options={brandTypes}
@@ -84,7 +103,7 @@ export const DataTableFiltersBrand = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<TemplateDataTableFiltersType>
-				labelText="Language"
+				labelText={translations['brand.field.language']}
 				fieldName="language"
 				fieldValue={filters.language.value ?? getLanguageClient()}
 				options={languages}

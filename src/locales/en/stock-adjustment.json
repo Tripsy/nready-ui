@@ -1,0 +1,96 @@
+{
+	"meta": {
+		"title": "Stock adjustments - Dashboard | {{app_name}}"
+	},
+	"action": {
+		"create": {
+			"title": "Adjust stock",
+			"label": "Adjust stock",
+			"success": "Stock adjusted"
+		},
+		"reverse": {
+			"title": "Reverse - {{entry}}",
+			"label": "Reverse",
+			"confirm": "Undo this adjustment? The units go back where they were and the ledger records the reversal.",
+			"success": "Stock adjustment reversed - the units are back where they were"
+		},
+		"view": {
+			"title": "Stock adjustment - {{entry}}",
+			"label": "View details"
+		},
+		"guide": {
+			"title": "How stock adjustments work",
+			"label": "Usage guide"
+		}
+	},
+	"field": {
+		"id": "ID",
+		"reason": "Reason",
+		"warehouse": "Warehouse",
+		"variant": "Variant",
+		"qty": "Quantity",
+		"status": "Status",
+		"notes": "Notes",
+		"created_at": "Created at",
+		"reversed_at": "Reversed at",
+		"movement_type": "Movement",
+		"lot": "Lot",
+		"unit_cost_base": "Unit cost (base)",
+		"direction": "Direction"
+	},
+	"section": {
+		"info": "Adjustment",
+		"movements": "Ledger rows ({{length}})"
+	},
+	"status": {
+		"created": "Created",
+		"reversed": "Reversed"
+	},
+	"enum": {
+		"direction": {
+			"add": "Added",
+			"remove": "Removed"
+		},
+		"reason": {
+			"audit": "Stock audit",
+			"damaged": "Damaged",
+			"expired": "Expired",
+			"lost": "Lost",
+			"theft": "Theft",
+			"sample": "Sample / giveaway",
+			"found": "Found",
+			"sample_returned": "Sample returned",
+			"return": "Returned goods"
+		}
+	},
+	"text": {
+		"books_loading": "Reading the current stock...",
+		"placeholder_notes": "What happened, who counted, where...",
+		"no_movements": "No ledger rows.",
+		"lot_ref": "Lot #{{id}}",
+		"form_hint": "Add or remove units at one warehouse. Removed units leave the oldest batches first; added units go back into recent batches that have sold some.",
+		"books_result": "The books hold {{on_hand}} at this warehouse - after this, {{result}}.",
+		"placeholder_reason": "Pick a reason"
+	},
+	"validation": {
+		"invalid_warehouse_id": "Pick a warehouse",
+		"invalid_variant_id": "Pick a variant",
+		"invalid_qty": "Quantity must be greater than 0, with at most 2 decimals",
+		"invalid_reason": "Pick a reason",
+		"invalid_notes": "Notes are too long",
+		"invalid_direction": "Pick whether the units are added or removed",
+		"reason_direction": "This reason does not apply to that direction"
+	},
+	"help": {
+		"intro": "A stock adjustment adds or removes units by hand, where no document moved the goods: something broke or went missing, a sample came back, or a shelf audit disagrees with the books.",
+		"step_1_title": "Remove",
+		"step_1_body": "Pick the warehouse, the variant, how many and why - damaged, expired, lost, theft, a sample given away, or an audit that found fewer. The units leave the oldest batches first, the same order a shipment takes them in, and the ledger records each batch at its cost.",
+		"step_2_title": "Add",
+		"step_2_body": "Units come back - found, a sample returned, returned goods, or an audit that found more. They go into recent batches that have sold some; a batch never holds more than it arrived with, so goods with nowhere to go have to come in on a goods receipt.",
+		"step_3_title": "Reverse",
+		"step_3_body": "A wrong entry is reversed, never edited: the units go back where they came from and the ledger records the reversal. Units that were added cannot be taken back once they were sold - post a new adjustment instead.",
+		"note": "Reservations are not checked: a removal records what happened, so it can leave a variant promised beyond what it holds. The variant stock window shows that as negative available.",
+		"tab_info": "Info",
+		"tab_api": "API docs"
+	}
+}

@@ -49,5 +49,37 @@
 		"note": "Documents keep their own frozen copy of the rate they were priced at, so editing or deleting a row here never moves figures already recorded. A day with no published rate is not an error: a conversion falls back to the most recent rate published before it, which is how weekends and holidays resolve.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"field": {
+		"search": "ID / Currency / Provider",
+		"source": "Source",
+		"rate_date": "Rate Date",
+		"id": "ID",
+		"currency": "Currency",
+		"rate": "Rate",
+		"provider": "Provider",
+		"created_at": "Created At",
+		"notes": "Notes",
+		"base_currency": "Base currency",
+		"updated_at": "Updated At"
+	},
+	"text": {
+		"placeholder_currency": "e.g.: EUR",
+		"placeholder_rate_date": "-select-",
+		"placeholder_rate": "e.g.: 5.2575",
+		"label_currency": "Currency ({{chars}}-letter ISO 4217 code)",
+		"label_rate": "Rate (up to {{max}} decimals)"
+	},
+	"section": {
+		"rate": "Rate",
+		"origin": "Origin",
+		"other": "Other",
+		"timestamps": "Timestamps"
+	},
+	"enum": {
+		"source": {
+			"manual": "Manual",
+			"import": "Imported"
+		}
 	}
 }

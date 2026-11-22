@@ -37,6 +37,25 @@ import {
 import { useAuth } from '@/providers/auth.provider';
 import type { Language } from '@/types/common.type';
 
+const TRANSLATION_KEYS = [
+	'dashboard.text.back_to_list',
+	'category.text.delete',
+	'category.text.label_delete',
+	'category.text.label_update',
+	'category.text.update',
+	'category.text.view_details',
+	'category-tree.text.no_entries',
+	'category-tree.text.truncated',
+	'category-tree.text.detached',
+	'category-tree.text.expand_all',
+	'category-tree.text.collapse_all',
+	'category-tree.error.load_failed',
+	'dashboard.text.label_expand',
+	'dashboard.text.label_collapse',
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
+
 /**
  * The whole active tree is fetched in one page - a hierarchy cannot be paginated without
  * losing the parents that give it shape. The cap is a guard against a pathological dataset,
@@ -60,6 +79,7 @@ function collectParentIds(
 }
 
 type CategoryTreeItemProps = {
+	translations: TranslationsType;
 	node: CategoryTreeNode;
 	language: Language;
 	collapsedIds: Set<number>;
@@ -70,6 +90,7 @@ type CategoryTreeItemProps = {
 };
 
 const CategoryTreeItem = ({
+	translations,
 	node,
 	language,
 	onToggle,
@@ -102,7 +123,12 @@ const CategoryTreeItem = ({
 						onClick={() => onToggle(entry.id)}
 						className="cursor-pointer"
 						aria-expanded={!isCollapsed}
-						aria-label={`${isCollapsed ? 'Expand' : 'Collapse'} ${label}`}
+						aria-label={replaceVars(
+							isCollapsed
+								? translations['dashboard.text.label_expand']
+								: translations['dashboard.text.label_collapse'],
+							{ label },
+						)}
 					>
 						{isCollapsed ? (
 							<Icons.Direction.ArrowRight />
@@ -118,7 +144,7 @@ const CategoryTreeItem = ({
 					type="button"
 					onClick={() => runAction('view')}
 					className="cursor-pointer hover:underline text-left"
-					title="View details"
+					title={translations['category.text.view_details']}
 				>
 					{label}
 				</button>
@@ -136,8 +162,11 @@ const CategoryTreeItem = ({
 							type="button"
 							onClick={() => runAction('update')}
 							className="cursor-pointer opacity-60 hover:opacity-100"
-							aria-label={`Update ${label}`}
-							title="Update"
+							aria-label={replaceVars(
+								translations['category.text.label_update'],
+								{ label },
+							)}
+							title={translations['category.text.update']}
 						>
 							<Icons.Action.Update />
 						</button>
@@ -147,8 +176,11 @@ const CategoryTreeItem = ({
 							type="button"
 							onClick={() => runAction('delete')}
 							className="cursor-pointer opacity-60 hover:opacity-100 hover:text-danger"
-							aria-label={`Delete ${label}`}
-							title="Delete"
+							aria-label={replaceVars(
+								translations['category.text.label_delete'],
+								{ label },
+							)}
+							title={translations['category.text.delete']}
 						>
 							<Icons.Action.Delete />
 						</button>
@@ -160,6 +192,7 @@ const CategoryTreeItem = ({
 				<ul className="ml-2 pl-4 border-l border-line">
 					{children.map((child) => (
 						<CategoryTreeItem
+							translations={translations}
 							key={child.entry.id}
 							node={child}
 							language={language}
@@ -177,16 +210,7 @@ const CategoryTreeItem = ({
 };
 
 const DataTableCategoryTreeContent = (): JSX.Element => {
-	const translationsKeys = [
-		'category-tree.text.no_entries',
-		'category-tree.text.truncated',
-		'category-tree.text.detached',
-		'category-tree.text.expand_all',
-		'category-tree.text.collapse_all',
-		'category-tree.error.load_failed',
-	] as const;
-
-	const { translations } = useTranslation(translationsKeys);
+	const { translations } = useTranslation(TRANSLATION_KEYS);
 
 	const { auth } = useAuth();
 
@@ -315,6 +339,7 @@ const DataTableCategoryTreeContent = (): JSX.Element => {
 			<ul className="mt-4">
 				{tree.map((node) => (
 					<CategoryTreeItem
+						translations={translations}
 						key={node.entry.id}
 						node={node}
 						language={language}
@@ -342,11 +367,11 @@ const DataTableCategoryTreeContent = (): JSX.Element => {
 			<div className="flex gap-3 mt-4">
 				<Link
 					variant="outline"
-					title="Back to list"
+					title={translations['dashboard.text.back_to_list']}
 					href={Routes.get('category')}
 				>
 					<Icons.Category />
-					Back to list
+					{translations['dashboard.text.back_to_list']}
 				</Link>
 			</div>
 		</>

@@ -14,12 +14,14 @@ import type { CronHistoryModel } from '@/models/cron-history.model';
 import type { DiscountModel } from '@/models/discount.model';
 import type { DocumentSeriesModel } from '@/models/document-series.model';
 import type { ExchangeRateModel } from '@/models/exchange-rate.model';
+import type { CostOverFloorModel, GrnModel } from '@/models/grn.model';
 import type { ImageModel } from '@/models/image.model';
 import type { InvoiceModel } from '@/models/invoice.model';
 import type { LogDataModel } from '@/models/log-data.model';
 import type { LogHistoryModel } from '@/models/log-history.model';
 import type { MailQueueModel } from '@/models/mail-queue.model';
 import type { OrderModel } from '@/models/order.model';
+import type { OrderReturnModel } from '@/models/order-return.model';
 import type { PermissionModel } from '@/models/permission.model';
 import type { PlaceModel } from '@/models/place.model';
 import type { ProductModel } from '@/models/product.model';
@@ -28,11 +30,17 @@ import type { ProductVariantModel } from '@/models/product-variant.model';
 import type { RatingModel } from '@/models/rating.model';
 import type { ReviewModel } from '@/models/review.model';
 import type { ShippingModel } from '@/models/shipping.model';
+import type { StockAdjustmentModel } from '@/models/stock-adjustment.model';
 import type { TemplateModel } from '@/models/template.model';
 import type { TermModel } from '@/models/term.model';
 import type { UserModel } from '@/models/user.model';
+import type { VatRateModel } from '@/models/vat-rate.model';
 import type { VendorModel } from '@/models/vendor.model';
 import type { WarehouseModel } from '@/models/warehouse.model';
+import type {
+	LowStockModel,
+	WarehouseMovementModel,
+} from '@/models/warehouse-movement.model';
 
 export type DatasourceModels = {
 	// `account` is a virtual data source (no list endpoint) - its entry is the
@@ -62,6 +70,8 @@ export type DatasourceModels = {
 	discount: DiscountModel;
 	'document-series': DocumentSeriesModel;
 	'exchange-rate': ExchangeRateModel;
+	// Goods received notes - the only way stock enters a warehouse; `items` come with the read only
+	grn: GrnModel;
 	image: ImageModel;
 	invoice: InvoiceModel;
 	'log-data': LogDataModel;
@@ -73,6 +83,8 @@ export type DatasourceModels = {
 	 * is what lets a basket whose goods sit in two places travel as two shipments.
 	 */
 	shipping: ShippingModel;
+	// A return authorization - the request and the decision; the goods travel on a `return` shipping
+	'order-return': OrderReturnModel;
 	permission: PermissionModel;
 	place: PlaceModel;
 	product: ProductModel;
@@ -89,8 +101,23 @@ export type DatasourceModels = {
 	template: TemplateModel;
 	term: TermModel;
 	user: UserModel;
+	'vat-rate': VatRateModel;
 	vendor: VendorModel;
 	warehouse: WarehouseModel;
+	// The stock ledger - read-only, every row posted by the document that moved the goods
+	'warehouse-movement': WarehouseMovementModel;
+	/*
+	 * Tracked variants at or under their low-stock threshold - a report over the ledger, gated as
+	 * a `find` of `warehouse-movement` and keyed by `variant_id`, having no id of its own.
+	 */
+	'low-stock': LowStockModel;
+	/*
+	 * Price rows whose floor is under the variant's cost - a report over receipts and prices,
+	 * gated as a `find` of `grn`, keyed by position, having no id of its own.
+	 */
+	'cost-over-floor': CostOverFloorModel;
+	// Write-offs and shelf counts entered by hand - posted, then reversed at most once
+	'stock-adjustment': StockAdjustmentModel;
 };
 
 export type DataSourceKey = keyof DatasourceModels;

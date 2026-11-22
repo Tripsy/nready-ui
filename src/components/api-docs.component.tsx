@@ -9,6 +9,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getErrorMessage } from '@/helpers/error.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { requestFeatureDocs } from '@/services/docs.service';
 import {
 	type ApiDocsAction,
@@ -18,7 +19,30 @@ import {
 	isApiDocsParam,
 } from '@/types/api-docs.type';
 
-function ParamRow({ name, param }: { name: string; param: ApiDocsParam }) {
+const TRANSLATION_KEYS = [
+	'api-docs.section.body',
+	'api-docs.section.path_params',
+	'api-docs.section.query',
+	'api-docs.text.nothing_to_show',
+	'api-docs.text.request_sample',
+	'api-docs.text.response_sample',
+	'api-docs.text.responses',
+	'api-docs.text.no_documentation',
+	'api-docs.text.required',
+	'api-docs.text.optional',
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
+
+function ParamRow({
+	translations,
+	name,
+	param,
+}: {
+	translations: TranslationsType;
+	name: string;
+	param: ApiDocsParam;
+}) {
 	const extras = [
 		param.values?.length ? param.values.join(' | ') : null,
 		param.format,
@@ -33,9 +57,13 @@ function ParamRow({ name, param }: { name: string; param: ApiDocsParam }) {
 			<code className="font-semibold">{name}</code>
 			<span className="text-xs text-muted">{param.type}</span>
 			{param.required ? (
-				<span className="text-xs text-danger">required</span>
+				<span className="text-xs text-danger">
+					{translations['api-docs.text.required']}
+				</span>
 			) : (
-				<span className="text-xs text-muted">optional</span>
+				<span className="text-xs text-muted">
+					{translations['api-docs.text.optional']}
+				</span>
 			)}
 			{extras.length > 0 && (
 				<span className="w-full text-xs text-muted">
@@ -52,9 +80,11 @@ function ParamRow({ name, param }: { name: string; param: ApiDocsParam }) {
  * flattened, which would lose the fact that those keys live under `filter`.
  */
 function ParamGroup({
+	translations,
 	title,
 	group,
 }: {
+	translations: TranslationsType;
 	title: string;
 	group: ApiDocsParamGroup;
 }) {
@@ -72,7 +102,12 @@ function ParamGroup({
 			<ul>
 				{entries.map(([name, value]) =>
 					isApiDocsParam(value) ? (
-						<ParamRow key={name} name={name} param={value} />
+						<ParamRow
+							translations={translations}
+							key={name}
+							name={name}
+							param={value}
+						/>
 					) : (
 						<li key={name} className="py-1.5">
 							<code className="font-semibold">{name}</code>
@@ -80,6 +115,7 @@ function ParamGroup({
 								{Object.entries(value).map(
 									([childName, childParam]) => (
 										<ParamRow
+											translations={translations}
 											key={childName}
 											name={childName}
 											param={childParam}
@@ -216,11 +252,13 @@ function JsonBlock({ title, value }: { title: string; value: unknown }) {
 }
 
 function ActionDocs({
+	translations,
 	action,
 	baseUrl,
 	anchor,
 	name,
 }: {
+	translations: TranslationsType;
 	action: ApiDocsAction;
 	baseUrl: string;
 	/** Set by the stacked layout so a full-page action is directly linkable. */
@@ -254,15 +292,32 @@ function ActionDocs({
 			)}
 
 			{request.params && (
-				<ParamGroup title="Path params" group={request.params} />
+				<ParamGroup
+					translations={translations}
+					title={translations['api-docs.section.path_params']}
+					group={request.params}
+				/>
 			)}
 			{request.query && (
-				<ParamGroup title="Query" group={request.query} />
+				<ParamGroup
+					translations={translations}
+					title={translations['api-docs.section.query']}
+					group={request.query}
+				/>
 			)}
-			{request.body && <ParamGroup title="Body" group={request.body} />}
+			{request.body && (
+				<ParamGroup
+					translations={translations}
+					title={translations['api-docs.section.body']}
+					group={request.body}
+				/>
+			)}
 
 			{request.sample && (
-				<JsonBlock title="Request sample" value={request.sample} />
+				<JsonBlock
+					title={translations['api-docs.text.request_sample']}
+					value={request.sample}
+				/>
 			)}
 
 			<CodeBlock title="cURL" code={buildCurlExample(baseUrl, action)} />
@@ -273,7 +328,7 @@ function ActionDocs({
 
 			<div>
 				<p className="text-xs font-semibold uppercase text-muted mb-1">
-					Responses
+					{translations['api-docs.text.responses']}
 				</p>
 				<ul className="space-y-1">
 					{Object.entries(responses).map(([status, response]) => (
@@ -301,7 +356,7 @@ function ActionDocs({
 
 			{responses['200']?.content?.data?.sample !== undefined && (
 				<JsonBlock
-					title="Response sample"
+					title={translations['api-docs.text.response_sample']}
 					value={responses['200'].content?.data?.sample}
 				/>
 			)}
@@ -330,14 +385,16 @@ export function ApiDocsView({
 	baseUrl: string;
 	layout?: 'tabs' | 'stacked';
 }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const entries = Object.entries(actions);
 
 	if (entries.length === 0) {
 		return (
 			<ErrorComponent
 				className={STATUS_CLASS_NAME}
-				title="Nothing to show"
-				description="This feature has no API documentation."
+				title={translations['api-docs.text.nothing_to_show']}
+				description={translations['api-docs.text.no_documentation']}
 			/>
 		);
 	}
@@ -347,6 +404,7 @@ export function ApiDocsView({
 			<div className="space-y-6">
 				{entries.map(([name, action]) => (
 					<ActionDocs
+						translations={translations}
 						key={name}
 						name={name}
 						anchor={apiDocsActionAnchor(name)}
@@ -385,7 +443,11 @@ export function ApiDocsView({
 
 			{entries.map(([name, action]) => (
 				<TabsContent key={name} id={name} className="pt-3">
-					<ActionDocs action={action} baseUrl={baseUrl} />
+					<ActionDocs
+						translations={translations}
+						action={action}
+						baseUrl={baseUrl}
+					/>
 				</TabsContent>
 			))}
 		</Tabs>

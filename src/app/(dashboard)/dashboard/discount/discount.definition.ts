@@ -21,7 +21,10 @@ import {
 	requestRestore,
 	requestUpdate,
 } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import {
 	BaseValidator,
 	resolveValidatorMessages,
@@ -490,17 +493,34 @@ export type DiscountDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<DiscountModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'view.title',
-			'delete.title',
-			'restore.title',
-			'guide.title',
-		] as const,
-		'discount.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'view.title',
+				'delete.title',
+				'restore.title',
+				'guide.title',
+			] as const,
+			'discount.action',
+		),
+		translateBatch(
+			[
+				'field.end_at',
+				'field.id',
+				'field.label',
+				'field.reason',
+				'field.reference',
+				'field.scope',
+				'field.start_at',
+				'field.value',
+				...enumTranslationKeys('enum.scope', DiscountScopeEnum),
+				...enumTranslationKeys('enum.reason', DiscountReasonEnum),
+			] as const,
+			'discount',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -534,7 +554,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -545,7 +565,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'label',
-					header: 'Label',
+					header: labels['field.label'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -554,23 +574,31 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'scope',
-					header: 'Scope',
+					header: labels['field.scope'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: formatEnumLabel(entry.scope),
+							customValue: translateEnumLabel(
+								labels,
+								'enum.scope',
+								entry.scope,
+							),
 						}),
 				},
 				{
 					field: 'reason',
-					header: 'Reason',
+					header: labels['field.reason'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: formatEnumLabel(entry.reason),
+							customValue: translateEnumLabel(
+								labels,
+								'enum.reason',
+								entry.reason,
+							),
 						}),
 				},
 				{
 					field: 'value',
-					header: 'Value',
+					header: labels['field.value'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							customValue: displayDiscountValue(entry),
@@ -578,11 +606,11 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'reference',
-					header: 'Reference',
+					header: labels['field.reference'],
 				},
 				{
 					field: 'start_at',
-					header: 'Start At',
+					header: labels['field.start_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -591,7 +619,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'end_at',
-					header: 'End At',
+					header: labels['field.end_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

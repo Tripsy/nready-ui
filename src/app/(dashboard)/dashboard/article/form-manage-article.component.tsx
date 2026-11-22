@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { FormPickerArticle } from '@/app/(dashboard)/dashboard/article/form-picker-article.component';
 import {
 	FormComponentCalendar,
@@ -15,8 +15,14 @@ import { getLanguageClient } from '@/config/translate.setup';
 import { cn } from '@/helpers/css.helper';
 import { countTabErrors, toOptionsFromEnum } from '@/helpers/form.helper';
 import { renderMarkdown } from '@/helpers/markdown.helper';
-import { formatEnumLabel, toKebabCase } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	replaceVars,
+	toKebabCase,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { hasPermission } from '@/models/account.model';
 import {
 	type ArticleFeaturedStatus,
@@ -39,6 +45,78 @@ import { useAuth } from '@/providers/auth.provider';
 import { useWindowForm } from '@/providers/window-form.provider';
 import { type Language, LanguageEnum } from '@/types/common.type';
 import type { PageMeta } from '@/types/page-meta.type';
+
+const TRANSLATION_KEYS = [
+	'article.field.allow_comments',
+	'article.field.allow_complaints',
+	'article.field.allow_rating',
+	'article.field.archive_at',
+	'article.field.author_avatar',
+	'article.field.author_description',
+	'article.field.author_email',
+	'article.field.author_name',
+	'article.field.brief',
+	'article.field.category_id',
+	'article.field.featured_expire_at',
+	'article.field.featured_status',
+	'article.field.language',
+	'article.field.layout',
+	'article.field.meta_description',
+	'article.field.meta_keywords',
+	'article.field.meta_title',
+	'article.field.public_at',
+	'article.field.publish_at',
+	'article.field.rule_allowed_countries',
+	'article.field.rule_password',
+	'article.field.rule_requires_auth',
+	'article.field.rule_requires_subscription',
+	'article.field.slug',
+	'article.field.source_about',
+	'article.field.source_disclaimer',
+	'article.field.source_label',
+	'article.field.source_url',
+	'article.field.tag_id',
+	'article.field.title',
+	'article.field.visibility',
+	'article.section.author',
+	'article.section.content_language',
+	'article.section.source',
+	'article.section.visibility_rule',
+	'article.text.content',
+	'article.text.featured_until_drops_the_article_out',
+	'article.text.no_categories_linked',
+	'article.text.no_tags_linked',
+	'article.text.placeholder_archive_at',
+	'article.text.placeholder_author_avatar',
+	'article.text.placeholder_author_name',
+	'article.text.placeholder_content',
+	'article.text.placeholder_featured_expire_at',
+	'article.text.placeholder_featured_status',
+	'article.text.placeholder_public_at',
+	'article.text.placeholder_publish_at',
+	'article.text.placeholder_rule_allowed_countries',
+	'article.text.placeholder_rule_password',
+	'article.text.placeholder_slug',
+	'article.text.placeholder_source_url',
+	'article.text.public_at_is_the_day_the',
+	'article.text.publish_at_releases_a_scheduled_article',
+	'article.text.reader_participation',
+	'article.text.what_readers_may_add_to_this',
+	'article.section.settings',
+	'article.section.content',
+	'article.section.seo',
+	'article.section.attribution',
+	'dashboard.text.tab_errors',
+	'article.text.edit',
+	'article.text.preview',
+	'article.text.create_tag',
+	...enumTranslationKeys('article.enum.layout', ArticleLayoutEnum),
+	...enumTranslationKeys(
+		'article.enum.featured_status',
+		ArticleFeaturedStatusEnum,
+	),
+	...enumTranslationKeys('article.enum.visibility', ArticleVisibilityEnum),
+] as const;
 
 /**
  * `content` is markdown - that is what the backend stores and what the public site will render.
@@ -125,18 +203,6 @@ export type ArticleFormValuesType = {
 
 const languages = Object.values(LanguageEnum);
 
-const layouts = toOptionsFromEnum(ArticleLayoutEnum, {
-	formatter: formatEnumLabel,
-});
-
-const featuredStatuses = toOptionsFromEnum(ArticleFeaturedStatusEnum, {
-	formatter: formatEnumLabel,
-});
-
-const visibilities = toOptionsFromEnum(ArticleVisibilityEnum, {
-	formatter: formatEnumLabel,
-});
-
 /*
  * The three Settings selects share one width instead of sizing to their current value. Their
  * option sets are fixed and short, and a select that resizes as you change it shifts whatever
@@ -147,10 +213,10 @@ const visibilities = toOptionsFromEnum(ArticleVisibilityEnum, {
 const SELECT_WIDTH = 'w-32';
 
 const FORM_TABS = [
-	{ id: 'settings', label: 'Settings' },
-	{ id: 'content', label: 'Content' },
-	{ id: 'seo', label: 'SEO' },
-	{ id: 'attribution', label: 'Attribution' },
+	{ id: 'settings', labelKey: 'article.section.settings' },
+	{ id: 'content', labelKey: 'article.section.content' },
+	{ id: 'seo', labelKey: 'article.section.seo' },
+	{ id: 'attribution', labelKey: 'article.section.attribution' },
 ] as const;
 
 type FormTabId = (typeof FORM_TABS)[number]['id'];
@@ -202,6 +268,47 @@ const TAB_CONTENT_FIELDS: Record<FormTabId, readonly string[]> = {
 };
 
 export function FormManageArticle() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const visibilities = useMemo(
+		() =>
+			toOptionsFromEnum(ArticleVisibilityEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'article.enum.visibility',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const featuredStatuses = useMemo(
+		() =>
+			toOptionsFromEnum(ArticleFeaturedStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'article.enum.featured_status',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const layouts = useMemo(
+		() =>
+			toOptionsFromEnum(ArticleLayoutEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'article.enum.layout',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<ArticleFormValuesType>();
 
@@ -422,9 +529,11 @@ export function FormManageArticle() {
 			 * describes.
 			 */}
 			<fieldset className="flex items-center gap-2">
-				<legend className="sr-only">Content language</legend>
+				<legend className="sr-only">
+					{translations['article.section.content_language']}
+				</legend>
 				<span className="text-sm font-medium" aria-hidden="true">
-					Language
+					{translations['article.field.language']}
 				</span>
 				{languages.map((value) => (
 					<button
@@ -451,15 +560,19 @@ export function FormManageArticle() {
 				className="w-full"
 			>
 				<TabsList>
-					{FORM_TABS.map(({ id, label }) => (
+					{FORM_TABS.map(({ id, labelKey }) => (
 						<TabsTrigger key={id} id={id}>
-							{label}
+							{translations[labelKey]}
 							{tabErrors[id] > 0 && (
 								<span className="ml-1.5 rounded-full bg-danger px-1.5 text-xs text-white">
 									{tabErrors[id]}
 									<span className="sr-only">
 										{' '}
-										field(s) need attention
+										{
+											translations[
+												'dashboard.text.tab_errors'
+											]
+										}
 									</span>
 								</span>
 							)}
@@ -472,7 +585,9 @@ export function FormManageArticle() {
 						<div className="form-section">
 							<div className="flex flex-row flex-wrap items-end gap-4">
 								<FormComponentSelect<ArticleFormValuesType>
-									labelText="Layout"
+									labelText={
+										translations['article.field.layout']
+									}
 									id={elementIds.layout}
 									fieldName="layout"
 									fieldValue={formValues.layout}
@@ -492,11 +607,19 @@ export function FormManageArticle() {
 							<div className="space-y-2">
 								<div className="flex flex-row flex-wrap items-end gap-4">
 									<FormComponentCalendar<ArticleFormValuesType>
-										labelText="Publish At"
+										labelText={
+											translations[
+												'article.field.publish_at'
+											]
+										}
 										id={elementIds.publishAt}
 										fieldName="publish_at"
 										fieldValue={formValues.publish_at ?? ''}
-										placeholderText="-select-"
+										placeholderText={
+											translations[
+												'article.text.placeholder_publish_at'
+											]
+										}
 										disabled={pending}
 										onSelect={(value) =>
 											handleChange(
@@ -508,11 +631,19 @@ export function FormManageArticle() {
 									/>
 
 									<FormComponentCalendar<ArticleFormValuesType>
-										labelText="Archive At"
+										labelText={
+											translations[
+												'article.field.archive_at'
+											]
+										}
 										id={elementIds.archiveAt}
 										fieldName="archive_at"
 										fieldValue={formValues.archive_at ?? ''}
-										placeholderText="-select-"
+										placeholderText={
+											translations[
+												'article.text.placeholder_archive_at'
+											]
+										}
 										disabled={pending}
 										onSelect={(value) =>
 											handleChange(
@@ -530,24 +661,31 @@ export function FormManageArticle() {
 								 * editor can infer from a date picker.
 								 */}
 								<p className="text-xs text-muted">
-									Publish At releases a scheduled article;
-									Archive At retires a published one. Both
-									take effect on the day given, not at a time
-									of day, and the archive date must fall after
-									the publish date. Leave empty to publish or
-									keep the article indefinitely.
+									{
+										translations[
+											'article.text.publish_at_releases_a_scheduled_article'
+										]
+									}
 								</p>
 							</div>
 
 							<div className="space-y-2">
 								<div className="flex flex-row flex-wrap items-end gap-4">
 									<FormComponentSelect<ArticleFormValuesType>
-										labelText="Featured"
+										labelText={
+											translations[
+												'article.field.featured_status'
+											]
+										}
 										id={elementIds.featuredStatus}
 										fieldName="featured_status"
 										fieldValue={formValues.featured_status}
 										options={featuredStatuses}
-										placeholderText="-none-"
+										placeholderText={
+											translations[
+												'article.text.placeholder_featured_status'
+											]
+										}
 										className={SELECT_WIDTH}
 										disabled={pending}
 										onChange={(value) => {
@@ -577,13 +715,21 @@ export function FormManageArticle() {
 									/>
 
 									<FormComponentCalendar<ArticleFormValuesType>
-										labelText="Featured Until"
+										labelText={
+											translations[
+												'article.field.featured_expire_at'
+											]
+										}
 										id={elementIds.featuredExpireAt}
 										fieldName="featured_expire_at"
 										fieldValue={
 											formValues.featured_expire_at ?? ''
 										}
-										placeholderText="-select-"
+										placeholderText={
+											translations[
+												'article.text.placeholder_featured_expire_at'
+											]
+										}
 										disabled={
 											pending ||
 											!formValues.featured_status
@@ -599,17 +745,22 @@ export function FormManageArticle() {
 								</div>
 
 								<p className="text-xs text-muted">
-									Featured Until drops the article out of its
-									featured group on the day given, applied by
-									a daily job. Leave empty to keep it featured
-									until removed by hand.
+									{
+										translations[
+											'article.text.featured_until_drops_the_article_out'
+										]
+									}
 								</p>
 							</div>
 
 							<div className="space-y-2">
 								<div className="flex flex-row flex-wrap items-end gap-4">
 									<FormComponentSelect<ArticleFormValuesType>
-										labelText="Visibility"
+										labelText={
+											translations[
+												'article.field.visibility'
+											]
+										}
 										id={elementIds.visibility}
 										fieldName="visibility"
 										fieldValue={formValues.visibility}
@@ -627,13 +778,21 @@ export function FormManageArticle() {
 
 									{isRestricted && (
 										<FormComponentCalendar<ArticleFormValuesType>
-											labelText="Public At"
+											labelText={
+												translations[
+													'article.field.public_at'
+												]
+											}
 											id={elementIds.publicAt}
 											fieldName="public_at"
 											fieldValue={
 												formValues.public_at ?? ''
 											}
-											placeholderText="-select-"
+											placeholderText={
+												translations[
+													'article.text.placeholder_public_at'
+												]
+											}
 											disabled={pending}
 											onSelect={(value) =>
 												handleChange(
@@ -648,14 +807,11 @@ export function FormManageArticle() {
 
 								{isRestricted && (
 									<p className="text-xs text-muted">
-										Public At is the day the restriction
-										ends and the article becomes public. A
-										daily job applies it, then clears the
-										date and drops the rule below -
-										releasing an article is final, so
-										re-restricting it means stating the
-										terms again. Leave empty to keep the
-										restriction until it is lifted by hand.
+										{
+											translations[
+												'article.text.public_at_is_the_day_the'
+											]
+										}
 									</p>
 								)}
 							</div>
@@ -663,7 +819,11 @@ export function FormManageArticle() {
 
 						<div className="form-section">
 							<div className="text-sm font-semibold">
-								Reader participation
+								{
+									translations[
+										'article.text.reader_participation'
+									]
+								}
 							</div>
 
 							<div className="flex flex-col md:flex-row flex-wrap gap-4">
@@ -676,7 +836,7 @@ export function FormManageArticle() {
 										handleChange('allow_rating', value)
 									}
 								>
-									Allow ratings
+									{translations['article.field.allow_rating']}
 								</FormComponentCheckbox>
 
 								<FormComponentCheckbox
@@ -688,7 +848,11 @@ export function FormManageArticle() {
 										handleChange('allow_comments', value)
 									}
 								>
-									Allow comments
+									{
+										translations[
+											'article.field.allow_comments'
+										]
+									}
 								</FormComponentCheckbox>
 
 								<FormComponentCheckbox
@@ -700,22 +864,31 @@ export function FormManageArticle() {
 										handleChange('allow_complaints', value)
 									}
 								>
-									Allow reports
+									{
+										translations[
+											'article.field.allow_complaints'
+										]
+									}
 								</FormComponentCheckbox>
 							</div>
 
 							<p className="text-xs text-muted">
-								What readers may add to this article. Unchecking
-								one takes it off the page for everyone; anything
-								already posted stays stored and reappears if it
-								is turned back on.
+								{
+									translations[
+										'article.text.what_readers_may_add_to_this'
+									]
+								}
 							</p>
 						</div>
 
 						{isRestricted && (
 							<div className="form-section">
 								<h3 className="font-bold border-b border-line pb-2">
-									Visibility rule
+									{
+										translations[
+											'article.section.visibility_rule'
+										]
+									}
 								</h3>
 
 								<div className="flex flex-row flex-wrap gap-6">
@@ -731,7 +904,11 @@ export function FormManageArticle() {
 											)
 										}
 									>
-										Requires sign-in
+										{
+											translations[
+												'article.field.rule_requires_auth'
+											]
+										}
 									</FormComponentCheckbox>
 
 									<FormComponentCheckbox
@@ -748,18 +925,30 @@ export function FormManageArticle() {
 											)
 										}
 									>
-										Requires an active subscription
+										{
+											translations[
+												'article.field.rule_requires_subscription'
+											]
+										}
 									</FormComponentCheckbox>
 								</div>
 
 								<FormComponentInput<ArticleFormValuesType>
 									id={elementIds.ruleCountries}
-									labelText="Allowed countries"
+									labelText={
+										translations[
+											'article.field.rule_allowed_countries'
+										]
+									}
 									fieldName="rule_allowed_countries"
 									fieldValue={
 										formValues.rule_allowed_countries ?? ''
 									}
-									placeholderText="eg: RO, GB"
+									placeholderText={
+										translations[
+											'article.text.placeholder_rule_allowed_countries'
+										]
+									}
 									disabled={pending}
 									onChange={(e) =>
 										handleChange(
@@ -777,10 +966,18 @@ export function FormManageArticle() {
 								 */}
 								<FormComponentInput<ArticleFormValuesType>
 									id={elementIds.rulePassword}
-									labelText="Access password"
+									labelText={
+										translations[
+											'article.field.rule_password'
+										]
+									}
 									fieldName="rule_password"
 									fieldValue={formValues.rule_password ?? ''}
-									placeholderText="leave empty to keep the current one"
+									placeholderText={
+										translations[
+											'article.text.placeholder_rule_password'
+										]
+									}
 									disabled={pending}
 									onChange={(e) =>
 										handleChange(
@@ -806,7 +1003,7 @@ export function FormManageArticle() {
 
 							<FormComponentInput<ArticleContentFormType>
 								id={`${elementIds.contents}-${language}-title`}
-								labelText="Title"
+								labelText={translations['article.field.title']}
 								fieldName="title"
 								fieldValue={currentContent?.title ?? ''}
 								isRequired={true}
@@ -819,7 +1016,7 @@ export function FormManageArticle() {
 
 							<FormComponentTextarea<ArticleContentFormType>
 								id={`${elementIds.contents}-${language}-brief`}
-								labelText="Brief"
+								labelText={translations['article.field.brief']}
 								fieldName="brief"
 								fieldValue={currentContent?.brief ?? ''}
 								rows={3}
@@ -839,7 +1036,7 @@ export function FormManageArticle() {
 									 * render a second, orphaned asterisk under an empty label.
 									 */}
 									<span className="text-sm font-medium">
-										Content
+										{translations['article.text.content']}
 										<span className="text-danger"> *</span>
 									</span>
 									<button
@@ -852,7 +1049,11 @@ export function FormManageArticle() {
 											}))
 										}
 									>
-										{isPreviewed ? 'Edit' : 'Preview'}
+										{isPreviewed
+											? translations['article.text.edit']
+											: translations[
+													'article.text.preview'
+												]}
 									</button>
 								</div>
 
@@ -880,7 +1081,11 @@ export function FormManageArticle() {
 											currentContent?.content ?? ''
 										}
 										rows={16}
-										placeholderText="# Heading&#10;&#10;Write the article in markdown…"
+										placeholderText={
+											translations[
+												'article.text.placeholder_content'
+											]
+										}
 										disabled={pending}
 										onChange={(e) =>
 											handleContentChange(
@@ -901,7 +1106,9 @@ export function FormManageArticle() {
 						 */}
 						<div className="form-section grid items-start gap-4 sm:grid-cols-2">
 							<FormPickerArticle<CategoryModel>
-								labelText="Categories"
+								labelText={
+									translations['article.field.category_id']
+								}
 								fieldName="category_id"
 								dataSource="category"
 								// The backend defaults the category listing to `article` already;
@@ -923,13 +1130,17 @@ export function FormManageArticle() {
 										ids.map((id) => ({ id })),
 									)
 								}
-								emptyText="No categories linked."
+								emptyText={
+									translations[
+										'article.text.no_categories_linked'
+									]
+								}
 								disabled={pending}
 								error={linkError(errors.categories)}
 							/>
 
 							<FormPickerArticle<TermModel>
-								labelText="Tags"
+								labelText={translations['article.field.tag_id']}
 								fieldName="tag_id"
 								dataSource="term"
 								filter={{ type: 'tag' }}
@@ -944,7 +1155,9 @@ export function FormManageArticle() {
 										ids.map((id) => ({ id })),
 									)
 								}
-								emptyText="No tags linked."
+								emptyText={
+									translations['article.text.no_tags_linked']
+								}
 								disabled={pending}
 								error={linkError(errors.tags)}
 								// A tag is a term with one wording per language; the search box
@@ -965,7 +1178,12 @@ export function FormManageArticle() {
 										: undefined
 								}
 								createLabel={(typedValue) =>
-									`Create tag "${typedValue}"`
+									replaceVars(
+										translations['article.text.create_tag'],
+										{
+											value: typedValue,
+										},
+									)
 								}
 							/>
 						</div>
@@ -982,11 +1200,15 @@ export function FormManageArticle() {
 							 */}
 							<FormComponentInput<ArticleContentFormType>
 								id={`${elementIds.contents}-${language}-slug`}
-								labelText="Slug"
+								labelText={translations['article.field.slug']}
 								fieldName="slug"
 								fieldValue={currentContent?.slug ?? ''}
 								isRequired={true}
-								placeholderText="eg: how-to-brew-coffee"
+								placeholderText={
+									translations[
+										'article.text.placeholder_slug'
+									]
+								}
 								disabled={pending}
 								onChange={(e) =>
 									handleContentChange('slug', e.target.value)
@@ -996,7 +1218,9 @@ export function FormManageArticle() {
 
 							<FormComponentInput<PageMeta>
 								id={`${elementIds.contents}-${language}-meta-title`}
-								labelText="Meta Title"
+								labelText={
+									translations['article.field.meta_title']
+								}
 								fieldName="title"
 								fieldValue={currentContent?.meta?.title ?? ''}
 								disabled={pending}
@@ -1008,7 +1232,11 @@ export function FormManageArticle() {
 
 							<FormComponentTextarea<PageMeta>
 								id={`${elementIds.contents}-${language}-meta-description`}
-								labelText="Meta Description"
+								labelText={
+									translations[
+										'article.field.meta_description'
+									]
+								}
 								fieldName="description"
 								fieldValue={
 									currentContent?.meta?.description ?? ''
@@ -1026,7 +1254,9 @@ export function FormManageArticle() {
 
 							<FormComponentInput<PageMeta>
 								id={`${elementIds.contents}-${language}-meta-keywords`}
-								labelText="Meta Keywords"
+								labelText={
+									translations['article.field.meta_keywords']
+								}
 								fieldName="keywords"
 								fieldValue={
 									currentContent?.meta?.keywords ?? ''
@@ -1045,7 +1275,7 @@ export function FormManageArticle() {
 					<div className="space-y-6 pt-4">
 						<div className="form-section">
 							<h3 className="font-bold border-b border-line pb-2">
-								Author
+								{translations['article.section.author']}
 							</h3>
 
 							{/*
@@ -1056,12 +1286,20 @@ export function FormManageArticle() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<FormComponentInput<ArticleContentFormType>
 									id={`${elementIds.contents}-${language}-author-name`}
-									labelText="Name"
+									labelText={
+										translations[
+											'article.field.author_name'
+										]
+									}
 									fieldName="author_name"
 									fieldValue={
 										currentContent?.author_name ?? ''
 									}
-									placeholderText="leave empty to credit the filing account"
+									placeholderText={
+										translations[
+											'article.text.placeholder_author_name'
+										]
+									}
 									disabled={pending}
 									onChange={(e) =>
 										handleContentChange(
@@ -1074,7 +1312,11 @@ export function FormManageArticle() {
 
 								<FormComponentInput<ArticleContentFormType>
 									id={`${elementIds.contents}-${language}-author-email`}
-									labelText="Email"
+									labelText={
+										translations[
+											'article.field.author_email'
+										]
+									}
 									fieldName="author_email"
 									fieldValue={
 										currentContent?.author_email ?? ''
@@ -1092,10 +1334,16 @@ export function FormManageArticle() {
 
 							<FormComponentInput<ArticleContentFormType>
 								id={`${elementIds.contents}-${language}-author-avatar`}
-								labelText="Avatar URL"
+								labelText={
+									translations['article.field.author_avatar']
+								}
 								fieldName="author_avatar"
 								fieldValue={currentContent?.author_avatar ?? ''}
-								placeholderText="https://…"
+								placeholderText={
+									translations[
+										'article.text.placeholder_author_avatar'
+									]
+								}
 								disabled={pending}
 								onChange={(e) =>
 									handleContentChange(
@@ -1108,7 +1356,11 @@ export function FormManageArticle() {
 
 							<FormComponentTextarea<ArticleContentFormType>
 								id={`${elementIds.contents}-${language}-author-description`}
-								labelText="Bio"
+								labelText={
+									translations[
+										'article.field.author_description'
+									]
+								}
 								fieldName="author_description"
 								fieldValue={
 									currentContent?.author_description ?? ''
@@ -1127,14 +1379,18 @@ export function FormManageArticle() {
 
 						<div className="form-section">
 							<h3 className="font-bold border-b border-line pb-2">
-								Source
+								{translations['article.section.source']}
 							</h3>
 
 							{/* Not per-language: provenance is a property of the article. */}
 							<div className="grid gap-4 sm:grid-cols-2">
 								<FormComponentInput<ArticleFormValuesType>
 									id={`${elementIds.source}-label`}
-									labelText="Label"
+									labelText={
+										translations[
+											'article.field.source_label'
+										]
+									}
 									fieldName="source_label"
 									fieldValue={formValues.source_label ?? ''}
 									disabled={pending}
@@ -1149,10 +1405,16 @@ export function FormManageArticle() {
 
 								<FormComponentInput<ArticleFormValuesType>
 									id={`${elementIds.source}-url`}
-									labelText="URL"
+									labelText={
+										translations['article.field.source_url']
+									}
 									fieldName="source_url"
 									fieldValue={formValues.source_url ?? ''}
-									placeholderText="https://…"
+									placeholderText={
+										translations[
+											'article.text.placeholder_source_url'
+										]
+									}
 									disabled={pending}
 									onChange={(e) =>
 										handleChange(
@@ -1166,7 +1428,11 @@ export function FormManageArticle() {
 
 							<FormComponentInput<ArticleFormValuesType>
 								id={`${elementIds.source}-disclaimer`}
-								labelText="Disclaimer"
+								labelText={
+									translations[
+										'article.field.source_disclaimer'
+									]
+								}
 								fieldName="source_disclaimer"
 								fieldValue={formValues.source_disclaimer ?? ''}
 								disabled={pending}
@@ -1181,7 +1447,9 @@ export function FormManageArticle() {
 
 							<FormComponentTextarea<ArticleFormValuesType>
 								id={`${elementIds.source}-about`}
-								labelText="About the source"
+								labelText={
+									translations['article.field.source_about']
+								}
 								fieldName="source_about"
 								fieldValue={formValues.source_about ?? ''}
 								rows={2}

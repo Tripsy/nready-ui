@@ -1,0 +1,14 @@
+{
+	"meta": {
+		"title": "Low stock - Dashboard | {{app_name}}"
+	},
+	"action": {
+		"stock": {
+			"title": "Stock - {{entry}}",
+			"label": "Variant stock"
+		}
+	},
+	"text": {
+		"hint": "Tracked variants at or under their own low-stock threshold, measured on what is available to sell. Lowest first. A variant with no threshold is never listed."
+	}
+}

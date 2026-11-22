@@ -21,11 +21,19 @@ import {
 	requestUpdateStatus,
 } from '@/helpers/services.helper';
 import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import {
 	BaseValidator,
 	resolveValidatorMessages,
 	sharedValidatorMessages,
 } from '@/helpers/validator.helper';
-import { type AccountModel, hasPermission } from '@/models/account.model';
+import {
+	type AccountModel,
+	hasPermission,
+	isAdmin,
+} from '@/models/account.model';
 import {
 	type UserModel,
 	UserOperatorTypeEnum,
@@ -245,23 +253,47 @@ export type UserDataTableFiltersType = {
 	is_deleted: { value: boolean; matchMode: 'equals' };
 };
 
+/**
+ * Whether the viewer may write to this user's row - only an admin touches a staff account
+ * (admin or operator), anyone else is limited to members (`UserPolicy.canManageTarget` in the
+ * API). Gates update, status, delete and restore, so an operator is not offered actions that
+ * end in a 403.
+ */
+function canManageTarget(entry: UserModel, auth: AccountModel | null): boolean {
+	return isAdmin(auth) || entry.role === UserRoleEnum.MEMBER;
+}
+
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<UserModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'view.title',
-			'delete.title',
-			'restore.title',
-			'enable.title',
-			'disable.title',
-			'setupPermissions.title',
-			'guide.title',
-		] as const,
-		'user.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'view.title',
+				'delete.title',
+				'restore.title',
+				'enable.title',
+				'disable.title',
+				'setupPermissions.title',
+				'guide.title',
+			] as const,
+			'user.action',
+		),
+		translateBatch(
+			[
+				'field.created_at',
+				'field.email',
+				'field.id',
+				'field.name',
+				'field.role',
+				'field.status',
+				...enumTranslationKeys('enum.role', UserRoleEnum),
+			] as const,
+			'user',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -278,6 +310,10 @@ export default async function dataSourceConfig(): Promise<
 	): DataTableValueOptionsType<UserModel>['displayButton'] {
 		return {
 			action: (entry: UserModel) => {
+				if (!canManageTarget(entry, auth)) {
+					return undefined;
+				}
+
 				if (entry.deleted_at) {
 					return hasPermission(auth, 'user', 'delete')
 						? 'restore'
@@ -301,8 +337,7 @@ export default async function dataSourceConfig(): Promise<
 	): DataTableValueOptionsType<UserModel>['displayButton'] {
 		return {
 			action: () =>
-				entry.role === UserRoleEnum.OPERATOR &&
-				hasPermission(auth, 'permission', 'update')
+				entry.role === UserRoleEnum.OPERATOR && isAdmin(auth)
 					? 'setupPermissions'
 					: undefined,
 			dataSource: 'user',
@@ -328,7 +363,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -339,19 +374,23 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'name',
-					header: 'Name',
+					header: labels['field.name'],
 					sortable: true,
 				},
 				{
 					field: 'email',
-					header: 'Email',
+					header: labels['field.email'],
 				},
 				{
 					field: 'role',
-					header: 'Role',
+					header: labels['field.role'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
-							capitalize: true,
+							customValue: translateEnumLabel(
+								labels,
+								'enum.role',
+								entry.role,
+							),
 							displayButton: displayButtonSetupPermissions(
 								auth,
 								entry,
@@ -360,7 +399,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'status',
-					header: 'Status',
+					header: labels['field.status'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							dataSource: 'user',
@@ -373,7 +412,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -413,7 +452,8 @@ export default async function dataSourceConfig(): Promise<
 				windowComponent: FormManageUser,
 				permission: ['user', 'update'],
 				entriesSelection: 'single',
-				customEntryCheck: (entry: UserModel) => !entry.deleted_at, // Return true if the entry is not deleted
+				customEntryCheck: (entry: UserModel, auth) =>
+					!entry.deleted_at && canManageTarget(entry, auth),
 				operationFunction: (params: UserFormValuesType, id: number) =>
 					requestUpdate<UserModel, UserFormValuesType>(
 						'user',
@@ -434,7 +474,8 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['delete.title'],
 				permission: ['user', 'delete'],
 				entriesSelection: 'single',
-				customEntryCheck: (entry: UserModel) => !entry.deleted_at, // Return true if the entry is not deleted
+				customEntryCheck: (entry: UserModel, auth) =>
+					!entry.deleted_at && canManageTarget(entry, auth),
 				operationFunction: (entry: UserModel) =>
 					requestDelete('user', entry),
 				buttonPosition: 'left',
@@ -448,7 +489,8 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['restore.title'],
 				permission: ['user', 'delete'],
 				entriesSelection: 'single',
-				customEntryCheck: (entry: UserModel) => !!entry.deleted_at, // Return true if the entry is deleted
+				customEntryCheck: (entry: UserModel, auth) =>
+					!!entry.deleted_at && canManageTarget(entry, auth),
 				operationFunction: (entry: UserModel) =>
 					requestRestore('user', entry),
 				buttonPosition: 'left',
@@ -462,8 +504,9 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['enable.title'],
 				permission: ['user', 'update'],
 				entriesSelection: 'single',
-				customEntryCheck: (entry: UserModel) =>
+				customEntryCheck: (entry: UserModel, auth) =>
 					!entry.deleted_at &&
+					canManageTarget(entry, auth) &&
 					arrayHasValue(entry.status, [
 						UserStatusEnum.PENDING,
 						UserStatusEnum.INACTIVE,
@@ -481,8 +524,9 @@ export default async function dataSourceConfig(): Promise<
 				windowTitle: translations['disable.title'],
 				permission: ['user', 'update'],
 				entriesSelection: 'single',
-				customEntryCheck: (entry: UserModel) =>
+				customEntryCheck: (entry: UserModel, auth) =>
 					!entry.deleted_at &&
+					canManageTarget(entry, auth) &&
 					arrayHasValue(entry.status, [
 						UserStatusEnum.PENDING,
 						UserStatusEnum.ACTIVE,
@@ -513,7 +557,8 @@ export default async function dataSourceConfig(): Promise<
 				windowConfigProps: {
 					size: 'lg',
 				},
-				permission: ['permission', 'update'],
+				// Granting permissions is reserved to admins by the backend (`PermissionPolicy.canGrant`)
+				permission: 'admin',
 				entriesSelection: 'single',
 				customEntryCheck: (entry: UserModel) =>
 					!entry.deleted_at && entry.role === UserRoleEnum.OPERATOR,

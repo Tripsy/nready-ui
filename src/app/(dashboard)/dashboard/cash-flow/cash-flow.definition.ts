@@ -24,7 +24,11 @@ import {
 	requestUpdate,
 	requestUpdateStatus,
 } from '@/helpers/services.helper';
-import { formatEnumLabel, replaceVars } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import {
 	BaseValidator,
 	resolveValidatorMessages,
@@ -277,20 +281,41 @@ export type CashFlowDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<CashFlowModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'refund.title',
-			'update.title',
-			'view.title',
-			'delete.title',
-			'complete.title',
-			'cancel.title',
-			'invoice.title',
-			'guide.title',
-		] as const,
-		'cash-flow.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'refund.title',
+				'update.title',
+				'view.title',
+				'delete.title',
+				'complete.title',
+				'cancel.title',
+				'invoice.title',
+				'guide.title',
+			] as const,
+			'cash-flow.action',
+		),
+		translateBatch(
+			[
+				'field.amount',
+				'field.category',
+				'field.category_type',
+				'field.created_at',
+				'field.external_reference',
+				'field.id',
+				'field.method',
+				'field.status',
+				...enumTranslationKeys(
+					'enum.category_type',
+					CashFlowCategoryTypeEnum,
+				),
+				...enumTranslationKeys('enum.category', CashFlowCategoryEnum),
+				...enumTranslationKeys('enum.method', CashFlowMethodEnum),
+			] as const,
+			'cash-flow',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -358,7 +383,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -370,24 +395,32 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'category_type',
-					header: 'Type',
+					header: labels['field.category_type'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: formatEnumLabel(entry.category_type),
+							customValue: translateEnumLabel(
+								labels,
+								'enum.category_type',
+								entry.category_type,
+							),
 						}),
 				},
 				{
 					field: 'category',
-					header: 'Category',
+					header: labels['field.category'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: formatEnumLabel(entry.category),
+							customValue: translateEnumLabel(
+								labels,
+								'enum.category',
+								entry.category,
+							),
 						}),
 				},
 				{
 					field: 'amount',
-					header: 'Net Amount',
+					header: labels['field.amount'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
 							customValue: DisplayAmount({
@@ -398,19 +431,23 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'method',
-					header: 'Method',
+					header: labels['field.method'],
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
-							customValue: formatEnumLabel(entry.method),
+							customValue: translateEnumLabel(
+								labels,
+								'enum.method',
+								entry.method,
+							),
 						}),
 				},
 				{
 					field: 'external_reference',
-					header: 'External Reference',
+					header: labels['field.external_reference'],
 				},
 				{
 					field: 'status',
-					header: 'Status',
+					header: labels['field.status'],
 					body: (entry, column, auth) =>
 						DataTableValue(entry, column, {
 							dataSource: 'cash-flow',
@@ -423,7 +460,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -437,7 +474,7 @@ export default async function dataSourceConfig(): Promise<
 		displayEntryLabel: (entry: CashFlowModel) => {
 			const formatted = formatAmount(entry.net_amount, entry.currency);
 
-			return `${formatEnumLabel(entry.category)} ${formatted.value} ${formatted.currency}`;
+			return `${translateEnumLabel(labels, 'enum.category', entry.category)} ${formatted.value} ${formatted.currency}`;
 		},
 		actions: {
 			create: {

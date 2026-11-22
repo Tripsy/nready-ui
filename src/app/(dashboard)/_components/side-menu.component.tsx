@@ -35,18 +35,19 @@ type SideMenuClosedSectionProps = SideMenuSectionType & {
 
 type SectionStateType = 'expanded' | 'collapsed';
 
-const SEARCH_TRANSLATION_KEYS = [
+const TRANSLATION_KEYS = [
 	'dashboard.text.label_menu_search',
 	'dashboard.text.placeholder_menu_search',
 	'dashboard.text.label_menu_search_clear',
 	'dashboard.text.no_menu_entries',
+	'dashboard.text.label_side_menu',
 ] as const;
 
 export function SideMenu() {
 	const { menuState } = useSideMenu();
 	const { selectedPage } = useBreadcrumb();
 	const { sections } = useSideMenuSections();
-	const { translations } = useTranslation(SEARCH_TRANSLATION_KEYS);
+	const { translations } = useTranslation(TRANSLATION_KEYS);
 
 	const [query, setQuery] = useState('');
 
@@ -120,7 +121,12 @@ export function SideMenu() {
 					</div>
 				)}
 
-				<nav aria-description="Side menu" className="side-menu-content">
+				<nav
+					aria-description={
+						translations['dashboard.text.label_side_menu']
+					}
+					className="side-menu-content"
+				>
 					{isSearching ? (
 						<SideMenuSearchResults
 							sections={filterSideMenuSections(sections, query)}

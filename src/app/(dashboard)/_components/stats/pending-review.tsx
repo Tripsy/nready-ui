@@ -12,8 +12,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Link } from '@/components/ui/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Routes from '@/config/routes.setup';
+import { getLanguageClient } from '@/config/translate.setup';
 import { timeAgo } from '@/helpers/date.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
+import { ComplaintReasonEnum } from '@/models/complaint.model';
 import {
 	PENDING_REVIEW_ENTITIES,
 	type PendingReviewEntity,
@@ -21,13 +27,18 @@ import {
 	requestStatsPendingReview,
 } from '@/services/stats.service';
 
-const ENTITY_LABEL: Record<PendingReviewEntity, string> = {
-	user: 'Users',
-	client: 'Clients',
-	article: 'Articles',
-	comment: 'Comments',
-	complaint: 'Complaints',
-};
+const TRANSLATION_KEYS = [
+	'dashboard.text.failed_to_load_items_awaiting_review',
+	'dashboard.text.view_more',
+	'dashboard.labels.user',
+	'dashboard.labels.client',
+	'dashboard.labels.article',
+	'dashboard.labels.comment',
+	'dashboard.labels.complaint',
+	'dashboard.text.waiting_for_review',
+	'dashboard.text.no_pending_review',
+	...enumTranslationKeys('complaint.reason', ComplaintReasonEnum),
+] as const;
 
 /**
  * `complaint` sends a reason enum (`hate_speech`), which wants formatting; every other label is
@@ -37,15 +48,20 @@ const ENTITY_LABEL: Record<PendingReviewEntity, string> = {
 function displayLabel(
 	entity: PendingReviewEntity,
 	entry: PendingReviewEntry,
+	translations: Readonly<Record<string, string>>,
 ): string {
 	if (!entry.label) {
 		return `#${entry.id}`;
 	}
 
-	return entity === 'complaint' ? formatEnumLabel(entry.label) : entry.label;
+	return entity === 'complaint'
+		? translateEnumLabel(translations, 'complaint.reason', entry.label)
+		: entry.label;
 }
 
 export function PendingReview(): JSX.Element {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const [tab, setTab] = useState<PendingReviewEntity>('user');
 
 	const { data, isLoading, isError } = useQuery({
@@ -72,7 +88,7 @@ export function PendingReview(): JSX.Element {
 
 							return (
 								<TabsTrigger key={entity} id={entity}>
-									{ENTITY_LABEL[entity]}
+									{translations[`dashboard.labels.${entity}`]}
 									{total > 0 && (
 										// Neutral, not danger: a backlog is work to do, not a
 										// failure - the card title already says what it is.
@@ -80,7 +96,11 @@ export function PendingReview(): JSX.Element {
 											{total}
 											<span className="sr-only">
 												{' '}
-												waiting for review
+												{
+													translations[
+														'dashboard.text.waiting_for_review'
+													]
+												}
 											</span>
 										</span>
 									)}
@@ -102,7 +122,11 @@ export function PendingReview(): JSX.Element {
 											className="gap-1"
 											href={Routes.get(entity)}
 										>
-											View more
+											{
+												translations[
+													'dashboard.text.view_more'
+												]
+											}
 											<ArrowUpRight className="h-4 w-4" />
 										</Link>
 									</div>
@@ -113,14 +137,23 @@ export function PendingReview(): JSX.Element {
 										isEmpty={
 											!group || group.entries.length === 0
 										}
-										errorText="Failed to load items awaiting review"
-										emptyText={`No ${ENTITY_LABEL[entity].toLowerCase()} waiting for review`}
+										errorText={
+											translations[
+												'dashboard.text.failed_to_load_items_awaiting_review'
+											]
+										}
+										emptyText={
+											translations[
+												'dashboard.text.no_pending_review'
+											]
+										}
 									>
 										{group?.entries.map((entry) => (
 											<PanelRow
 												key={entry.id}
 												aside={timeAgo(
 													entry.created_at,
+													getLanguageClient(),
 												)}
 											>
 												<NextLink
@@ -130,6 +163,7 @@ export function PendingReview(): JSX.Element {
 													{displayLabel(
 														entity,
 														entry,
+														translations,
 													)}
 												</NextLink>
 												{/* Only when the title is a real label -

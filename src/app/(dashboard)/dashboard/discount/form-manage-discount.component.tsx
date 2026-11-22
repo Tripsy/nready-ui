@@ -1,5 +1,7 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { FormTargetsDiscount } from '@/app/(dashboard)/dashboard/discount/form-targets-discount.component';
 import {
 	FormComponentCalendar,
@@ -7,11 +9,15 @@ import {
 	FormComponentSelect,
 	FormComponentTextarea,
 } from '@/components/form/form-element.component';
-import { ISO_WEEKDAYS } from '@/helpers/date.helper';
+import { ISO_WEEKDAY_KEYS, ISO_WEEKDAYS } from '@/helpers/date.helper';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { resolveWindowEntries } from '@/helpers/window.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type DiscountReason,
 	DiscountReasonEnum,
@@ -24,6 +30,38 @@ import {
 import { useWindowForm } from '@/providers/window-form.provider';
 import { requestDiscountTargets } from '@/services/discount.service';
 import { useModalStore } from '@/stores/window.store';
+
+const TRANSLATION_KEYS = [
+	'discount.field.condition_countries',
+	'discount.field.condition_day_from',
+	'discount.field.condition_day_to',
+	'discount.field.condition_hour_from',
+	'discount.field.condition_hour_to',
+	'discount.field.condition_min_order_value',
+	'discount.field.end_at',
+	'discount.field.label',
+	'discount.field.notes',
+	'discount.field.reason',
+	'discount.field.reference',
+	'discount.field.scope',
+	'discount.field.start_at',
+	'discount.field.type',
+	'discount.text.all_must_be_met_for_the',
+	'discount.text.conditions',
+	'discount.text.placeholder_condition_countries',
+	'discount.text.placeholder_condition_min_order_value',
+	'discount.text.placeholder_end_at',
+	'discount.text.placeholder_label',
+	'discount.text.placeholder_reference',
+	'discount.text.placeholder_start_at',
+	'discount.text.reduces_the_delivery_or_return_price',
+	'discount.text.label_value_percent',
+	'discount.field.value',
+	...enumTranslationKeys('discount.enum.scope', DiscountScopeEnum),
+	...enumTranslationKeys('discount.enum.reason', DiscountReasonEnum),
+	...enumTranslationKeys('discount.enum.type', DiscountTypeEnum),
+	...ISO_WEEKDAY_KEYS,
+] as const;
 
 export type DiscountFormValuesType = {
 	label: string | null;
@@ -61,33 +99,58 @@ export type DiscountFormValuesType = {
 	targets: { id: number }[];
 };
 
-/*
- * The selects below carry a fixed width instead of sizing to their current value. The option
- * sets are fixed and known, so the trigger can be sized once for the longest of them -
- * otherwise picking a different value resizes the control and shifts everything beside it.
- * Each width is the measured need for the longest option, rounded up to the 4px scale:
- * Scope "Category" 104 → w-28, Reason "First Time Customer" 177 → w-48, Type "Amount" 94 →
- * w-24, weekday "Wednesday" 120 → w-32.
- */
-const scopes = toOptionsFromEnum(DiscountScopeEnum, {
-	formatter: formatEnumLabel,
-});
-
-const reasons = toOptionsFromEnum(DiscountReasonEnum, {
-	formatter: formatEnumLabel,
-});
-
-const types = toOptionsFromEnum(DiscountTypeEnum, {
-	formatter: formatEnumLabel,
-});
-
-// The select's values are strings; the shared list is the numbering the backend stores.
-const WEEKDAY_OPTIONS = ISO_WEEKDAYS.map((day) => ({
-	label: day.label,
-	value: String(day.value),
-}));
-
 export function FormManageDiscount() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const weekdayOptions = useMemo(
+		() =>
+			// The select's values are strings; the shared list is the numbering the backend stores
+			ISO_WEEKDAYS.map((day) => ({
+				label: translations[day.labelKey],
+				value: String(day.value),
+			})),
+		[translations],
+	);
+
+	const types = useMemo(
+		() =>
+			toOptionsFromEnum(DiscountTypeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'discount.enum.type',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const reasons = useMemo(
+		() =>
+			toOptionsFromEnum(DiscountReasonEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'discount.enum.reason',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const scopes = useMemo(
+		() =>
+			toOptionsFromEnum(DiscountScopeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'discount.enum.scope',
+						value,
+					),
+			}),
+		[translations],
+	);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<DiscountFormValuesType>();
 
@@ -183,24 +246,28 @@ export function FormManageDiscount() {
 	return (
 		<>
 			<FormComponentInput<DiscountFormValuesType>
-				labelText="Label"
+				labelText={translations['discount.field.label']}
 				id={elementIds.label}
 				fieldName="label"
 				fieldValue={formValues.label ?? ''}
 				isRequired={true}
-				placeholderText="e.g.: Summer flash sale"
+				placeholderText={
+					translations['discount.text.placeholder_label']
+				}
 				disabled={pending}
 				onChange={(e) => handleChange('label', e.target.value)}
 				error={errors.label}
 			/>
 
 			<FormComponentInput<DiscountFormValuesType>
-				labelText="Reference"
+				labelText={translations['discount.field.reference']}
 				id={elementIds.reference}
 				fieldName="reference"
 				fieldValue={formValues.reference ?? ''}
 				isRequired={true}
-				placeholderText="e.g.: SUMMER25 (coupon or referral code)"
+				placeholderText={
+					translations['discount.text.placeholder_reference']
+				}
 				disabled={pending}
 				onChange={(e) => handleChange('reference', e.target.value)}
 				error={errors.reference}
@@ -208,7 +275,7 @@ export function FormManageDiscount() {
 
 			<div className="flex flex-wrap gap-2">
 				<FormComponentSelect<DiscountFormValuesType>
-					labelText="Scope"
+					labelText={translations['discount.field.scope']}
 					className="w-28"
 					id={elementIds.scope}
 					fieldName="scope"
@@ -226,7 +293,7 @@ export function FormManageDiscount() {
 				/>
 
 				<FormComponentSelect<DiscountFormValuesType>
-					labelText="Reason"
+					labelText={translations['discount.field.reason']}
 					className="w-48"
 					id={elementIds.reason}
 					fieldName="reason"
@@ -265,8 +332,11 @@ export function FormManageDiscount() {
 					/>
 					{formValues.scope === DiscountScopeEnum.SHIPPING && (
 						<p className="text-xs text-muted">
-							Reduces the delivery or return price. Leave empty to
-							apply it to every buyer.
+							{
+								translations[
+									'discount.text.reduces_the_delivery_or_return_price'
+								]
+							}
 						</p>
 					)}
 				</div>
@@ -274,7 +344,7 @@ export function FormManageDiscount() {
 
 			<div className="flex flex-wrap gap-2">
 				<FormComponentSelect<DiscountFormValuesType>
-					labelText="Type"
+					labelText={translations['discount.field.type']}
 					className="w-24"
 					id={elementIds.type}
 					fieldName="type"
@@ -291,8 +361,8 @@ export function FormManageDiscount() {
 				<FormComponentInput<DiscountFormValuesType>
 					labelText={
 						formValues.type === DiscountTypeEnum.PERCENT
-							? 'Value (%)'
-							: 'Value'
+							? translations['discount.text.label_value_percent']
+							: translations['discount.field.value']
 					}
 					id={elementIds.value}
 					fieldName="value"
@@ -314,11 +384,13 @@ export function FormManageDiscount() {
 
 			<div className="flex flex-wrap gap-2">
 				<FormComponentCalendar<DiscountFormValuesType>
-					labelText="Start At"
+					labelText={translations['discount.field.start_at']}
 					id={elementIds.startAt}
 					fieldName="start_at"
 					fieldValue={formValues.start_at ?? ''}
-					placeholderText="-select-"
+					placeholderText={
+						translations['discount.text.placeholder_start_at']
+					}
 					minDate={today}
 					disabled={pending}
 					onSelect={(value) =>
@@ -328,11 +400,13 @@ export function FormManageDiscount() {
 				/>
 
 				<FormComponentCalendar<DiscountFormValuesType>
-					labelText="End At"
+					labelText={translations['discount.field.end_at']}
 					id={elementIds.endAt}
 					fieldName="end_at"
 					fieldValue={formValues.end_at ?? ''}
-					placeholderText="-select-"
+					placeholderText={
+						translations['discount.text.placeholder_end_at']
+					}
 					minDate={today}
 					disabled={pending}
 					onSelect={(value) =>
@@ -343,22 +417,31 @@ export function FormManageDiscount() {
 			</div>
 
 			<div className="space-y-2">
-				<span className="text-sm font-medium">Conditions</span>
+				<span className="text-sm font-medium">
+					{translations['discount.text.conditions']}
+				</span>
 				<p className="text-xs text-muted">
-					All must be met for the discount to apply. Leave a field
-					empty to drop that condition.
+					{translations['discount.text.all_must_be_met_for_the']}
 				</p>
 
 				<div className="flex flex-wrap gap-2">
 					<FormComponentInput<DiscountFormValuesType>
-						labelText="Min order value"
+						labelText={
+							translations[
+								'discount.field.condition_min_order_value'
+							]
+						}
 						id={elementIds.conditionMinOrderValue}
 						fieldName="condition_min_order_value"
 						fieldType="number"
 						fieldValue={
 							formValues.condition_min_order_value ?? null
 						}
-						placeholderText="base currency"
+						placeholderText={
+							translations[
+								'discount.text.placeholder_condition_min_order_value'
+							]
+						}
 						disabled={pending}
 						onChange={(e) =>
 							handleChange(
@@ -372,11 +455,17 @@ export function FormManageDiscount() {
 					/>
 
 					<FormComponentInput<DiscountFormValuesType>
-						labelText="Countries"
+						labelText={
+							translations['discount.field.condition_countries']
+						}
 						id={elementIds.conditionCountries}
 						fieldName="condition_countries"
 						fieldValue={formValues.condition_countries ?? ''}
-						placeholderText="e.g.: RO, BG"
+						placeholderText={
+							translations[
+								'discount.text.placeholder_condition_countries'
+							]
+						}
 						disabled={pending}
 						onChange={(e) =>
 							handleChange('condition_countries', e.target.value)
@@ -387,7 +476,9 @@ export function FormManageDiscount() {
 
 				<div className="flex flex-wrap gap-2">
 					<FormComponentInput<DiscountFormValuesType>
-						labelText="Hour from"
+						labelText={
+							translations['discount.field.condition_hour_from']
+						}
 						id={elementIds.conditionHourFrom}
 						fieldName="condition_hour_from"
 						fieldType="number"
@@ -406,7 +497,9 @@ export function FormManageDiscount() {
 					/>
 
 					<FormComponentInput<DiscountFormValuesType>
-						labelText="Hour to"
+						labelText={
+							translations['discount.field.condition_hour_to']
+						}
 						id={elementIds.conditionHourTo}
 						fieldName="condition_hour_to"
 						fieldType="number"
@@ -427,14 +520,16 @@ export function FormManageDiscount() {
 
 				<div className="flex flex-wrap gap-2">
 					<FormComponentSelect<DiscountFormValuesType>
-						labelText="Day from"
+						labelText={
+							translations['discount.field.condition_day_from']
+						}
 						className="w-32"
 						id={elementIds.conditionDayFrom}
 						fieldName="condition_day_from"
 						fieldValue={
 							formValues.condition_day_from?.toString() ?? null
 						}
-						options={WEEKDAY_OPTIONS}
+						options={weekdayOptions}
 						disabled={pending}
 						onChange={(value) =>
 							handleChange(
@@ -446,14 +541,16 @@ export function FormManageDiscount() {
 					/>
 
 					<FormComponentSelect<DiscountFormValuesType>
-						labelText="Day to"
+						labelText={
+							translations['discount.field.condition_day_to']
+						}
 						className="w-32"
 						id={elementIds.conditionDayTo}
 						fieldName="condition_day_to"
 						fieldValue={
 							formValues.condition_day_to?.toString() ?? null
 						}
-						options={WEEKDAY_OPTIONS}
+						options={weekdayOptions}
 						disabled={pending}
 						onChange={(value) =>
 							handleChange(
@@ -467,7 +564,7 @@ export function FormManageDiscount() {
 			</div>
 
 			<FormComponentTextarea<DiscountFormValuesType>
-				labelText="Notes"
+				labelText={translations['discount.field.notes']}
 				id={elementIds.notes}
 				fieldName="notes"
 				fieldValue={formValues.notes ?? ''}

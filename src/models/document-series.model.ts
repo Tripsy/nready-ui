@@ -16,13 +16,6 @@ export type DocumentType =
  * Display labels for the document types. A label map rather than `formatEnumLabel`, which
  * title-cases word by word and would render an acronym such as `grn` as "Grn".
  */
-export const DocumentTypeLabels: Record<DocumentType, string> = {
-	[DocumentTypeEnum.INVOICE]: 'Invoice',
-	[DocumentTypeEnum.ORDER]: 'Order',
-	[DocumentTypeEnum.GRN]: 'GRN',
-	[DocumentTypeEnum.SUBSCRIPTION]: 'Subscription',
-};
-
 // Mirror the column defaults and constraints on the backend entity/validator
 export const DOCUMENT_SERIES_DEFAULT_START_NUMBER = 1;
 export const DOCUMENT_SERIES_CODE_MAX_CHARS = 10;

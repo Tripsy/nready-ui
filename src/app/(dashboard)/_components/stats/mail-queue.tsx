@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { FormFiltersSelect } from '@/app/(dashboard)/_components/form-filters.component';
 import {
 	PanelBody,
@@ -9,15 +9,28 @@ import {
 	type PanelView,
 } from '@/app/(dashboard)/_components/stats/panel.component';
 import { Badge, type BadgeVariant } from '@/components/ui/badge';
+import { getLanguageClient } from '@/config/translate.setup';
 import { timeAgo } from '@/helpers/date.helper';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
 import { requestFind } from '@/helpers/services.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type MailQueueModel,
 	type MailQueueStatus,
 	MailQueueStatusEnum,
 } from '@/models/mail-queue.model';
+
+const TRANSLATION_KEYS = [
+	'dashboard.field.status',
+	'dashboard.text.failed_to_load_mail_queue',
+	'dashboard.text.no_mail_queue_entries_found',
+	'dashboard.text.all_statuses',
+	...enumTranslationKeys('mail-queue.status', MailQueueStatusEnum),
+] as const;
 
 const ENTRY_LIMIT = 10;
 
@@ -26,11 +39,6 @@ const FILTER_ALL = 'all';
 
 type StatusFilter = MailQueueStatus | typeof FILTER_ALL;
 
-const statusOptions = [
-	{ label: 'All statuses', value: FILTER_ALL },
-	...toOptionsFromEnum(MailQueueStatusEnum, { formatter: formatEnumLabel }),
-];
-
 const STATUS_VARIANT: Record<MailQueueStatus, BadgeVariant> = {
 	[MailQueueStatusEnum.ERROR]: 'error',
 	[MailQueueStatusEnum.PENDING]: 'warning',
@@ -38,6 +46,26 @@ const STATUS_VARIANT: Record<MailQueueStatus, BadgeVariant> = {
 };
 
 export function useMailQueuePanel(): PanelView {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const statusOptions = useMemo(
+		() => [
+			{
+				label: translations['dashboard.text.all_statuses'],
+				value: FILTER_ALL,
+			},
+			...toOptionsFromEnum(MailQueueStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'mail-queue.status',
+						value,
+					),
+			}),
+		],
+		[translations],
+	);
+
 	// Opens on failures: a queue that sent everything needs no attention, a stuck one does.
 	const [status, setStatus] = useState<StatusFilter>(
 		MailQueueStatusEnum.ERROR,
@@ -69,7 +97,7 @@ export function useMailQueuePanel(): PanelView {
 		isAlert: status === MailQueueStatusEnum.ERROR,
 		filters: (
 			<FormFiltersSelect<{ status: StatusFilter }>
-				labelText="Status"
+				labelText={translations['dashboard.field.status']}
 				fieldName="status"
 				fieldValue={status}
 				options={statusOptions}
@@ -81,11 +109,18 @@ export function useMailQueuePanel(): PanelView {
 				isLoading={isLoading}
 				isError={isError}
 				isEmpty={!data || data.entries.length === 0}
-				errorText="Failed to load mail queue"
-				emptyText="No mail queue entries found"
+				errorText={
+					translations['dashboard.text.failed_to_load_mail_queue']
+				}
+				emptyText={
+					translations['dashboard.text.no_mail_queue_entries_found']
+				}
 			>
 				{data?.entries.map((entry) => (
-					<PanelRow key={entry.id} aside={timeAgo(entry.created_at)}>
+					<PanelRow
+						key={entry.id}
+						aside={timeAgo(entry.created_at, getLanguageClient())}
+					>
 						<p className="font-medium truncate">
 							{entry.to.address}
 						</p>
@@ -94,7 +129,11 @@ export function useMailQueuePanel(): PanelView {
 								size="xs"
 								variant={STATUS_VARIANT[entry.status]}
 							>
-								{formatEnumLabel(entry.status)}
+								{translateEnumLabel(
+									translations,
+									'mail-queue.status',
+									entry.status,
+								)}
 							</Badge>
 							{entry.template ? (
 								<span className="text-sm text-muted truncate">

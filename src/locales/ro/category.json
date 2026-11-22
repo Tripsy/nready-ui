@@ -95,5 +95,56 @@
 		"tab_info": "Info",
 		"tab_api": "Documentație API",
 		"tab_public": "API public"
+	},
+	"field": {
+		"id": "ID",
+		"type": "Tip",
+		"label": "Etichetă",
+		"parent": "Părinte",
+		"status": "Status",
+		"created_at": "Creat la",
+		"search": "ID / Etichetă",
+		"language": "Limbă",
+		"slug": "Slug",
+		"description": "Descriere",
+		"meta_title": "Meta titlu",
+		"meta_description": "Meta descriere",
+		"meta_keywords": "Meta cuvinte cheie",
+		"parent_id": "Părinte",
+		"sort_order": "Ordine de sortare",
+		"updated_at": "Actualizat la",
+		"deleted_at": "Șters la"
+	},
+	"section": {
+		"language_specific": "Specifică limbii",
+		"info": "Info",
+		"timestamps": "Marcaje de timp"
+	},
+	"text": {
+		"placeholder_label": "ex.: Ghiduri de călătorie",
+		"placeholder_slug": "Derivat din etichetă dacă rămâne gol",
+		"not_inherited": "nemoștenit",
+		"edit": "Editează",
+		"delete": "Șterge",
+		"attributes": "Atribute",
+		"add_attribute": "Adaugă atribut",
+		"update": "Actualizează",
+		"placeholder_parent_id": "Nivel superior",
+		"view_details": "Vezi detalii",
+		"label_update": "Actualizează {{label}}",
+		"label_delete": "Șterge {{label}}",
+		"language_specific": "Specifică limbii",
+		"attribute_order_failed": "Ordinea atributelor nu a putut fi salvată.",
+		"attributes_intro": "Ce trebuie să spună despre sine un produs din {{label}}. O subcategorie le moștenește, cu excepția cazului în care definește ea însăși aceeași etichetă, iar valorile se completează pe produs.",
+		"badge_required": "obligatoriu",
+		"badge_filterable": "filtrabil",
+		"attributes_load_failed": "Atributele acestei categorii nu au putut fi încărcate.",
+		"no_attributes": "Niciun atribut declarat - unui produs de aici nu i se cere nimic în afara propriilor câmpuri."
+	},
+	"enum": {
+		"type": {
+			"article": "Articol",
+			"product": "Produs"
+		}
 	}
 }

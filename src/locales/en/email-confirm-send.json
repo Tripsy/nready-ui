@@ -27,7 +27,6 @@
 	"message": {
 		"not_active": "No account using this email address was found",
 		"not_allowed": "This account is not allowed / required to confirm its email address",
-		"success": "Success! The confirmation email has been sent successfully.",
 		"failed": "The confirmation email could not be sent."
 	}
 }

@@ -18,10 +18,21 @@ import {
 import type { FindFunctionResponseType } from '@/types/action.type';
 import type { DataSourceKey } from '@/types/data-source.key';
 
+/** Spread into a component's TRANSLATION_KEYS to resolve every `labelKey` below. */
+export const TARGET_LABEL_KEYS = [
+	'discount.text.target_client',
+	'discount.text.target_category',
+	'discount.text.target_brand',
+	'discount.text.target_product',
+	'discount.text.target_variant',
+] as const;
+
+type TargetLabelKey = (typeof TARGET_LABEL_KEYS)[number];
+
 type TargetSource = {
 	dataSource: DataSourceKey;
-	/** Plural, and used as written - "Targeted Brands", "Search brands…". */
-	label: string;
+	/** The plural name's translation key, as in "Targeted Brands". */
+	labelKey: TargetLabelKey;
 	// biome-ignore lint/suspicious/noExplicitAny: one map over five unrelated models
 	getOptionLabel: (entry: any) => string;
 	/** Extra filter params the data source needs beyond the search itself. */
@@ -40,12 +51,12 @@ type TargetSource = {
 export const TARGET_SOURCES: Record<DiscountTargetScope, TargetSource> = {
 	[DiscountScopeEnum.CLIENT]: {
 		dataSource: 'client',
-		label: 'Clients',
+		labelKey: 'discount.text.target_client',
 		getOptionLabel: (entry: ClientModel) => displayClientLabel(entry),
 	},
 	[DiscountScopeEnum.CATEGORY]: {
 		dataSource: 'category',
-		label: 'Categories',
+		labelKey: 'discount.text.target_category',
 		/*
 		 * The backend defaults this filter to `article`, so without it a discount could only
 		 * ever be pointed at blog categories - never at the product tree it is meant for.
@@ -56,7 +67,7 @@ export const TARGET_SOURCES: Record<DiscountTargetScope, TargetSource> = {
 	},
 	[DiscountScopeEnum.BRAND]: {
 		dataSource: 'brand',
-		label: 'Brands',
+		labelKey: 'discount.text.target_brand',
 		getOptionLabel: (entry: BrandModel) => displayBrandLabel(entry),
 	},
 	/*
@@ -66,12 +77,12 @@ export const TARGET_SOURCES: Record<DiscountTargetScope, TargetSource> = {
 	 */
 	[DiscountScopeEnum.PRODUCT]: {
 		dataSource: 'product',
-		label: 'Products',
+		labelKey: 'discount.text.target_product',
 		getOptionLabel: (entry: ProductModel) => displayProductLabel(entry),
 	},
 	[DiscountScopeEnum.VARIANT]: {
 		dataSource: 'product-variant',
-		label: 'Variants',
+		labelKey: 'discount.text.target_variant',
 		getOptionLabel: (entry: ProductVariantModel) =>
 			displayProductVariantLabel(entry),
 	},

@@ -141,5 +141,55 @@
 		"tab_api": "API docs",
 		"tab_public": "Public API",
 		"tab_subscription": "Subscriptions API"
+	},
+	"field": {
+		"id": "ID",
+		"entity_type": "Target",
+		"content": "Comment",
+		"parent_id": "Thread",
+		"type": "Type",
+		"user_id": "User ID",
+		"status": "Status",
+		"created_at": "Created At",
+		"search": "Content / Guest",
+		"entity_id": "Target ID",
+		"is_pinned": "Pinned",
+		"user": "Author",
+		"is_staff": "Staff",
+		"thread": "Thread",
+		"reply_count": "Replies",
+		"email": "Email",
+		"guest_website": "Website",
+		"moderated_at": "Moderated At",
+		"moderated_by": "Moderated By",
+		"moderation_reason": "Reason",
+		"updated_at": "Updated At"
+	},
+	"text": {
+		"change_comment_status_to": "Change comment status to:",
+		"guest_named": "{{name}} (guest)",
+		"thread_root": "Root",
+		"thread_reply": "Reply to #{{id}}",
+		"pinned": "Pinned",
+		"not_pinned": "Not pinned",
+		"pin_to_top": "Pin to the top of the thread"
+	},
+	"section": {
+		"comment": "Comment",
+		"target": "Target",
+		"author": "Author",
+		"moderation": "Moderation",
+		"timestamps": "Timestamps"
+	},
+	"enum": {
+		"entity_type": {
+			"article": "Article",
+			"review": "Review"
+		},
+		"type": {
+			"comment": "Comment",
+			"question": "Question",
+			"tip": "Tip"
+		}
 	}
 }

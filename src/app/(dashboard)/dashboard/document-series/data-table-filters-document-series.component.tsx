@@ -9,21 +9,44 @@ import {
 } from '@/app/(dashboard)/_components/form-filters.component';
 import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { DocumentSeriesDataTableFiltersType } from '@/app/(dashboard)/dashboard/document-series/document-series.definition';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type DocumentType,
 	DocumentTypeEnum,
-	DocumentTypeLabels,
 } from '@/models/document-series.model';
 
-const documentTypes = Object.values(DocumentTypeEnum).map((value) => ({
-	label: DocumentTypeLabels[value],
-	value,
-}));
+const TRANSLATION_KEYS = [
+	'document-series.field.document_type',
+	'document-series.field.search',
+	...enumTranslationKeys(
+		'document-series.enum.document_type',
+		DocumentTypeEnum,
+	),
+] as const;
 
 export const DataTableFiltersDocumentSeries = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const documentTypes = useMemo(
+		() =>
+			Object.values(DocumentTypeEnum).map((value) => ({
+				label: translateEnumLabel(
+					translations,
+					'document-series.enum.document_type',
+					value,
+				),
+				value,
+			})),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'document-series'>();
 
@@ -65,12 +88,12 @@ export const DataTableFiltersDocumentSeries = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<DocumentSeriesDataTableFiltersType>
-				labelText="ID / Code"
+				labelText={translations['document-series.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<DocumentSeriesDataTableFiltersType>
-				labelText="Document type"
+				labelText={translations['document-series.field.document_type']}
 				fieldName="document_type"
 				fieldValue={filters.document_type.value}
 				options={documentTypes}

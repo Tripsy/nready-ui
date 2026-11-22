@@ -12,21 +12,84 @@ import Routes from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
 import { formatDate } from '@/helpers/date.helper';
 import { DisplayAmount, DisplayStatus } from '@/helpers/display.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
-import type {
-	BillingDetails,
-	InvoiceLineModel,
-	InvoiceModel,
-	InvoicePaymentModel,
-	SellerDetails,
+import {
+	enumTranslationKeys,
+	replaceVars,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
+import {
+	type BillingDetails,
+	displayInvoiceLabel,
+	InvoiceLineKindEnum,
+	type InvoiceLineModel,
+	type InvoiceModel,
+	type InvoicePaymentModel,
+	InvoiceScopeEnum,
+	InvoiceStatusEnum,
+	type SellerDetails,
 } from '@/models/invoice.model';
-import { displayInvoiceLabel, InvoiceStatusEnum } from '@/models/invoice.model';
 import type { Currency } from '@/types/common.type';
 
+const TRANSLATION_KEYS = [
+	'invoice.field.address',
+	'invoice.field.amount',
+	'invoice.field.bank',
+	'invoice.field.cash_flow',
+	'invoice.field.created_at',
+	'invoice.field.cui',
+	'invoice.field.date',
+	'invoice.field.discount',
+	'invoice.field.due_at',
+	'invoice.field.email',
+	'invoice.field.exchange_rate',
+	'invoice.field.iban',
+	'invoice.field.id',
+	'invoice.field.issued_at',
+	'invoice.field.kind',
+	'invoice.field.label',
+	'invoice.field.name',
+	'invoice.field.notes',
+	'invoice.field.order_id',
+	'invoice.field.paid_at',
+	'invoice.field.parent_invoice_id',
+	'invoice.field.phone',
+	'invoice.field.qty',
+	'invoice.field.reg_com',
+	'invoice.field.scope',
+	'invoice.field.total',
+	'invoice.field.total_discount_reduction',
+	'invoice.field.total_gross',
+	'invoice.field.total_net',
+	'invoice.field.total_vat',
+	'invoice.field.unit_price',
+	'invoice.field.updated_at',
+	'invoice.field.vat',
+	'invoice.section.billed_to',
+	'invoice.section.info',
+	'invoice.section.issued_by',
+	'invoice.section.timestamps',
+	'invoice.text.details',
+	'invoice.text.lines',
+	'invoice.text.nothing_has_been_allocated_against_this',
+	'invoice.text.payments',
+	'invoice.text.print_pdf',
+	'invoice.text.this_invoice_has_no_lines',
+	'invoice.field.amount_allocated',
+	'invoice.text.not_registered',
+	'invoice.text.overdue_since',
+	...enumTranslationKeys('invoice.enum.line_kind', InvoiceLineKindEnum),
+	...enumTranslationKeys('invoice.enum.scope', InvoiceScopeEnum),
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
+
 function ViewInvoiceLines({
+	translations,
 	lines,
 	currency,
 }: {
+	translations: TranslationsType;
 	lines: InvoiceLineModel[];
 	currency: Currency;
 }) {
@@ -36,21 +99,25 @@ function ViewInvoiceLines({
 				<thead>
 					<tr>
 						<th className="text-left py-2 px-2 font-medium">
-							Kind
+							{translations['invoice.field.kind']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Label
-						</th>
-						<th className="text-left py-2 px-2 font-medium">Qty</th>
-						<th className="text-left py-2 px-2 font-medium">
-							Unit Price
-						</th>
-						<th className="text-left py-2 px-2 font-medium">VAT</th>
-						<th className="text-left py-2 px-2 font-medium">
-							Discount
+							{translations['invoice.field.label']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Total
+							{translations['invoice.field.qty']}
+						</th>
+						<th className="text-left py-2 px-2 font-medium">
+							{translations['invoice.field.unit_price']}
+						</th>
+						<th className="text-left py-2 px-2 font-medium">
+							{translations['invoice.field.vat']}
+						</th>
+						<th className="text-left py-2 px-2 font-medium">
+							{translations['invoice.field.discount']}
+						</th>
+						<th className="text-left py-2 px-2 font-medium">
+							{translations['invoice.field.total']}
 						</th>
 					</tr>
 				</thead>
@@ -61,7 +128,11 @@ function ViewInvoiceLines({
 							className="border-t border-line hover:bg-surface-secondary/30"
 						>
 							<td className="py-2 px-3">
-								{formatEnumLabel(line.kind)}
+								{translateEnumLabel(
+									translations,
+									'invoice.enum.line_kind',
+									line.kind,
+								)}
 							</td>
 							<td className="py-2 px-3">{line.label}</td>
 							<td className="py-2 px-3">{line.quantity}</td>
@@ -97,9 +168,11 @@ function ViewInvoiceLines({
 }
 
 function ViewInvoicePayments({
+	translations,
 	payments,
 	currency,
 }: {
+	translations: TranslationsType;
 	payments: InvoicePaymentModel[];
 	currency: Currency;
 }) {
@@ -108,15 +181,17 @@ function ViewInvoicePayments({
 			<table className="w-full text-sm">
 				<thead>
 					<tr>
-						<th className="text-left py-2 px-2 font-medium">ID</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Cash Flow
+							{translations['invoice.field.id']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Amount
+							{translations['invoice.field.cash_flow']}
 						</th>
 						<th className="text-left py-2 px-2 font-medium">
-							Date
+							{translations['invoice.field.amount']}
+						</th>
+						<th className="text-left py-2 px-2 font-medium">
+							{translations['invoice.field.date']}
 						</th>
 					</tr>
 				</thead>
@@ -149,8 +224,10 @@ function ViewInvoicePayments({
 
 /** A frozen party, printed as the document carries it. */
 function ViewInvoiceParty({
+	translations,
 	details,
 }: {
+	translations: TranslationsType;
 	details: BillingDetails | SellerDetails;
 }) {
 	const name =
@@ -172,36 +249,68 @@ function ViewInvoiceParty({
 
 	return (
 		<>
-			<ViewField label="Name" value={name} />
+			<ViewField
+				label={translations['invoice.field.name']}
+				value={name}
+			/>
 			{'company_cui' in details && details.company_cui && (
-				<ViewField label="CUI" value={details.company_cui} />
+				<ViewField
+					label={translations['invoice.field.cui']}
+					value={details.company_cui}
+				/>
 			)}
 			{'company_reg_com' in details && details.company_reg_com && (
-				<ViewField label="Reg. Com." value={details.company_reg_com} />
+				<ViewField
+					label={translations['invoice.field.reg_com']}
+					value={details.company_reg_com}
+				/>
 			)}
 			{/* `null` states the seller is not VAT-registered; an older snapshot lacks the key */}
 			{'company_vat_number' in details && (
 				<ViewField
-					label="VAT"
-					value={details.company_vat_number ?? 'Not registered'}
+					label={translations['invoice.field.vat']}
+					value={
+						details.company_vat_number ??
+						translations['invoice.text.not_registered']
+					}
 				/>
 			)}
-			<ViewField label="Address" value={address || '-'} full />
+			<ViewField
+				label={translations['invoice.field.address']}
+				value={address || '-'}
+				full
+			/>
 			{details.contact_email && (
-				<ViewField label="Email" value={details.contact_email} />
+				<ViewField
+					label={translations['invoice.field.email']}
+					value={details.contact_email}
+				/>
 			)}
 			{details.contact_phone && (
-				<ViewField label="Phone" value={details.contact_phone} />
+				<ViewField
+					label={translations['invoice.field.phone']}
+					value={details.contact_phone}
+				/>
 			)}
-			{details.iban && <ViewField label="IBAN" value={details.iban} />}
+			{details.iban && (
+				<ViewField
+					label={translations['invoice.field.iban']}
+					value={details.iban}
+				/>
+			)}
 			{details.bank_name && (
-				<ViewField label="Bank" value={details.bank_name} />
+				<ViewField
+					label={translations['invoice.field.bank']}
+					value={details.bank_name}
+				/>
 			)}
 		</>
 	);
 }
 
 export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const lines = entry.lines ?? [];
 	const payments = entry.payments ?? [];
 
@@ -236,22 +345,24 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 						className="ml-auto"
 					>
 						<Printer aria-hidden="true" className="size-3.5" />
-						Print / PDF
+						{translations['invoice.text.print_pdf']}
 					</Link>
 				)}
 			</div>
 
 			<Tabs defaultSelectedKey="details" className="w-full">
 				<TabsList>
-					<TabsTrigger id="details">Details</TabsTrigger>
+					<TabsTrigger id="details">
+						{translations['invoice.text.details']}
+					</TabsTrigger>
 					<TabsTrigger id="lines">
-						Lines
+						{translations['invoice.text.lines']}
 						<span className="ml-1.5 text-xs text-muted">
 							{lines.length}
 						</span>
 					</TabsTrigger>
 					<TabsTrigger id="payments">
-						Payments
+						{translations['invoice.text.payments']}
 						<span className="ml-1.5 text-xs text-muted">
 							{payments.length}
 						</span>
@@ -259,14 +370,21 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 				</TabsList>
 
 				<TabsContent id="details" className="space-y-6">
-					<ViewSection title="Info" layout="rows">
+					<ViewSection
+						title={translations['invoice.section.info']}
+						layout="rows"
+					>
 						<ViewRow>
 							<ViewField
-								label="Scope"
-								value={formatEnumLabel(entry.scope)}
+								label={translations['invoice.field.scope']}
+								value={translateEnumLabel(
+									translations,
+									'invoice.enum.scope',
+									entry.scope,
+								)}
 							/>
 							<ViewField
-								label="Issued At"
+								label={translations['invoice.field.issued_at']}
 								value={
 									entry.issued_at
 										? formatDate(
@@ -279,13 +397,19 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 							{/* A document raised from a bare cash flow entry bills no order */}
 							{entry.order_id && (
 								<ViewField
-									label="Order"
+									label={
+										translations['invoice.field.order_id']
+									}
 									value={`#${entry.order_id}`}
 								/>
 							)}
 							{entry.parent_invoice_id && (
 								<ViewField
-									label="Credits Invoice"
+									label={
+										translations[
+											'invoice.field.parent_invoice_id'
+										]
+									}
 									value={`#${entry.parent_invoice_id}`}
 								/>
 							)}
@@ -300,7 +424,7 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 							}
 						>
 							<ViewField
-								label="Net"
+								label={translations['invoice.field.total_net']}
 								value={
 									<DisplayAmount
 										amount={entry.total_net}
@@ -309,7 +433,7 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 								}
 							/>
 							<ViewField
-								label="VAT"
+								label={translations['invoice.field.total_vat']}
 								value={
 									<DisplayAmount
 										amount={entry.total_vat}
@@ -319,7 +443,11 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 							/>
 							{entry.total_discount_reduction > 0 && (
 								<ViewField
-									label="Discount"
+									label={
+										translations[
+											'invoice.field.total_discount_reduction'
+										]
+									}
 									value={
 										<DisplayAmount
 											amount={
@@ -331,7 +459,9 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 								/>
 							)}
 							<ViewField
-								label="Total"
+								label={
+									translations['invoice.field.total_gross']
+								}
 								value={
 									<DisplayAmount
 										amount={entry.total_gross}
@@ -343,7 +473,11 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 
 						<ViewRow>
 							<ViewField
-								label="Allocated"
+								label={
+									translations[
+										'invoice.field.amount_allocated'
+									]
+								}
 								value={
 									<DisplayAmount
 										amount={allocated}
@@ -352,7 +486,7 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 								}
 							/>
 							<ViewField
-								label="Due At"
+								label={translations['invoice.field.due_at']}
 								value={
 									entry.due_at ? (
 										<>
@@ -363,10 +497,17 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 											{/* Never cleared once stamped, so it reads "was late", not "is late now" */}
 											{entry.overdue_at && (
 												<span className="ml-2 text-danger">
-													overdue since{' '}
-													{formatDate(
-														entry.overdue_at,
-														'default',
+													{replaceVars(
+														translations[
+															'invoice.text.overdue_since'
+														],
+														{
+															date:
+																formatDate(
+																	entry.overdue_at,
+																	'default',
+																) ?? '',
+														},
 													)}
 												</span>
 											)}
@@ -377,7 +518,7 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 								}
 							/>
 							<ViewField
-								label="Paid At"
+								label={translations['invoice.field.paid_at']}
 								value={
 									entry.paid_at
 										? formatDate(entry.paid_at, 'date-time')
@@ -389,7 +530,11 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 						{entry.currency !== Configuration.currency() && (
 							<ViewRow>
 								<ViewField
-									label="Exchange Rate"
+									label={
+										translations[
+											'invoice.field.exchange_rate'
+										]
+									}
 									value={entry.exchange_rate}
 								/>
 							</ViewRow>
@@ -398,7 +543,7 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 						{entry.notes && (
 							<ViewRow>
 								<ViewField
-									label="Notes"
+									label={translations['invoice.field.notes']}
 									value={entry.notes}
 									full
 								/>
@@ -407,24 +552,36 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 					</ViewSection>
 
 					{entry.billing_details && (
-						<ViewSection title="Billed To">
-							<ViewInvoiceParty details={entry.billing_details} />
+						<ViewSection
+							title={translations['invoice.section.billed_to']}
+						>
+							<ViewInvoiceParty
+								translations={translations}
+								details={entry.billing_details}
+							/>
 						</ViewSection>
 					)}
 
 					{entry.seller_details && (
-						<ViewSection title="Issued By">
-							<ViewInvoiceParty details={entry.seller_details} />
+						<ViewSection
+							title={translations['invoice.section.issued_by']}
+						>
+							<ViewInvoiceParty
+								translations={translations}
+								details={entry.seller_details}
+							/>
 						</ViewSection>
 					)}
 
-					<ViewSection title="Timestamps">
+					<ViewSection
+						title={translations['invoice.section.timestamps']}
+					>
 						<ViewField
-							label="Created At"
+							label={translations['invoice.field.created_at']}
 							value={formatDate(entry.created_at, 'date-time')}
 						/>
 						<ViewField
-							label="Updated At"
+							label={translations['invoice.field.updated_at']}
 							value={formatDate(entry.updated_at, 'date-time')}
 						/>
 					</ViewSection>
@@ -434,10 +591,15 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 					<ViewSection layout="rows">
 						{lines.length === 0 ? (
 							<p className="text-sm text-muted">
-								This invoice has no lines.
+								{
+									translations[
+										'invoice.text.this_invoice_has_no_lines'
+									]
+								}
 							</p>
 						) : (
 							<ViewInvoiceLines
+								translations={translations}
 								lines={lines}
 								currency={entry.currency}
 							/>
@@ -449,11 +611,15 @@ export function ViewInvoice({ entry }: { entry: InvoiceModel }) {
 					<ViewSection layout="rows">
 						{payments.length === 0 ? (
 							<p className="text-sm text-muted">
-								Nothing has been allocated against this invoice
-								yet.
+								{
+									translations[
+										'invoice.text.nothing_has_been_allocated_against_this'
+									]
+								}
 							</p>
 						) : (
 							<ViewInvoicePayments
+								translations={translations}
 								payments={payments}
 								currency={entry.currency}
 							/>

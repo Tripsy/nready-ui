@@ -55,5 +55,34 @@
 		"note": "Deleting a term is a soft delete and nothing checks what points at it, so records already using it keep resolving. The duplicate rule ignores deleted rows, which frees the wording immediately - and means a restore fails once another term of that type has taken it.",
 		"tab_info": "Info",
 		"tab_api": "API docs"
+	},
+	"field": {
+		"search": "ID / Value",
+		"type": "Type",
+		"language": "Language",
+		"value": "Value",
+		"id": "ID",
+		"contents": "Value",
+		"created_at": "Created At",
+		"updated_at": "Updated At",
+		"deleted_at": "Deleted At"
+	},
+	"section": {
+		"language_specific": "Language specific",
+		"wording": "Wording",
+		"timestamps": "Timestamps"
+	},
+	"text": {
+		"placeholder_value": "e.g.: Waterproof",
+		"not_translated": "not translated"
+	},
+	"enum": {
+		"type": {
+			"tag": "Tag",
+			"attribute_label": "Attribute Label",
+			"attribute_value": "Attribute Value",
+			"text": "Text",
+			"bundle_choice": "Bundle Choice"
+		}
 	}
 }

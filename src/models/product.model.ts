@@ -179,6 +179,12 @@ export type ProductPriceType = {
  * product carries `is_default`, and SKUs are unique within the set.
  */
 export type ProductVariantType = {
+	/**
+	 * Present on a stored variant, absent on a row the form has yet to save. Read-only: the API
+	 * keys a variant on `sku`, so a payload never needs it. What the stock endpoints address a
+	 * variant by.
+	 */
+	id?: number;
 	sku: string;
 	barcode: string | null;
 	// Both nullable on the backend, where `nonNegative` is an optional check.
@@ -243,6 +249,30 @@ export type ProductListVariantType = {
 	 * `cover_image` is its first entry whenever there is one.
 	 */
 	images?: ProductCoverImageType[];
+};
+
+/**
+ * What a visitor is told about a variant's stock - a level, never a count. Mirrors the backend's
+ * `ProductStockStatusEnum` (`product-stock.service.ts`); `low_stock` is at or under the variant's
+ * own `low_stock_threshold`, `backorder` is none left with orders still taken.
+ */
+export const ProductStockStatusEnum = {
+	IN_STOCK: 'in_stock',
+	LOW_STOCK: 'low_stock',
+	BACKORDER: 'backorder',
+	OUT_OF_STOCK: 'out_of_stock',
+} as const;
+
+export type ProductStockStatus =
+	(typeof ProductStockStatusEnum)[keyof typeof ProductStockStatusEnum];
+
+/**
+ * One row of `GET /public/products/:id/stock`. `null` is "not stated" - the variant keeps no stock
+ * (a dish, a download) or the deployment keeps none - and the page then says nothing.
+ */
+export type ProductVariantStockType = {
+	variant_id: number;
+	stock_status: ProductStockStatus | null;
 };
 
 /**

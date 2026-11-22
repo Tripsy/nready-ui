@@ -1,5 +1,3 @@
-import { formatEnumLabel } from '@/helpers/string.helper';
-
 /**
  * Mirrors `rating` in the backend. The table is append-only - no `updated_at`, no `deleted_at` -
  * so the dashboard only ever reads a row or removes it; there is no create, update or restore.
@@ -160,7 +158,14 @@ const RATING_EMOJI_SYMBOLS: Record<RatingEmoji, string> = {
  * The rating as one readable cell, whichever column holds it. A like reads as a direction
  * rather than as `1` / `-1`, which says nothing on its own next to a stars row.
  */
-export const displayRatingValue = (entry: RatingModel): string => {
+/**
+ * The value cell of a rating. An emoji reaction is shown with its name, which the caller
+ * supplies already translated - the model holds no wording of its own.
+ */
+export const displayRatingValue = (
+	entry: RatingModel,
+	reactionLabel: (reaction: RatingEmoji) => string,
+): string => {
 	switch (entry.type) {
 		case RatingTypeEnum.LIKE:
 			return entry.value === 1 ? '👍 +1' : '👎 -1';
@@ -172,7 +177,7 @@ export const displayRatingValue = (entry: RatingModel): string => {
 
 		case RatingTypeEnum.EMOJI:
 			return entry.reaction
-				? `${RATING_EMOJI_SYMBOLS[entry.reaction]} ${formatEnumLabel(entry.reaction)}`
+				? `${RATING_EMOJI_SYMBOLS[entry.reaction]} ${reactionLabel(entry.reaction)}`
 				: '';
 	}
 };

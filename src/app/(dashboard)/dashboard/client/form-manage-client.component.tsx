@@ -1,12 +1,35 @@
+'use client';
+
+import { useMemo } from 'react';
 import {
 	FormComponentInput,
 	FormComponentRadio,
 	FormComponentTextarea,
 } from '@/components/form/form-element.component';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useElementIds } from '@/hooks/use-element-ids.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { type ClientType, ClientTypeEnum } from '@/models/client.model';
 import { useWindowForm } from '@/providers/window-form.provider';
+
+const TRANSLATION_KEYS = [
+	'client.field.bank_name',
+	'client.field.client_type',
+	'client.field.company_cui',
+	'client.field.company_name',
+	'client.field.company_reg_com',
+	'client.field.contact_email',
+	'client.field.contact_name',
+	'client.field.contact_phone',
+	'client.field.iban',
+	'client.field.notes',
+	'client.field.person_identification_number',
+	'client.field.person_name',
+	...enumTranslationKeys('client.enum.type', ClientTypeEnum),
+] as const;
 
 export type ClientFormValuesType = {
 	client_type: ClientType;
@@ -28,12 +51,18 @@ export type ClientFormValuesType = {
 	notes: string | null;
 };
 
-const clientTypes = Object.values(ClientTypeEnum).map((v) => ({
-	label: formatEnumLabel(v),
-	value: v,
-}));
-
 export function FormManageClient() {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const clientTypes = useMemo(
+		() =>
+			Object.values(ClientTypeEnum).map((v) => ({
+				label: translateEnumLabel(translations, 'client.enum.type', v),
+				value: v,
+			})),
+		[translations],
+	);
+
 	const { formValues, errors, handleChange, pending } =
 		useWindowForm<ClientFormValuesType>();
 
@@ -55,7 +84,7 @@ export function FormManageClient() {
 	return (
 		<>
 			<FormComponentRadio<ClientFormValuesType>
-				labelText="Type"
+				labelText={translations['client.field.client_type']}
 				id={elementIds.clientType}
 				fieldName="client_type"
 				fieldValue={formValues.client_type}
@@ -70,7 +99,7 @@ export function FormManageClient() {
 			{formValues.client_type === ClientTypeEnum.COMPANY && (
 				<>
 					<FormComponentInput<ClientFormValuesType>
-						labelText="Company - Name"
+						labelText={translations['client.field.company_name']}
 						id={elementIds.companyName}
 						fieldName="company_name"
 						fieldValue={formValues.company_name ?? ''}
@@ -84,7 +113,7 @@ export function FormManageClient() {
 
 					<div className="grid sm:grid-cols-2 gap-4">
 						<FormComponentInput<ClientFormValuesType>
-							labelText="Company - CUI"
+							labelText={translations['client.field.company_cui']}
 							id={elementIds.companyCui}
 							fieldName="company_cui"
 							fieldValue={formValues.company_cui ?? ''}
@@ -97,7 +126,9 @@ export function FormManageClient() {
 						/>
 
 						<FormComponentInput<ClientFormValuesType>
-							labelText="Company - Reg. Com"
+							labelText={
+								translations['client.field.company_reg_com']
+							}
 							id={elementIds.companyRegCom}
 							fieldName="company_reg_com"
 							fieldValue={formValues.company_reg_com ?? ''}
@@ -115,7 +146,7 @@ export function FormManageClient() {
 			{formValues.client_type === ClientTypeEnum.PERSON && (
 				<>
 					<FormComponentInput<ClientFormValuesType>
-						labelText="Person - Name"
+						labelText={translations['client.field.person_name']}
 						id={elementIds.personName}
 						fieldName="person_name"
 						fieldValue={formValues.person_name ?? ''}
@@ -128,7 +159,11 @@ export function FormManageClient() {
 					/>
 
 					<FormComponentInput<ClientFormValuesType>
-						labelText="Person - CNP"
+						labelText={
+							translations[
+								'client.field.person_identification_number'
+							]
+						}
 						id={elementIds.personCnp}
 						fieldName="person_identification_number"
 						fieldValue={
@@ -149,7 +184,7 @@ export function FormManageClient() {
 
 			<div className="grid sm:grid-cols-2 gap-4">
 				<FormComponentInput<ClientFormValuesType>
-					labelText="IBAN"
+					labelText={translations['client.field.iban']}
 					id={elementIds.iban}
 					fieldName="iban"
 					fieldValue={formValues.iban ?? ''}
@@ -160,7 +195,7 @@ export function FormManageClient() {
 				/>
 
 				<FormComponentInput<ClientFormValuesType>
-					labelText="Bank Name"
+					labelText={translations['client.field.bank_name']}
 					id={elementIds.bankName}
 					fieldName="bank_name"
 					fieldValue={formValues.bank_name ?? ''}
@@ -177,7 +212,7 @@ export function FormManageClient() {
 			>
 				{formValues.client_type === ClientTypeEnum.COMPANY && (
 					<FormComponentInput<ClientFormValuesType>
-						labelText="Contact - Name"
+						labelText={translations['client.field.contact_name']}
 						id={elementIds.contactName}
 						fieldName="contact_name"
 						fieldValue={formValues.contact_name ?? ''}
@@ -191,7 +226,7 @@ export function FormManageClient() {
 				)}
 
 				<FormComponentInput<ClientFormValuesType>
-					labelText="Contact - Email"
+					labelText={translations['client.field.contact_email']}
 					id={elementIds.contactEmail}
 					fieldName="contact_email"
 					fieldValue={formValues.contact_email ?? ''}
@@ -204,7 +239,7 @@ export function FormManageClient() {
 				/>
 
 				<FormComponentInput<ClientFormValuesType>
-					labelText="Contact - Phone"
+					labelText={translations['client.field.contact_phone']}
 					id={elementIds.contactPhone}
 					fieldName="contact_phone"
 					fieldValue={formValues.contact_phone ?? ''}
@@ -218,7 +253,7 @@ export function FormManageClient() {
 			</div>
 
 			<FormComponentTextarea<ClientFormValuesType>
-				labelText="Notes"
+				labelText={translations['client.field.notes']}
 				id={elementIds.notes}
 				fieldName="notes"
 				fieldValue={formValues.notes ?? ''}

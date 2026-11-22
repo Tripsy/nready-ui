@@ -99,17 +99,30 @@ export type CarrierDataTableFiltersType = {
 export default async function dataSourceConfig(): Promise<
 	DataSourceConfigType<CarrierModel>
 > {
-	const translations = await translateBatch(
-		[
-			'create.title',
-			'update.title',
-			'view.title',
-			'delete.title',
-			'restore.title',
-			'guide.title',
-		] as const,
-		'carrier.action',
-	);
+	const [translations, labels] = await Promise.all([
+		translateBatch(
+			[
+				'create.title',
+				'update.title',
+				'view.title',
+				'delete.title',
+				'restore.title',
+				'guide.title',
+			] as const,
+			'carrier.action',
+		),
+		translateBatch(
+			[
+				'field.created_at',
+				'field.email',
+				'field.id',
+				'field.name',
+				'field.phone',
+				'field.website',
+			] as const,
+			'carrier',
+		),
+	]);
 
 	function displayButtonView(
 		auth: AccountModel | null,
@@ -138,7 +151,7 @@ export default async function dataSourceConfig(): Promise<
 			columns: [
 				{
 					field: 'id',
-					header: 'ID',
+					header: labels['field.id'],
 					defaultWidth: 88,
 					sortable: true,
 					body: (entry, column, auth) =>
@@ -149,7 +162,7 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'name',
-					header: 'Name',
+					header: labels['field.name'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {
@@ -158,19 +171,19 @@ export default async function dataSourceConfig(): Promise<
 				},
 				{
 					field: 'website',
-					header: 'Website',
+					header: labels['field.website'],
 				},
 				{
 					field: 'phone',
-					header: 'Phone',
+					header: labels['field.phone'],
 				},
 				{
 					field: 'email',
-					header: 'Email',
+					header: labels['field.email'],
 				},
 				{
 					field: 'created_at',
-					header: 'Created At',
+					header: labels['field.created_at'],
 					sortable: true,
 					body: (entry, column) =>
 						DataTableValue(entry, column, {

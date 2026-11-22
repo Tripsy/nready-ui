@@ -11,10 +11,14 @@ import {
 import { useDataTable } from '@/app/(dashboard)/_providers/data-table.provider';
 import type { ShippingDataTableFiltersType } from '@/app/(dashboard)/dashboard/shipping/shipping.definition';
 import { toOptionsFromEnum } from '@/helpers/form.helper';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
 import { useDataTableFilterReset } from '@/hooks/use-data-table-filter-reset.hook';
 import { useSearchFilter } from '@/hooks/use-search-filter.hook';
 import { useSetFilterValues } from '@/hooks/use-set-filter-values.hook';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import {
 	type ShippingMethod,
 	ShippingMethodEnum,
@@ -24,19 +28,54 @@ import {
 	ShippingStatusEnum,
 } from '@/models/shipping.model';
 
-const statuses = toOptionsFromEnum(ShippingStatusEnum, {
-	formatter: formatEnumLabel,
-});
-
-const methods = toOptionsFromEnum(ShippingMethodEnum, {
-	formatter: formatEnumLabel,
-});
-
-const scopes = toOptionsFromEnum(ShippingScopeEnum, {
-	formatter: formatEnumLabel,
-});
+const TRANSLATION_KEYS = [
+	'shipping.field.method',
+	'shipping.field.scope',
+	'shipping.field.search',
+	'shipping.field.status',
+	...enumTranslationKeys('shipping.status', ShippingStatusEnum),
+	...enumTranslationKeys('shipping.enum.method', ShippingMethodEnum),
+	...enumTranslationKeys('shipping.enum.scope', ShippingScopeEnum),
+] as const;
 
 export const DataTableFiltersShipping = (): JSX.Element => {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const scopes = useMemo(
+		() =>
+			toOptionsFromEnum(ShippingScopeEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'shipping.enum.scope',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const methods = useMemo(
+		() =>
+			toOptionsFromEnum(ShippingMethodEnum, {
+				formatter: (value) =>
+					translateEnumLabel(
+						translations,
+						'shipping.enum.method',
+						value,
+					),
+			}),
+		[translations],
+	);
+
+	const statuses = useMemo(
+		() =>
+			toOptionsFromEnum(ShippingStatusEnum, {
+				formatter: (value) =>
+					translateEnumLabel(translations, 'shipping.status', value),
+			}),
+		[translations],
+	);
+
 	const { dataSource, dataTableStateDefault, dataTableStore } =
 		useDataTable<'shipping'>();
 
@@ -83,12 +122,12 @@ export const DataTableFiltersShipping = (): JSX.Element => {
 	return (
 		<div className="form-section flex-row flex-wrap gap-4 border-b border-line pb-4">
 			<FormFiltersSearch<ShippingDataTableFiltersType>
-				labelText="ID / Order / Tracking number"
+				labelText={translations['shipping.field.search']}
 				search={searchGlobal}
 			/>
 
 			<FormFiltersSelect<ShippingDataTableFiltersType>
-				labelText="Type"
+				labelText={translations['shipping.field.scope']}
 				fieldName="scope"
 				fieldValue={filters.scope.value}
 				options={scopes}
@@ -98,7 +137,7 @@ export const DataTableFiltersShipping = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<ShippingDataTableFiltersType>
-				labelText="Status"
+				labelText={translations['shipping.field.status']}
 				fieldName="status"
 				fieldValue={filters.status.value}
 				options={statuses}
@@ -108,7 +147,7 @@ export const DataTableFiltersShipping = (): JSX.Element => {
 			/>
 
 			<FormFiltersSelect<ShippingDataTableFiltersType>
-				labelText="Method"
+				labelText={translations['shipping.field.method']}
 				fieldName="method"
 				fieldValue={filters.method.value}
 				options={methods}

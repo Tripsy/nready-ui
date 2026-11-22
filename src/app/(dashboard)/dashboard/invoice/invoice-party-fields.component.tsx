@@ -1,12 +1,16 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import {
 	FormComponentInput,
 	FormComponentRadio,
 } from '@/components/form/form-element.component';
 import { Button } from '@/components/ui/button';
-import { formatEnumLabel } from '@/helpers/string.helper';
+import {
+	enumTranslationKeys,
+	translateEnumLabel,
+} from '@/helpers/string.helper';
+import { useTranslation } from '@/hooks/use-translation.hook';
 import { type ClientType, ClientTypeEnum } from '@/models/client.model';
 import type {
 	BillingDetails,
@@ -14,31 +18,63 @@ import type {
 	SellerDetails,
 } from '@/models/invoice.model';
 
+/** The shared address, contact and bank fields' label keys. */
+const PARTY_FIELD_KEYS = [
+	'invoice.field.party_address_country',
+	'invoice.field.party_address_region',
+	'invoice.field.party_address_city',
+	'invoice.field.party_postal_code',
+	'invoice.field.party_details',
+	'invoice.field.party_contact_name',
+	'invoice.field.party_contact_email',
+	'invoice.field.party_contact_phone',
+	'invoice.field.party_iban',
+	'invoice.field.party_bank_name',
+] as const;
+
+const TRANSLATION_KEYS = [
+	'invoice.field.type',
+	'invoice.section.buyer',
+	'invoice.section.seller',
+	'invoice.text.company_name',
+	'invoice.text.cui',
+	'invoice.text.identification_number',
+	'invoice.text.name',
+	'invoice.text.stated_by_hand',
+	'invoice.text.trade_register_no',
+	'invoice.text.use_the_automatic_details',
+	'invoice.text.vat_number',
+	'invoice.text.not_set',
+	...enumTranslationKeys('invoice.enum.client_type', ClientTypeEnum),
+	...PARTY_FIELD_KEYS,
+] as const;
+
+type TranslationsType = Record<(typeof TRANSLATION_KEYS)[number], string>;
+
 type FieldValues = Record<string, string | null>;
 
 /** The address, contact and bank fields both parties carry, in the order they are filled in. */
 const PARTY_FIELDS: {
 	field: keyof PartyDetails;
-	label: string;
+	labelKey: (typeof PARTY_FIELD_KEYS)[number];
 	isRequired?: boolean;
 	isWide?: boolean;
 }[] = [
-	{ field: 'address_country', label: 'Country', isRequired: true },
-	{ field: 'address_region', label: 'Region' },
-	{ field: 'address_city', label: 'City' },
-	{ field: 'postal_code', label: 'Postal code' },
-	{ field: 'details', label: 'Street and number', isWide: true },
-	{ field: 'contact_name', label: 'Contact name' },
-	{ field: 'contact_email', label: 'Contact email' },
-	{ field: 'contact_phone', label: 'Contact phone' },
-	{ field: 'iban', label: 'IBAN' },
-	{ field: 'bank_name', label: 'Bank' },
+	{
+		field: 'address_country',
+		labelKey: 'invoice.field.party_address_country',
+		isRequired: true,
+	},
+	{ field: 'address_region', labelKey: 'invoice.field.party_address_region' },
+	{ field: 'address_city', labelKey: 'invoice.field.party_address_city' },
+	{ field: 'postal_code', labelKey: 'invoice.field.party_postal_code' },
+	{ field: 'details', labelKey: 'invoice.field.party_details', isWide: true },
+	{ field: 'contact_name', labelKey: 'invoice.field.party_contact_name' },
+	{ field: 'contact_email', labelKey: 'invoice.field.party_contact_email' },
+	{ field: 'contact_phone', labelKey: 'invoice.field.party_contact_phone' },
+	{ field: 'iban', labelKey: 'invoice.field.party_iban' },
+	{ field: 'bank_name', labelKey: 'invoice.field.party_bank_name' },
 ];
-
-const CLIENT_TYPES = Object.values(ClientTypeEnum).map((value) => ({
-	label: formatEnumLabel(value),
-	value: value,
-}));
 
 /** What an empty buyer form starts from: an order with no billing address resolves to nothing. */
 export const EMPTY_BILLING_DETAILS: BillingDetails = {
@@ -71,9 +107,12 @@ export function isPartyIncomplete(
 }
 
 /** One line naming the party while its section is folded. */
-function summarize(party: BillingDetails | SellerDetails | null): string {
+function summarize(
+	party: BillingDetails | SellerDetails | null,
+	notSet: string,
+): string {
 	if (!party) {
-		return 'Not set';
+		return notSet;
 	}
 
 	const name =
@@ -84,7 +123,7 @@ function summarize(party: BillingDetails | SellerDetails | null): string {
 	return (
 		[name, party.address_city, party.address_country]
 			.filter((part) => part && part.trim() !== '')
-			.join(', ') || 'Not set'
+			.join(', ') || notSet
 	);
 }
 
@@ -138,6 +177,7 @@ function PartyInput({
  * relies on, while a scripted click still works.
  */
 function PartySection({
+	translations,
 	title,
 	party,
 	isCustom,
@@ -145,6 +185,7 @@ function PartySection({
 	onReset,
 	children,
 }: {
+	translations: TranslationsType;
 	title: string;
 	party: BillingDetails | SellerDetails | null;
 	isCustom: boolean;
@@ -165,10 +206,12 @@ function PartySection({
 				onClick={() => setIsOpen((previous) => !previous)}
 			>
 				<span className="font-medium">{title}</span>
-				<span className="truncate opacity-70">{summarize(party)}</span>
+				<span className="truncate opacity-70">
+					{summarize(party, translations['invoice.text.not_set'])}
+				</span>
 				{isCustom && (
 					<span className="ml-auto shrink-0 text-xs opacity-70">
-						Stated by hand
+						{translations['invoice.text.stated_by_hand']}
 					</span>
 				)}
 			</button>
@@ -190,7 +233,11 @@ function PartySection({
 							hover="warning"
 							onClick={onReset}
 						>
-							Use the automatic details
+							{
+								translations[
+									'invoice.text.use_the_automatic_details'
+								]
+							}
 						</Button>
 					</div>
 				)}
@@ -201,11 +248,13 @@ function PartySection({
 
 /** The address, contact and bank fields, laid out two to a row. */
 function PartyCommonFields({
+	translations,
 	idPrefix,
 	party,
 	disabled,
 	onChange,
 }: {
+	translations: TranslationsType;
 	idPrefix: string;
 	party: PartyDetails;
 	disabled: boolean;
@@ -213,7 +262,7 @@ function PartyCommonFields({
 }) {
 	return (
 		<div className="grid gap-3 sm:grid-cols-2">
-			{PARTY_FIELDS.map(({ field, label, isRequired, isWide }) => (
+			{PARTY_FIELDS.map(({ field, labelKey, isRequired, isWide }) => (
 				<div
 					key={field}
 					className={isWide ? 'sm:col-span-2' : undefined}
@@ -221,7 +270,7 @@ function PartyCommonFields({
 					<PartyInput
 						idPrefix={idPrefix}
 						field={field}
-						label={label}
+						label={translations[labelKey]}
 						value={party[field]}
 						isRequired={isRequired}
 						disabled={disabled}
@@ -252,6 +301,21 @@ export function BillingDetailsFields({
 	onChange: (party: BillingDetails) => void;
 	onReset?: () => void;
 }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
+	const CLIENT_TYPES = useMemo(
+		() =>
+			Object.values(ClientTypeEnum).map((value) => ({
+				label: translateEnumLabel(
+					translations,
+					'invoice.enum.client_type',
+					value,
+				),
+				value: value,
+			})),
+		[translations],
+	);
+
 	const idPrefix = useId();
 	const current = party ?? EMPTY_BILLING_DETAILS;
 
@@ -302,14 +366,15 @@ export function BillingDetailsFields({
 
 	return (
 		<PartySection
-			title="Buyer"
+			translations={translations}
+			title={translations['invoice.section.buyer']}
 			party={party}
 			isCustom={isCustom}
 			notice={notice}
 			onReset={onReset}
 		>
 			<FormComponentRadio<FieldValues>
-				labelText="Type"
+				labelText={translations['invoice.field.type']}
 				id={`${idPrefix}-type`}
 				fieldName="type"
 				fieldValue={current.type}
@@ -323,7 +388,7 @@ export function BillingDetailsFields({
 					<PartyInput
 						idPrefix={idPrefix}
 						field="person_name"
-						label="Name"
+						label={translations['invoice.text.name']}
 						value={current.person_name}
 						isRequired={true}
 						disabled={disabled}
@@ -332,7 +397,9 @@ export function BillingDetailsFields({
 					<PartyInput
 						idPrefix={idPrefix}
 						field="person_identification_number"
-						label="Identification number"
+						label={
+							translations['invoice.text.identification_number']
+						}
 						value={current.person_identification_number}
 						disabled={disabled}
 						onChange={setField}
@@ -343,7 +410,7 @@ export function BillingDetailsFields({
 					<PartyInput
 						idPrefix={idPrefix}
 						field="company_name"
-						label="Company name"
+						label={translations['invoice.text.company_name']}
 						value={current.company_name}
 						isRequired={true}
 						disabled={disabled}
@@ -352,7 +419,7 @@ export function BillingDetailsFields({
 					<PartyInput
 						idPrefix={idPrefix}
 						field="company_cui"
-						label="CUI"
+						label={translations['invoice.text.cui']}
 						value={current.company_cui}
 						disabled={disabled}
 						onChange={setField}
@@ -360,7 +427,7 @@ export function BillingDetailsFields({
 					<PartyInput
 						idPrefix={idPrefix}
 						field="company_reg_com"
-						label="Trade register no."
+						label={translations['invoice.text.trade_register_no']}
 						value={current.company_reg_com}
 						disabled={disabled}
 						onChange={setField}
@@ -369,6 +436,7 @@ export function BillingDetailsFields({
 			)}
 
 			<PartyCommonFields
+				translations={translations}
 				idPrefix={idPrefix}
 				party={current}
 				disabled={disabled}
@@ -392,6 +460,8 @@ export function SellerDetailsFields({
 	onChange: (party: SellerDetails) => void;
 	onReset?: () => void;
 }) {
+	const { translations } = useTranslation(TRANSLATION_KEYS);
+
 	const idPrefix = useId();
 
 	const { type: _type, ...emptySeller } = EMPTY_BILLING_DETAILS as Extract<
@@ -405,7 +475,8 @@ export function SellerDetailsFields({
 
 	return (
 		<PartySection
-			title="Seller"
+			translations={translations}
+			title={translations['invoice.section.seller']}
 			party={party}
 			isCustom={isCustom}
 			onReset={onReset}
@@ -414,7 +485,7 @@ export function SellerDetailsFields({
 				<PartyInput
 					idPrefix={idPrefix}
 					field="company_name"
-					label="Company name"
+					label={translations['invoice.text.company_name']}
 					value={current.company_name}
 					isRequired={true}
 					disabled={disabled}
@@ -423,7 +494,7 @@ export function SellerDetailsFields({
 				<PartyInput
 					idPrefix={idPrefix}
 					field="company_cui"
-					label="CUI"
+					label={translations['invoice.text.cui']}
 					value={current.company_cui}
 					disabled={disabled}
 					onChange={setField}
@@ -431,7 +502,7 @@ export function SellerDetailsFields({
 				<PartyInput
 					idPrefix={idPrefix}
 					field="company_reg_com"
-					label="Trade register no."
+					label={translations['invoice.text.trade_register_no']}
 					value={current.company_reg_com}
 					disabled={disabled}
 					onChange={setField}
@@ -440,7 +511,7 @@ export function SellerDetailsFields({
 				<PartyInput
 					idPrefix={idPrefix}
 					field="company_vat_number"
-					label="VAT number"
+					label={translations['invoice.text.vat_number']}
 					value={current.company_vat_number}
 					disabled={disabled}
 					onChange={setField}
@@ -448,6 +519,7 @@ export function SellerDetailsFields({
 			</div>
 
 			<PartyCommonFields
+				translations={translations}
 				idPrefix={idPrefix}
 				party={current}
 				disabled={disabled}
