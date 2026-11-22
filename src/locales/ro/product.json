@@ -326,7 +326,10 @@
 		"base_components_hint": "Mereu incluse și acoperite de prețul pachetului - fie direct, fie printr-o alegere, care ia mereu unul dintre candidați. Sunt necesare două unități incluse direct, altfel pachetul este un singur produs; un candidat nu se pune la socoteală, pentru că alegerea lui îi aparține clientului.",
 		"base_components_delta_hint": "Un candidat are o ajustare pe fiecare piață: alegerea lui adaugă propriul preț plus acea ajustare. Cum prețul pachetului acoperă deja candidatul, ajustarea este de obicei întregul lui preț, cu minus, astfel încât nu se adaugă nimic.",
 		"optional_components_hint": "Clientul le poate lua sau nu, până la cantitatea de pe fiecare.",
-		"optional_components_delta_hint": "Fiecare unitate luată adaugă prețul propriu al componentei plus ajustarea de pe rândul ei. De obicei negativă - reducerea pentru luarea ei în pachet."
+		"optional_components_delta_hint": "Fiecare unitate luată adaugă prețul propriu al componentei plus ajustarea de pe rândul ei. De obicei negativă - reducerea pentru luarea ei în pachet.",
+		"no_variant_images": "Nicio variantă nu are imagini încă.",
+		"images_loading": "Se încarcă imaginile...",
+		"images_load_failed": "Imaginile nu au putut fi încărcate."
 	},
 	"section": {
 		"stock": "Stoc pe variante",
@@ -351,7 +354,8 @@
 		"tab_options": "Opțiuni",
 		"tab_availability": "Disponibilitate",
 		"tab_price": "Preț",
-		"tab_components": "Componente"
+		"tab_components": "Componente",
+		"variant_images": "Imagini variante"
 	},
 	"enum": {
 		"workflow": {
